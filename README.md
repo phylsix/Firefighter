@@ -15,7 +15,7 @@ cmsrel CMSSW_10_2_1
 cd CMSSW_10_2_1/src
 cmsenv
 
-git clone https://wsi@gitlab.cern.ch/wsi/Firefighter.git
+git clone https://YOURCERNID@gitlab.cern.ch/wsi/Firefighter.git
 cd Firefighter
 scram b -j12
 ```
