@@ -16,6 +16,8 @@
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "TTree.h"
 
@@ -40,8 +42,13 @@ class pfJetAnalysis :
     edm::Service<TFileService> fs;
     edm::Handle<reco::PFJetCollection> jetHandle_;
     
-    edm::EDGetTokenT<reco::TrackCollection> generalTrackToken_, dSAMuToken_;
-    edm::Handle<reco::TrackCollection> generalTrackHandle_, dSAMuHandle_;
+    edm::EDGetTokenT<reco::TrackCollection> generalTrackToken_;
+    edm::EDGetTokenT<reco::TrackCollection> dSAMuToken_;
+    edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
+
+    edm::Handle<reco::TrackCollection> generalTrackHandle_;
+    edm::Handle<reco::TrackCollection> dSAMuHandle_;
+    edm::Handle<reco::GenParticleCollection> genParticleHandle_;
 
     unsigned int nJet_;
 
@@ -51,10 +58,21 @@ class pfJetAnalysis :
     std::vector<float> jetPz_;
     std::vector<float> jetEta_;
     std::vector<float> jetPhi_;
+    std::vector<float> jetLxy_;
+    std::vector<float> jetLz_;
     std::vector<int> jetChargedMultiplicity_;
+    std::vector<int> jetMuonMultiplicity_;
     std::vector<int> jetNConstituents_;
     std::vector<int> jetNTracks_;
     std::vector<int> jetSeedType_;
+
+    std::vector<float> genDarkphotonEnergy_;
+    std::vector<float> genDarkphotonPt_;
+    std::vector<float> genDarkphotonPz_;
+    std::vector<float> genDarkphotonEta_;
+    std::vector<float> genDarkphotonPhi_;
+    std::vector<float> genDarkphotonLxy_;
+    std::vector<float> genDarkphotonLz_;
 
     TTree *jetT_;
 };
