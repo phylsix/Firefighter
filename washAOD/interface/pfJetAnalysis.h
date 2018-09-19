@@ -38,16 +38,18 @@ class pfJetAnalysis :
     const edm::InputTag jetTag_;
     const edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
     const bool assignTypeAnyDsaMu_;
+    const edm::InputTag dSAMuTag_;
+    const edm::EDGetTokenT<reco::TrackCollection> dSAMuToken_;
+    const edm::ParameterSet kvfParam_;
 
     edm::Service<TFileService> fs;
     edm::Handle<reco::PFJetCollection> jetHandle_;
+    edm::Handle<reco::TrackCollection> dSAMuHandle_;
     
     edm::EDGetTokenT<reco::TrackCollection> generalTrackToken_;
-    edm::EDGetTokenT<reco::TrackCollection> dSAMuToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
 
     edm::Handle<reco::TrackCollection> generalTrackHandle_;
-    edm::Handle<reco::TrackCollection> dSAMuHandle_;
     edm::Handle<reco::GenParticleCollection> genParticleHandle_;
 
     unsigned int nJet_;
@@ -60,6 +62,15 @@ class pfJetAnalysis :
     std::vector<float> jetPhi_;
     std::vector<float> jetLxy_;
     std::vector<float> jetLz_;
+    std::vector<float> jetMatchDist_;
+    std::vector<float> jetVtxMatchDist_;
+    std::vector<float> jetVtxMatchDistT_;
+    std::vector<float> jetChargedEmEnergyFrac_;
+    std::vector<float> jetChargedHadEnergyFrac_;
+    std::vector<float> jetNeutralEmEnergyFrac_;
+    std::vector<float> jetNeutralHadEnergyFrac_;
+    std::vector<float> jetTrackImpactSig_;
+    std::vector<float> jetVtxChi2_;
     std::vector<int> jetChargedMultiplicity_;
     std::vector<int> jetMuonMultiplicity_;
     std::vector<int> jetNConstituents_;
@@ -74,7 +85,22 @@ class pfJetAnalysis :
     std::vector<float> genDarkphotonLxy_;
     std::vector<float> genDarkphotonLz_;
 
+    unsigned int ndSA_;
+    
+    std::vector<float> genMuonPt_;
+    std::vector<float> genMuonPz_;
+    std::vector<float> genMuonEta_;
+    std::vector<float> genMuonPhi_;
+
+    std::vector<float> dSAPt_;
+    std::vector<float> dSAPz_;
+    std::vector<float> dSAEta_;
+    std::vector<float> dSAPhi_;
+    std::vector<float> dSAMatchDist_;
+    std::vector<int>   dSATrackQual_;
+
     TTree *jetT_;
+    TTree *dSAT_;
 };
 
 #endif
