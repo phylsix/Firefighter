@@ -1,4 +1,5 @@
 #include "Firefighter/washAOD/interface/pfJetAnalysis.h"
+#include "Firefighter/recoStuff/interface/KalmanVertexFitterR.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -13,7 +14,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 pfJetAnalysis::pfJetAnalysis(const edm::ParameterSet& ps) :
@@ -50,7 +50,7 @@ pfJetAnalysis::fillDescriptions(edm::ConfigurationDescriptions& ds)
   _kvfp.add<int>("maxNbrOfIterations", 10);
   _kvfp.add<bool>("doSmoothing", true);
   desc.add<edm::ParameterSetDescription>("kvfParam", _kvfp);
-  
+
   ds.add("pfJetAnalysis", desc);
 }
 
@@ -404,7 +404,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     }
     if ( t_tks.size() < 2 ) { return; } // vertexing with >=2 good tracks
 
-    unique_ptr<KalmanVertexFitter> kvf(new KalmanVertexFitter(kvfParam_,
+    unique_ptr<KalmanVertexFitterR> kvf(new KalmanVertexFitterR(kvfParam_,
                                             kvfParam_.getParameter<bool>("doSmoothing")));
     TransientVertex tv = kvf->vertex(t_tks);
     if ( tv.isValid() and tv.normalisedChiSquared()<5. )

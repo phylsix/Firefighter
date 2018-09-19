@@ -1,0 +1,12 @@
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="RecoVertex/KalmanVertexFit"/>
+<use name="RecoVertex/VertexTools"/>
+<use name="RecoVertex/LinearizationPointFinders"/>
+<use name="RecoVertex/VertexPrimitives"/>
+
+<export>
+  <lib name="1"/>
+</export>

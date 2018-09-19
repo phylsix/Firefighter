@@ -16,6 +16,6 @@
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/Records"/>
 <use name="RecoVertex/VertexPrimitives"/>
-<use name="RecoVertex/KalmanVertexFit"/>
+<use name="Firefighter/recoStuff"/>
 <use name="HLTrigger/HLTcore"/>
 <flags EDM_PLUGIN="1"/>
