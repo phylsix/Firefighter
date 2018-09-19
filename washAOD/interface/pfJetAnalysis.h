@@ -18,11 +18,14 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "TTree.h"
 
 class pfJetAnalysis :
-  public edm::one::EDAnalyzer<edm::one::SharedResources>
+  public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources>
 {
   public:
     explicit pfJetAnalysis(const edm::ParameterSet&);
@@ -31,9 +34,11 @@ class pfJetAnalysis :
     static void fillDescriptions(edm::ConfigurationDescriptions&);
   
   private:
-    virtual void beginJob() override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void endJob() override;
 
     const edm::InputTag jetTag_;
     const edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
@@ -42,16 +47,29 @@ class pfJetAnalysis :
     const edm::EDGetTokenT<reco::TrackCollection> dSAMuToken_;
     const edm::ParameterSet kvfParam_;
 
+    const edm::InputTag trigResultsTag_;
+    const edm::InputTag trigEventTag_;
+    const std::string trigPathNoVer_;
+    const std::string processName_;
+    const edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
+    const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
+
     edm::Service<TFileService> fs;
     edm::Handle<reco::PFJetCollection> jetHandle_;
     edm::Handle<reco::TrackCollection> dSAMuHandle_;
+    edm::Handle<edm::TriggerResults> trigResultsHandle_;
+    edm::Handle<trigger::TriggerEvent> trigEventHandle_;
     
+    std::string trigPath_;
+    HLTConfigProvider hltConfig_;
+
     edm::EDGetTokenT<reco::TrackCollection> generalTrackToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
 
     edm::Handle<reco::TrackCollection> generalTrackHandle_;
     edm::Handle<reco::GenParticleCollection> genParticleHandle_;
 
+    bool triggered_;
     unsigned int nJet_;
 
     std::vector<float> jetEnergy_;

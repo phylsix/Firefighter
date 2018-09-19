@@ -15,6 +15,8 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+// #include "DataFormats/HLTReco/interface/TriggerObject.h"
 
 pfJetAnalysis::pfJetAnalysis(const edm::ParameterSet& ps) :
   jetTag_(ps.getParameter<edm::InputTag>("src")),
@@ -22,7 +24,13 @@ pfJetAnalysis::pfJetAnalysis(const edm::ParameterSet& ps) :
   assignTypeAnyDsaMu_(ps.getParameter<bool>("anydSAForJetType")),
   dSAMuTag_(ps.getParameter<edm::InputTag>("dsa")),
   dSAMuToken_(consumes<reco::TrackCollection>(dSAMuTag_)),
-  kvfParam_(ps.getParameter<edm::ParameterSet>("kvfParam"))
+  kvfParam_(ps.getParameter<edm::ParameterSet>("kvfParam")),
+  trigResultsTag_(ps.getParameter<edm::InputTag>("trigResult")),
+  trigEventTag_(ps.getParameter<edm::InputTag>("trigEvent")),
+  trigPathNoVer_(ps.getParameter<std::string>("trigPath")),
+  processName_(ps.getParameter<std::string>("processName")),
+  trigResultsToken_(consumes<edm::TriggerResults>(trigResultsTag_)),
+  trigEventToken_(consumes<trigger::TriggerEvent>(trigEventTag_))
 {
   using namespace std;
   using namespace edm;
@@ -51,6 +59,11 @@ pfJetAnalysis::fillDescriptions(edm::ConfigurationDescriptions& ds)
   _kvfp.add<bool>("doSmoothing", true);
   desc.add<edm::ParameterSetDescription>("kvfParam", _kvfp);
 
+  desc.add<edm::InputTag>("trigResult", edm::InputTag("TriggerResults","","HLT"));
+  desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD","","HLT"));
+  desc.add<std::string>("trigPath", "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx");
+  desc.add<std::string>("processName", "HLT");
+
   ds.add("pfJetAnalysis", desc);
 }
 
@@ -60,6 +73,7 @@ pfJetAnalysis::beginJob()
   jetT_ = fs->make<TTree>("Jet", "");
 
   jetT_->Branch("nJet", &nJet_, "nJet/i");
+  jetT_->Branch("triggered", &triggered_, "triggered/O");
   
   jetT_->Branch("genDarkphotonEnergy",    &genDarkphotonEnergy_);
   jetT_->Branch("genDarkphotonPt",        &genDarkphotonPt_);
@@ -97,6 +111,7 @@ pfJetAnalysis::beginJob()
   dSAT_ = fs->make<TTree>("dSA", "");
 
   dSAT_->Branch("ndSA", &ndSA_, "ndSA/i");
+  dSAT_->Branch("triggered", &triggered_, "triggered/O");
 
   dSAT_->Branch("genMuonPt",  &genMuonPt_);
   dSAT_->Branch("genMuonPz",  &genMuonPz_);
@@ -108,6 +123,27 @@ pfJetAnalysis::beginJob()
   dSAT_->Branch("dSAPhi", &dSAPhi_);
   dSAT_->Branch("dSAMatchDist", &dSAMatchDist_);
   dSAT_->Branch("dSATrackQual", &dSATrackQual_);
+}
+
+void
+pfJetAnalysis::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+{
+  using namespace std;
+  using namespace edm;
+
+  bool changed(true);
+  if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
+    if (changed) {
+      LogInfo("pfJetAnalysis")<<"trigEffiForMuTrack::beginRun: "<<"hltConfig init for Run"<<iRun.run();
+      hltConfig_.dump("ProcessName");
+      hltConfig_.dump("GlobalTag");
+      hltConfig_.dump("TableName");
+    }
+  } else {
+    LogError("pfJetAnalysis")<<"trigEffiForMuTrack::beginRun: config extraction failure with processName -> "
+      <<processName_;
+  }
+
 }
 
 void
@@ -139,6 +175,20 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   }
   assert( darkphotons.size()==2 );
   
+  //*****************************************************
+
+  iEvent.getByToken(trigResultsToken_, trigResultsHandle_);
+  assert( trigResultsHandle_.isValid() );
+  iEvent.getByToken(trigEventToken_, trigEventHandle_);
+  assert( trigEventHandle_.isValid() );
+
+  const vector<string>& pathNames = hltConfig_.triggerNames();
+  const vector<string> matchedPaths(hltConfig_.restoreVersion(pathNames, trigPathNoVer_));
+  if (matchedPaths.size() == 0) { return; }
+  trigPath_ = matchedPaths[0];
+  if (hltConfig_.triggerIndex(trigPath_) >= hltConfig_.size()) { return; }
+  triggered_ = trigResultsHandle_->accept(hltConfig_.triggerIndex(trigPath_));
+
   //*****************************************************
   
   iEvent.getByToken(generalTrackToken_, generalTrackHandle_);
@@ -462,6 +512,9 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
   return;
 }
+
+void
+pfJetAnalysis::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
 void
 pfJetAnalysis::endJob() {}

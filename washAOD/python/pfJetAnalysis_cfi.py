@@ -8,5 +8,11 @@ pfjetana = cms.EDAnalyzer("pfJetAnalysis",
                               maxDistance=cms.double(0.01),
                               maxNbrOfIterations=cms.int32(10),
                               doSmoothing=cms.bool(True),
-                          )
+                          ),
+                          trigResult=cms.InputTag("TriggerResults", "", "HLT"),
+                          trigEvent=cms.InputTag(
+                              "hltTriggerSummaryAOD", "", "HLT"),
+                          trigPath=cms.string(
+                              'HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx'),
+                          processName=cms.string('HLT')
                           )
