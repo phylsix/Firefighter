@@ -1,6 +1,6 @@
 *.pyc
 *.log
 *.root
-firefighter/.vscode/*
+.vscode
 messages.txt
 nohup.out
