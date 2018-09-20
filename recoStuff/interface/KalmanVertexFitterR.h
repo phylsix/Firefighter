@@ -1,7 +1,7 @@
 #ifndef recoStuff_KalmanVertexFitterR_H
 #define recoStuff_KalmanVertexFitterR_H
 
-#include "Firefighter/recoStuff/interface/SequentialVertexFitter.h"
+#include "Firefighter/recoStuff/interface/SequentialVertexFitterR.h"
 // #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
 
 /** Least-squares vertex fitter implemented in the Kalman Filter formalism 
@@ -135,7 +135,7 @@ private:
 
   edm::ParameterSet defaultParameters() const ;
 
-  const SequentialVertexFitter<5> * theSequentialFitter;
+  const SequentialVertexFitterR<5> * theSequentialFitter;
 };
 
 #endif

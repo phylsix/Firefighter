@@ -1,5 +1,5 @@
-#include "Firefighter/recoStuff/interface/SequentialVertexFitter.h"
-// #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
+#include "Firefighter/recoStuff/interface/SequentialVertexFitterR.h"
+// #include "RecoVertex/VertexTools/interface/SequentialVertexFitterR.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -21,7 +21,7 @@ namespace {
 
 
 template <unsigned int N>
-SequentialVertexFitter<N>::SequentialVertexFitter(
+SequentialVertexFitterR<N>::SequentialVertexFitterR(
   const LinearizationPointFinder & linP, 
   const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
   const AbstractLTSFactory<N> & ltsf ) : 
@@ -32,7 +32,7 @@ SequentialVertexFitter<N>::SequentialVertexFitter(
 }
 
 template <unsigned int N>
-SequentialVertexFitter<N>::SequentialVertexFitter(
+SequentialVertexFitterR<N>::SequentialVertexFitterR(
   const edm::ParameterSet& pSet, const LinearizationPointFinder & linP, 
   const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
   const AbstractLTSFactory<N> & ltsf) : 
@@ -44,8 +44,8 @@ SequentialVertexFitter<N>::SequentialVertexFitter(
 
 
 template <unsigned int N>
-SequentialVertexFitter<N>::SequentialVertexFitter(
-  const SequentialVertexFitter & original)
+SequentialVertexFitterR<N>::SequentialVertexFitterR(
+  const SequentialVertexFitterR & original)
 {
   thePSet = original.parameterSet();
   theLinP = original.linearizationPointFinder()->clone();
@@ -58,7 +58,7 @@ SequentialVertexFitter<N>::SequentialVertexFitter(
 
 
 template <unsigned int N>
-SequentialVertexFitter<N>::~SequentialVertexFitter()
+SequentialVertexFitterR<N>::~SequentialVertexFitterR()
 {
   delete theLinP;
   delete theUpdator;
@@ -68,14 +68,14 @@ SequentialVertexFitter<N>::~SequentialVertexFitter()
 
 
 template <unsigned int N>
-void SequentialVertexFitter<N>::readParameters()
+void SequentialVertexFitterR<N>::readParameters()
 {
   theMaxShift = thePSet.getParameter<double>("maxDistance"); //0.01
   theMaxStep = thePSet.getParameter<int>("maxNbrOfIterations"); //10
 }
 
 template <unsigned int N>
-void SequentialVertexFitter<N>::setDefaultParameters()
+void SequentialVertexFitterR<N>::setDefaultParameters()
 {
   thePSet.addParameter<double>("maxDistance", 0.01);
   thePSet.addParameter<int>("maxNbrOfIterations", 10); //10
@@ -84,7 +84,7 @@ void SequentialVertexFitter<N>::setDefaultParameters()
 
 template <unsigned int N>
 CachingVertex<N> 
-SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & tracks) const
+SequentialVertexFitterR<N>::vertex(const std::vector<reco::TransientTrack> & tracks) const
 {
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
@@ -100,7 +100,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & trac
 }
 
 template <unsigned int N>
-CachingVertex<N> SequentialVertexFitter<N>::vertex(
+CachingVertex<N> SequentialVertexFitterR<N>::vertex(
     const std::vector<RefCountedVertexTrack> & tracks,
     const reco::BeamSpot & spot ) const
 {
@@ -110,7 +110,7 @@ CachingVertex<N> SequentialVertexFitter<N>::vertex(
 
 template <unsigned int N>
 CachingVertex<N> 
-SequentialVertexFitter<N>::vertex(const std::vector<RefCountedVertexTrack> & tracks) const
+SequentialVertexFitterR<N>::vertex(const std::vector<RefCountedVertexTrack> & tracks) const
 {
   // Initial vertex state, with a very small weight matrix
   GlobalPoint linP = tracks[0]->linearizedTrack()->linearizationPoint();
@@ -127,7 +127,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<RefCountedVertexTrack> & tra
 //
 template <unsigned int N>
 CachingVertex<N>  
-SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & tracks, 
+SequentialVertexFitterR<N>::vertex(const std::vector<reco::TransientTrack> & tracks, 
 			       const GlobalPoint& linPoint) const
 { 
   // Initial vertex state, with a very large error matrix
@@ -146,7 +146,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & trac
    */
 template <unsigned int N>
 CachingVertex<N> 
-SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & tracks,
+SequentialVertexFitterR<N>::vertex(const std::vector<reco::TransientTrack> & tracks,
 			       const BeamSpot& beamSpot) const
 {
   VertexState beamSpotState(beamSpot);
@@ -176,7 +176,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & trac
 // weight of the prior estimate.
 //
 template <unsigned int N>
-CachingVertex<N> SequentialVertexFitter<N>::vertex(
+CachingVertex<N> SequentialVertexFitterR<N>::vertex(
   const std::vector<reco::TransientTrack> & tracks, 
   const GlobalPoint& priorPos,
   const GlobalError& priorError) const
@@ -191,7 +191,7 @@ CachingVertex<N> SequentialVertexFitter<N>::vertex(
 // This position is not used to relinearize the tracks.
 //
 template <unsigned int N>
-CachingVertex<N> SequentialVertexFitter<N>::vertex(
+CachingVertex<N> SequentialVertexFitterR<N>::vertex(
   const std::vector<RefCountedVertexTrack> & tracks, 
   const GlobalPoint& priorPos,
   const GlobalError& priorError) const
@@ -204,8 +204,8 @@ CachingVertex<N> SequentialVertexFitter<N>::vertex(
 // Construct a container of VertexTrack from a set of RecTracks.
 //
 template <unsigned int N>
-vector<typename SequentialVertexFitter<N>::RefCountedVertexTrack> 
-SequentialVertexFitter<N>::linearizeTracks(
+vector<typename SequentialVertexFitterR<N>::RefCountedVertexTrack> 
+SequentialVertexFitterR<N>::linearizeTracks(
   const std::vector<reco::TransientTrack> & tracks, 
   const VertexState state) const
 {
@@ -228,8 +228,8 @@ SequentialVertexFitter<N>::linearizeTracks(
 // recTracks will be used.
 //
 template <unsigned int N>
-vector<typename SequentialVertexFitter<N>::RefCountedVertexTrack> 
-SequentialVertexFitter<N>::reLinearizeTracks(
+vector<typename SequentialVertexFitterR<N>::RefCountedVertexTrack> 
+SequentialVertexFitterR<N>::reLinearizeTracks(
   const std::vector<RefCountedVertexTrack> & tracks, 
   const VertexState state) const
 {
@@ -256,7 +256,7 @@ SequentialVertexFitter<N>::reLinearizeTracks(
 //
 template <unsigned int N>
 CachingVertex<N> 
-SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tracks,
+SequentialVertexFitterR<N>::fit(const std::vector<RefCountedVertexTrack> & tracks,
   			    const VertexState priorVertex, bool withPrior ) const
 {
   std::vector<RefCountedVertexTrack> initialTracks;
@@ -292,13 +292,13 @@ SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tracks
     validVertex = fVertex.isValid();
     // check tracker bounds and NaN in position
     if (validVertex && hasNan(fVertex.position())) {
-      LogDebug("RecoVertex/SequentialVertexFitter") 
+      LogDebug("RecoVertex/SequentialVertexFitterR") 
 	 << "Fitted position is NaN.\n";
       validVertex = false;
     }
 
     if (validVertex && !insideTrackerBounds(fVertex.position())) {
-      LogDebug("RecoVertex/SequentialVertexFitter") 
+      LogDebug("RecoVertex/SequentialVertexFitterR") 
 	 << "Fitted position is out of tracker bounds.\n";
       validVertex = false;
     }
@@ -324,13 +324,13 @@ SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tracks
 		(!validVertex) ) );
 
   if (!validVertex) {
-    LogDebug("RecoVertex/SequentialVertexFitter") 
+    LogDebug("RecoVertex/SequentialVertexFitterR") 
        << "Fitted position is invalid (out of tracker bounds or has NaN). Returned vertex is invalid\n";
     return CachingVertex<N>(); // return invalid vertex
   }
 
   if (step >= theMaxStep) {
-    LogDebug("RecoVertex/SequentialVertexFitter") 
+    LogDebug("RecoVertex/SequentialVertexFitterR") 
        << "The maximum number of steps has been exceeded. Returned vertex is invalid\n";
     return CachingVertex<N>(); // return invalid vertex
   }
@@ -341,5 +341,5 @@ SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tracks
   return returnVertex;
 }
 
-template class SequentialVertexFitter<5>;
-template class SequentialVertexFitter<6>;
+template class SequentialVertexFitterR<5>;
+template class SequentialVertexFitterR<6>;

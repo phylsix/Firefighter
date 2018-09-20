@@ -28,14 +28,14 @@ void KalmanVertexFitterR::setup(const edm::ParameterSet& pSet,  bool useSmoothin
     KalmanTrackToTrackCovCalculator<5> covCalc;
     SequentialVertexSmoother<5> smoother(vtu, vse, covCalc);
     theSequentialFitter 
-      = new SequentialVertexFitter<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+      = new SequentialVertexFitterR<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
 				   KalmanVertexUpdator<5>(), 
 				   smoother, LinearizedTrackStateFactory());
   }
   else {
     DummyVertexSmoother<5> smoother;
     theSequentialFitter 
-      = new SequentialVertexFitter<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+      = new SequentialVertexFitterR<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
 				   KalmanVertexUpdator<5>(), 
 				   smoother, LinearizedTrackStateFactory());
   }
