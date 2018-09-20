@@ -1,8 +1,9 @@
 #!/bin/bash
 
 TAG=$1
+FRAG=$2
 DATALIST=${TAG}.list
-OUTPUT=${TAG}.root
-YEAR=2018
+OUTPUT=${FRAG}_${TAG}.root
+YEAR=2017
 
-cmsRun ../python/tuplizer_cfg.py year=${YEAR} inputFiles_load=../data/${YEAR}/${DATALIST} outputFile=${YEAR}/${OUTPUT} 2>&1
+cmsRun ../cfg/${FRAG}_cfg.py year=${YEAR} inputFiles_load=../data/${YEAR}/${DATALIST} outputFile=${YEAR}/${OUTPUT} 2>&1
