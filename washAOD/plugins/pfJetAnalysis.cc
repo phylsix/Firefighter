@@ -86,7 +86,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("genDarkphotonEta",       &genDarkphotonEta_);
   jetT_->Branch("genDarkphotonPhi",       &genDarkphotonPhi_);
   jetT_->Branch("genDarkphotonLxy",       &genDarkphotonLxy_);
-  jetT_->Branch("genDarkphotonLz",        &genDarkphotonLz_);
+  jetT_->Branch("genDarkphotonL3D",       &genDarkphotonL3D_);
 
   jetT_->Branch("jetSeedType",            &jetSeedType_);
   jetT_->Branch("jetEnergy",              &jetEnergy_);
@@ -104,7 +104,10 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetMuonMultiplicity",    &jetMuonMultiplicity_);
   jetT_->Branch("jetNConstituents",       &jetNConstituents_);
   jetT_->Branch("jetNTracks",             &jetNTracks_);
-  jetT_->Branch("jetTrackImpactSig",      &jetTrackImpactSig_);
+  jetT_->Branch("jetTrackPt",             &jetTrackPt_);
+  jetT_->Branch("jetTrackEta",            &jetTrackEta_);
+  jetT_->Branch("jetTrackD0Sig",          &jetTrackD0Sig_);
+  jetT_->Branch("jetTrackNormChi2",       &jetTrackNormChi2_);
   jetT_->Branch("jetVtxLxy",              &jetVtxLxy_);
   jetT_->Branch("jetVtxL3D",              &jetVtxL3D_);
   jetT_->Branch("jetVtxLxySig",           &jetVtxLxySig_);
@@ -337,8 +340,14 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetNeutralEmEnergyFrac_.reserve(2);
   jetNeutralHadEnergyFrac_.clear();
   jetNeutralHadEnergyFrac_.reserve(2);
-  jetTrackImpactSig_.clear();
-  jetTrackImpactSig_.reserve(4);
+  jetTrackPt_.clear();
+  jetTrackPt_.reserve(4);
+  jetTrackEta_.clear();
+  jetTrackEta_.reserve(4);
+  jetTrackD0Sig_.clear();
+  jetTrackD0Sig_.reserve(4);
+  jetTrackNormChi2_.clear();
+  jetTrackNormChi2_.reserve(4);
   jetVtxNormChi2_.clear();
   jetVtxNormChi2_.reserve(2);
   jetChargedMultiplicity_.clear();
@@ -361,8 +370,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   genDarkphotonPhi_   .reserve(2);
   genDarkphotonLxy_   .clear();
   genDarkphotonLxy_   .reserve(2);
-  genDarkphotonLz_    .clear();
-  genDarkphotonLz_    .reserve(2);
+  genDarkphotonL3D_   .clear();
+  genDarkphotonL3D_   .reserve(2);
 
   map<reco::PFJetRef, reco::GenParticleRef> jetDarkphotonMap{};
   
@@ -371,35 +380,52 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   for (size_t i(0); i!=jetHandle_->size(); ++i)
   {
     reco::PFJetRef jRef(jetHandle_, i);
-    if ( fabs(jRef->eta()) < 2.4 and
-         jRef->numberOfDaughters() > 1 and
-         jRef->neutralHadronEnergyFraction() < 0.99 and
-         jRef->neutralEmEnergyFraction() < 0.99 )
+    if ( fabs(jRef->eta()) > 2.4 or
+         jRef->numberOfDaughters() < 2 or
+         jRef->neutralHadronEnergyFraction() > 0.99 or
+         jRef->neutralEmEnergyFraction() > 0.99 )
     {
-      goodJets.push_back(jRef);
+      continue;
     }
+
+    int _ntracks(0);
+    for (int ic(0); ic!=jRef->nConstituents(); ++ic)
+    {
+      auto&& iConst(jRef->getPFConstituent(ic));
+      if ( iConst->trackRef().isNull() ) { continue; }
+      auto&& iConstTk(iConst->trackRef());
+      if ( iConstTk->pt() < 0.5 or
+           iConstTk->normalizedChi2() > 10.)
+      {
+        continue;
+      }
+      ++_ntracks;
+    }
+    if ( _ntracks<2 ) { continue; }
+    
+    goodJets.push_back(jRef);
   }
-  if ( goodJets.size()<1 ) { return; }
+  if ( goodJets.size()==0 ) { return; }
 
 
   for (const auto& dp : darkphotons)
   {
-    float darkphotonJet_dR(999.);
-    int darkphotonJet_idx(-1);
+    float darkphotonJet_mindR(999.);
+    int   darkphotonJet_bestIdx(-1);
     for (const auto& jet : goodJets)
     {
-      if ( jetDarkphotonMap.count(jet)>0 ) {continue;}
-      if ( deltaR(*(dp.get()), *(jet.get()))<darkphotonJet_dR )
+      if ( jetDarkphotonMap.count(jet)>0 ) { continue; }
+      if ( deltaR(*(dp.get()), *(jet.get()))<darkphotonJet_mindR )
       {
-        darkphotonJet_dR = deltaR(*(dp.get()), *(jet.get()));
-        darkphotonJet_idx = jet.key();
+        darkphotonJet_mindR = deltaR(*(dp.get()), *(jet.get()));
+        darkphotonJet_bestIdx = jet.key();
       }
     }
-    // cout<<darkphotonJet_idx<<" "<<jetHandle_->size()<<endl;
-    if (darkphotonJet_idx == -1 or
-        darkphotonJet_idx >= static_cast<int>( jetHandle_->size() )) { continue; };
-    if ( darkphotonJet_dR > 0.3 ) {continue;}
-    jetDarkphotonMap.emplace(reco::PFJetRef(jetHandle_, darkphotonJet_idx), dp);
+
+    if (darkphotonJet_bestIdx == -1 or
+        darkphotonJet_bestIdx >= static_cast<int>( jetHandle_->size() )) { continue; };
+    if ( darkphotonJet_mindR > 0.3 ) {continue;}
+    jetDarkphotonMap.emplace(reco::PFJetRef(jetHandle_, darkphotonJet_bestIdx), dp);
   }
 
 
@@ -414,27 +440,17 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     const auto& j  = *(j_dp.first.get());
     const auto& dp = *(j_dp.second.get());
 
-    jetEnergy_.emplace_back(j.energy());
-    jetMass_  .emplace_back(j.mass());
-    jetPt_    .emplace_back(j.pt());
-    jetPz_    .emplace_back(j.pz());
-    jetEta_   .emplace_back(j.eta());
-    jetPhi_   .emplace_back(j.phi());
-    jetChargedMultiplicity_.emplace_back(j.chargedMultiplicity());
-    jetNConstituents_      .emplace_back(j.nConstituents());
-    // jetChargedEmEnergyFrac_.emplace_back(j.chargedEmEnergyFraction());
-    jetChargedHadEnergyFrac_.emplace_back(j.chargedHadronEnergyFraction());
-    jetNeutralEmEnergyFrac_.emplace_back(j.neutralEmEnergyFraction());
-    jetNeutralHadEnergyFrac_.emplace_back(j.neutralHadronEnergyFraction());
-
+    //***********************************
+    
     vector<reco::TrackRef> tks{};
-    tks.reserve(jetNConstituents_.back());
+    tks.reserve(j.nConstituents());
+    
     int seedIndex(-1);
     float seedPt(-999.);
     bool hasDsaMu(false);
     int nMu(0); // number of mu type PFCandidates
     float chargedEmEnergy(0.);
-    for (int i(0); i!=jetNConstituents_.back(); ++i)
+    for (int i(0); i!=j.nConstituents(); ++i)
     {
       auto&& iConst(j.getPFConstituent(i));
       
@@ -460,44 +476,78 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         chargedEmEnergy += iConst->energy();
       }
     }
-    jetNTracks_.emplace_back(tks.size());
-    jetMuonMultiplicity_.emplace_back(nMu);
+
+    jetEnergy_.emplace_back(j.energy());
+    jetMass_  .emplace_back(j.mass());
+    jetPt_    .emplace_back(j.pt());
+    jetPz_    .emplace_back(j.pz());
+    jetEta_   .emplace_back(j.eta());
+    jetPhi_   .emplace_back(j.phi());
+    jetChargedMultiplicity_.emplace_back(j.chargedMultiplicity());
+    jetNConstituents_      .emplace_back(j.nConstituents());
     jetChargedEmEnergyFrac_.emplace_back( chargedEmEnergy/j.energy() );
+    jetChargedHadEnergyFrac_.emplace_back(j.chargedHadronEnergyFraction());
+    jetNeutralEmEnergyFrac_ .emplace_back(j.neutralEmEnergyFraction());
+    jetNeutralHadEnergyFrac_.emplace_back(j.neutralHadronEnergyFraction());
+    jetNTracks_         .emplace_back(tks.size());
+    jetMuonMultiplicity_.emplace_back(nMu);
 
-    // FIXME
-    if ( tks.size() < 2 ) { return; } // require at least 2 tracks to perform vertex.
+    //***********************************
 
+    /// finding the seed (own max pT) type
+    reco::PFCandidatePtr&& seed(j.getPFConstituent(seedIndex));
+    assert(seed.isNonnull());
+    int _seedtype = static_cast<int>( seed->particleId() ); // http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_8/doc/html/dc/d55/classreco_1_1PFCandidate.html#af39a4e9ae718041649773fa7ca0919bc
+    if (seed->particleId() == reco::PFCandidate::ParticleType::mu)
+    {
+        if (seed->trackRef().isNonnull() and
+            seed->trackRef().id() == dSAMuHandle_.id())
+        { _seedtype = 8; }
+    }
+    if (assignTypeAnyDsaMu_ and hasDsaMu) { _seedtype = 8; }
+    jetSeedType_.emplace_back(_seedtype);
+    
+    //***********************************
+
+    bool _foundGoodVertex = false;
     vector<reco::TransientTrack> t_tks{};
     for (const auto& tk : tks)
     {
-      if ( fabs(tk->d0())/tk->d0Error() < 2.) { continue; } // impact parameter significance
-      jetTrackImpactSig_.emplace_back (fabs(tk->d0())/tk->d0Error() );
+      jetTrackPt_ .emplace_back( tk->pt() );
+      jetTrackEta_.emplace_back( tk->eta() );
+      jetTrackD0Sig_   .emplace_back( fabs(tk->d0())/tk->d0Error() );
+      jetTrackNormChi2_.emplace_back( tk->normalizedChi2() );
+
+      // if ( fabs(tk->d0())/tk->d0Error() < 2.) { continue; }
       if ( tk->normalizedChi2()>5 ) { continue; }
-      if ( tk->pt()<0.5 ) { continue; }
+      if ( tk->pt() < 0.5 ) { continue; }
       t_tks.push_back( theB->build(tk.get()) );
     }
-    if ( t_tks.size() < 2 ) { return; } // vertexing with >=2 good tracks
-
-    unique_ptr<ff::KalmanVertexFitter> kvf(new ff::KalmanVertexFitter(kvfParam_,
-                                            kvfParam_.getParameter<bool>("doSmoothing")));
-    TransientVertex tv = kvf->vertex(t_tks);
-    if ( tv.isValid() and tv.normalisedChiSquared()<5. )
+    
+    if ( t_tks.size()>= 2 )
     {
-      // GlobalPoint pos = tv.position();
-      // GlobalError err = tv.positionError();
+      unique_ptr<ff::KalmanVertexFitter> kvf(new ff::KalmanVertexFitter(kvfParam_,
+                                            kvfParam_.getParameter<bool>("doSmoothing")));
+      TransientVertex tv = kvf->vertex(t_tks);
+      if ( tv.isValid() /*and tv.normalisedChiSquared()<5.*/ )
+      {
+        _foundGoodVertex = true;
+        
+        Measurement1D distXY = vdistXY.distance(tv.vertexState(), pv);
+        Measurement1D dist3D = vdist3D.distance(tv.vertexState(), pv);
+        jetVtxLxy_.emplace_back( distXY.value() );
+        jetVtxL3D_.emplace_back( dist3D.value() );
+        jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
+        jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
+        jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
 
-      Measurement1D distXY = vdistXY.distance(tv.vertexState(), pv);
-      Measurement1D dist3D = vdist3D.distance(tv.vertexState(), pv);
-      jetVtxLxy_.emplace_back( distXY.value() );
-      jetVtxL3D_.emplace_back( dist3D.value() );
-      jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
-      jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
-      jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
+        math::XYZPoint vtxDiff(reco::Vertex(tv).position() - dp.daughterRef(0)->vertex());
+        jetVtxMatchDistT_.emplace_back( vtxDiff.rho() );
+        jetVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
+      }
+    }
 
-      math::XYZPoint vtxDiff(reco::Vertex(tv).position() - dp.daughterRef(0)->vertex());
-      jetVtxMatchDistT_.emplace_back( vtxDiff.rho() );
-      jetVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
-    } else 
+    if ( _foundGoodVertex==false )
     {
       jetVtxLxy_   .emplace_back( NAN );
       jetVtxL3D_   .emplace_back( NAN );
@@ -508,35 +558,18 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       jetVtxMatchDist_ .emplace_back( NAN );
     }
 
+    //***********************************
 
-    // finding the seed (own max pT) type
-    reco::PFCandidatePtr&& seed(j.getPFConstituent(seedIndex));
-    assert(seed.isNonnull());
-    int _seedtype = static_cast<int>( seed->particleId() ); // http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_8/doc/html/dc/d55/classreco_1_1PFCandidate.html#af39a4e9ae718041649773fa7ca0919bc
-    if (seed->particleId() == reco::PFCandidate::ParticleType::mu)
-    {
-        // assert(seed->trackRef().isNonnull());
-        if (seed->trackRef().isNonnull() &&
-            seed->trackRef().id() == dSAMuHandle_.id())
-        {
-            _seedtype = 8;
-        }
-    }
-    if (assignTypeAnyDsaMu_ and hasDsaMu) { _seedtype = 8; }
-    jetSeedType_.emplace_back(_seedtype);
-
-
-    // Filling MC info
-    
+    /// Filling MC info
     genDarkphotonEnergy_.emplace_back(dp.energy());
     genDarkphotonPt_    .emplace_back(dp.pt());
     genDarkphotonPz_    .emplace_back(dp.pz());
     genDarkphotonEta_   .emplace_back(dp.eta());
     genDarkphotonPhi_   .emplace_back(dp.phi());
     genDarkphotonLxy_   .emplace_back((dp.daughterRef(0)->vertex()).rho());
-    genDarkphotonLz_    .emplace_back((dp.daughterRef(0)->vertex()).z());
-
-    jetMatchDist_.emplace_back( deltaR(j, dp) );
+    genDarkphotonL3D_   .emplace_back( sqrt((dp.daughterRef(0)->vertex()).mag2()) );
+    
+    jetMatchDist_       .emplace_back( deltaR(j, dp) );
 
   }
 

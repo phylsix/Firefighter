@@ -88,7 +88,10 @@ class pfJetAnalysis :
     std::vector<float> jetChargedHadEnergyFrac_;
     std::vector<float> jetNeutralEmEnergyFrac_;
     std::vector<float> jetNeutralHadEnergyFrac_;
-    std::vector<float> jetTrackImpactSig_;
+    std::vector<float> jetTrackPt_;
+    std::vector<float> jetTrackEta_;
+    std::vector<float> jetTrackD0Sig_;
+    std::vector<float> jetTrackNormChi2_;
     std::vector<float> jetVtxLxy_;
     std::vector<float> jetVtxL3D_;
     std::vector<float> jetVtxLxySig_;
@@ -108,7 +111,7 @@ class pfJetAnalysis :
     std::vector<float> genDarkphotonEta_;
     std::vector<float> genDarkphotonPhi_;
     std::vector<float> genDarkphotonLxy_;
-    std::vector<float> genDarkphotonLz_;
+    std::vector<float> genDarkphotonL3D_;
 
     unsigned int ndSA_;
     
