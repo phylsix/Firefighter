@@ -16,7 +16,10 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 // #include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include <cmath>
 
 pfJetAnalysis::pfJetAnalysis(const edm::ParameterSet& ps) :
   jetTag_(ps.getParameter<edm::InputTag>("src")),
@@ -90,21 +93,22 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetPz",                  &jetPz_);
   jetT_->Branch("jetEta",                 &jetEta_);
   jetT_->Branch("jetPhi",                 &jetPhi_);
-  jetT_->Branch("jetLxy",                 &jetLxy_);
-  jetT_->Branch("jetLz",                  &jetLz_);
   jetT_->Branch("jetMatchDist",           &jetMatchDist_);
-  jetT_->Branch("jetVtxMatchDist",        &jetVtxMatchDist_);
-  jetT_->Branch("jetVtxMatchDistT",       &jetVtxMatchDistT_);
   jetT_->Branch("jetChargedEmEnergyFrac", &jetChargedEmEnergyFrac_);
   jetT_->Branch("jetChargedHadEnergyFrac",&jetChargedHadEnergyFrac_);
   jetT_->Branch("jetNeutralEmEnergyFrac", &jetNeutralEmEnergyFrac_);
   jetT_->Branch("jetNeutralHadEnergyFrac",&jetNeutralHadEnergyFrac_);
-  jetT_->Branch("jetTrackImpactSig",      &jetTrackImpactSig_);
-  jetT_->Branch("jetVtxChi2",             &jetVtxChi2_);
   jetT_->Branch("jetChargedMultiplicity", &jetChargedMultiplicity_);
   jetT_->Branch("jetMuonMultiplicity",    &jetMuonMultiplicity_);
   jetT_->Branch("jetNConstituents",       &jetNConstituents_);
   jetT_->Branch("jetNTracks",             &jetNTracks_);
+  jetT_->Branch("jetTrackImpactSig",      &jetTrackImpactSig_);
+  jetT_->Branch("jetVtxLxy",              &jetVtxLxy_);
+  jetT_->Branch("jetVtxLz",               &jetVtxLz_);
+  jetT_->Branch("jetVtxLxySig",           &jetVtxLxySig_);
+  jetT_->Branch("jetVtxMatchDist",        &jetVtxMatchDist_);
+  jetT_->Branch("jetVtxMatchDistT",       &jetVtxMatchDistT_);
+  jetT_->Branch("jetVtxChi2",             &jetVtxChi2_);
 
   // ****************************************
 
@@ -298,10 +302,12 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetEta_     .reserve(2);
   jetPhi_     .clear();
   jetPhi_     .reserve(2);
-  jetLxy_     .clear();
-  jetLxy_     .reserve(2);
-  jetLz_      .clear();
-  jetLz_      .reserve(2);
+  jetVtxLxy_  .clear();
+  jetVtxLxy_  .reserve(2);
+  jetVtxLz_   .clear();
+  jetVtxLz_   .reserve(2);
+  jetVtxLxySig_.clear();
+  jetVtxLxySig_.reserve(2);
   jetMatchDist_.clear();
   jetMatchDist_.reserve(2);
   jetVtxMatchDist_.clear();
@@ -387,7 +393,9 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
   for (const auto& j_dp : jetDarkphotonMap)
   {
-    const auto& j = *(j_dp.first.get());
+    const auto& j  = *(j_dp.first.get());
+    const auto& dp = *(j_dp.second.get());
+
     jetEnergy_.emplace_back(j.energy());
     jetMass_  .emplace_back(j.mass());
     jetPt_    .emplace_back(j.pt());
@@ -438,8 +446,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     jetMuonMultiplicity_.emplace_back(nMu);
     jetChargedEmEnergyFrac_.emplace_back( chargedEmEnergy/j.energy() );
 
-    math::XYZPoint _jVtxPos;
-    float _vtxChi2(0.0);
+
     if ( tks.size() < 2 ) { return; } // require at least 2 tracks to perform vertex
 
     vector<reco::TransientTrack> t_tks{};
@@ -459,16 +466,26 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     TransientVertex tv = kvf->vertex(t_tks);
     if ( tv.isValid() and tv.normalisedChiSquared()<5. )
     {
-      // reco::Vertex _vtx = reco::Vertex(tv);
-      _jVtxPos = reco::Vertex(tv).position();
-      // _lxy = _vtx.position().rho();
-      // _lz  = _vtx.z();
-      _vtxChi2 = tv.normalisedChiSquared();
+      GlobalPoint pos = tv.position();
+      GlobalError err = tv.positionError();
+      jetVtxLxy_.emplace_back(pos.perp());
+      jetVtxLz_ .emplace_back(pos.z());
+      jetVtxLxySig_.emplace_back( sqrt(err.rerr(pos)) );
+      jetVtxChi2_.emplace_back(tv.normalisedChiSquared());
+
+      math::XYZPoint vtxDiff(reco::Vertex(tv).position() - dp.daughterRef(0)->vertex());
+      jetVtxMatchDistT_.emplace_back( vtxDiff.rho() );
+      jetVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
+    } else 
+    {
+      jetVtxLxy_   .emplace_back(NAN);
+      jetVtxLz_    .emplace_back(NAN);
+      jetVtxLxySig_.emplace_back(NAN);
+      jetVtxChi2_  .emplace_back(NAN);
+      jetVtxMatchDistT_.emplace_back( NAN );
+      jetVtxMatchDist_ .emplace_back( NAN );
     }
 
-    jetLxy_.emplace_back(_jVtxPos.rho());
-    jetLz_ .emplace_back(_jVtxPos.z());
-    jetVtxChi2_.emplace_back(_vtxChi2);
 
     // finding the seed (own max pT) type
     reco::PFCandidatePtr&& seed(j.getPFConstituent(seedIndex));
@@ -488,7 +505,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
 
     // Filling MC info
-    const auto& dp = *(j_dp.second.get());
+    
     genDarkphotonEnergy_.emplace_back(dp.energy());
     genDarkphotonPt_    .emplace_back(dp.pt());
     genDarkphotonPz_    .emplace_back(dp.pz());
@@ -498,10 +515,6 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     genDarkphotonLz_    .emplace_back((dp.daughterRef(0)->vertex()).z());
 
     jetMatchDist_.emplace_back( deltaR(j, dp) );
-
-    math::XYZPoint vtxDiff(_jVtxPos - dp.daughterRef(0)->vertex());
-    jetVtxMatchDistT_.emplace_back( vtxDiff.rho() );
-    jetVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
 
   }
 
