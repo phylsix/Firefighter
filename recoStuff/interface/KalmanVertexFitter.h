@@ -1,7 +1,7 @@
-#ifndef recoStuff_KalmanVertexFitterR_H
-#define recoStuff_KalmanVertexFitterR_H
+#ifndef recoStuff_KalmanVertexFitter_H
+#define recoStuff_KalmanVertexFitter_H
 
-#include "Firefighter/recoStuff/interface/SequentialVertexFitterR.h"
+#include "Firefighter/recoStuff/interface/SequentialVertexFitter.h"
 // #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
 
 /** Least-squares vertex fitter implemented in the Kalman Filter formalism 
@@ -20,7 +20,8 @@
 on track and vertex fitting" </a>
  */
 
-class KalmanVertexFitterR : public VertexFitter<5> {
+namespace ff {
+class KalmanVertexFitter : public VertexFitter<5> {
 public:
 
   /**
@@ -29,25 +30,25 @@ public:
    * \param useSmoothing Specifies whether the tracks should be refit or not.
    */
 
-  KalmanVertexFitterR(bool useSmoothing = false);
+  KalmanVertexFitter(bool useSmoothing = false);
 
   /**
    * Same as above, using a ParameterSet to set the convergence criteria
    */
 
-  KalmanVertexFitterR(const edm::ParameterSet& pSet, bool useSmoothing = false);
+  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false);
 
-  KalmanVertexFitterR(const KalmanVertexFitterR & other ) :
+  KalmanVertexFitter(const KalmanVertexFitter & other ) :
     theSequentialFitter ( other.theSequentialFitter->clone() ) {}
 
-  ~KalmanVertexFitterR() override
+  ~KalmanVertexFitter() override
   {
     delete theSequentialFitter;
   }
 
-  KalmanVertexFitterR * clone() const override
+  KalmanVertexFitter * clone() const override
   {
-    return new KalmanVertexFitterR(* this);
+    return new KalmanVertexFitter(* this);
   }
 
 public:
@@ -135,7 +136,8 @@ private:
 
   edm::ParameterSet defaultParameters() const ;
 
-  const SequentialVertexFitterR<5> * theSequentialFitter;
+  const ff::SequentialVertexFitter<5> * theSequentialFitter;
 };
+}
 
 #endif

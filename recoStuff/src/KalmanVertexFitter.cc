@@ -1,4 +1,4 @@
-#include "Firefighter/recoStuff/interface/KalmanVertexFitterR.h"
+#include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
 
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/VertexTools/interface/SequentialVertexSmoother.h"
@@ -9,40 +9,41 @@
 #include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
 
 
-KalmanVertexFitterR::KalmanVertexFitterR(bool useSmoothing )
+ff::KalmanVertexFitter::KalmanVertexFitter(bool useSmoothing )
 {
   edm::ParameterSet pSet = defaultParameters();
   setup(pSet, useSmoothing);
 }
 
-KalmanVertexFitterR::KalmanVertexFitterR(const edm::ParameterSet& pSet,  bool useSmoothing )
+ff::KalmanVertexFitter::KalmanVertexFitter(const edm::ParameterSet& pSet,  bool useSmoothing )
 {
   setup(pSet, useSmoothing);
 }
 
-void KalmanVertexFitterR::setup(const edm::ParameterSet& pSet,  bool useSmoothing )
+void ff::KalmanVertexFitter::setup(const edm::ParameterSet& pSet,  bool useSmoothing )
 {
+  std::cout<<"ff::KalmanVertexFitter::setup"<<std::endl;
   if (useSmoothing) {
     KalmanVertexTrackUpdator<5> vtu;
     KalmanSmoothedVertexChi2Estimator<5> vse;
     KalmanTrackToTrackCovCalculator<5> covCalc;
     SequentialVertexSmoother<5> smoother(vtu, vse, covCalc);
     theSequentialFitter 
-      = new SequentialVertexFitterR<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+      = new ff::SequentialVertexFitter<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
 				   KalmanVertexUpdator<5>(), 
 				   smoother, LinearizedTrackStateFactory());
   }
   else {
     DummyVertexSmoother<5> smoother;
     theSequentialFitter 
-      = new SequentialVertexFitterR<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+      = new ff::SequentialVertexFitter<5>(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
 				   KalmanVertexUpdator<5>(), 
 				   smoother, LinearizedTrackStateFactory());
   }
 }
 
 
-edm::ParameterSet KalmanVertexFitterR::defaultParameters() const 
+edm::ParameterSet ff::KalmanVertexFitter::defaultParameters() const 
 {
   edm::ParameterSet pSet;
   pSet.addParameter<double>("maxDistance", 0.01);

@@ -1,5 +1,5 @@
-#ifndef SequentialVertexFitterR_H
-#define SequentialVertexFitterR_H
+#ifndef SequentialVertexFitter_H
+#define SequentialVertexFitter_H
 
 #include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 #include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
@@ -24,15 +24,16 @@
  * The default convergence criterion is 1 mm. The default maximum 
  * number of steps is 10. 
  * These parameters can be configured in .orcarc (
- * SequentialVertexFitterR:maximumDistance and 
- * SequentialVertexFitterR:maximumNumberOfIterations). 
+ * SequentialVertexFitter:maximumDistance and 
+ * SequentialVertexFitter:maximumNumberOfIterations). 
  * After the vertex fit, the tracks can be refit with the additional
  * constraint of the vertex position.
  */
 
 
+namespace ff {
 template <unsigned int N>
-class SequentialVertexFitterR : public VertexFitter<N> {
+class SequentialVertexFitter : public VertexFitter<N> {
 
 public:
 
@@ -47,7 +48,7 @@ public:
    *   If no smoother is to be used, do not specify an instance for it.
    */
 
-  SequentialVertexFitterR(const LinearizationPointFinder & linP, 
+  SequentialVertexFitter(const LinearizationPointFinder & linP, 
       const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
       const AbstractLTSFactory<N> & ltsf);
 
@@ -55,7 +56,7 @@ public:
    *   Same as above, using a ParameterSet to set the convergence criteria
    */
 
-  SequentialVertexFitterR(const edm::ParameterSet& pSet,
+  SequentialVertexFitter(const edm::ParameterSet& pSet,
       const LinearizationPointFinder & linP, 
       const VertexUpdator<N> & updator, const VertexSmoother<N> & smoother,
       const AbstractLTSFactory<N> & ltsf);
@@ -64,10 +65,10 @@ public:
    * Copy constructor
    */
 
-  SequentialVertexFitterR(const SequentialVertexFitterR & original);
+  SequentialVertexFitter(const SequentialVertexFitter & original);
 
 
-  ~SequentialVertexFitterR() override;
+  ~SequentialVertexFitter() override;
 
 
   /**
@@ -177,8 +178,8 @@ public:
   const edm::ParameterSet parameterSet() const 
   {return thePSet;}
 
-  SequentialVertexFitterR * clone() const override {
-    return new SequentialVertexFitterR(* this);
+  SequentialVertexFitter * clone() const override {
+    return new SequentialVertexFitter(* this);
   }
 
   const AbstractLTSFactory<N> * linearizedTrackStateFactory() const 
@@ -190,7 +191,7 @@ protected:
    *   Default constructor. Is here, as we do not want anybody to use it.
    */
 
-  SequentialVertexFitterR() {}
+  SequentialVertexFitter() {}
 
 private:
 
@@ -260,5 +261,6 @@ private:
 
   // VertexSeedFactory theVSeedFactory;
 };
+}
 
 #endif

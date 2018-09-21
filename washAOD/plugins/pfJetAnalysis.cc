@@ -1,5 +1,5 @@
 #include "Firefighter/washAOD/interface/pfJetAnalysis.h"
-#include "Firefighter/recoStuff/interface/KalmanVertexFitterR.h"
+#include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -454,7 +454,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     }
     if ( t_tks.size() < 2 ) { return; } // vertexing with >=2 good tracks
 
-    unique_ptr<KalmanVertexFitterR> kvf(new KalmanVertexFitterR(kvfParam_,
+    unique_ptr<ff::KalmanVertexFitter> kvf(new ff::KalmanVertexFitter(kvfParam_,
                                             kvfParam_.getParameter<bool>("doSmoothing")));
     TransientVertex tv = kvf->vertex(t_tks);
     if ( tv.isValid() and tv.normalisedChiSquared()<5. )
