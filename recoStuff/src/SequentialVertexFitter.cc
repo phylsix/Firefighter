@@ -70,7 +70,6 @@ ff::SequentialVertexFitter<N>::~SequentialVertexFitter()
 template <unsigned int N>
 void ff::SequentialVertexFitter<N>::readParameters()
 {
-  std::cout<<"ff::SequentialVertexFitter<N>::readParameters"<<std::endl;
   theMaxShift = thePSet.getParameter<double>("maxDistance"); //0.01
   theMaxStep = thePSet.getParameter<int>("maxNbrOfIterations"); //10
 }

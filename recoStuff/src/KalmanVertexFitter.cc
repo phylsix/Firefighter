@@ -22,7 +22,6 @@ ff::KalmanVertexFitter::KalmanVertexFitter(const edm::ParameterSet& pSet,  bool 
 
 void ff::KalmanVertexFitter::setup(const edm::ParameterSet& pSet,  bool useSmoothing )
 {
-  std::cout<<"ff::KalmanVertexFitter::setup"<<std::endl;
   if (useSmoothing) {
     KalmanVertexTrackUpdator<5> vtu;
     KalmanSmoothedVertexChi2Estimator<5> vse;
