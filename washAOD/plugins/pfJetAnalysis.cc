@@ -14,7 +14,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
@@ -33,7 +32,9 @@ pfJetAnalysis::pfJetAnalysis(const edm::ParameterSet& ps) :
   trigPathNoVer_(ps.getParameter<std::string>("trigPath")),
   processName_(ps.getParameter<std::string>("processName")),
   trigResultsToken_(consumes<edm::TriggerResults>(trigResultsTag_)),
-  trigEventToken_(consumes<trigger::TriggerEvent>(trigEventTag_))
+  trigEventToken_(consumes<trigger::TriggerEvent>(trigEventTag_)),
+  pvsTag_(ps.getParameter<edm::InputTag>("pvs")),
+  pvsToken_(consumes<reco::VertexCollection>(pvsTag_))
 {
   using namespace std;
   using namespace edm;
@@ -66,6 +67,7 @@ pfJetAnalysis::fillDescriptions(edm::ConfigurationDescriptions& ds)
   desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD","","HLT"));
   desc.add<std::string>("trigPath", "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx");
   desc.add<std::string>("processName", "HLT");
+  desc.add<edm::InputTag>("pvs", edm::InputTag("offlinePrimaryVertices"));
 
   ds.add("pfJetAnalysis", desc);
 }
@@ -104,11 +106,12 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetNTracks",             &jetNTracks_);
   jetT_->Branch("jetTrackImpactSig",      &jetTrackImpactSig_);
   jetT_->Branch("jetVtxLxy",              &jetVtxLxy_);
-  jetT_->Branch("jetVtxLz",               &jetVtxLz_);
+  jetT_->Branch("jetVtxL3D",              &jetVtxL3D_);
   jetT_->Branch("jetVtxLxySig",           &jetVtxLxySig_);
+  jetT_->Branch("jetVtxL3DSig",           &jetVtxL3DSig_);
   jetT_->Branch("jetVtxMatchDist",        &jetVtxMatchDist_);
   jetT_->Branch("jetVtxMatchDistT",       &jetVtxMatchDistT_);
-  jetT_->Branch("jetVtxChi2",             &jetVtxChi2_);
+  jetT_->Branch("jetVtxNormChi2",         &jetVtxNormChi2_);
 
   // ****************************************
 
@@ -156,6 +159,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 {
   using namespace std;
   using namespace edm;
+
+  //*****************************************************
 
   iEvent.getByToken(genParticleToken_, genParticleHandle_);
   assert(genParticleHandle_.isValid());
@@ -281,7 +286,15 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   }
 
   dSAT_->Fill();
+
+  //********************************************************
   
+  iEvent.getByToken(pvsToken_, pvsHandle_);
+  assert(pvsHandle_.isValid());
+
+  if ( pvsHandle_->size()==0 ) { return; }
+  const auto& pv = *(pvsHandle_->begin());
+
   //********************************************************
 
   iEvent.getByToken(jetToken_, jetHandle_);
@@ -304,10 +317,12 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetPhi_     .reserve(2);
   jetVtxLxy_  .clear();
   jetVtxLxy_  .reserve(2);
-  jetVtxLz_   .clear();
-  jetVtxLz_   .reserve(2);
+  jetVtxL3D_  .clear();
+  jetVtxL3D_  .reserve(2);
   jetVtxLxySig_.clear();
   jetVtxLxySig_.reserve(2);
+  jetVtxL3DSig_.clear();
+  jetVtxL3DSig_.reserve(2);
   jetMatchDist_.clear();
   jetMatchDist_.reserve(2);
   jetVtxMatchDist_.clear();
@@ -324,8 +339,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetNeutralHadEnergyFrac_.reserve(2);
   jetTrackImpactSig_.clear();
   jetTrackImpactSig_.reserve(4);
-  jetVtxChi2_.clear();
-  jetVtxChi2_.reserve(2);
+  jetVtxNormChi2_.clear();
+  jetVtxNormChi2_.reserve(2);
   jetChargedMultiplicity_.clear();
   jetChargedMultiplicity_.reserve(2);
   jetMuonMultiplicity_.clear();
@@ -391,6 +406,9 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 
+  VertexDistanceXY vdistXY;
+  VertexDistance3D vdist3D;
+
   for (const auto& j_dp : jetDarkphotonMap)
   {
     const auto& j  = *(j_dp.first.get());
@@ -446,13 +464,12 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     jetMuonMultiplicity_.emplace_back(nMu);
     jetChargedEmEnergyFrac_.emplace_back( chargedEmEnergy/j.energy() );
 
-
-    if ( tks.size() < 2 ) { return; } // require at least 2 tracks to perform vertex
+    // FIXME
+    if ( tks.size() < 2 ) { return; } // require at least 2 tracks to perform vertex.
 
     vector<reco::TransientTrack> t_tks{};
     for (const auto& tk : tks)
     {
-      // if ( not tk->quality(reco::Track::tight) ) { continue; }
       if ( fabs(tk->d0())/tk->d0Error() < 2.) { continue; } // impact parameter significance
       jetTrackImpactSig_.emplace_back (fabs(tk->d0())/tk->d0Error() );
       if ( tk->normalizedChi2()>5 ) { continue; }
@@ -466,22 +483,27 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     TransientVertex tv = kvf->vertex(t_tks);
     if ( tv.isValid() and tv.normalisedChiSquared()<5. )
     {
-      GlobalPoint pos = tv.position();
-      GlobalError err = tv.positionError();
-      jetVtxLxy_.emplace_back(pos.perp());
-      jetVtxLz_ .emplace_back(pos.z());
-      jetVtxLxySig_.emplace_back( sqrt(err.rerr(pos)) );
-      jetVtxChi2_.emplace_back(tv.normalisedChiSquared());
+      // GlobalPoint pos = tv.position();
+      // GlobalError err = tv.positionError();
+
+      Measurement1D distXY = vdistXY.distance(tv.vertexState(), pv);
+      Measurement1D dist3D = vdist3D.distance(tv.vertexState(), pv);
+      jetVtxLxy_.emplace_back( distXY.value() );
+      jetVtxL3D_.emplace_back( dist3D.value() );
+      jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
+      jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
+      jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
 
       math::XYZPoint vtxDiff(reco::Vertex(tv).position() - dp.daughterRef(0)->vertex());
       jetVtxMatchDistT_.emplace_back( vtxDiff.rho() );
       jetVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
     } else 
     {
-      jetVtxLxy_   .emplace_back(NAN);
-      jetVtxLz_    .emplace_back(NAN);
-      jetVtxLxySig_.emplace_back(NAN);
-      jetVtxChi2_  .emplace_back(NAN);
+      jetVtxLxy_   .emplace_back( NAN );
+      jetVtxL3D_   .emplace_back( NAN );
+      jetVtxLxySig_.emplace_back( NAN );
+      jetVtxL3DSig_.emplace_back( NAN );
+      jetVtxNormChi2_  .emplace_back( NAN );
       jetVtxMatchDistT_.emplace_back( NAN );
       jetVtxMatchDist_ .emplace_back( NAN );
     }

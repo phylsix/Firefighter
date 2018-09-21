@@ -18,6 +18,8 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -53,12 +55,15 @@ class pfJetAnalysis :
     const std::string processName_;
     const edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
     const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
+    const edm::InputTag pvsTag_;
+    const edm::EDGetTokenT<reco::VertexCollection> pvsToken_;
 
     edm::Service<TFileService> fs;
     edm::Handle<reco::PFJetCollection> jetHandle_;
     edm::Handle<reco::TrackCollection> dSAMuHandle_;
     edm::Handle<edm::TriggerResults> trigResultsHandle_;
     edm::Handle<trigger::TriggerEvent> trigEventHandle_;
+    edm::Handle<reco::VertexCollection> pvsHandle_;
     
     std::string trigPath_;
     HLTConfigProvider hltConfig_;
@@ -85,11 +90,12 @@ class pfJetAnalysis :
     std::vector<float> jetNeutralHadEnergyFrac_;
     std::vector<float> jetTrackImpactSig_;
     std::vector<float> jetVtxLxy_;
-    std::vector<float> jetVtxLz_;
+    std::vector<float> jetVtxL3D_;
     std::vector<float> jetVtxLxySig_;
+    std::vector<float> jetVtxL3DSig_;
     std::vector<float> jetVtxMatchDist_;
     std::vector<float> jetVtxMatchDistT_;
-    std::vector<float> jetVtxChi2_;
+    std::vector<float> jetVtxNormChi2_;
     std::vector<int> jetChargedMultiplicity_;
     std::vector<int> jetMuonMultiplicity_;
     std::vector<int> jetNConstituents_;

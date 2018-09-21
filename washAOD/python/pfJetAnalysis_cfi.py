@@ -14,5 +14,6 @@ pfjetana = cms.EDAnalyzer("pfJetAnalysis",
                               "hltTriggerSummaryAOD", "", "HLT"),
                           trigPath=cms.string(
                               'HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx'),
-                          processName=cms.string('HLT')
+                          processName=cms.string('HLT'),
+                          pvs=cms.InputTag("offlinePrimaryVertices")
                           )
