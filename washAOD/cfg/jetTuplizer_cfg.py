@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-import os
 
 from LeptonJet.ntupleBuilder.SelectTrack_cfi               import goodDsaMuon
 from LeptonJet.ntupleBuilder.TrackPFCandidateProducer_cfi  import trackPFCand
-from LeptonJet.ntupleBuilder.ForkCandAgainstOthersByDR_cfi import forkcandagainstothersbydr
+from Firefighter.recoStuff.ForkCandAgainstDsaMuon_cfi      import forkcandagainstdsamuon
 from LeptonJet.ntupleBuilder.CandMerger_cfi                import candmerger
 
 from JMEAnalysis.JetToolbox.jetToolbox_cff                 import jetToolbox
@@ -85,7 +84,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.selectedDsaMuons = goodDsaMuon.clone()
 process.dSAmuPFCand      = trackPFCand.clone(src=cms.InputTag("selectedDsaMuons"))
-process.dSAmuPFCandFork  = forkcandagainstothersbydr.clone()
+process.dSAmuPFCandFork  = forkcandagainstdsamuon.clone()
 process.combPFdSA        = candmerger.clone()
 
 process.mergePFdSASeq = cms.Sequence(
