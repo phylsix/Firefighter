@@ -38,7 +38,7 @@ ForkCandAgainstDsaMuon::produce(edm::Event& iEvent,
             if (o.particleId() == reco::PFCandidate::ParticleType::mu &&
                 deltaR(o, t) < maxDR_ &&
                 fabs(o.pt()-t.pt())/t.pt() < maxPtReso_ &&
-                o.charge() == t.charge()) {
+                abs(t.charge()) == 1) {
                 isMatched = true;
                 break;
             } 
