@@ -358,6 +358,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetNConstituents_.reserve(2);
   jetNTracks_.clear();
   jetNTracks_.reserve(2);
+  jetMatched_.clear();
+  jetMatched_.reserve(2);
 
   genDarkphotonEnergy_.clear();
   genDarkphotonEnergy_.reserve(2);
@@ -373,7 +375,6 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   genDarkphotonL3D_   .clear();
   genDarkphotonL3D_   .reserve(2);
 
-  map<reco::PFJetRef, reco::GenParticleRef> jetDarkphotonMap{};
   
   // Filtering out decent good jets.
   vector<reco::PFJetRef> goodJets{};
@@ -407,7 +408,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   }
   if ( goodJets.size()==0 ) { return; }
 
-
+  map<reco::PFJetRef, reco::GenParticleRef> jetDarkphotonMap{};
   for (const auto& dp : darkphotons)
   {
     float darkphotonJet_mindR(999.);
@@ -435,10 +436,10 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   VertexDistanceXY vdistXY;
   VertexDistance3D vdist3D;
 
-  for (const auto& j_dp : jetDarkphotonMap)
+  for (const auto& jet : goodJets)
   {
-    const auto& j  = *(j_dp.first.get());
-    const auto& dp = *(j_dp.second.get());
+    bool _matched = jetDarkphotonMap.count(jet)>0 ? true : false;
+    const auto& j  = *(jet.get());
 
     //***********************************
     
@@ -491,6 +492,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     jetNeutralHadEnergyFrac_.emplace_back(j.neutralHadronEnergyFraction());
     jetNTracks_         .emplace_back(tks.size());
     jetMuonMultiplicity_.emplace_back(nMu);
+    jetMatched_.emplace_back(_matched);
 
     //***********************************
 
@@ -541,9 +543,18 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
         jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
 
-        math::XYZPoint vtxDiff(reco::Vertex(tv).position() - dp.daughterRef(0)->vertex());
-        jetVtxMatchDistT_.emplace_back( vtxDiff.rho() );
-        jetVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
+        if (_matched)
+        {
+          const auto& dp = *(jetDarkphotonMap[jet].get());
+          math::XYZPoint vtxDiff(reco::Vertex(tv).position() - dp.daughterRef(0)->vertex());
+          jetVtxMatchDistT_.emplace_back( vtxDiff.rho() );
+          jetVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
+        }
+        else
+        {
+          jetVtxMatchDistT_.emplace_back( NAN );
+          jetVtxMatchDist_ .emplace_back( NAN );
+        }
       }
     }
 
@@ -561,15 +572,33 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     //***********************************
 
     /// Filling MC info
-    genDarkphotonEnergy_.emplace_back(dp.energy());
-    genDarkphotonPt_    .emplace_back(dp.pt());
-    genDarkphotonPz_    .emplace_back(dp.pz());
-    genDarkphotonEta_   .emplace_back(dp.eta());
-    genDarkphotonPhi_   .emplace_back(dp.phi());
-    genDarkphotonLxy_   .emplace_back((dp.daughterRef(0)->vertex()).rho());
-    genDarkphotonL3D_   .emplace_back( sqrt((dp.daughterRef(0)->vertex()).mag2()) );
+    if (_matched)
+    {
+      const auto& dp = *(jetDarkphotonMap[jet].get());
+
+      genDarkphotonEnergy_.emplace_back(dp.energy());
+      genDarkphotonPt_    .emplace_back(dp.pt());
+      genDarkphotonPz_    .emplace_back(dp.pz());
+      genDarkphotonEta_   .emplace_back(dp.eta());
+      genDarkphotonPhi_   .emplace_back(dp.phi());
+      genDarkphotonLxy_   .emplace_back((dp.daughterRef(0)->vertex()).rho());
+      genDarkphotonL3D_   .emplace_back( sqrt((dp.daughterRef(0)->vertex()).mag2()) );
+      
+      jetMatchDist_       .emplace_back( deltaR(j, dp) );
+    }
+    else
+    {
+      genDarkphotonEnergy_.emplace_back( NAN );
+      genDarkphotonPt_    .emplace_back( NAN );
+      genDarkphotonPz_    .emplace_back( NAN );
+      genDarkphotonEta_   .emplace_back( NAN );
+      genDarkphotonPhi_   .emplace_back( NAN );
+      genDarkphotonLxy_   .emplace_back( NAN );
+      genDarkphotonL3D_   .emplace_back( NAN );
+      
+      jetMatchDist_       .emplace_back( NAN );
+    }
     
-    jetMatchDist_       .emplace_back( deltaR(j, dp) );
 
   }
 

@@ -104,6 +104,7 @@ class pfJetAnalysis :
     std::vector<int> jetNConstituents_;
     std::vector<int> jetNTracks_;
     std::vector<int> jetSeedType_;
+    std::vector<bool> jetMatched_;
 
     std::vector<float> genDarkphotonEnergy_;
     std::vector<float> genDarkphotonPt_;
