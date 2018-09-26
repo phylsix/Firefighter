@@ -7,6 +7,7 @@
 #include "Firefighter/washAOD/interface/trigSelfEffiForMuTrack.h"
 #include "Firefighter/washAOD/interface/pfJetAnalysis.h"
 #include "Firefighter/washAOD/interface/dsaMatching.h"
+#include "Firefighter/washAOD/interface/jetMassSculpting.h"
 
 DEFINE_FWK_MODULE(genTuplizer);
 DEFINE_FWK_MODULE(recoEffiForMuTrack);
@@ -14,3 +15,4 @@ DEFINE_FWK_MODULE(trigEffiForMuTrack);
 DEFINE_FWK_MODULE(trigSelfEffiForMuTrack);
 DEFINE_FWK_MODULE(pfJetAnalysis);
 DEFINE_FWK_MODULE(dsaMatching);
+DEFINE_FWK_MODULE(jetMassSculpting);
