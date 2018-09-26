@@ -33,7 +33,8 @@ void
 jetMassSculpting::beginJob()
 {
   jetT_ = fs->make<TTree>("Jet", "");
-  jetT_->Branch("jetMass", &jetMass_);
+  jetT_->Branch("jetMassAll", &jetMassAll_);
+  jetT_->Branch("jetMassMatched", &jetMassMatched_);
 }
 
 void
@@ -72,8 +73,10 @@ jetMassSculpting::analyze(const edm::Event& iEvent,
   iEvent.getByToken(jetToken_, jetHandle_);
   assert(jetHandle_.isValid());
 
-  jetMass_.clear();
-  jetMass_.reserve(2);
+  jetMassAll_.clear();
+  jetMassAll_.reserve(jetHandle_->size());
+  jetMassMatched_.clear();
+  jetMassMatched_.reserve(2);
 
   map<reco::PFJetRef, reco::GenParticleRef> jetDarkphotonMap{};
 
@@ -104,10 +107,10 @@ jetMassSculpting::analyze(const edm::Event& iEvent,
       ++_ntracks;
     }
     if ( _ntracks<2 ) { continue; }
-    
+    jetMassAll_.emplace_back(jRef->mass());
     goodJets.push_back(jRef);
   }
-  if ( goodJets.size()==0 ) { return; }
+  // if ( goodJets.size()==0 ) { return; }
 
   for (const auto& dp : darkphotons)
   {
@@ -136,7 +139,7 @@ jetMassSculpting::analyze(const edm::Event& iEvent,
 
     //***********************************
 
-    jetMass_.emplace_back(j.mass());
+    jetMassMatched_.emplace_back(j.mass());
   }
 
   jetT_->Fill();

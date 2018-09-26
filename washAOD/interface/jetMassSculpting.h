@@ -44,7 +44,8 @@ class jetMassSculpting :
     edm::Handle<reco::PFJetCollection> jetHandle_;
     edm::Handle<reco::GenParticleCollection> genParticleHandle_;
 
-    std::vector<float> jetMass_;
+    std::vector<float> jetMassAll_;
+    std::vector<float> jetMassMatched_;
     
     TTree *jetT_;
 };
