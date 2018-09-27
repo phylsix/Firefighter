@@ -91,6 +91,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetSeedType",            &jetSeedType_);
   jetT_->Branch("jetEnergy",              &jetEnergy_);
   jetT_->Branch("jetMass",                &jetMass_);
+  jetT_->Branch("jetChargedMass",         &jetChargedMass_);
   jetT_->Branch("jetPt",                  &jetPt_);
   jetT_->Branch("jetPz",                  &jetPz_);
   jetT_->Branch("jetEta",                 &jetEta_);
@@ -115,6 +116,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetVtxMatchDist",        &jetVtxMatchDist_);
   jetT_->Branch("jetVtxMatchDistT",       &jetVtxMatchDistT_);
   jetT_->Branch("jetVtxNormChi2",         &jetVtxNormChi2_);
+  jetT_->Branch("jetMatched",             &jetMatched_);
 
   // ****************************************
 
@@ -310,6 +312,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetEnergy_  .reserve(2);
   jetMass_    .clear();
   jetMass_    .reserve(2);
+  jetChargedMass_.clear();
+  jetChargedMass_.reserve(2);
   jetPt_      .clear();
   jetPt_      .reserve(2);
   jetPz_      .clear();
@@ -395,7 +399,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       auto&& iConst(jRef->getPFConstituent(ic));
       if ( iConst->trackRef().isNull() ) { continue; }
       auto&& iConstTk(iConst->trackRef());
-      if ( iConstTk->pt() < 0.5 or
+      if ( iConstTk->pt() < 2 or
            iConstTk->normalizedChi2() > 10.)
       {
         continue;
@@ -451,6 +455,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     bool hasDsaMu(false);
     int nMu(0); // number of mu type PFCandidates
     float chargedEmEnergy(0.);
+    reco::Candidate::PolarLorentzVector chargedP4;
     for (int i(0); i!=j.nConstituents(); ++i)
     {
       auto&& iConst(j.getPFConstituent(i));
@@ -468,6 +473,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         {
           hasDsaMu = true;
         }
+        if (iConst->pt() > 2.) { chargedP4+=iConst->polarP4(); }
       }
 
       if (iConst->particleId() == reco::PFCandidate::ParticleType::mu) {++nMu;}
@@ -480,6 +486,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
     jetEnergy_.emplace_back(j.energy());
     jetMass_  .emplace_back(j.mass());
+    jetChargedMass_.emplace_back(chargedP4.M());
     jetPt_    .emplace_back(j.pt());
     jetPz_    .emplace_back(j.pz());
     jetEta_   .emplace_back(j.eta());

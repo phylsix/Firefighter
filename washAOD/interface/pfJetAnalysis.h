@@ -79,6 +79,7 @@ class pfJetAnalysis :
 
     std::vector<float> jetEnergy_;
     std::vector<float> jetMass_;
+    std::vector<float> jetChargedMass_;
     std::vector<float> jetPt_;
     std::vector<float> jetPz_;
     std::vector<float> jetEta_;
