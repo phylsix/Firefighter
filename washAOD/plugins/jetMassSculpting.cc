@@ -99,7 +99,7 @@ jetMassSculpting::analyze(const edm::Event& iEvent,
       auto&& iConst(jRef->getPFConstituent(ic));
       if ( iConst->trackRef().isNull() ) { continue; }
       auto&& iConstTk(iConst->trackRef());
-      if ( iConstTk->pt() < 0.5 or
+      if ( iConstTk->pt() < 2 or
            iConstTk->normalizedChi2() > 10.)
       {
         continue;
