@@ -345,13 +345,13 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetNeutralHadEnergyFrac_.clear();
   jetNeutralHadEnergyFrac_.reserve(2);
   jetTrackPt_.clear();
-  jetTrackPt_.reserve(4);
+  jetTrackPt_.reserve(2);
   jetTrackEta_.clear();
-  jetTrackEta_.reserve(4);
+  jetTrackEta_.reserve(2);
   jetTrackD0Sig_.clear();
-  jetTrackD0Sig_.reserve(4);
+  jetTrackD0Sig_.reserve(2);
   jetTrackNormChi2_.clear();
-  jetTrackNormChi2_.reserve(4);
+  jetTrackNormChi2_.reserve(2);
   jetVtxNormChi2_.clear();
   jetVtxNormChi2_.reserve(2);
   jetChargedMultiplicity_.clear();
@@ -520,18 +520,29 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
     bool _foundGoodVertex = false;
     vector<reco::TransientTrack> t_tks{};
+    
+    vector<float> thisJetTrackPt(tks.size());
+    vector<float> thisJetTrackEta(tks.size());
+    vector<float> thisJetTrackD0Sig(tks.size());
+    vector<float> thisJetTrackNormChi2(tks.size());
+    
     for (const auto& tk : tks)
     {
-      jetTrackPt_ .emplace_back( tk->pt() );
-      jetTrackEta_.emplace_back( tk->eta() );
-      jetTrackD0Sig_   .emplace_back( fabs(tk->d0())/tk->d0Error() );
-      jetTrackNormChi2_.emplace_back( tk->normalizedChi2() );
+      thisJetTrackPt .emplace_back( tk->pt() );
+      thisJetTrackEta.emplace_back( tk->eta() );
+      thisJetTrackD0Sig   .emplace_back( fabs(tk->d0())/tk->d0Error() );
+      thisJetTrackNormChi2.emplace_back( tk->normalizedChi2() );
 
       // if ( fabs(tk->d0())/tk->d0Error() < 2.) { continue; }
       if ( tk->normalizedChi2()>5 ) { continue; }
       if ( tk->pt() < 0.5 ) { continue; }
       t_tks.push_back( theB->build(tk.get()) );
     }
+
+    jetTrackPt_.emplace_back(thisJetTrackPt);
+    jetTrackEta_.emplace_back(thisJetTrackEta);
+    jetTrackD0Sig_.emplace_back(thisJetTrackD0Sig);
+    jetTrackNormChi2_.emplace_back(thisJetTrackNormChi2);
     
     if ( t_tks.size()>= 2 )
     {

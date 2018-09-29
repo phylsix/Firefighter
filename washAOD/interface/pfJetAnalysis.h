@@ -89,10 +89,10 @@ class pfJetAnalysis :
     std::vector<float> jetChargedHadEnergyFrac_;
     std::vector<float> jetNeutralEmEnergyFrac_;
     std::vector<float> jetNeutralHadEnergyFrac_;
-    std::vector<float> jetTrackPt_;
-    std::vector<float> jetTrackEta_;
-    std::vector<float> jetTrackD0Sig_;
-    std::vector<float> jetTrackNormChi2_;
+    std::vector<std::vector<float>> jetTrackPt_;
+    std::vector<std::vector<float>> jetTrackEta_;
+    std::vector<std::vector<float>> jetTrackD0Sig_;
+    std::vector<std::vector<float>> jetTrackNormChi2_;
     std::vector<float> jetVtxLxy_;
     std::vector<float> jetVtxL3D_;
     std::vector<float> jetVtxLxySig_;

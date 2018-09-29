@@ -3,7 +3,7 @@ from __future__ import print_function
 import os
 
 year = 2017
-frag = 'jetMassSculpt'
+frag = 'jetTuplizer'
 suffixTag = '100k' # [100k, Pythia, PythiaTest2]
 
 def main():
