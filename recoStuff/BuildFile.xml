@@ -8,6 +8,12 @@
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/LinearizationPointFinders"/>
 <use name="RecoVertex/VertexPrimitives"/>
+<use name="TrackingTools/Records"/>
+<use name="MagneticField/Records"/>
+<use name="Geometry/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="CommonTools/Utils"/>
 
 <export>
   <lib name="1"/>

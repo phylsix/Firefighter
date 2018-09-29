@@ -23,7 +23,7 @@ def setup_process(proc, testFileName='test.root'):
         import platform
         if 'cmslpc' in platform.node():
             if options.year == 2017:
-                options.inputFiles = 'root://cmseos.fnal.gov///store/user/wsi/MCSIDM/SIDMmumu_Mps-200_MZp-1p2_ctau-1p2/180720-105132/SIDMmumu_Mps-200_MZp-1p2_ctau-1p2_10980067_AOD.root'
+                options.inputFiles = 'file:/eos/uscms/store/user/wsi/MCSIDM/SIDMmumu_Mps-200_MZp-1p2_ctau-1p2/180720-105132/SIDMmumu_Mps-200_MZp-1p2_ctau-1p2_10980067_AOD.root'
             if options.year == 2018:
                 options.inputFiles = 'file:/eos/uscms/store/user/wsi/MCSIDM/SIDMmumu_Mps-200_MZp-1p2_ctau-0p12/180726-222103/SIDMmumu_Mps-200_MZp-1p2_ctau-0p12_10268877_AOD.root'
         elif 'lxplus' in platform.node():
@@ -37,10 +37,15 @@ def setup_process(proc, testFileName='test.root'):
     proc.load("FWCore.MessageService.MessageLogger_cfi")
     proc.load('Configuration.StandardSequences.Services_cff')
     proc.load("Configuration.EventContent.EventContent_cff")
+    proc.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
+    proc.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
+    proc.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
+    proc.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
     proc.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
     proc.load("Configuration.StandardSequences.GeometryRecoDB_cff")
     proc.load('Configuration.StandardSequences.MagneticField_38T_cff')
     proc.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+    
     if options.year == 2017:
         proc.GlobalTag.globaltag = '94X_mc2017_realistic_v15'
     if options.year == 2018:
