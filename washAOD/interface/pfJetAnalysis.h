@@ -127,6 +127,7 @@ class pfJetAnalysis :
     std::vector<float> dSAPz_;
     std::vector<float> dSAEta_;
     std::vector<float> dSAPhi_;
+    std::vector<float> dSAd0Sig_;
     std::vector<float> dSAMatchDist_;
     std::vector<int>   dSATrackQual_;
 
