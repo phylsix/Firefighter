@@ -109,6 +109,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetTrackEta",            &jetTrackEta_);
   jetT_->Branch("jetTrackD0Sig",          &jetTrackD0Sig_);
   jetT_->Branch("jetTrackNormChi2",       &jetTrackNormChi2_);
+  jetT_->Branch("jetTrackIsDsa",          &jetTrackIsDsa_);
   jetT_->Branch("jetVtxLxy",              &jetVtxLxy_);
   jetT_->Branch("jetVtxL3D",              &jetVtxL3D_);
   jetT_->Branch("jetVtxLxySig",           &jetVtxLxySig_);
@@ -146,13 +147,13 @@ pfJetAnalysis::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   bool changed(true);
   if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
     if (changed) {
-      LogInfo("pfJetAnalysis")<<"trigEffiForMuTrack::beginRun: "<<"hltConfig init for Run"<<iRun.run();
+      LogInfo("pfJetAnalysis")<<"pfJetAnalysis::beginRun: "<<"hltConfig init for Run"<<iRun.run();
       hltConfig_.dump("ProcessName");
       hltConfig_.dump("GlobalTag");
       hltConfig_.dump("TableName");
     }
   } else {
-    LogError("pfJetAnalysis")<<"trigEffiForMuTrack::beginRun: config extraction failure with processName -> "
+    LogError("pfJetAnalysis")<<"pfJetAnalysis::beginRun: config extraction failure with processName -> "
       <<processName_;
   }
 
@@ -352,6 +353,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetTrackD0Sig_.reserve(2);
   jetTrackNormChi2_.clear();
   jetTrackNormChi2_.reserve(2);
+  jetTrackIsDsa_.clear();
+  jetTrackIsDsa_.reserve(2);
   jetVtxNormChi2_.clear();
   jetVtxNormChi2_.reserve(2);
   jetChargedMultiplicity_.clear();
@@ -439,6 +442,12 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
   VertexDistanceXY vdistXY;
   VertexDistance3D vdist3D;
+  
+  vector<float> thisJetTrackPt{};
+  vector<float> thisJetTrackEta{};
+  vector<float> thisJetTrackD0Sig{};
+  vector<float> thisJetTrackNormChi2{};
+  vector<bool> thisJetTrackIsDsa{};
 
   for (const auto& jet : goodJets)
   {
@@ -521,10 +530,16 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     bool _foundGoodVertex = false;
     vector<reco::TransientTrack> t_tks{};
     
-    vector<float> thisJetTrackPt(tks.size());
-    vector<float> thisJetTrackEta(tks.size());
-    vector<float> thisJetTrackD0Sig(tks.size());
-    vector<float> thisJetTrackNormChi2(tks.size());
+    thisJetTrackPt      .clear();
+    thisJetTrackEta     .clear();
+    thisJetTrackD0Sig   .clear();
+    thisJetTrackNormChi2.clear();
+    thisJetTrackIsDsa   .clear();
+    thisJetTrackPt      .reserve(tks.size());
+    thisJetTrackEta     .reserve(tks.size());
+    thisJetTrackD0Sig   .reserve(tks.size());
+    thisJetTrackNormChi2.reserve(tks.size());
+    thisJetTrackIsDsa   .reserve(tks.size());
     
     for (const auto& tk : tks)
     {
@@ -532,6 +547,9 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       thisJetTrackEta.emplace_back( tk->eta() );
       thisJetTrackD0Sig   .emplace_back( fabs(tk->d0())/tk->d0Error() );
       thisJetTrackNormChi2.emplace_back( tk->normalizedChi2() );
+      
+      bool _isDsa = true ? tk.id()==dSAMuHandle_.id() : false;
+      thisJetTrackIsDsa.emplace_back(_isDsa);
 
       // if ( fabs(tk->d0())/tk->d0Error() < 2.) { continue; }
       if ( tk->normalizedChi2()>5 ) { continue; }
@@ -543,6 +561,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     jetTrackEta_.emplace_back(thisJetTrackEta);
     jetTrackD0Sig_.emplace_back(thisJetTrackD0Sig);
     jetTrackNormChi2_.emplace_back(thisJetTrackNormChi2);
+    jetTrackIsDsa_.emplace_back(thisJetTrackIsDsa);
     
     if ( t_tks.size()>= 2 )
     {
