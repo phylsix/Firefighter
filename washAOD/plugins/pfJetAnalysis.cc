@@ -139,6 +139,7 @@ pfJetAnalysis::beginJob()
   dSAT_->Branch("dSAEta", &dSAEta_);
   dSAT_->Branch("dSAPhi", &dSAPhi_);
   dSAT_->Branch("dSAd0Sig",&dSAd0Sig_);
+  dSAT_->Branch("dSAdzSig",&dSAdzSig_);
   dSAT_->Branch("dSAMatchDist", &dSAMatchDist_);
   dSAT_->Branch("dSATrackQual", &dSATrackQual_);
 }
@@ -225,6 +226,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   dSAEta_    .clear();
   dSAPhi_    .clear();
   dSAd0Sig_  .clear();
+  dSAdzSig_  .clear();
   dSAMatchDist_.clear();
   dSATrackQual_.clear();
   
@@ -237,6 +239,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   dSAEta_    .reserve(4);
   dSAPhi_    .reserve(4);
   dSAd0Sig_  .reserve(4);
+  dSAdzSig_  .reserve(4);
   dSAMatchDist_.reserve(4);
   dSATrackQual_.reserve(4);
 
@@ -289,6 +292,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     dSAEta_.emplace_back(dsa.eta());
     dSAPhi_.emplace_back(dsa.phi());
     dSAd0Sig_.emplace_back( fabs(dsa.d0())/dsa.d0Error() );
+    dSAdzSig_.emplace_back( fabs(dsa.dz())/dsa.dzError() );
     dSAMatchDist_.emplace_back( deltaR(dsa, gen) );
     // http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_10_0_3/doc/html/d8/df2/classreco_1_1TrackBase.html#aeee12ec6a3ea0d65caa2695c84ab25d5
     dSATrackQual_.emplace_back( dsa.qualityMask() );
