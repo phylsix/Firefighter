@@ -113,6 +113,8 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetTrackDzSig",          &jetTrackDzSig_);
   jetT_->Branch("jetTrackNormChi2",       &jetTrackNormChi2_);
   jetT_->Branch("jetTrackIsDsa",          &jetTrackIsDsa_);
+  jetT_->Branch("jetTrackD0SigAtVtx",     &jetTrackD0SigAtVtx_);
+  jetT_->Branch("jetTrackDzSigAtVtx",     &jetTrackDzSigAtVtx_);
   jetT_->Branch("jetVtxLxy",              &jetVtxLxy_);
   jetT_->Branch("jetVtxL3D",              &jetVtxL3D_);
   jetT_->Branch("jetVtxLxySig",           &jetVtxLxySig_);
@@ -369,6 +371,10 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetTrackNormChi2_.reserve(2);
   jetTrackIsDsa_.clear();
   jetTrackIsDsa_.reserve(2);
+  jetTrackD0SigAtVtx_.clear();
+  jetTrackD0SigAtVtx_.reserve(2);
+  jetTrackDzSigAtVtx_.clear();
+  jetTrackDzSigAtVtx_.reserve(2);
   jetVtxNormChi2_.clear();
   jetVtxNormChi2_.reserve(2);
   jetVtxMass_.clear();
@@ -463,6 +469,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   vector<float> thisJetTrackEta{};
   vector<float> thisJetTrackD0Sig{};
   vector<float> thisJetTrackDzSig{};
+  vector<float> thisJetTrackD0SigAtVtx{};
+  vector<float> thisJetTrackDzSigAtVtx{};
   vector<float> thisJetTrackNormChi2{};
   vector<bool> thisJetTrackIsDsa{};
 
@@ -532,7 +540,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     /// finding the seed (own max pT) type
     reco::PFCandidatePtr&& seed(j.getPFConstituent(seedIndex));
     assert(seed.isNonnull());
-    int _seedtype = static_cast<int>( seed->particleId() ); // http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_8/doc/html/dc/d55/classreco_1_1PFCandidate.html#af39a4e9ae718041649773fa7ca0919bc
+    // http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_8/doc/html/dc/d55/classreco_1_1PFCandidate.html#af39a4e9ae718041649773fa7ca0919bc
+    int _seedtype = static_cast<int>( seed->particleId() );
     if (seed->particleId() == reco::PFCandidate::ParticleType::mu)
     {
         if (seed->trackRef().isNonnull() and
@@ -551,12 +560,16 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     thisJetTrackEta     .clear();
     thisJetTrackD0Sig   .clear();
     thisJetTrackDzSig   .clear();
+    thisJetTrackD0SigAtVtx.clear();
+    thisJetTrackDzSigAtVtx.clear();
     thisJetTrackNormChi2.clear();
     thisJetTrackIsDsa   .clear();
     thisJetTrackPt      .reserve(tks.size());
     thisJetTrackEta     .reserve(tks.size());
     thisJetTrackD0Sig   .reserve(tks.size());
     thisJetTrackDzSig   .reserve(tks.size());
+    thisJetTrackD0SigAtVtx.reserve(tks.size());
+    thisJetTrackDzSigAtVtx.reserve(tks.size());
     thisJetTrackNormChi2.reserve(tks.size());
     thisJetTrackIsDsa   .reserve(tks.size());
     
@@ -592,7 +605,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       if ( tv.isValid() /*and tv.normalisedChiSquared()<5.*/ )
       {
         _foundGoodVertex = true;
-        
+        reco::Vertex rvtx = reco::Vertex(tv);
+
         Measurement1D distXY = vdistXY.distance(tv.vertexState(), pv);
         Measurement1D dist3D = vdist3D.distance(tv.vertexState(), pv);
         
@@ -601,7 +615,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
         jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
         jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
-        jetVtxMass_.emplace_back( reco::Vertex(tv).p4(M_Mu).M() );
+        jetVtxMass_.emplace_back( rvtx.p4(M_Mu).M() );
 
         if (_matched)
         {
@@ -615,8 +629,22 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
           jetVtxMatchDistT_.emplace_back( NAN );
           jetVtxMatchDist_ .emplace_back( NAN );
         }
+
+        for (const auto& tk : tks)
+        {
+          float _d0 = fabs(tk->dxy( rvtx.position() ));
+          float _dz = fabs(tk->dz( rvtx.position() ));
+          float _d0e = hypot(tk->dxyError(), hypot(rvtx.xError(), rvtx.yError()));
+          float _dze = hypot(tk->dzError(), rvtx.zError());
+          
+          thisJetTrackD0SigAtVtx.emplace_back( _d0/_d0e );
+          thisJetTrackDzSigAtVtx.emplace_back( _dz/_dze );
+        }
+
       }
     }
+    jetTrackD0SigAtVtx_.emplace_back(thisJetTrackD0SigAtVtx);
+    jetTrackDzSigAtVtx_.emplace_back(thisJetTrackDzSigAtVtx);
 
     if ( _foundGoodVertex==false )
     {
