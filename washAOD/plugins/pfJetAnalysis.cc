@@ -20,6 +20,8 @@
 // #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include <cmath>
 
+#define M_Mu 0.1056584
+
 pfJetAnalysis::pfJetAnalysis(const edm::ParameterSet& ps) :
   jetTag_(ps.getParameter<edm::InputTag>("src")),
   jetToken_(consumes<reco::PFJetCollection>(jetTag_)),
@@ -117,6 +119,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetVtxMatchDist",        &jetVtxMatchDist_);
   jetT_->Branch("jetVtxMatchDistT",       &jetVtxMatchDistT_);
   jetT_->Branch("jetVtxNormChi2",         &jetVtxNormChi2_);
+  jetT_->Branch("jetVtxMass",             &jetVtxMass_);
   jetT_->Branch("jetMatched",             &jetMatched_);
 
   // ****************************************
@@ -361,6 +364,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetTrackIsDsa_.reserve(2);
   jetVtxNormChi2_.clear();
   jetVtxNormChi2_.reserve(2);
+  jetVtxMass_.clear();
+  jetVtxMass_.reserve(2);
   jetChargedMultiplicity_.clear();
   jetChargedMultiplicity_.reserve(2);
   jetMuonMultiplicity_.clear();
@@ -578,11 +583,13 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         
         Measurement1D distXY = vdistXY.distance(tv.vertexState(), pv);
         Measurement1D dist3D = vdist3D.distance(tv.vertexState(), pv);
+        
         jetVtxLxy_.emplace_back( distXY.value() );
         jetVtxL3D_.emplace_back( dist3D.value() );
         jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
         jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
         jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
+        jetVtxMass_.emplace_back( reco::Vertex(tv).p4(M_Mu).M() );
 
         if (_matched)
         {
@@ -606,6 +613,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       jetVtxLxySig_.emplace_back( NAN );
       jetVtxL3DSig_.emplace_back( NAN );
       jetVtxNormChi2_  .emplace_back( NAN );
+      jetVtxMass_      .emplace_back( NAN );
       jetVtxMatchDistT_.emplace_back( NAN );
       jetVtxMatchDist_ .emplace_back( NAN );
     }

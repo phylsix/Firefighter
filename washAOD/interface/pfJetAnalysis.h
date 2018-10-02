@@ -101,6 +101,7 @@ class pfJetAnalysis :
     std::vector<float> jetVtxMatchDist_;
     std::vector<float> jetVtxMatchDistT_;
     std::vector<float> jetVtxNormChi2_;
+    std::vector<float> jetVtxMass_;
     std::vector<int> jetChargedMultiplicity_;
     std::vector<int> jetMuonMultiplicity_;
     std::vector<int> jetNConstituents_;
