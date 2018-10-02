@@ -472,7 +472,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   vector<float> thisJetTrackD0SigAtVtx{};
   vector<float> thisJetTrackDzSigAtVtx{};
   vector<float> thisJetTrackNormChi2{};
-  vector<bool> thisJetTrackIsDsa{};
+  vector<int>   thisJetTrackIsDsa{};
 
   for (const auto& jet : goodJets)
   {
@@ -581,7 +581,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       thisJetTrackDzSig   .emplace_back( fabs(tk->dz())/tk->dzError() );
       thisJetTrackNormChi2.emplace_back( tk->normalizedChi2() );
       
-      bool _isDsa = true ? tk.id()==dSAMuHandle_.id() : false;
+      int _isDsa = 1 ? tk.id()==dSAMuHandle_.id() : 0;
       thisJetTrackIsDsa.emplace_back(_isDsa);
 
       // if ( fabs(tk->d0())/tk->d0Error() < 2.) { continue; }
