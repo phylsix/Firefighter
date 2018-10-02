@@ -92,6 +92,7 @@ class pfJetAnalysis :
     std::vector<std::vector<float>> jetTrackPt_;
     std::vector<std::vector<float>> jetTrackEta_;
     std::vector<std::vector<float>> jetTrackD0Sig_;
+    std::vector<std::vector<float>> jetTrackDzSig_;   
     std::vector<std::vector<float>> jetTrackNormChi2_;
     std::vector<std::vector<bool>>  jetTrackIsDsa_;
     std::vector<float> jetVtxLxy_;

@@ -110,6 +110,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetTrackPt",             &jetTrackPt_);
   jetT_->Branch("jetTrackEta",            &jetTrackEta_);
   jetT_->Branch("jetTrackD0Sig",          &jetTrackD0Sig_);
+  jetT_->Branch("jetTrackDzSig",          &jetTrackDzSig_);
   jetT_->Branch("jetTrackNormChi2",       &jetTrackNormChi2_);
   jetT_->Branch("jetTrackIsDsa",          &jetTrackIsDsa_);
   jetT_->Branch("jetVtxLxy",              &jetVtxLxy_);
@@ -358,6 +359,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetTrackEta_.reserve(2);
   jetTrackD0Sig_.clear();
   jetTrackD0Sig_.reserve(2);
+  jetTrackDzSig_.clear();
+  jetTrackDzSig_.reserve(2);
   jetTrackNormChi2_.clear();
   jetTrackNormChi2_.reserve(2);
   jetTrackIsDsa_.clear();
@@ -455,6 +458,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   vector<float> thisJetTrackPt{};
   vector<float> thisJetTrackEta{};
   vector<float> thisJetTrackD0Sig{};
+  vector<float> thisJetTrackDzSig{};
   vector<float> thisJetTrackNormChi2{};
   vector<bool> thisJetTrackIsDsa{};
 
@@ -542,11 +546,13 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     thisJetTrackPt      .clear();
     thisJetTrackEta     .clear();
     thisJetTrackD0Sig   .clear();
+    thisJetTrackDzSig   .clear();
     thisJetTrackNormChi2.clear();
     thisJetTrackIsDsa   .clear();
     thisJetTrackPt      .reserve(tks.size());
     thisJetTrackEta     .reserve(tks.size());
     thisJetTrackD0Sig   .reserve(tks.size());
+    thisJetTrackDzSig   .reserve(tks.size());
     thisJetTrackNormChi2.reserve(tks.size());
     thisJetTrackIsDsa   .reserve(tks.size());
     
@@ -555,6 +561,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       thisJetTrackPt .emplace_back( tk->pt() );
       thisJetTrackEta.emplace_back( tk->eta() );
       thisJetTrackD0Sig   .emplace_back( fabs(tk->d0())/tk->d0Error() );
+      thisJetTrackDzSig   .emplace_back( fabs(tk->dz())/tk->dzError() );
       thisJetTrackNormChi2.emplace_back( tk->normalizedChi2() );
       
       bool _isDsa = true ? tk.id()==dSAMuHandle_.id() : false;
@@ -569,6 +576,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     jetTrackPt_.emplace_back(thisJetTrackPt);
     jetTrackEta_.emplace_back(thisJetTrackEta);
     jetTrackD0Sig_.emplace_back(thisJetTrackD0Sig);
+    jetTrackDzSig_.emplace_back(thisJetTrackDzSig);
     jetTrackNormChi2_.emplace_back(thisJetTrackNormChi2);
     jetTrackIsDsa_.emplace_back(thisJetTrackIsDsa);
     
