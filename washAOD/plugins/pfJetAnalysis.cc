@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -715,7 +716,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   dijetNmatched_.clear();
   dijetNvtxed_  .clear();
 
-  genBsDphi_   = fabs(darkphotons[0]->phi() - darkphotons[1]->phi());
+  genBsDphi_   = deltaPhi(darkphotons[0]->phi(), darkphotons[1]->phi());
   genBsDeltaR_ = deltaR(*(darkphotons[0].get()), *(darkphotons[1].get()));
   genBsMass_   = (darkphotons[0]->p4() + darkphotons[1]->p4()).M();
 
@@ -734,20 +735,18 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
     for (int i(0); i!=(int)goodJets.size(); ++i)
     {
-      _nmatched = 0 ? isnan(jetMatchDist_[i]) : 1;
-      _nvtxed   = 0 ? isnan(jetVtxMass_[i])   : 1;
-
       for (int j(i+1); j!=(int)goodJets.size(); ++j)
       {
-        _dphi = fabs(goodJets[i]->phi() - goodJets[j]->phi());
-        if (_dphi<1.5) { continue; } // Too closeby,should skip
+        _dphi = deltaPhi(goodJets[i]->phi(), goodJets[j]->phi());
+        if (_dphi<2.) { continue; } // Too closeby,should skip
         
         dijetDphi_.emplace_back(_dphi);
         dijetDeltaR_.emplace_back(deltaR(*(goodJets[i].get()), *(goodJets[j].get())));
         dijetMass_.emplace_back((goodJets[i]->p4() + goodJets[j]->p4()).M());
         
-        if (!isnan(jetMatchDist_[j])) { ++_nmatched; }
-        if (!isnan(jetVtxMass_[j]))   { ++_nvtxed;   }
+
+        _nmatched = !isnan(jetMatchDist_[i]) + !isnan(jetMatchDist_[j]);
+        _nvtxed   = !isnan(jetVtxMass_[i]) + !isnan(jetVtxMass_[j]);
 
         dijetNmatched_.emplace_back(_nmatched);
         dijetNvtxed_  .emplace_back(_nvtxed);
