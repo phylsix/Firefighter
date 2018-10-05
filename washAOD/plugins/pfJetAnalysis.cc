@@ -127,6 +127,20 @@ pfJetAnalysis::beginJob()
 
   // ****************************************
 
+  boundstateT_ = fs->make<TTree>("Bps", "");
+
+  boundstateT_->Branch("dijetDphi",     &dijetDphi_);
+  boundstateT_->Branch("dijetDeltaR",   &dijetDeltaR_);
+  boundstateT_->Branch("dijetMass",     &dijetMass_);
+  boundstateT_->Branch("dijetNmatched", &dijetNmatched_);
+  boundstateT_->Branch("dijetNvtxed",   &dijetNvtxed_);
+
+  boundstateT_->Branch("genBsDphi",   &genBsDphi_,   "genBsDphi/F");
+  boundstateT_->Branch("genBsDeltaR", &genBsDeltaR_, "genBsDeltaR/F");
+  boundstateT_->Branch("genBsMass",   &genBsMass_,   "genBsMass/F");
+
+  // ****************************************
+
   dSAT_ = fs->make<TTree>("dSA", "");
 
   dSAT_->Branch("ndSA", &ndSA_, "ndSA/i");
@@ -695,7 +709,57 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
   //*****************************************************
 
+  dijetDphi_  .clear();
+  dijetDeltaR_.clear();
+  dijetMass_  .clear();
+  dijetNmatched_.clear();
+  dijetNvtxed_  .clear();
 
+  genBsDphi_   = fabs(darkphotons[0]->phi() - darkphotons[1]->phi());
+  genBsDeltaR_ = deltaR(*(darkphotons[0].get()), *(darkphotons[1].get()));
+  genBsMass_   = (darkphotons[0]->p4() + darkphotons[1]->p4()).M();
+
+  if (goodJets.size()>=2)
+  {
+    int reservedSize = goodJets.size()*(goodJets.size()-1);
+    dijetDphi_    .reserve(reservedSize);
+    dijetDeltaR_  .reserve(reservedSize);
+    dijetMass_    .reserve(reservedSize);
+    dijetNmatched_.reserve(reservedSize);
+    dijetNvtxed_  .reserve(reservedSize);
+
+    int _nmatched(0);
+    int _nvtxed(0);
+    float _dphi(0.);
+
+    for (int i(0); i!=(int)goodJets.size(); ++i)
+    {
+      _nmatched = 0 ? isnan(jetMatchDist_[i]) : 1;
+      _nvtxed   = 0 ? isnan(jetVtxMass_[i])   : 1;
+
+      for (int j(i+1); j!=(int)goodJets.size(); ++j)
+      {
+        _dphi = fabs(goodJets[i]->phi() - goodJets[j]->phi());
+        if (_dphi<1.5) { continue; } // Too closeby,should skip
+        
+        dijetDphi_.emplace_back(_dphi);
+        dijetDeltaR_.emplace_back(deltaR(*(goodJets[i].get()), *(goodJets[j].get())));
+        dijetMass_.emplace_back((goodJets[i]->p4() + goodJets[j]->p4()).M());
+        
+        if (!isnan(jetMatchDist_[j])) { ++_nmatched; }
+        if (!isnan(jetVtxMass_[j]))   { ++_nvtxed;   }
+
+        dijetNmatched_.emplace_back(_nmatched);
+        dijetNvtxed_  .emplace_back(_nvtxed);
+      }
+    }
+  }
+
+  boundstateT_->Fill();
+
+
+
+  //********************************************************
   return;
 }
 

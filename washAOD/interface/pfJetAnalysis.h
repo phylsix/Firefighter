@@ -120,6 +120,16 @@ class pfJetAnalysis :
     std::vector<float> genDarkphotonLxy_;
     std::vector<float> genDarkphotonL3D_;
 
+    std::vector<float> dijetDphi_;
+    std::vector<float> dijetDeltaR_;
+    std::vector<float> dijetMass_;
+    std::vector<int>   dijetNmatched_;
+    std::vector<int>   dijetNvtxed_;
+
+    float genBsDphi_;
+    float genBsDeltaR_;
+    float genBsMass_;
+
     unsigned int ndSA_;
     
     std::vector<float> genMuonPt_;
@@ -138,6 +148,7 @@ class pfJetAnalysis :
 
     TTree *jetT_;
     TTree *dSAT_;
+    TTree *boundstateT_;
 };
 
 #endif
