@@ -28,13 +28,13 @@ jetToolbox( process, 'ak1', 'jetSequence', 'out',
             newPFCollection = True, nameNewPFCollection = 'combPFdSA',
             verbosity=0 )
 
-pfjetana.kvfParam.maxDistance = 0.1
+# pfjetana.kvfParam.maxDistance = 0.1
 pfjetana.dsa = cms.InputTag("selectedDsaMuons")
 process.ak4PfJet = pfjetana.clone( src=cms.InputTag("ak4PFJetsComb", "", "USER") )
 process.ak2PfJet = pfjetana.clone( src=cms.InputTag("ak2PFJetsComb", "", "USER") )
 process.ak1PfJet = pfjetana.clone( src=cms.InputTag("ak1PFJetsComb", "", "USER") )
 
-process.p2 = cms.Path(
+process.p1 = cms.Path(
     process.ak4PfJet +
     process.ak2PfJet +
     process.ak1PfJet
