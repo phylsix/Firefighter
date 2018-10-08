@@ -123,12 +123,16 @@ class pfJetAnalysis :
     std::vector<float> dijetDphi_;
     std::vector<float> dijetDeltaR_;
     std::vector<float> dijetMass_;
+    std::vector<float> dijetChargedMass_;
+    std::vector<float> dijetVertexMass_;
     std::vector<int>   dijetNmatched_;
     std::vector<int>   dijetNvtxed_;
+    std::vector<int>   dijetNhasDsa_;
 
     float genBsDphi_;
     float genBsDeltaR_;
     float genBsMass_;
+    float genDpLxy_;
 
     unsigned int ndSA_;
     

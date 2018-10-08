@@ -20,6 +20,7 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 // #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include <cmath>
+#include "TLorentzVector.h"
 
 #define M_Mu 0.1056584
 
@@ -133,12 +134,16 @@ pfJetAnalysis::beginJob()
   boundstateT_->Branch("dijetDphi",     &dijetDphi_);
   boundstateT_->Branch("dijetDeltaR",   &dijetDeltaR_);
   boundstateT_->Branch("dijetMass",     &dijetMass_);
+  boundstateT_->Branch("dijetChargedMass", &dijetChargedMass_);
+  boundstateT_->Branch("dijetVertexMass",  &dijetVertexMass_);
   boundstateT_->Branch("dijetNmatched", &dijetNmatched_);
   boundstateT_->Branch("dijetNvtxed",   &dijetNvtxed_);
+  boundstateT_->Branch("dijetNhasDsa",  &dijetNhasDsa_);
 
   boundstateT_->Branch("genBsDphi",   &genBsDphi_,   "genBsDphi/F");
   boundstateT_->Branch("genBsDeltaR", &genBsDeltaR_, "genBsDeltaR/F");
   boundstateT_->Branch("genBsMass",   &genBsMass_,   "genBsMass/F");
+  boundstateT_->Branch("genDpLxy",    &genDpLxy_,    "genDpLxy/F");
 
   // ****************************************
 
@@ -489,6 +494,9 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   vector<float> thisJetTrackNormChi2{};
   vector<int>   thisJetTrackIsDsa{};
 
+  vector<TLorentzVector> thisJetChargedP4{};
+  vector<TLorentzVector> thisJetVertexP4{};
+
   for (const auto& jet : goodJets)
   {
     bool _matched = jetDarkphotonMap.count(jet)>0 ? true : false;
@@ -532,6 +540,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         chargedEmEnergy += iConst->energy();
       }
     }
+
+    thisJetChargedP4.emplace_back(chargedP4.Px(), chargedP4.Py(), chargedP4.Pz(), chargedP4.E());
 
     jetEnergy_.emplace_back(j.energy());
     jetMass_  .emplace_back(j.mass());
@@ -612,6 +622,9 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     jetTrackNormChi2_.emplace_back(thisJetTrackNormChi2);
     jetTrackIsDsa_.emplace_back(thisJetTrackIsDsa);
     
+
+    TLorentzVector vertexP4;
+
     if ( t_tks.size()>= 2 )
     {
       unique_ptr<ff::KalmanVertexFitter> kvf(new ff::KalmanVertexFitter(kvfParam_,
@@ -630,7 +643,11 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
         jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
         jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
-        jetVtxMass_.emplace_back( rvtx.p4(M_Mu).M() );
+        
+        auto rvtxp4 = rvtx.p4(M_Mu);
+        vertexP4.SetPxPyPzE(rvtxp4.Px(), rvtxp4.Py(), rvtxp4.Pz(), rvtxp4.E());
+        
+        jetVtxMass_.emplace_back( rvtxp4.M() );
 
         if (_matched)
         {
@@ -660,6 +677,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     }
     jetTrackD0SigAtVtx_.emplace_back(thisJetTrackD0SigAtVtx);
     jetTrackDzSigAtVtx_.emplace_back(thisJetTrackDzSigAtVtx);
+    thisJetVertexP4.emplace_back(vertexP4);
 
     if ( _foundGoodVertex==false )
     {
@@ -713,12 +731,16 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   dijetDphi_  .clear();
   dijetDeltaR_.clear();
   dijetMass_  .clear();
+  dijetChargedMass_.clear();
+  dijetVertexMass_.clear();
   dijetNmatched_.clear();
   dijetNvtxed_  .clear();
+  dijetNhasDsa_ .clear();
 
-  genBsDphi_   = deltaPhi(darkphotons[0]->phi(), darkphotons[1]->phi());
+  genBsDphi_   = fabs(deltaPhi(darkphotons[0]->phi(), darkphotons[1]->phi()));
   genBsDeltaR_ = deltaR(*(darkphotons[0].get()), *(darkphotons[1].get()));
   genBsMass_   = (darkphotons[0]->p4() + darkphotons[1]->p4()).M();
+  genDpLxy_    = darkphotons[0]->daughterRef(0)->vertex().rho();
 
   if (goodJets.size()>=2)
   {
@@ -726,10 +748,14 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     dijetDphi_    .reserve(reservedSize);
     dijetDeltaR_  .reserve(reservedSize);
     dijetMass_    .reserve(reservedSize);
+    dijetChargedMass_.reserve(reservedSize);
+    dijetVertexMass_.reserve(reservedSize);
     dijetNmatched_.reserve(reservedSize);
     dijetNvtxed_  .reserve(reservedSize);
+    dijetNhasDsa_ .reserve(reservedSize);
 
     int _nmatched(0);
+    int _nhasdsa(0);
     int _nvtxed(0);
     float _dphi(0.);
 
@@ -737,19 +763,23 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     {
       for (int j(i+1); j!=(int)goodJets.size(); ++j)
       {
-        _dphi = deltaPhi(goodJets[i]->phi(), goodJets[j]->phi());
+        _dphi = fabs(deltaPhi(goodJets[i]->phi(), goodJets[j]->phi()));
         if (_dphi<2.) { continue; } // Too closeby,should skip
         
         dijetDphi_.emplace_back(_dphi);
         dijetDeltaR_.emplace_back(deltaR(*(goodJets[i].get()), *(goodJets[j].get())));
         dijetMass_.emplace_back((goodJets[i]->p4() + goodJets[j]->p4()).M());
+        dijetChargedMass_.emplace_back( (thisJetChargedP4[i]+thisJetChargedP4[j]).M() );
+        dijetVertexMass_ .emplace_back( (thisJetVertexP4[i] +thisJetVertexP4[j] ).M() );
         
 
         _nmatched = !isnan(jetMatchDist_[i]) + !isnan(jetMatchDist_[j]);
-        _nvtxed   = !isnan(jetVtxMass_[i]) + !isnan(jetVtxMass_[j]);
+        _nvtxed   = !isnan(jetVtxMass_[i])   + !isnan(jetVtxMass_[j]);
+        _nhasdsa  = (jetSeedType_[i]==8) + (jetSeedType_[j]==8);
 
         dijetNmatched_.emplace_back(_nmatched);
         dijetNvtxed_  .emplace_back(_nvtxed);
+        dijetNhasDsa_ .emplace_back(_nhasdsa);
       }
     }
   }
