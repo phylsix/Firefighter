@@ -6,17 +6,7 @@ year = '2017'
 frag = 'tuplizer' #'jetTuplizer'
 suffixTag = '100k' # [100k, Pythia, PythiaTest2]
 prefixTag = 'SIDM_BsTo2DpTo4Mu'
-
-exited = '''SIDM_BsTo2DpTo4Mu_MBs-200_MDp-0p3_ctau-1p2_15k
-    SIDM_BsTo2DpTo4Mu_MBs-40_MDp-1p2_ctau-2p4_15k
-    SIDM_BsTo2DpTo4Mu_MBs-1000_MDp-0p3_ctau-0p24_15k
-    SIDM_BsTo2DpTo4Mu_MBs-1000_MDp-0p3_ctau-0p024_15k
-    SIDM_BsTo2DpTo4Mu_MBs-40_MDp-0p3_ctau-0p6_15k
-    SIDM_BsTo2DpTo4Mu_MBs-10_MDp-1p2_ctau-96_15k
-    SIDM_BsTo2DpTo4Mu_MBs-10_MDp-0p3_ctau-2p4_15k
-    SIDM_BsTo2DpTo4Mu_MBs-200_MDp-0p3_ctau-0p12_15k
-    SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48_15k
-    SIDM_BsTo2DpTo4Mu_MBs-1000_MDp-1p2_ctau-0p96_15k'''
+exited = open('exited.txt').readlines()
 
 def make_datalink_list(prefix):
     return [f for f in os.listdir('../data/'+year) if f.startswith(prefix)]
@@ -57,7 +47,7 @@ def main():
 
     allList = make_datalink_list(prefixTag)
 
-    exitedList = [e.strip() for e in exited.split('\n')]
+    exitedList = [e.strip() for e in exited]
     datalinkFilelist = lookup_files(exitedList, allList)
     for f in datalinkFilelist:
         datalistF = f.split('.')[0]
