@@ -32,7 +32,7 @@ def setup_process(proc, testFileName='test.root'):
         options.outputFile = testFileName
     else:
         options.maxEvents = -1
-    
+
 
     proc.load("FWCore.MessageService.MessageLogger_cfi")
     proc.load('Configuration.StandardSequences.Services_cff')
@@ -45,7 +45,7 @@ def setup_process(proc, testFileName='test.root'):
     proc.load("Configuration.StandardSequences.GeometryRecoDB_cff")
     proc.load('Configuration.StandardSequences.MagneticField_38T_cff')
     proc.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-    
+
     if options.year == 2017:
         proc.GlobalTag.globaltag = '94X_mc2017_realistic_v15'
     if options.year == 2018:
@@ -82,4 +82,4 @@ def setup_process(proc, testFileName='test.root'):
                     closeFileFast = cms.untracked.bool(True)
                     )
 
-    return proc
+    return (proc, options)

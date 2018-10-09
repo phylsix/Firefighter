@@ -7,7 +7,7 @@ from Firefighter.washAOD.pfJetAnalysis_cfi import pfjetana
 
 process = cms.Process("USER")
 process = setup_process(process,
-                        testFileName='jetTuplizer.root')
+                        testFileName='jetTuplizer.root')[0]
 
 process = addDSAmergeSeq(process)
 

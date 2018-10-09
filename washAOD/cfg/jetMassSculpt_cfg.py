@@ -7,7 +7,7 @@ from Firefighter.washAOD.jetMassSculpting_cfi import jetmasssculpt
 
 process = cms.Process("USER")
 process = setup_process(process,
-                        testFileName='jetMassSculpt.root')
+                        testFileName='jetMassSculpt.root')[0]
 
 process = addDSAmergeSeq(process)
 
