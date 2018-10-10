@@ -18,6 +18,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 // #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include <cmath>
 #include "TLorentzVector.h"
@@ -124,6 +125,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetVtxMatchDist",        &jetVtxMatchDist_);
   jetT_->Branch("jetVtxMatchDistT",       &jetVtxMatchDistT_);
   jetT_->Branch("jetVtxNormChi2",         &jetVtxNormChi2_);
+  jetT_->Branch("jetVtxProb",             &jetVtxProb_);
   jetT_->Branch("jetVtxMass",             &jetVtxMass_);
   jetT_->Branch("jetMatched",             &jetMatched_);
 
@@ -397,6 +399,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetTrackDzSigAtVtx_.reserve(2);
   jetVtxNormChi2_.clear();
   jetVtxNormChi2_.reserve(2);
+  jetVtxProb_.clear();
+  jetVtxProb_.reserve(2);
   jetVtxMass_.clear();
   jetVtxMass_.reserve(2);
   jetChargedMultiplicity_.clear();
@@ -643,6 +647,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
         jetVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
         jetVtxNormChi2_.emplace_back( tv.normalisedChiSquared() );
+        jetVtxProb_.emplace_back( ChiSquaredProbability(tv.totalChiSquared(), tv.degreesOfFreedom()) );
         
         auto rvtxp4 = rvtx.p4(M_Mu);
         vertexP4.SetPxPyPzE(rvtxp4.Px(), rvtxp4.Py(), rvtxp4.Pz(), rvtxp4.E());
@@ -686,6 +691,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       jetVtxLxySig_.emplace_back( NAN );
       jetVtxL3DSig_.emplace_back( NAN );
       jetVtxNormChi2_  .emplace_back( NAN );
+      jetVtxProb_      .emplace_back( NAN );
       jetVtxMass_      .emplace_back( NAN );
       jetVtxMatchDistT_.emplace_back( NAN );
       jetVtxMatchDist_ .emplace_back( NAN );
