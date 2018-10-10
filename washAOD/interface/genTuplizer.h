@@ -38,14 +38,14 @@ class genTuplizer :
 
     std::vector<int> pid_;
     std::vector<int> charge_;
-    std::vector<double> pt_, pz_;
-    std::vector<double> eta_, phi_;
-    std::vector<double> vxy_, vz_;
-    std::vector<double> mass_, energy_;
+    std::vector<float> pt_, pz_;
+    std::vector<float> eta_, phi_;
+    std::vector<float> vxy_, vz_;
+    std::vector<float> mass_, energy_;
 
-    std::vector<double> pairInvM_;
-    std::vector<double> pairDeltaR_;
-    std::vector<int>    pairPid_;
+    std::vector<float> pairInvM_;
+    std::vector<float> pairDeltaR_;
+    std::vector<int>   pairPid_;
 
     TTree *genT_;
 };

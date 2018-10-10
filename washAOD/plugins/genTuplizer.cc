@@ -2,8 +2,8 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
-#include "TLorentzVector.h"
 
 genTuplizer::genTuplizer(const edm::ParameterSet& ps) :
   genParticleTag_(ps.getParameter<edm::InputTag>("genParticle")),
@@ -78,9 +78,9 @@ genTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       reco::GenParticleRef genB(genParticleHandle_, jg);
       if (!genB->isHardProcess() or abs(genB->pdgId())<9) continue;
       // conditions to be counted as a pair:
-      // 1. opposite pdgId/charge
+      // 1. opposite or same pdgId/charge
       // 2. same vertex.
-      if (genA->pdgId() + genB->pdgId() != 0) {continue;}
+      if (abs(genA->pdgId()) != abs(genB->pdgId())) {continue;}
       if (genA->vertex()!=genB->vertex()) {continue;}
       genPairs.emplace_back(genA, genB);
     }
@@ -93,28 +93,23 @@ genTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (!gp.isHardProcess() or abs(gp.pdgId())<9) continue;
     //cout<<gp.pdgId()<<":\t"<<gp.vx()<<"\t"<<gp.vy()<<"\t"<<gp.vz()<<"\t"<<gp.eta()<<"\t"<<gp.phi()<<"\t"<<gp.pt()<<endl;
     //cout<<gp.pdgId()<<":\t"<<gp.statusFlags().flags_<<endl;
-    pid_.push_back(gp.pdgId());
-    charge_.push_back(gp.charge());
-    pt_.push_back(gp.pt());
-    pz_.push_back(gp.pz());
-    eta_.push_back(gp.eta());
-    phi_.push_back(gp.phi());
-    mass_.push_back(gp.mass());
-    energy_.push_back(gp.energy());
+    pid_.emplace_back(gp.pdgId());
+    charge_.emplace_back(gp.charge());
+    pt_.emplace_back(gp.pt());
+    pz_.emplace_back(gp.pz());
+    eta_.emplace_back(gp.eta());
+    phi_.emplace_back(gp.phi());
+    mass_.emplace_back(gp.mass());
+    energy_.emplace_back(gp.energy());
 
-    vxy_.push_back(gp.vertex().rho());
-    vz_.push_back(gp.vz());
+    vxy_.emplace_back(gp.vertex().rho());
+    vz_.emplace_back(gp.vz());
   }
 
   for (const auto& gp : genPairs) {
-    double deta = gp.first->eta() - gp.second->eta();
-    double dphi = gp.first->phi() - gp.second->phi();
-    pairDeltaR_.push_back(sqrt(deta*deta + dphi*dphi));
-
-    TLorentzVector vec_a(gp.first->px(), gp.first->py(), gp.first->pz(), gp.first->energy());
-    TLorentzVector vec_b(gp.second->px(), gp.second->py(), gp.second->pz(), gp.second->energy());
-    pairInvM_.push_back((vec_a+vec_b).M());
-    pairPid_.push_back(abs(gp.first->pdgId()));
+    pairDeltaR_.emplace_back(deltaR(*(gp.first.get()), *(gp.second.get())));
+    pairInvM_.emplace_back((gp.first->p4() + gp.second->p4()).M());
+    pairPid_.emplace_back(abs(gp.first->pdgId()));
   }
 
   genT_->Fill();
