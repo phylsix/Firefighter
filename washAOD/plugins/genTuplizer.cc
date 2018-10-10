@@ -39,6 +39,7 @@ genTuplizer::beginJob()
   genT_->Branch("vxy", &vxy_);
   genT_->Branch("vz", &vz_);
   genT_->Branch("pairInvM", &pairInvM_);
+  genT_->Branch("pairDphi", &pairDphi_);
   genT_->Branch("pairDeltaR", &pairDeltaR_);
   genT_->Branch("pairPid", &pairPid_);
 }
@@ -107,6 +108,7 @@ genTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   for (const auto& gp : genPairs) {
+    pairDphi_.emplace_back( fabs(deltaPhi(gp.first->phi(), gp.second->phi())) );
     pairDeltaR_.emplace_back(deltaR(*(gp.first.get()), *(gp.second.get())));
     pairInvM_.emplace_back((gp.first->p4() + gp.second->p4()).M());
     pairPid_.emplace_back(abs(gp.first->pdgId()));

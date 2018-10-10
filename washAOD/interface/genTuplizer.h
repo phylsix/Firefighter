@@ -44,6 +44,7 @@ class genTuplizer :
     std::vector<float> mass_, energy_;
 
     std::vector<float> pairInvM_;
+    std::vector<float> pairDphi_;
     std::vector<float> pairDeltaR_;
     std::vector<int>   pairPid_;
 
