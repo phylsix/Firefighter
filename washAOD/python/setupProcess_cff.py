@@ -67,9 +67,11 @@ def setup_process(proc, testFileName='test.root'):
                         )
         )
     proc.options = cms.untracked.PSet(
-        wantSummary = cms.untracked.bool(False),
-        numberOfThreads = cms.untracked.uint32(8)
+        wantSummary = cms.untracked.bool(False)
     )
+    if not options.test:
+        proc.options.numberOfThreads = cms.untracked.uint32(8)
+
     proc.maxEvents = cms.untracked.PSet(
                     input = cms.untracked.int32(options.maxEvents)
                     )
