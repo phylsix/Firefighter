@@ -1,24 +1,36 @@
 #include "Firefighter/washAOD/interface/pfJetAnalysis.h"
 #include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
+#include "Firefighter/recoStuff/interface/KinematicParticleVertexFitter.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/Point3D.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
+// #include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
+// #include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
+// #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
+// #include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
+// #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
+// #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
+
+#include "FWCore/Common/interface/TriggerNames.h"
 // #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include <cmath>
 #include "TLorentzVector.h"
@@ -118,6 +130,7 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetTrackIsDsa",          &jetTrackIsDsa_);
   jetT_->Branch("jetTrackD0SigAtVtx",     &jetTrackD0SigAtVtx_);
   jetT_->Branch("jetTrackDzSigAtVtx",     &jetTrackDzSigAtVtx_);
+  jetT_->Branch("jetVtxIsVal",            &jetVtxIsVal_);
   jetT_->Branch("jetVtxLxy",              &jetVtxLxy_);
   jetT_->Branch("jetVtxL3D",              &jetVtxL3D_);
   jetT_->Branch("jetVtxLxySig",           &jetVtxLxySig_);
@@ -127,6 +140,16 @@ pfJetAnalysis::beginJob()
   jetT_->Branch("jetVtxNormChi2",         &jetVtxNormChi2_);
   jetT_->Branch("jetVtxProb",             &jetVtxProb_);
   jetT_->Branch("jetVtxMass",             &jetVtxMass_);
+  jetT_->Branch("jetKinVtxIsVal",         &jetKinVtxIsVal_);
+  jetT_->Branch("jetKinVtxLxy",           &jetKinVtxLxy_);
+  jetT_->Branch("jetKinVtxL3D",           &jetKinVtxL3D_);
+  jetT_->Branch("jetKinVtxLxySig",        &jetKinVtxLxySig_);
+  jetT_->Branch("jetKinVtxL3DSig",        &jetKinVtxL3DSig_);
+  jetT_->Branch("jetKinVtxMatchDist",     &jetKinVtxMatchDist_);
+  jetT_->Branch("jetKinVtxMatchDistT",    &jetKinVtxMatchDistT_);
+  jetT_->Branch("jetKinVtxNormChi2",      &jetKinVtxNormChi2_);
+  jetT_->Branch("jetKinVtxProb",          &jetKinVtxProb_);
+  jetT_->Branch("jetKinVtxMass",          &jetKinVtxMass_);
   jetT_->Branch("jetMatched",             &jetMatched_);
 
   // ****************************************
@@ -138,8 +161,10 @@ pfJetAnalysis::beginJob()
   boundstateT_->Branch("dijetMass",     &dijetMass_);
   boundstateT_->Branch("dijetChargedMass", &dijetChargedMass_);
   boundstateT_->Branch("dijetVertexMass",  &dijetVertexMass_);
+  boundstateT_->Branch("dijetKinVtxMass",  &dijetKinVtxMass_);
   boundstateT_->Branch("dijetNmatched", &dijetNmatched_);
   boundstateT_->Branch("dijetNvtxed",   &dijetNvtxed_);
+  boundstateT_->Branch("dijetNkinVtxed",&dijetNkinVtxed_);
   boundstateT_->Branch("dijetNhasDsa",  &dijetNhasDsa_);
 
   boundstateT_->Branch("genBsDphi",   &genBsDphi_,   "genBsDphi/F");
@@ -359,20 +384,8 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetEta_     .reserve(2);
   jetPhi_     .clear();
   jetPhi_     .reserve(2);
-  jetVtxLxy_  .clear();
-  jetVtxLxy_  .reserve(2);
-  jetVtxL3D_  .clear();
-  jetVtxL3D_  .reserve(2);
-  jetVtxLxySig_.clear();
-  jetVtxLxySig_.reserve(2);
-  jetVtxL3DSig_.clear();
-  jetVtxL3DSig_.reserve(2);
   jetMatchDist_.clear();
   jetMatchDist_.reserve(2);
-  jetVtxMatchDist_.clear();
-  jetVtxMatchDist_.reserve(2);
-  jetVtxMatchDistT_.clear();
-  jetVtxMatchDistT_.reserve(2);
   jetChargedEmEnergyFrac_.clear();
   jetChargedEmEnergyFrac_.reserve(2);
   jetChargedHadEnergyFrac_.clear();
@@ -397,12 +410,47 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   jetTrackD0SigAtVtx_.reserve(2);
   jetTrackDzSigAtVtx_.clear();
   jetTrackDzSigAtVtx_.reserve(2);
+  jetVtxIsVal_.clear();
+  jetVtxIsVal_.reserve(2);
+  jetVtxLxy_  .clear();
+  jetVtxLxy_  .reserve(2);
+  jetVtxL3D_  .clear();
+  jetVtxL3D_  .reserve(2);
+  jetVtxLxySig_.clear();
+  jetVtxLxySig_.reserve(2);
+  jetVtxL3DSig_.clear();
+  jetVtxL3DSig_.reserve(2);
+  jetVtxMatchDist_.clear();
+  jetVtxMatchDist_.reserve(2);
+  jetVtxMatchDistT_.clear();
+  jetVtxMatchDistT_.reserve(2);
   jetVtxNormChi2_.clear();
   jetVtxNormChi2_.reserve(2);
   jetVtxProb_.clear();
   jetVtxProb_.reserve(2);
   jetVtxMass_.clear();
   jetVtxMass_.reserve(2);
+  jetKinVtxIsVal_.clear();
+  jetKinVtxIsVal_.reserve(2);
+  jetKinVtxLxy_  .clear();
+  jetKinVtxLxy_  .reserve(2);
+  jetKinVtxL3D_  .clear();
+  jetKinVtxL3D_  .reserve(2);
+  jetKinVtxLxySig_.clear();
+  jetKinVtxLxySig_.reserve(2);
+  jetKinVtxL3DSig_.clear();
+  jetKinVtxL3DSig_.reserve(2);
+  jetKinVtxMatchDist_.clear();
+  jetKinVtxMatchDist_.reserve(2);
+  jetKinVtxMatchDistT_.clear();
+  jetKinVtxMatchDistT_.reserve(2);
+  jetKinVtxNormChi2_.clear();
+  jetKinVtxNormChi2_.reserve(2);
+  jetKinVtxProb_.clear();
+  jetKinVtxProb_.reserve(2);
+  jetKinVtxMass_.clear();
+  jetKinVtxMass_.reserve(2);
+
   jetChargedMultiplicity_.clear();
   jetChargedMultiplicity_.reserve(2);
   jetMuonMultiplicity_.clear();
@@ -500,6 +548,7 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
 
   vector<TLorentzVector> thisJetChargedP4{};
   vector<TLorentzVector> thisJetVertexP4{};
+  vector<TLorentzVector> thisJetKinVtxP4{};
 
   for (const auto& jet : goodJets)
   {
@@ -582,7 +631,6 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     
     //***********************************
 
-    bool _foundGoodVertex = false;
     vector<reco::TransientTrack> t_tks{};
     
     thisJetTrackPt      .clear();
@@ -628,20 +676,25 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     
 
     TLorentzVector vertexP4;
+    TLorentzVector kinVertexP4;
 
     if ( t_tks.size()>= 2 )
     {
+      /*________________________*/
+      /*** KalmanVertexFitter ***/
+      /*________________________*/
+
       unique_ptr<ff::KalmanVertexFitter> kvf(new ff::KalmanVertexFitter(kvfParam_,
-                                            kvfParam_.getParameter<bool>("doSmoothing")));
+                                             kvfParam_.getParameter<bool>("doSmoothing")));
       TransientVertex tv = kvf->vertex(t_tks);
       if ( tv.isValid() /*and tv.normalisedChiSquared()<5.*/ )
       {
-        _foundGoodVertex = true;
         reco::Vertex rvtx = reco::Vertex(tv);
 
         Measurement1D distXY = vdistXY.distance(tv.vertexState(), pv);
         Measurement1D dist3D = vdist3D.distance(tv.vertexState(), pv);
         
+        jetVtxIsVal_.emplace_back(true);
         jetVtxLxy_.emplace_back( distXY.value() );
         jetVtxL3D_.emplace_back( dist3D.value() );
         jetVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
@@ -677,14 +730,98 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
           thisJetTrackD0SigAtVtx.emplace_back( _d0/_d0e );
           thisJetTrackDzSigAtVtx.emplace_back( _dz/_dze );
         }
-
       }
+      else
+      {
+        jetVtxIsVal_.emplace_back(false);
+      }
+
+
+      /*___________________________*/
+      /*** KinematicVertexFitter ***/
+      /*___________________________*/
+
+      KinematicParticleFactoryFromTransientTrack pFactory;
+
+      // The mass of a muon and the insignificant mass 
+      // sigma to avoid singularities in the covariance matrix.
+      ParticleMass muon_mass = 0.1056583;
+      float muon_sigma = 0.0000001;
+
+      // initial chi2 and ndf before kinematic fits. 
+      // The chi2 of the reconstruction is not considered 
+      float chi = 0.;
+      float ndf = 0.;
+        
+      // making particles  
+      vector<RefCountedKinematicParticle> allParticles;
+      for (const auto& ttk: t_tks)
+      {
+        allParticles.push_back( pFactory.particle(ttk, muon_mass, chi, ndf, muon_sigma) );
+      }
+
+      // fit to the vertex
+      ff::KinematicParticleVertexFitter kinFitter;
+      RefCountedKinematicTree kinTree = kinFitter.fit(allParticles);
+      if (kinTree->isValid())
+      {
+        kinTree->movePointerToTheTop();
+        RefCountedKinematicParticle kinMom = kinTree->currentParticle();
+        RefCountedKinematicVertex   kinV   = kinTree->currentDecayVertex();
+        if ( kinV->vertexIsValid() )
+        {
+          reco::Vertex rvtx = reco::Vertex(*kinV);
+
+          Measurement1D distXY = vdistXY.distance(kinV->vertexState(), pv);
+          Measurement1D dist3D = vdist3D.distance(kinV->vertexState(), pv);
+
+          jetKinVtxIsVal_.emplace_back(true);
+          jetKinVtxLxy_.emplace_back( distXY.value() );
+          jetKinVtxL3D_.emplace_back( dist3D.value() );
+          jetKinVtxLxySig_.emplace_back( distXY.value()/distXY.error() );
+          jetKinVtxL3DSig_.emplace_back( dist3D.value()/dist3D.error() );
+          jetKinVtxNormChi2_.emplace_back( kinV->chiSquared()/kinV->degreesOfFreedom() );
+          jetKinVtxProb_.emplace_back( ChiSquaredProbability(kinV->chiSquared(), kinV->degreesOfFreedom()) );
+          
+          auto rvtxp4 = rvtx.p4(M_Mu);
+          kinVertexP4.SetPxPyPzE(rvtxp4.Px(), rvtxp4.Py(), rvtxp4.Pz(), rvtxp4.E());
+          jetKinVtxMass_.emplace_back( rvtxp4.M() );
+
+          if (_matched)
+          {
+            const auto& dp = *(jetDarkphotonMap[jet].get());
+            math::XYZPoint vtxDiff(reco::Vertex(*kinV).position() - dp.daughterRef(0)->vertex());
+            jetKinVtxMatchDistT_.emplace_back( vtxDiff.rho() );
+            jetKinVtxMatchDist_ .emplace_back( sqrt(vtxDiff.mag2()) );
+          }
+          else
+          {
+            jetKinVtxMatchDistT_.emplace_back( NAN );
+            jetKinVtxMatchDist_ .emplace_back( NAN );
+          }
+        }
+        else
+        {
+          jetKinVtxIsVal_.emplace_back(false);
+        }
+        
+      }
+      else
+      {
+        jetKinVtxIsVal_.emplace_back(false);
+      }
+    }
+    else
+    {
+      jetVtxIsVal_.emplace_back(false);
+      jetKinVtxIsVal_.emplace_back(false);
     }
     jetTrackD0SigAtVtx_.emplace_back(thisJetTrackD0SigAtVtx);
     jetTrackDzSigAtVtx_.emplace_back(thisJetTrackDzSigAtVtx);
     thisJetVertexP4.emplace_back(vertexP4);
+    thisJetKinVtxP4.emplace_back(kinVertexP4);
 
-    if ( _foundGoodVertex==false )
+    if ( jetVtxIsVal_.back()==false )
     {
       jetVtxLxy_   .emplace_back( NAN );
       jetVtxL3D_   .emplace_back( NAN );
@@ -695,6 +832,19 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
       jetVtxMass_      .emplace_back( NAN );
       jetVtxMatchDistT_.emplace_back( NAN );
       jetVtxMatchDist_ .emplace_back( NAN );
+    }
+
+    if ( jetKinVtxIsVal_.back()==false )
+    {
+      jetKinVtxLxy_   .emplace_back( NAN );
+      jetKinVtxL3D_   .emplace_back( NAN );
+      jetKinVtxLxySig_.emplace_back( NAN );
+      jetKinVtxL3DSig_.emplace_back( NAN );
+      jetKinVtxNormChi2_  .emplace_back( NAN );
+      jetKinVtxProb_      .emplace_back( NAN );
+      jetKinVtxMass_      .emplace_back( NAN );
+      jetKinVtxMatchDistT_.emplace_back( NAN );
+      jetKinVtxMatchDist_ .emplace_back( NAN );
     }
 
     //***********************************
@@ -739,8 +889,10 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
   dijetMass_  .clear();
   dijetChargedMass_.clear();
   dijetVertexMass_.clear();
+  dijetKinVtxMass_.clear();
   dijetNmatched_.clear();
   dijetNvtxed_  .clear();
+  dijetNkinVtxed_.clear();
   dijetNhasDsa_ .clear();
 
   genBsDphi_   = fabs(deltaPhi(darkphotons[0]->phi(), darkphotons[1]->phi()));
@@ -756,13 +908,13 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
     dijetMass_    .reserve(reservedSize);
     dijetChargedMass_.reserve(reservedSize);
     dijetVertexMass_.reserve(reservedSize);
+    dijetKinVtxMass_.reserve(reservedSize);
     dijetNmatched_.reserve(reservedSize);
     dijetNvtxed_  .reserve(reservedSize);
     dijetNhasDsa_ .reserve(reservedSize);
+    dijetNkinVtxed_.reserve(reservedSize);
 
-    int _nmatched(0);
-    int _nhasdsa(0);
-    int _nvtxed(0);
+
     float _dphi(0.);
 
     for (int i(0); i!=(int)goodJets.size(); ++i)
@@ -777,15 +929,12 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         dijetMass_.emplace_back((goodJets[i]->p4() + goodJets[j]->p4()).M());
         dijetChargedMass_.emplace_back( (thisJetChargedP4[i]+thisJetChargedP4[j]).M() );
         dijetVertexMass_ .emplace_back( (thisJetVertexP4[i] +thisJetVertexP4[j] ).M() );
-        
+        dijetKinVtxMass_ .emplace_back( (thisJetKinVtxP4[i] +thisJetKinVtxP4[j] ).M() );
 
-        _nmatched = !isnan(jetMatchDist_[i]) + !isnan(jetMatchDist_[j]);
-        _nvtxed   = !isnan(jetVtxMass_[i])   + !isnan(jetVtxMass_[j]);
-        _nhasdsa  = (jetSeedType_[i]==8) + (jetSeedType_[j]==8);
-
-        dijetNmatched_.emplace_back(_nmatched);
-        dijetNvtxed_  .emplace_back(_nvtxed);
-        dijetNhasDsa_ .emplace_back(_nhasdsa);
+        dijetNmatched_.emplace_back( jetMatched_[i]+jetMatched_[j] );
+        dijetNvtxed_  .emplace_back( jetVtxIsVal_[i]+jetVtxIsVal_[j] );
+        dijetNkinVtxed_.emplace_back( jetKinVtxIsVal_[i]+jetKinVtxIsVal_[j] );
+        dijetNhasDsa_ .emplace_back( (jetSeedType_[i]==8)+(jetSeedType_[j]==8) );
       }
     }
   }

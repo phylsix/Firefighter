@@ -97,6 +97,7 @@ class pfJetAnalysis :
     std::vector<std::vector<int>>  jetTrackIsDsa_;
     std::vector<std::vector<float>> jetTrackD0SigAtVtx_;
     std::vector<std::vector<float>> jetTrackDzSigAtVtx_;
+    std::vector<bool>  jetVtxIsVal_;
     std::vector<float> jetVtxLxy_;
     std::vector<float> jetVtxL3D_;
     std::vector<float> jetVtxLxySig_;
@@ -106,6 +107,16 @@ class pfJetAnalysis :
     std::vector<float> jetVtxNormChi2_;
     std::vector<float> jetVtxProb_;
     std::vector<float> jetVtxMass_;
+    std::vector<bool>  jetKinVtxIsVal_;
+    std::vector<float> jetKinVtxLxy_;
+    std::vector<float> jetKinVtxL3D_;
+    std::vector<float> jetKinVtxLxySig_;
+    std::vector<float> jetKinVtxL3DSig_;
+    std::vector<float> jetKinVtxMatchDist_;
+    std::vector<float> jetKinVtxMatchDistT_;
+    std::vector<float> jetKinVtxNormChi2_;
+    std::vector<float> jetKinVtxProb_;
+    std::vector<float> jetKinVtxMass_;
     std::vector<int> jetChargedMultiplicity_;
     std::vector<int> jetMuonMultiplicity_;
     std::vector<int> jetNConstituents_;
@@ -126,8 +137,10 @@ class pfJetAnalysis :
     std::vector<float> dijetMass_;
     std::vector<float> dijetChargedMass_;
     std::vector<float> dijetVertexMass_;
+    std::vector<float> dijetKinVtxMass_;
     std::vector<int>   dijetNmatched_;
     std::vector<int>   dijetNvtxed_;
+    std::vector<int>   dijetNkinVtxed_;
     std::vector<int>   dijetNhasDsa_;
 
     float genBsDphi_;
