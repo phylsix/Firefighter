@@ -1,10 +1,10 @@
 #include "Firefighter/recoStuff/interface/KinematicParticleVertexFitter.h"
 #include "Firefighter/recoStuff/interface/SequentialVertexFitter.h"
+#include "Firefighter/recoStuff/interface/KalmanVertexUpdator.h"
 
 // #include "Vertex/LinearizationPointFinders/interface/LMSLinearizationPointFinder.h"
 #include "RecoVertex/KinematicFit/interface/FinalTreeBuilder.h"
 #include "RecoVertex/VertexTools/interface/SequentialVertexSmoother.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
@@ -35,7 +35,7 @@ ff::KinematicParticleVertexFitter::setup(const edm::ParameterSet &pSet)
   KalmanSmoothedVertexChi2Estimator<6> vse;
   KalmanTrackToTrackCovCalculator<6> covCalc;
   SequentialVertexSmoother<6> smoother(vtu, vse, covCalc);
-  fitter = new ff::SequentialVertexFitter<6>(pSet, *pointFinder, KalmanVertexUpdator<6>(),
+  fitter = new ff::SequentialVertexFitter<6>(pSet, *pointFinder, ff::KalmanVertexUpdator<6>(),
                                              smoother, ParticleKinematicLinearizedTrackStateFactory());
 }
 
@@ -51,14 +51,13 @@ ff::KinematicParticleVertexFitter::defaultParameters() const
 {
   edm::ParameterSet pSet;
   pSet.addParameter<double>("maxDistance", 0.01);
-  pSet.addParameter<int>("maxNbrOfIterations", 60); //10
+  pSet.addParameter<int>("maxNbrOfIterations", 100); //10
   return pSet;
 }
 
 RefCountedKinematicTree
 ff::KinematicParticleVertexFitter::fit(const std::vector<RefCountedKinematicParticle> &particles) const
 {
-  using namespace std;
   typedef ReferenceCountingPointer<VertexTrack<6>> RefCountedVertexTrack;
   //sorting the input
   if (particles.size() < 2)
@@ -91,14 +90,14 @@ ff::KinematicParticleVertexFitter::fit(const std::vector<RefCountedKinematicPart
     ttf.push_back(vFactory->vertexTrack((i)->particleLinearizedTrackState(linPoint), state, 1.));
   }
 
-  // //debugging code to check neutrals:
+  //debugging code to check neutrals:
   //  for(std::vector<RefCountedVertexTrack>::const_iterator i = ttf.begin(); i!=ttf.end(); i++)
   //  {
-  // //   cout<<"predicted state momentum error"<<(*i)->linearizedTrack()->predictedStateMomentumError()<<endl;
-  // //  cout<<"Momentum jacobian"<<(*i)->linearizedTrack()->momentumJacobian() <<endl;
-  //  //  cout<<"predicted state momentum "<<(*i)->linearizedTrack()->predictedStateMomentum()<<endl;
-  // //   cout<<"constant term"<<(*i)->linearizedTrack()->constantTerm()<<endl;
-  //
+  //   cout<<"predicted state momentum error"<<(*i)->linearizedTrack()->predictedStateMomentumError()<<endl;
+  //   cout<<"Momentum jacobian"<<(*i)->linearizedTrack()->momentumJacobian() <<endl;
+  //   cout<<"predicted state momentum "<<(*i)->linearizedTrack()->predictedStateMomentumParameters()<<endl;
+  //   cout<<"constant term"<<(*i)->linearizedTrack()->constantTerm()<<endl;
+  
   //  }
 
   CachingVertex<6> vtx = fitter->vertex(ttf);

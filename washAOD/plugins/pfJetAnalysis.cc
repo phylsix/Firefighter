@@ -23,6 +23,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicStateBuilder.h"
 // #include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
 // #include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
 // #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
@@ -755,14 +756,16 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         
       // making particles  
       vector<RefCountedKinematicParticle> allParticles;
+      TransientTrackKinematicStateBuilder ttkStateBuilder;
       for (const auto& ttk: t_tks)
       {
+        // if (!ttkStateBuilder(ttk, muon_mass, muon_sigma).isValid()) { continue; }
         allParticles.push_back( pFactory.particle(ttk, muon_mass, chi, ndf, muon_sigma) );
       }
 
       // fit to the vertex
-      ff::KinematicParticleVertexFitter kinFitter;
-      RefCountedKinematicTree kinTree = kinFitter.fit(allParticles);
+      unique_ptr<ff::KinematicParticleVertexFitter> kinFitter(new ff::KinematicParticleVertexFitter());
+      RefCountedKinematicTree kinTree = kinFitter->fit(allParticles);
       if (kinTree->isValid())
       {
         kinTree->movePointerToTheTop();

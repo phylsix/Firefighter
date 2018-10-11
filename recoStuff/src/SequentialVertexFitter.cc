@@ -241,9 +241,9 @@ ff::SequentialVertexFitter<N>::reLinearizeTracks(
       i != tracks.end(); i++) {
     RefCountedLinearizedTrackState lTrData = 
     	  (**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
-    //    RefCountedLinearizedTrackState lTrData = 
-    //      theLTrackFactory->linearizedTrackState(linP, 
-    // 				    (**i).linearizedTrack()->track());
+      //  RefCountedLinearizedTrackState lTrData = 
+      //    theLTrackFactory->linearizedTrackState(linP, 
+    	// 			    (**i).linearizedTrack()->track());
     RefCountedVertexTrack vTrData =
       theVTrackFactory.vertexTrack(lTrData,state, (**i).weight() );
     finalTracks.push_back(vTrData);
@@ -279,8 +279,8 @@ ff::SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tr
   do {
     CachingVertex<N> fVertex = initialVertex;
     // make new linearized and vertex tracks for the next iteration
-    if(step != 0) globalVTracks = reLinearizeTracks(tracks, 
-    					returnVertex.vertexState());
+    if(step != 0)
+      globalVTracks = reLinearizeTracks(tracks, returnVertex.vertexState());
 
     // update sequentially the vertex estimate
     for (typename std::vector<RefCountedVertexTrack>::const_iterator i 
@@ -320,9 +320,8 @@ ff::SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tr
     globalVTracks.clear();
     step++;
   } while ( (step != theMaxStep) &&
-  	        !(((previousPosition - newPosition).transverse() > theMaxShift) ||
+  	        (((previousPosition - newPosition).transverse() > theMaxShift) ||
 		          (!validVertex) ) );
-
   if (!validVertex) {
     LogDebug("recoStuff/SequentialVertexFitter") 
        << "Fitted position is invalid (out of tracker bounds or has NaN). Returned vertex is invalid\n";
