@@ -320,8 +320,8 @@ ff::SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tr
     globalVTracks.clear();
     step++;
   } while ( (step != theMaxStep) &&
-  	    (((previousPosition - newPosition).transverse() > theMaxShift) ||
-		(!validVertex) ) );
+  	        !(((previousPosition - newPosition).transverse() > theMaxShift) ||
+		          (!validVertex) ) );
 
   if (!validVertex) {
     LogDebug("recoStuff/SequentialVertexFitter") 

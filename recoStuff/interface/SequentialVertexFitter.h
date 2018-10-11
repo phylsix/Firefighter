@@ -1,5 +1,5 @@
-#ifndef SequentialVertexFitter_H
-#define SequentialVertexFitter_H
+#ifndef recoStuff_SequentialVertexFitter_H
+#define recoStuff_SequentialVertexFitter_H
 
 #include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 #include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
