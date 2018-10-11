@@ -19,14 +19,17 @@ def lookup_file(tag, filelist):
         return ''
 
 def lookup_files(tolookup, pool):
-    matched = []
-    for tl in tolookup:
-        result = lookup_file(tl, pool)
-        if result:
-            matched.append(result)
-        else:
-            print("No file found matched with: '"+tl+"'.")
-    return matched
+    if len(tolookup):
+        matched = []
+        for tl in tolookup:
+            result = lookup_file(tl, pool)
+            if result:
+                matched.append(result)
+            else:
+                print("No file found matched with: '"+tl+"'.")
+        return matched
+    else:
+        return pool
 
 def main():
 
