@@ -11,9 +11,12 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -24,12 +27,12 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicStateBuilder.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
 // #include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
 // #include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
 // #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
 // #include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
 // #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
-// #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 // #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -773,8 +776,6 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
         RefCountedKinematicVertex   kinV   = kinTree->currentDecayVertex();
         if ( kinV->vertexIsValid() )
         {
-          reco::Vertex rvtx = reco::Vertex(*kinV);
-
           Measurement1D distXY = vdistXY.distance(kinV->vertexState(), pv);
           Measurement1D dist3D = vdist3D.distance(kinV->vertexState(), pv);
 
@@ -786,9 +787,23 @@ pfJetAnalysis::analyze(const edm::Event& iEvent,
           jetKinVtxNormChi2_.emplace_back( kinV->chiSquared()/kinV->degreesOfFreedom() );
           jetKinVtxProb_.emplace_back( ChiSquaredProbability(kinV->chiSquared(), kinV->degreesOfFreedom()) );
           
-          auto rvtxp4 = rvtx.p4(M_Mu);
-          kinVertexP4.SetPxPyPzE(rvtxp4.Px(), rvtxp4.Py(), rvtxp4.Pz(), rvtxp4.E());
-          jetKinVtxMass_.emplace_back( rvtxp4.M() );
+          for (const auto& dau : kinTree->daughterParticles())
+          {
+            const TransientTrackKinematicParticle* ttkp = 
+              dynamic_cast<const TransientTrackKinematicParticle*>(dau.get());
+            if (ttkp==nullptr) { continue; }
+
+            const reco::TrackTransientTrack* ttt = 
+              dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
+            if (ttt==nullptr) { continue; }
+
+            reco::Track dauTk = ttkp->refittedTransientTrack().track();
+            TLorentzVector dauTkP4;
+            dauTkP4.SetXYZM(dauTk.px(), dauTk.py(), dauTk.pz(), M_Mu);
+            kinVertexP4 += dauTkP4;
+          }
+
+          jetKinVtxMass_.emplace_back( kinVertexP4.M() );
 
           if (_matched)
           {
