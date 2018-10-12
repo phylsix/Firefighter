@@ -88,6 +88,7 @@ genTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   pairInvM_.clear(); pairInvM_.reserve(genPairs.size());
   pairDeltaR_.clear(); pairDeltaR_.reserve(genPairs.size());
+  pairDphi_.clear(); pairDphi_.reserve(genPairs.size());
   pairPid_.clear(); pairPid_.reserve(genPairs.size());
 
   for (const reco::GenParticle& gp : *genParticleHandle_) {
