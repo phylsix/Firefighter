@@ -1,12 +1,24 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 from __future__ import print_function
 import os
+import subprocess
 
 year = '2017'
 frag = 'tuplizer' #'jetTuplizer'
-suffixTag = '100k' # [100k, Pythia, PythiaTest2]
+# suffixTag = '100k' # [100k, Pythia, PythiaTest2]
 prefixTag = 'SIDM_BsTo2DpTo4Mu'
-exited = open('exited.txt').readlines()
+grepKeyword = 'Begin Fatal' # used to grep logs
+
+def make_exited_list(grepword, year):
+    """ return a list of exited jobs through grepping logs """
+
+    grepcmd = 'grep -rl "{0}" Logs/{1}'.format(grepword, year)
+    shelloutput = subprocess.check_output(grepcmd, shell=True)
+    rawlist = shelloutput.strip().split('\n')
+    cleanlist = [os.path.basename(x.strip()) for x in rawlist]
+    tagremovedlist = [x.replace('.log', '').split('_', 1)[1] for x in cleanlist]
+
+    return tagremovedlist
 
 def make_datalink_list(prefix):
     return [f for f in os.listdir('../data/'+year) if f.startswith(prefix)]
@@ -50,7 +62,7 @@ def main():
 
     allList = make_datalink_list(prefixTag)
 
-    exitedList = [e.strip() for e in exited]
+    exitedList = make_exited_list(grepKeyword, year)
     datalinkFilelist = lookup_files(exitedList, allList)
     for f in datalinkFilelist:
         datalistF = f.split('.')[0]
