@@ -40,9 +40,9 @@ process.TRIGself_dsa_DL2Mu23CosmicSeedNoL2 = trigSelfEffiForMuTrack.clone(trigPa
 if options.year == 2017:
     process.p = cms.Path(process.GEN
                          + process.RECO_dsa
-                         + process.RECO_dgm
-                         + process.RECO_rsa
-                         + process.RECO_gbm
+                        #  + process.RECO_dgm
+                        #  + process.RECO_rsa
+                        #  + process.RECO_gbm
                          + process.TRIG_dsa
                          + process.TRIGself_dsa
                          )
