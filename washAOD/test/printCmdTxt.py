@@ -19,10 +19,14 @@ def make_exited_list(grepword, year):
     """ return a list of exited jobs through grepping logs """
 
     grepcmd = 'grep -rl "{0}" Logs/{1}'.format(grepword, year)
-    shelloutput = subprocess.check_output(grepcmd, shell=True)
-    rawlist = shelloutput.strip().split('\n')
-    cleanlist = [os.path.basename(x.strip()) for x in rawlist]
-    tagremovedlist = [x.replace('.log', '').split('_', 1)[1] for x in cleanlist]
+    try:
+        shelloutput = subprocess.check_output(grepcmd, shell=True)
+        rawlist = shelloutput.strip().split('\n')
+        cleanlist = [os.path.basename(x.strip()) for x in rawlist]
+        tagremovedlist = [x.replace('.log', '').split('_', 1)[1] for x in cleanlist]
+    except subprocess.CalledProcessError:
+        print('Yay! There was no jobs finished abnormally!')
+        tagremovedlist = []
 
     return tagremovedlist
 
@@ -69,10 +73,14 @@ def main():
     allList = make_datalink_list(prefixTag)
 
     if args.startAll:
+        print('Printing all datalinks >>>\n')
         datalinkFilelist = lookup_files([], allList)
     else:
         exitedList = make_exited_list(grepKeyword, year)
-        datalinkFilelist = lookup_files(exitedList, allList)
+        if len(exitedList):
+            datalinkFilelist = lookup_files(exitedList, allList)
+        else:
+            datalinkFilelist = []
 
     for f in datalinkFilelist:
         datalistF = f.split('.')[0]
