@@ -1,4 +1,5 @@
 #include "Firefighter/washAOD/interface/genTuplizer.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -56,7 +57,11 @@ genTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       << endl;
       return;
   }
-  //nGenP_ = (*genParticleHandle_).size();
+
+  // skip if sensible lepton less than 4;
+  int nAccept = count_if((*genParticleHandle_).begin(), (*genParticleHandle_).end(), ff::genAccept);
+  if (nAccept<4) { return; }
+
   nGenP_ = count_if((*genParticleHandle_).begin(), (*genParticleHandle_).end(),
       [](const reco::GenParticle& g){return g.isHardProcess() and abs(g.pdgId())>8;});
 

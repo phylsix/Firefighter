@@ -1,4 +1,5 @@
 #include "Firefighter/washAOD/interface/trigEffiForMuTrack.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -101,8 +102,7 @@ trigEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     return;
   }
 
-  int nAccpted = count_if((*genParticleHandle_).begin(), (*genParticleHandle_).end(),
-      [](const reco::GenParticle& g){return abs(g.pdgId())==13 and g.isHardProcess() and abs(g.eta())<2.4;});
+  int nAccpted = count_if((*genParticleHandle_).begin(), (*genParticleHandle_).end(), ff::genAccept);
   if (nAccpted<4) return;
   if (muTrackHandle_->size()<4) return;
 

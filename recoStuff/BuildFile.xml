@@ -1,5 +1,6 @@
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/MessageLogger"/>

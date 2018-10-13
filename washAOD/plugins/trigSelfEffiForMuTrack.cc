@@ -1,4 +1,5 @@
 #include "Firefighter/washAOD/interface/trigSelfEffiForMuTrack.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -6,6 +7,7 @@
 
 trigSelfEffiForMuTrack::trigSelfEffiForMuTrack(const edm::ParameterSet& ps) :
   muTrackTag_(ps.getParameter<edm::InputTag>("muTrack")),
+  genParticleTag_(ps.getParameter<edm::InputTag>("genParticle")),
   trigResultsTag_(ps.getParameter<edm::InputTag>("trigResult")),
   trigEventTag_(ps.getParameter<edm::InputTag>("trigEvent")),
   trigPathNoVer_(ps.getParameter<std::string>("trigPath")),
@@ -25,6 +27,7 @@ trigSelfEffiForMuTrack::fillDescriptions(edm::ConfigurationDescriptions& descrip
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("muTrack", edm::InputTag("displacedStandAloneMuons"));
+  desc.add<edm::InputTag>("genParticle", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("trigResult", edm::InputTag("TriggerResults","","HLT"));
   desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD","","HLT"));
   desc.add<std::string>("trigPath", "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx");
@@ -92,6 +95,16 @@ trigSelfEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup&
       << endl;
     return;
   }
+  iEvent.getByToken(genParticleToken_, genParticleHandle_);
+  if (!genParticleHandle_.isValid()) {
+    LogError("trigSelfEffiForMuTrack")
+      << "trigSelfEffiForMuTrack::analyze: Error in getting genParticle product from Event!"
+      << endl;
+    return;
+  }
+
+  int nAccpted = count_if((*genParticleHandle_).begin(), (*genParticleHandle_).end(), ff::genAccept);
+  if (nAccpted<4) return;
 
   vector<reco::TrackRef> muRefs{};
   for (size_t i(0); i!=muTrackHandle_->size(); ++i) {

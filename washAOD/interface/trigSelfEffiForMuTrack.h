@@ -19,6 +19,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -44,17 +46,20 @@ class trigSelfEffiForMuTrack :
     virtual void endJob() override;
 
     const edm::InputTag muTrackTag_;
+    const edm::InputTag genParticleTag_;
     const edm::InputTag trigResultsTag_;
     const edm::InputTag trigEventTag_;
     const std::string trigPathNoVer_;
     const std::string processName_;
     const int nMuons_;
     const edm::EDGetTokenT<reco::TrackCollection> muTrackToken_;
+    const edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
     const edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
     const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
 
     edm::Service<TFileService> fs;
     edm::Handle<reco::TrackCollection> muTrackHandle_;
+    edm::Handle<reco::GenParticleCollection> genParticleHandle_;
     edm::Handle<edm::TriggerResults> trigResultsHandle_;
     edm::Handle<trigger::TriggerEvent> trigEventHandle_;
 
