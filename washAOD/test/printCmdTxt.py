@@ -2,12 +2,18 @@
 from __future__ import print_function
 import os
 import subprocess
+import argparse
 
 year = '2017'
 frag = 'tuplizer' #'jetTuplizer'
 # suffixTag = '100k' # [100k, Pythia, PythiaTest2]
 prefixTag = 'SIDM_BsTo2DpTo4Mu'
 grepKeyword = 'Begin Fatal' # used to grep logs
+
+
+parser = argparse.ArgumentParser(description='Print out cmds to run.')
+parser.add_argument('-a', '--startAll', action="store_true", default=False)
+args = parser.parse_args()
 
 def make_exited_list(grepword, year):
     """ return a list of exited jobs through grepping logs """
@@ -62,8 +68,12 @@ def main():
 
     allList = make_datalink_list(prefixTag)
 
-    exitedList = make_exited_list(grepKeyword, year)
-    datalinkFilelist = lookup_files(exitedList, allList)
+    if args.startAll:
+        datalinkFilelist = lookup_files([], allList)
+    else:
+        exitedList = make_exited_list(grepKeyword, year)
+        datalinkFilelist = lookup_files(exitedList, allList)
+
     for f in datalinkFilelist:
         datalistF = f.split('.')[0]
         print("nohup ./mkNtuple.sh {0} {1} {2} &".format(datalistF, frag, year))
