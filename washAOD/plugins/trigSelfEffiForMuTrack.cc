@@ -14,6 +14,7 @@ trigSelfEffiForMuTrack::trigSelfEffiForMuTrack(const edm::ParameterSet& ps) :
   processName_(ps.getParameter<std::string>("processName")),
   nMuons_(ps.getParameter<int>("nMuons")),
   muTrackToken_(consumes<reco::TrackCollection>(muTrackTag_)),
+  genParticleToken_(consumes<reco::GenParticleCollection>(genParticleTag_)),
   trigResultsToken_(consumes<edm::TriggerResults>(trigResultsTag_)),
   trigEventToken_(consumes<trigger::TriggerEvent>(trigEventTag_))
 {
