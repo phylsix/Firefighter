@@ -4,7 +4,7 @@ import os
 import subprocess
 import argparse
 
-year = '2017'
+year = '2018'
 frag = 'tuplizer' #'jetTuplizer'
 # suffixTag = '100k' # [100k, Pythia, PythiaTest2]
 prefixTag = 'SIDM_BsTo2DpTo4Mu'
