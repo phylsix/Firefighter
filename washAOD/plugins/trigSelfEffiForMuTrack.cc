@@ -10,7 +10,7 @@ trigSelfEffiForMuTrack::trigSelfEffiForMuTrack(const edm::ParameterSet& ps) :
   genParticleTag_(ps.getParameter<edm::InputTag>("genParticle")),
   trigResultsTag_(ps.getParameter<edm::InputTag>("trigResult")),
   trigEventTag_(ps.getParameter<edm::InputTag>("trigEvent")),
-  trigPathNoVer_(ps.getParameter<std::string>("trigPath")),
+  trigPathNoVer_(ps.getParameter<std::vector<std::string>>("trigPath")),
   processName_(ps.getParameter<std::string>("processName")),
   nMuons_(ps.getParameter<int>("nMuons")),
   muTrackToken_(consumes<reco::TrackCollection>(muTrackTag_)),
@@ -19,6 +19,8 @@ trigSelfEffiForMuTrack::trigSelfEffiForMuTrack(const edm::ParameterSet& ps) :
   trigEventToken_(consumes<trigger::TriggerEvent>(trigEventTag_))
 {
   usesResource("TFileService");
+  for (const auto& p : trigPathNoVer_)
+    fired_[p] = false;
 }
 
 trigSelfEffiForMuTrack::~trigSelfEffiForMuTrack() = default;
@@ -31,7 +33,7 @@ trigSelfEffiForMuTrack::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("genParticle", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("trigResult", edm::InputTag("TriggerResults","","HLT"));
   desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD","","HLT"));
-  desc.add<std::string>("trigPath", "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx");
+  desc.add<std::vector<std::string>>("trigPath", {});
   desc.add<std::string>("processName", "HLT");
   desc.add<int>("nMuons", 3);
   descriptions.add("trigSelfEffiForMuTrack", desc);
@@ -42,7 +44,9 @@ trigSelfEffiForMuTrack::beginJob()
 {
   muTrackT_ = fs->make<TTree>("trigSelfEffiForMuTrack", "");
 
-  muTrackT_->Branch("fired", &fired_, "fired/O");
+  for (const auto& p : trigPathNoVer_)
+    muTrackT_->Branch(p.c_str(), &fired_[p], (p+"/O").c_str());
+
   muTrackT_->Branch("pt",   &pt_);
   muTrackT_->Branch("eta",  &eta_);
   muTrackT_->Branch("phi",  &phi_);
@@ -140,17 +144,20 @@ trigSelfEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // trigger firing condition
   const vector<string>& pathNames = hltConfig_.triggerNames();
-  const vector<string> matchedPaths(hltConfig_.restoreVersion(pathNames, trigPathNoVer_));
-  if (matchedPaths.size() == 0) {
-    LogError("trigSelfEffiForMuTrack")<<"Could not find matched full trigger path with -> "<<trigPathNoVer_<<endl;
-    return;
+  for (const auto& p : trigPathNoVer_)
+  {
+    const vector<string> matchedPaths(hltConfig_.restoreVersion(pathNames, p));
+    if (matchedPaths.size() == 0) {
+      LogError("trigSelfEffiForMuTrack")<<"Could not find matched full trigger path with -> "<<p<<endl;
+      return;
+    }
+    const std::string trigPath_ = matchedPaths[0];
+    if (hltConfig_.triggerIndex(trigPath_) >= hltConfig_.size()) {
+      LogError("trigSelfEffiForMuTrack")<<"Cannot find trigger path -> "<<trigPath_<<endl;
+      return;
+    }
+    fired_[p] = trigResultsHandle_->accept(hltConfig_.triggerIndex(trigPath_));
   }
-  trigPath_ = matchedPaths[0];
-  if (hltConfig_.triggerIndex(trigPath_) >= hltConfig_.size()) {
-    LogError("trigSelfEffiForMuTrack")<<"Cannot find trigger path -> "<<trigPath_<<endl;
-    return;
-  }
-  fired_ = trigResultsHandle_->accept(hltConfig_.triggerIndex(trigPath_));
 
   muTrackT_->Fill();
 

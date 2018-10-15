@@ -27,6 +27,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include <map>
 #include "TTree.h"
 
 class trigSelfEffiForMuTrack :
@@ -49,7 +50,7 @@ class trigSelfEffiForMuTrack :
     const edm::InputTag genParticleTag_;
     const edm::InputTag trigResultsTag_;
     const edm::InputTag trigEventTag_;
-    const std::string trigPathNoVer_;
+    const std::vector<std::string> trigPathNoVer_;
     const std::string processName_;
     const int nMuons_;
     const edm::EDGetTokenT<reco::TrackCollection> muTrackToken_;
@@ -63,10 +64,9 @@ class trigSelfEffiForMuTrack :
     edm::Handle<edm::TriggerResults> trigResultsHandle_;
     edm::Handle<trigger::TriggerEvent> trigEventHandle_;
 
-    std::string trigPath_;
     HLTConfigProvider hltConfig_;
 
-    bool fired_;
+    std::map<std::string, bool> fired_;
 
     std::vector<float> pt_;
     std::vector<float> eta_;

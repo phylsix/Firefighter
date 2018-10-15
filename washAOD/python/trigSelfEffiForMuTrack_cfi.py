@@ -5,7 +5,7 @@ trigSelfEffiForMuTrack = cms.EDAnalyzer('trigSelfEffiForMuTrack',
     genParticle = cms.InputTag("genParticles"),
     trigResult = cms.InputTag("TriggerResults","","HLT"),
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    trigPath = cms.string('HLT_DoubleL2Mu23NoVtx_2Cha'),
+    trigPath = cms.vstring('HLT_DoubleL2Mu23NoVtx_2Cha'),
     processName = cms.string('HLT'),
     nMuons = cms.int32(2)
   )

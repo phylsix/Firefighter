@@ -10,14 +10,17 @@ trigEffiForMuTrack::trigEffiForMuTrack(const edm::ParameterSet& ps) :
   genParticleTag_(ps.getParameter<edm::InputTag>("genParticle")),
   trigResultsTag_(ps.getParameter<edm::InputTag>("trigResult")),
   trigEventTag_(ps.getParameter<edm::InputTag>("trigEvent")),
-  trigPathNoVer_(ps.getParameter<std::string>("trigPath")),
+  trigPathNoVer_(ps.getParameter<std::vector<std::string>>("trigPath")),
   processName_(ps.getParameter<std::string>("processName")),
+  nMuons_(ps.getParameter<int>("nMuons")),
   muTrackToken_(consumes<reco::TrackCollection>(muTrackTag_)),
   genParticleToken_(consumes<reco::GenParticleCollection>(genParticleTag_)),
   trigResultsToken_(consumes<edm::TriggerResults>(trigResultsTag_)),
   trigEventToken_(consumes<trigger::TriggerEvent>(trigEventTag_))
 {
   usesResource("TFileService");
+  for (const auto& p : trigPathNoVer_)
+    fired_[p] = false;
 }
 
 trigEffiForMuTrack::~trigEffiForMuTrack() = default;
@@ -30,8 +33,9 @@ trigEffiForMuTrack::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("genParticle", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("trigResult", edm::InputTag("TriggerResults","","HLT"));
   desc.add<edm::InputTag>("trigEvent", edm::InputTag("hltTriggerSummaryAOD","","HLT"));
-  desc.add<std::string>("trigPath", "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx");
+  desc.add<std::vector<std::string>>("trigPath", {});
   desc.add<std::string>("processName", "HLT");
+  desc.add<int>("nMuons", 2);
   descriptions.add("trigEffiForMuTrack", desc);
 }
 
@@ -40,10 +44,15 @@ trigEffiForMuTrack::beginJob()
 {
   muTrackT_ = fs->make<TTree>("trigEffiForMuTrack", "");
 
-  muTrackT_->Branch("fired", &fired_, "fired/O");
+  for (const auto& p : trigPathNoVer_)
+    muTrackT_->Branch(p.c_str(), &fired_[p], (p+"/O").c_str());
+
   muTrackT_->Branch("pt",   &pt_);
   muTrackT_->Branch("eta",  &eta_);
   muTrackT_->Branch("phi",  &phi_);
+  muTrackT_->Branch("dR",   &dR_);
+  muTrackT_->Branch("vxy",  &vxy_);
+  muTrackT_->Branch("vz",   &vz_);
 }
 
 void
@@ -104,7 +113,7 @@ trigEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   int nAccpted = count_if((*genParticleHandle_).begin(), (*genParticleHandle_).end(), ff::genAccept);
   if (nAccpted<4) return;
-  if (muTrackHandle_->size()<4) return;
+  if ((int)muTrackHandle_->size()<nMuons_) return;
 
   // sort mu key by pT
   vector<int> muTrackIdx{};
@@ -123,12 +132,13 @@ trigEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     for (size_t ig(0); ig!=genParticleHandle_->size(); ++ig) {
       if (find(matchedGenMuIdx.begin(), matchedGenMuIdx.end(), ig) != matchedGenMuIdx.end()) continue;
       reco::GenParticleRef genMu(genParticleHandle_, ig);
+      if (abs(genMu->pdgId())!=13 or !ff::genAccept(*(genMu.get()))) continue;
       if (deltaR(*(recoMu.get()), *(genMu.get())) > 0.3) continue;
       if (recoMu->charge() != genMu->charge()) continue;
       matchedGenMuIdx.push_back(ig);
     }
   }
-  if (matchedGenMuIdx.size()<4) return;
+  if ((int)matchedGenMuIdx.size()<nMuons_) return;
 
   /* general selection */
   auto generalSelection = [&](const auto tid){
@@ -142,7 +152,7 @@ trigEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   };
 
   int tracksPassedGS = count_if(muTrackIdx.begin(), muTrackIdx.end(), generalSelection);
-  if (tracksPassedGS<2) return;
+  if (tracksPassedGS<nMuons_) return;
 
   pt_  .clear(); pt_  .reserve(4);
   eta_ .clear(); eta_ .reserve(4);
@@ -155,19 +165,41 @@ trigEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     phi_.push_back(recoMu->phi());
   }
 
+  dR_ .clear(); dR_ .reserve(2);
+  vxy_.clear(); vxy_.reserve(2);
+  vz_ .clear(); vz_ .reserve(2);
+
+  for (size_t igmu(0); igmu!=matchedGenMuIdx.size(); ++igmu)
+  {
+    reco::GenParticleRef gmuA(genParticleHandle_, matchedGenMuIdx[igmu]);
+    for (size_t jgmu(igmu+1); jgmu!=matchedGenMuIdx.size(); ++jgmu)
+    {
+      reco::GenParticleRef gmuB(genParticleHandle_, matchedGenMuIdx[jgmu]);
+      if (gmuA->vertex() != gmuB->vertex()) { continue; }
+      
+      dR_.emplace_back( deltaR(*(gmuA.get()), *(gmuB.get())) );
+      vxy_.emplace_back(gmuA->vertex().rho());
+      vz_.emplace_back( gmuA->vz() );
+    }
+  }
+
   // trigger firing condition
   const vector<string>& pathNames = hltConfig_.triggerNames();
-  const vector<string> matchedPaths(hltConfig_.restoreVersion(pathNames, trigPathNoVer_));
-  if (matchedPaths.size() == 0) {
-    LogError("trigEffiForMuTrack")<<"Could not find matched full trigger path with -> "<<trigPathNoVer_<<endl;
-    return;
+  for (const auto& p : trigPathNoVer_)
+  {
+    const vector<string> matchedPaths(hltConfig_.restoreVersion(pathNames, p));
+    if (matchedPaths.size() == 0) {
+      LogError("trigEffiForMuTrack")<<"Could not find matched full trigger path with -> "<<p<<endl;
+      return;
+    }
+    const std::string trigPath_ = matchedPaths[0];
+    if (hltConfig_.triggerIndex(trigPath_) >= hltConfig_.size()) {
+      LogError("trigEffiForMuTrack")<<"Cannot find trigger path -> "<<trigPath_<<endl;
+      return;
+    }
+    fired_[p] = trigResultsHandle_->accept(hltConfig_.triggerIndex(trigPath_));
   }
-  trigPath_ = matchedPaths[0];
-  if (hltConfig_.triggerIndex(trigPath_) >= hltConfig_.size()) {
-    LogError("trigEffiForMuTrack")<<"Cannot find trigger path -> "<<trigPath_<<endl;
-    return;
-  }
-  fired_ = trigResultsHandle_->accept(hltConfig_.triggerIndex(trigPath_));
+  
 
   muTrackT_->Fill();
 
