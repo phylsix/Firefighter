@@ -111,36 +111,21 @@ trigEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     return;
   }
 
-  int nAccpted = count_if((*genParticleHandle_).begin(), (*genParticleHandle_).end(), ff::genAccept);
-  if (nAccpted<4) return;
+  // acceptence
+  vector<size_t> acceptedGenIdx{};
+  for (size_t ig(0); ig!=genParticleHandle_->size(); ++ig)
+  {
+    if (!ff::genAccept((*genParticleHandle_)[ig])) { continue; }
+    acceptedGenIdx.push_back(ig);
+  }
+  if (acceptedGenIdx.size()<4) return;
   if ((int)muTrackHandle_->size()<nMuons_) return;
 
-  // sort mu key by pT
-  vector<int> muTrackIdx{};
+
+  vector<size_t> muTrackIdx{};
   for (size_t i(0); i!=muTrackHandle_->size(); ++i) muTrackIdx.push_back(i);
-  sort(muTrackIdx.begin(), muTrackIdx.end(),
-      [&](int l, int r){
-        reco::TrackRef lhs(muTrackHandle_, l);
-        reco::TrackRef rhs(muTrackHandle_, r);
-        return lhs->pt() > rhs->pt();
-      });
 
-  // MC match
-  vector<int> matchedGenMuIdx{};
-  for (const int muid : muTrackIdx) {
-    reco::TrackRef recoMu(muTrackHandle_, muid);
-    for (size_t ig(0); ig!=genParticleHandle_->size(); ++ig) {
-      if (find(matchedGenMuIdx.begin(), matchedGenMuIdx.end(), ig) != matchedGenMuIdx.end()) continue;
-      reco::GenParticleRef genMu(genParticleHandle_, ig);
-      if (abs(genMu->pdgId())!=13 or !ff::genAccept(*(genMu.get()))) continue;
-      if (deltaR(*(recoMu.get()), *(genMu.get())) > 0.3) continue;
-      if (recoMu->charge() != genMu->charge()) continue;
-      matchedGenMuIdx.push_back(ig);
-    }
-  }
-  if ((int)matchedGenMuIdx.size()<nMuons_) return;
-
-  /* general selection */
+  // general selection [RECO]
   auto generalSelection = [&](const auto tid){
     reco::TrackRef t(muTrackHandle_, tid);
     bool pass = t->pt() > 5
@@ -148,17 +133,40 @@ trigEffiForMuTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
              && t->hitPattern().numberOfValidMuonHits() > 16
              && t->hitPattern().muonStationsWithValidHits() > 1
              && t->normalizedChi2() < 10;
-    return pass;
+    return !pass;
   };
 
-  int tracksPassedGS = count_if(muTrackIdx.begin(), muTrackIdx.end(), generalSelection);
-  if (tracksPassedGS<nMuons_) return;
+  muTrackIdx.erase(remove_if(muTrackIdx.begin(), muTrackIdx.end(), generalSelection), muTrackIdx.end());
+  if ((int)muTrackIdx.size()<nMuons_) return;
+
+  // MC match
+  vector<size_t> matchedGenMuIdx{};
+  for (const size_t muid : muTrackIdx) {
+    reco::TrackRef recoMu(muTrackHandle_, muid);
+    for (const size_t ig : acceptedGenIdx) {
+      if (find(matchedGenMuIdx.begin(), matchedGenMuIdx.end(), ig) != matchedGenMuIdx.end()) continue;
+      reco::GenParticleRef genMu(genParticleHandle_, ig);
+      if (abs(genMu->pdgId())!=13) continue;
+      if (deltaR(*(recoMu.get()), *(genMu.get())) > 0.3) continue;
+      // if (recoMu->charge() != genMu->charge()) continue;
+      matchedGenMuIdx.push_back(ig);
+    }
+  }
+  if ((int)matchedGenMuIdx.size()<nMuons_) return;
+
+  // sort by pt [RECO]
+  sort(muTrackIdx.begin(), muTrackIdx.end(),
+      [&](size_t l, size_t r){
+        reco::TrackRef lhs(muTrackHandle_, l);
+        reco::TrackRef rhs(muTrackHandle_, r);
+        return lhs->pt() > rhs->pt();
+      });
 
   pt_  .clear(); pt_  .reserve(4);
   eta_ .clear(); eta_ .reserve(4);
   phi_ .clear(); phi_ .reserve(4);
 
-  for (const int muid : muTrackIdx) {
+  for (const size_t muid : muTrackIdx) {
     reco::TrackRef recoMu(muTrackHandle_, muid);
     pt_ .push_back(recoMu->pt());
     eta_.push_back(recoMu->eta());
