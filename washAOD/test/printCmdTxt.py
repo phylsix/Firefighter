@@ -4,15 +4,18 @@ import os
 import subprocess
 import argparse
 
-year = '2018'
-frag = 'tuplizer' #'jetTuplizer'
+# year = '2018'
+# frag = 'tuplizer' #'jetTuplizer'
 # suffixTag = '100k' # [100k, Pythia, PythiaTest2]
-prefixTag = 'SIDM_BsTo2DpTo4Mu'
+# prefixTag = 'SIDM_BsTo2DpTo4Mu'
 grepKeyword = 'Begin Fatal' # used to grep logs
 
 
 parser = argparse.ArgumentParser(description='Print out cmds to run.')
 parser.add_argument('-a', '--startAll', action="store_true", default=False)
+parser.add_argument('-y', '--year', type=str, choices=['2017', '2018'], default='2017')
+parser.add_argument('--prefixTag', type=str, default='SIDM_BsTo2DpTo4Mu')
+parser.add_argument('--frag', type=str, default='tuplizer')
 args = parser.parse_args()
 
 def make_exited_list(grepword, year):
@@ -30,7 +33,7 @@ def make_exited_list(grepword, year):
 
     return tagremovedlist
 
-def make_datalink_list(prefix):
+def make_datalink_list(prefix, year):
     return [f for f in os.listdir('../data/'+year) if f.startswith(prefix)]
 
 def lookup_file(tag, filelist):
@@ -55,6 +58,10 @@ def lookup_files(tolookup, pool):
 
 def main():
 
+    year = args.year
+    frag = args.frag
+    prefixTag = args.prefixTag
+
     print()
     print("#"*79)
     print("YEAR = ", year)
@@ -70,7 +77,7 @@ def main():
     #    if not os.path.isfile('../data/{0}/{1}.list'.format(year, datalistF)): continue
     #    print("nohup ./mkNtuple.sh {0} {1} {2} &".format(datalistF, frag, year))
 
-    allList = make_datalink_list(prefixTag)
+    allList = make_datalink_list(prefixTag, year)
 
     if args.startAll:
         print('Printing all datalinks >>>\n')
