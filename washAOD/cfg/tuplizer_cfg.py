@@ -16,28 +16,46 @@ process.RECO_rsa = recoEffiForMuTrack.clone(muTrack = cms.InputTag("refittedStan
 process.RECO_gbm = recoEffiForMuTrack.clone(muTrack = cms.InputTag("globalMuons"))
 
 ## trigger efficiency in terms of events
+from Firefighter.washAOD.trigEffiForMuon_cfi import trigEffiForMuon
 from Firefighter.washAOD.trigEffiForMuTrack_cfi import trigEffiForMuTrack
 ## trigger efficiency itself
+from Firefighter.washAOD.trigSelfEffiForMuon_cfi import trigSelfEffiForMuon
 from Firefighter.washAOD.trigSelfEffiForMuTrack_cfi import trigSelfEffiForMuTrack
 
 ### 2017
 if options.year == 2017:
-    process.TRIG_dsa = trigEffiForMuTrack.clone(trigPath = cms.vstring('HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx'))
-    process.TRIGself_dsa = trigSelfEffiForMuTrack.clone(trigPath = cms.vstring('HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx'), nMuons = cms.int32(3))
+    process.TRIG = trigEffiForMuon.clone(
+        trigPath=cms.vstring(
+            "HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx",
+            "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx",
+            "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx"
+        )
+    )
+    process.TRIGself = trigSelfEffiForMuon.clone(
+        trigPath=cms.vstring(
+            "HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx",
+            "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx",
+            "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx"
+        )
+    )
 
 ### 2018
 if options.year == 2018:
-    process.TRIG_dsa = trigEffiForMuTrack.clone(
-        trigPath=cms.vstring("HLT_DoubleL2Mu23NoVtx_2Cha",
-                             "HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched",
-                             "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed",
-                             "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched")
+    process.TRIG = trigEffiForMuTrack.clone(
+        trigPath=cms.vstring(
+            "HLT_DoubleL2Mu23NoVtx_2Cha",
+            "HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched",
+            "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed",
+            "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched"
+        )
     )
-    process.TRIGself_dsa = trigSelfEffiForMuTrack.clone(
-        trigPath=cms.vstring("HLT_DoubleL2Mu23NoVtx_2Cha",
-                             "HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched",
-                             "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed",
-                             "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched")
+    process.TRIGself = trigSelfEffiForMuTrack.clone(
+        trigPath=cms.vstring(
+            "HLT_DoubleL2Mu23NoVtx_2Cha",
+            "HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched",
+            "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed",
+            "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched"
+        )
     )
 
 
@@ -47,6 +65,6 @@ process.p = cms.Path(process.GEN
                     #  + process.RECO_dgm
                     #  + process.RECO_rsa
                     #  + process.RECO_gbm
-                        + process.TRIG_dsa
-                        + process.TRIGself_dsa
+                        + process.TRIG
+                        + process.TRIGself
                         )

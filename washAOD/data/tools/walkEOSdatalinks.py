@@ -5,7 +5,7 @@ from datetime import datetime
 
 BASEDIR = '/eos/uscms/store/user/wsi/MCSIDM'
 PREFIX  = 'SIDM_BsTo2DpTo4Mu'
-LINKFILEDIR = '../2018'
+LINKFILEDIR = '../2017'
 VERBOSE = True
 
 def sort_timestring(timestrlist):
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     for l in os.listdir(BASEDIR):
         if not l.startswith(PREFIX): continue
 
-        timestampdir = sort_timestring(os.listdir(os.path.join(BASEDIR, l)))[1]
+        timestampdir = sort_timestring(os.listdir(os.path.join(BASEDIR, l)))[0]
         targetdir = os.path.join(BASEDIR, l, timestampdir)
         linkfilename = l.replace('_slc6_amd64_gcc481_CMSSW_7_1_30_tarball', '') + '_TOTEVENTS' + '.list'
         cmd0 = "ls {0}/*_AOD.root |sed 's/^/file:/' > {1}/{2}".format(targetdir, LINKFILEDIR, linkfilename)
