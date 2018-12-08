@@ -15,9 +15,11 @@
 <use name="TrackingTools/Records"/>
 <use name="MagneticField/Records"/>
 <use name="Geometry/Records"/>
+<use name="Geometry/CommonDetUnit"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="CommonTools/Utils"/>
+<use name="CommonTools/RecoAlgos"/>
 
 <export>
   <lib name="1"/>

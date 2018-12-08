@@ -1,0 +1,28 @@
+<use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/Statistics"/>
+
+<use name="FWCore/Common"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/HLTReco"/>
+<use name="DataFormats/MuonReco"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="TrackPropagation/RungeKutta"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="RecoVertex/VertexTools"/>
+<use name="RecoVertex/VertexPrimitives"/>
+<use name="RecoVertex/KinematicFitPrimitives"/>
+<!-- <use name="heppdt"/> -->
+<use name="root"/>
+<use name="Firefighter/ffNtuple"/>
+<use name="Firefighter/objects"/>
+<use name="Firefighter/recoStuff"/>
+<use name="PhysicsTools/HepMCCandAlgos"/>
+<library name="FirefighterffNtuplePlugins" file="*.cc">
+    <flags EDM_PLUGIN="1"/>
+</library>

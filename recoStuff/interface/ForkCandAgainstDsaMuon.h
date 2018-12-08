@@ -1,6 +1,12 @@
 #ifndef recoStuff_ForkCandAgainstDsaMuon_H
 #define recoStuff_ForkCandAgainstDsaMuon_H
 
+/**
+ * This is using the old (CMSSW) **MatcherUsingTracksAlgorithm**
+ * For what I implement, refer to __SplitPFCandByMatchingDsaMuonProd__,
+ * with **MatcherByExtrapolatingTracks**
+ */
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,7 +33,6 @@ private:
 
     edm::Handle<edm::View<reco::Candidate>> srcHdl_;
     edm::Handle<edm::View<reco::Candidate>> matchedHdl_;
-
 
 };
 

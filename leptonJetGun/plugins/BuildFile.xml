@@ -1,0 +1,15 @@
+<use name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="IOMC/ParticleGuns"/>
+<use name="hepmc"/>
+<use name="heppdt"/>
+<use name="clhep"/>
+<use name="root"/>
+<use name="Firefighter/recoStuff"/>
+
+<library name="FirefighterleptonJetGun_plugins" file="*.cc">
+</library>

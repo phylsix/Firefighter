@@ -1,0 +1,11 @@
+<use name="DataFormats/Common"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/TrackReco"/>
+<use name="CommonTools/RecoAlgos"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Firefighter/recoStuff"/>
+
+<library name="FirefighterrecoStuff_plugins" file="*.cc">
+</library>

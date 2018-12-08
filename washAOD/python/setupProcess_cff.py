@@ -50,14 +50,13 @@ def setup_process(proc, testFileName='test.root'):
     if options.year == 2018:
         proc.GlobalTag.globaltag = '102X_upgrade2018_realistic_v9'
 
-    proc.load("FWCore.MessageService.MessageLogger_cfi")
     proc.MessageLogger = cms.Service("MessageLogger",
-        destinations   =  cms.untracked.vstring('messages', 'cerr'),
+        destinations   = cms.untracked.vstring('messages', 'cerr'),
         debugModules   = cms.untracked.vstring('*'),
         categories     = cms.untracked.vstring('FwkReport'),
         messages       = cms.untracked.PSet(
                             extension = cms.untracked.string('.txt'),
-                            threshold =  cms.untracked.string('ERROR')
+                            threshold = cms.untracked.string('ERROR')
                         ),
         cerr           = cms.untracked.PSet(
                             FwkReport = cms.untracked.PSet(
@@ -67,7 +66,8 @@ def setup_process(proc, testFileName='test.root'):
         )
     proc.options = cms.untracked.PSet(
         wantSummary = cms.untracked.bool(False),
-        numberOfThreads = cms.untracked.uint32(8)
+        numberOfThreads = cms.untracked.uint32(8),
+        numberOfStreams = cms.untracked.uint32(0)
     )
 
     proc.maxEvents = cms.untracked.PSet(
