@@ -1,39 +1,30 @@
-# Instruction
+Firefighter -- ntuplizer for SIDM
+---------------------------------
 
 ## Setup
 
+---
+
+- 2017
 ```bash
-# 2017
 export SCRAM_ARCH=slc6_amd64_gcc630
-cmsrel CMSSW_9_4_9
-cd CMSSW_9_4_9/src
+cmsrel CMSSW_9_4_12
+cd CMSSW_9_4_12/src
 cmsenv
+```
 
-# 2018
+- 2018
+```bash
 export SCRAM_ARCH=slc6_amd64_gcc700
-cmsrel CMSSW_10_2_1
-cd CMSSW_10_2_1/src
+cmsrel CMSSW_10_2_8
+cd CMSSW_10_2_8/src
 cmsenv
+```
 
+---
+
+```bash
 git clone https://YOURCERNID@gitlab.cern.ch/wsi/Firefighter.git
 cd Firefighter
 scram b -j12
-```
-
-## Run
-```bash
-#voms-proxy-init -voms cms -valid 192:00
-```
-
-### Processing AOD
-
-```bash
-cd washAOD
-
-# run for test
-cmsRun python/tuplizer_cfg.py test=1
-
-# run over samples
-cd test
-cat cmds.txt
 ```
