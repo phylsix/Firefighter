@@ -3,9 +3,11 @@ from __future__ import print_function
 import os
 from datetime import datetime
 
-BASEDIR = '/eos/uscms/store/user/wsi/MCSIDM'
-PREFIX  = 'SIDM_BsTo2DpTo4Mu'
-LINKFILEDIR = '../2017'
+BASEDIR = '/eos/uscms/store/user/ranchen/MCSIDM'
+#BASEDIR = '/eos/uscms/store/user/wsi/MCSIDM'
+PREFIX  = 'SIDM_BsTo2DpTo2Mu2e'
+#PREFIX  = 'SIDM_BsTo2DpTo4Mu'
+LINKFILEDIR = '../2018'
 VERBOSE = True
 
 def sort_timestring(timestrlist):
