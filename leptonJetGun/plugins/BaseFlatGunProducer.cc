@@ -18,8 +18,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-// #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
-#include "LeptonJet/LJGun/interface/BaseFlatGunProducer.h"
+#include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
 
 #include <iostream>
 
