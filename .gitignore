@@ -1,6 +1,8 @@
 *.pyc
 *.log
 *.root
+*.tar.xz
+*.yml
 .vscode
 messages.txt
 nohup.out
