@@ -28,6 +28,24 @@ def get_param_from_gridpackname(gpname):
     return (mbs, mdp, ctau)
 
 
+def get_nametag_from_dataset(dataset):
+    '''
+    infer nametag from a dataset string
+    e.g.: /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48-354cda32a6a404e25b0eb21bb1bef952/USER
+
+    returns SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48
+    '''
+
+    fullstr = [x for x in dataset.split('/') if 'SIDM' in x]
+    if not fullstr: return None
+    fullstr = fullstr[0]
+
+    nametag = fullstr.split('-',1)[1]
+    nametag = nametag.rsplit('-',1)[0]
+
+    return nametag
+
+
 def check_voms_valid():
     '''
     check if certificate is expired

@@ -71,3 +71,13 @@ ProductionFilterSequence = cms.Sequence(
     generator * (genParticlesForFilter + geomfilter)
 )
 """
+
+singlecrabConfigGEN = """
+nametag: {NT}
+totaljobs: {NJ}
+"""
+
+singlecrabConfigRECO = """
+dataset: {DS}
+nametag: {NT}
+"""
