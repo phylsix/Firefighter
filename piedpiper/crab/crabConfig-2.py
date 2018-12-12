@@ -1,5 +1,16 @@
 import yaml
-myconf = yaml.load(open('config.yml').read())
+myconf = yaml.load(open('config-2.yml').read())
+
+import os
+import sys
+if os.environ['CMSSW_VERSION'].startswith('CMSSW_9'):
+    year = 2017
+    memreq = 6000
+elif os.environ['CMSSW_VERSION'].startswith('CMSSW_10'):
+    year = 2018
+    memreq = 15100
+else:
+    sys.exit('Wrong release!')
 
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
@@ -16,10 +27,10 @@ config.General.transferLogs = True
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '../cfg/SIDM_AODSIM_cfg.py'
 config.JobType.numCores = 8
-config.JobType.maxMemoryMB = 6000
+config.JobType.maxMemoryMB = memreq
 config.JobType.disableAutomaticOutputCollection = False
 
-config.Data.inputDataset = '/CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48-354cda32a6a404e25b0eb21bb1bef952/USER'
+config.Data.inputDataset = myconf['dataset']
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
