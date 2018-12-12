@@ -19,6 +19,7 @@ def generate_gencfi(config):
     genfrag_cfi.write(genTemplate.format(CTAU=ctau))
     genfrag_cfi.close()
 
+
 def get_command(step, year):
 
     if step.upper() not in ['GEN-SIM', 'PREMIX-RAW-HLT', 'AODSIM'] \
@@ -27,7 +28,7 @@ def get_command(step, year):
         print('-- step: {0}'.format(step))
         print('-- year: {0}'.format(year))
         sys.exit()
-    
+
     step = step.upper()
     year = str(year)
 
@@ -181,6 +182,9 @@ if __name__ == "__main__":
     cmsswrel = os.environ.get('CMSSW_VERSION', '')
     if not cmsswrel: sys.exit('cmsenv first.')
 
+    if cmsswrel not in os.path.abspath(__file__):
+        sys.exit('Wrong release environment, cmsenv again!')
+
     if 'CMSSW_9' in cmsswrel:
         year = '2017'
     elif 'CMSSW_10' in cmsswrel:
@@ -193,15 +197,15 @@ if __name__ == "__main__":
     print('==== GEN-SIM step ====')
     cmd = get_command('GEN-SIM', year)
     print(cmd)
-    #os.system(cmd)
+    os.system(cmd)
 
     print('==== PREMIX-RAW-HLT step ====')
     cmd = get_command('PREMIX-RAW-HLT', year)
     print(cmd)
-    #get_voms_certificate()
-    #os.system(cmd)
+    get_voms_certificate()
+    os.system(cmd)
 
     print('==== AODSIM step ====')
     cmd = get_command('AODSIM', year)
     print(cmd)
-    #os.system(cmd)
+    os.system(cmd)
