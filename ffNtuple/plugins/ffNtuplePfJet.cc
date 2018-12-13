@@ -186,8 +186,8 @@ ffNtuplePfJet::initialize(TTree& tree,
 
   tree.Branch("pfjet_n", &pfjet_n_, "pfjet_n/I");
   tree.Branch("pfjet_p4",               &pfjet_p4_             );
-  tree.Branch("pfjet_chargedHadronE ",  &pfjet_chargedHadronE_ );
-  tree.Branch("pfjet_neutralHadronE ",  &pfjet_neutralHadronE_ );
+  tree.Branch("pfjet_chargedHadronE",   &pfjet_chargedHadronE_ );
+  tree.Branch("pfjet_neutralHadronE",   &pfjet_neutralHadronE_ );
   tree.Branch("pfjet_chargedEmE",       &pfjet_chargedEmE_     );
   tree.Branch("pfjet_neutralEmE",       &pfjet_neutralEmE_     );
   tree.Branch("pfjet_photonE",          &pfjet_photonE_        );
@@ -210,7 +210,7 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_tracks_n",         &pfjet_tracks_n_       );
   tree.Branch("pfjet_ptDistribution",   &pfjet_ptDistribution_ );
   tree.Branch("pfjet_pfcands_chargedMass", &pfjet_pfcands_chargedMass_);
-  tree.Branch("pfjet_pfcands_hasDsaMu_"  , &pfjet_pfcands_hasDsaMu_   );
+  tree.Branch("pfjet_pfcands_hasDsaMu",    &pfjet_pfcands_hasDsaMu_   );
   tree.Branch("pfjet_pfcands_maxPtType",   &pfjet_pfcands_maxPtType_  );
   tree.Branch("pfjet_tracks_pt",        &pfjet_tracks_pt_      );
   tree.Branch("pfjet_tracks_eta",       &pfjet_tracks_eta_     );
