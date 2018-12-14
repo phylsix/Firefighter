@@ -21,7 +21,6 @@
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -774,10 +773,6 @@ ffNtuplePfJet::kinematicVertexFromTransientTracks(const std::vector<reco::Transi
     const TransientTrackKinematicParticle* ttkp = 
       dynamic_cast<const TransientTrackKinematicParticle*>(dau.get());
     if (ttkp==nullptr) { continue; }
-
-    const reco::TrackTransientTrack* ttt = 
-      dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
-    if (ttt==nullptr) { continue; }
 
     reco::Track dauTk = ttkp->refittedTransientTrack().track();
     double dauMass = dau->initialState().mass();
