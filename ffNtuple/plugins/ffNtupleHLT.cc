@@ -87,7 +87,7 @@ ffNtupleHLT::fill(const edm::Event& e,
       throw cms::Exception("Cannot find trigger path -> "+trigPath);
     }
     
-    if (!hlt_resultH->wasrun(triggerPathIndex) or !hlt_resultH->error(triggerPathIndex)) continue;
+    if (!hlt_resultH->wasrun(triggerPathIndex) or hlt_resultH->error(triggerPathIndex)) continue;
     
     hlt_bit_[p] = hlt_resultH->accept(triggerPathIndex);
     
