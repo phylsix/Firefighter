@@ -166,6 +166,7 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<std::vector<float>> pfjet_tracks_dzSig_   ;
     std::vector<std::vector<float>> pfjet_tracks_normChi2_;
 
+    std::vector<Point> pfjet_klmvtx_         ;
     std::vector<float> pfjet_klmvtx_lxy_     ;
     std::vector<float> pfjet_klmvtx_l3d_     ;
     std::vector<float> pfjet_klmvtx_lxySig_  ;
@@ -178,6 +179,7 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<float> pfjet_klmvtx_impactDistXy_;
     std::vector<float> pfjet_klmvtx_impactDist3d_;
 
+    std::vector<Point> pfjet_kinvtx_         ;
     std::vector<float> pfjet_kinvtx_lxy_     ;
     std::vector<float> pfjet_kinvtx_l3d_     ;
     std::vector<float> pfjet_kinvtx_lxySig_  ;
@@ -249,6 +251,7 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_tracks_dzSig",     &pfjet_tracks_dzSig_   );
   tree.Branch("pfjet_tracks_normChi2",  &pfjet_tracks_normChi2_);
 
+  tree.Branch("pfjet_klmvtx",          &pfjet_klmvtx_         );
   tree.Branch("pfjet_klmvtx_lxy",      &pfjet_klmvtx_lxy_     );
   tree.Branch("pfjet_klmvtx_l3d",      &pfjet_klmvtx_l3d_     );
   tree.Branch("pfjet_klmvtx_lxySig",   &pfjet_klmvtx_lxySig_  );
@@ -261,6 +264,7 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_klmvtx_impactDistXy", &pfjet_klmvtx_impactDistXy_);
   tree.Branch("pfjet_klmvtx_impactDist3d", &pfjet_klmvtx_impactDist3d_);
 
+  tree.Branch("pfjet_kinvtx",          &pfjet_kinvtx_         );
   tree.Branch("pfjet_kinvtx_lxy",      &pfjet_kinvtx_lxy_     );
   tree.Branch("pfjet_kinvtx_l3d",      &pfjet_kinvtx_l3d_     );
   tree.Branch("pfjet_kinvtx_lxySig",   &pfjet_kinvtx_lxySig_  );
@@ -377,6 +381,11 @@ ffNtuplePfJet::fill(const edm::Event& e,
     distXY = klmVtxValid ? signedDistanceXY(pv, klmVtx.vertexState(), pfjetMomentum) : Measurement1D();
     dist3D = klmVtxValid ? signedDistance3D(pv, klmVtx.vertexState(), pfjetMomentum) : Measurement1D();
 
+    pfjet_klmvtx_.emplace_back(
+      klmVtxValid ?
+      Point(klmVtx.position().x(), klmVtx.position().y(), klmVtx.position().z()) :
+      Point(NAN, NAN, NAN)
+    );
     pfjet_klmvtx_lxy_     .emplace_back(distXY.significance() ? distXY.value() : NAN);
     pfjet_klmvtx_l3d_     .emplace_back(dist3D.significance() ? dist3D.value() : NAN);
     pfjet_klmvtx_lxySig_  .emplace_back(distXY.significance() ? distXY.value()/distXY.error() : NAN);
@@ -398,6 +407,11 @@ ffNtuplePfJet::fill(const edm::Event& e,
     distXY = kinVtxValid ? signedDistanceXY(pv, kinVtx.vertexState(), pfjetMomentum) : Measurement1D();
     dist3D = kinVtxValid ? signedDistance3D(pv, kinVtx.vertexState(), pfjetMomentum) : Measurement1D();
 
+    pfjet_klmvtx_.emplace_back(
+      kinVtxValid ?
+      Point(kinVtx.position().x(), kinVtx.position().y(), kinVtx.position().z()) :
+      Point(NAN, NAN, NAN)
+    );
     pfjet_kinvtx_lxy_     .emplace_back(distXY.significance() ? distXY.value() : NAN);
     pfjet_kinvtx_l3d_     .emplace_back(dist3D.significance() ? dist3D.value() : NAN);
     pfjet_kinvtx_lxySig_  .emplace_back(distXY.significance() ? distXY.value()/distXY.error() : NAN);
@@ -450,7 +464,8 @@ ffNtuplePfJet::clear()
   pfjet_tracks_d0Sig_   .clear();
   pfjet_tracks_dzSig_   .clear();
   pfjet_tracks_normChi2_.clear();
-  
+
+  pfjet_klmvtx_         .clear();
   pfjet_klmvtx_lxy_     .clear();
   pfjet_klmvtx_l3d_     .clear();
   pfjet_klmvtx_lxySig_  .clear();
@@ -462,7 +477,8 @@ ffNtuplePfJet::clear()
   pfjet_klmvtx_cosTheta3d_  .clear();
   pfjet_klmvtx_impactDistXy_.clear();
   pfjet_klmvtx_impactDist3d_.clear();
-  
+
+  pfjet_kinvtx_         .clear();
   pfjet_kinvtx_lxy_     .clear();
   pfjet_kinvtx_l3d_     .clear();
   pfjet_kinvtx_lxySig_  .clear();
