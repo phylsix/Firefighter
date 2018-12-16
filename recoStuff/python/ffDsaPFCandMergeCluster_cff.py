@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Firefighter.recoStuff.MCGeometryFilter_cfi import mcgeometryfilter
+from Firefighter.recoStuff.MCKinematicFilter_cfi import mckinematicfilter
 from Firefighter.recoStuff.TrackSelections_cfi import selectedTracks
 from Firefighter.recoStuff.TrackToPFCandProd_cfi import PFCandsFromTracks
 # from Firefighter.recoStuff.ForkCandAgainstDsaMuon_cfi import forkCandAgainstDsaMuon
@@ -12,6 +13,7 @@ from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 
 
 mcGeometryFilter = mcgeometryfilter.clone()
+mcKinematicFilter = mckinematicfilter.clone()
 selectedDsaMuons = selectedTracks.clone()
 dsaMuPFCand = PFCandsFromTracks.clone(
     src = cms.InputTag('selectedDsaMuons')
@@ -38,6 +40,7 @@ ffLeptonJet = ak4PFJets.clone(
 
 ffLeptonJetSeq = cms.Sequence(
     mcGeometryFilter
+    + mcKinematicFilter
     + selectedDsaMuons
     + dsaMuPFCand
     + dsaMuPFCandFork
