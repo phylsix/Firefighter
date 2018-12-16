@@ -407,7 +407,7 @@ ffNtuplePfJet::fill(const edm::Event& e,
     distXY = kinVtxValid ? signedDistanceXY(pv, kinVtx.vertexState(), pfjetMomentum) : Measurement1D();
     dist3D = kinVtxValid ? signedDistance3D(pv, kinVtx.vertexState(), pfjetMomentum) : Measurement1D();
 
-    pfjet_klmvtx_.emplace_back(
+    pfjet_kinvtx_.emplace_back(
       kinVtxValid ?
       Point(kinVtx.position().x(), kinVtx.position().y(), kinVtx.position().z()) :
       Point(NAN, NAN, NAN)
