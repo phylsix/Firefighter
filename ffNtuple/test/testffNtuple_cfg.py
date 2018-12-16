@@ -13,16 +13,18 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 
 process.GlobalTag.globaltag = '94X_mc2017_realistic_v15'
 
-USE_TEST_DATA = False
+TEST_FAST = True
 
-if USE_TEST_DATA:
-    from testDataSource import *
-    _report_every = 100
-    _data_runover = datafiles
-    _output_fname = outputfilename
-else:
+from testDataSource import *
+_event_runover = -1
+_report_every = 100
+_data_runover = datafiles
+_output_fname = outputfilename
+
+if TEST_FAST:
+    _event_runover= 50
     _report_every = 1
-    _data_runover = ['file:AODSIM.root']
+    _data_runover = [datafiles[0]]
     _output_fname = 'testffNtuple.root'
 
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
@@ -35,7 +37,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(_event_runover)
 )
 
 process.source = cms.Source(
