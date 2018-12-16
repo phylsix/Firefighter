@@ -4,6 +4,7 @@ from Firefighter.recoStuff.MCGeometryFilter_cfi import mcgeometryfilter
 from Firefighter.recoStuff.MCKinematicFilter_cfi import mckinematicfilter
 from Firefighter.recoStuff.TrackSelections_cfi import selectedTracks
 from Firefighter.recoStuff.TrackToPFCandProd_cfi import PFCandsFromTracks
+from Firefighter.recoStuff.PFCandidateSelections_cfi import selectedPFCandidates
 # from Firefighter.recoStuff.ForkCandAgainstDsaMuon_cfi import forkCandAgainstDsaMuon
 from Firefighter.recoStuff.SplitPFCandByMatchingDsaMuonProd_cfi import *
 from Firefighter.recoStuff.CandMerger_cfi import candmerger
@@ -18,17 +19,18 @@ selectedDsaMuons = selectedTracks.clone()
 dsaMuPFCand = PFCandsFromTracks.clone(
     src = cms.InputTag('selectedDsaMuons')
 )
+selectedPFCands = selectedPFCandidates.clone()
 # dsaMuPFCandFork = forkCandAgainstDsaMuon.clone(
-#     src     = cms.InputTag("particleFlow"),
+#     src     = cms.InputTag("selectedPFCands"),
 #     matched = cms.InputTag("dsaMuPFCand")
 # )
 dsaMuPFCandFork = splitPFCandByMatchingDsaMuon.clone(
-    src     = cms.InputTag("particleFlow"),
+    src     = cms.InputTag("selectedPFCands"),
     matched = cms.InputTag("dsaMuPFCand")
 )
 particleFlowIncDSA = candmerger.clone(
     src=cms.VInputTag(
-        cms.InputTag("particleFlow"),
+        cms.InputTag("selectedPFCands"),
         cms.InputTag("dsaMuPFCandFork", "nonMatched")
     )
 )
@@ -43,6 +45,7 @@ ffLeptonJetSeq = cms.Sequence(
     + mcKinematicFilter
     + selectedDsaMuons
     + dsaMuPFCand
+    + selectedPFCands
     + dsaMuPFCandFork
     + particleFlowIncDSA
     + ffLeptonJet
