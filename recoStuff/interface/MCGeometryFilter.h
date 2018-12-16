@@ -19,6 +19,7 @@ class MCGeometryFilter : public edm::one::EDFilter<>
     bool filter(edm::Event&, const edm::EventSetup&) override;
 
     edm::EDGetToken gen_token_;
+    std::vector<int> pdgId_;
     float boundR_;
     float boundZ_;
     float maxEta_;

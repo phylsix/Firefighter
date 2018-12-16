@@ -7,6 +7,7 @@
 
 MCGeometryFilter::MCGeometryFilter(const edm::ParameterSet& ps) :
   gen_token_(consumes<reco::GenParticleCollection>(ps.getParameter<edm::InputTag>("GenParticles"))),
+  pdgId_(ps.getParameter<std::vector<int>>("pdgId")),
   boundR_(ps.getParameter<double>("boundR")),
   boundZ_(ps.getParameter<double>("boundZ")),
   maxEta_(ps.getParameter<double>("maxEta"))
@@ -29,7 +30,7 @@ MCGeometryFilter::filter(edm::Event& e, const edm::EventSetup& es)
   auto daughterParticleInRange =
     [this](const reco::GenParticle& p)
     {
-      return (abs(p.pdgId()) == 11 or abs(p.pdgId()) == 13)
+      return find(pdgId_.cbegin(), pdgId_.cend(), abs(p.pdgId())) != pdgId_.cend()
         and p.isHardProcess()
         and bound_.inRegionByRZ(p.vertex().rho(), fabs(p.vz()));
     };
