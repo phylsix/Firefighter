@@ -13,14 +13,20 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 
 process.GlobalTag.globaltag = '94X_mc2017_realistic_v15'
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring('joblog', 'cerr'),
-    debugModules = cms.untracked.vstring('ffNtuples'),
-    joblog = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
-    )
-)
+USE_TEST_DATA = False
+
+if USE_TEST_DATA:
+    from testDataSource import *
+    _report_every = 100
+    _data_runover = datafiles
+    _output_fname = outputfilename
+else:
+    _report_every = 1
+    _data_runover = ['file:AODSIM.root']
+    _output_fname = 'testffNtuple.root'
+
+process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(_report_every)
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False),
@@ -35,13 +41,13 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:AODSIM.root',
+        *_data_runover
     )
  )
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string('testffNtuple.root'),
+    fileName = cms.string(_output_fname),
     closeFileFast = cms.untracked.bool(True)
 )
 
