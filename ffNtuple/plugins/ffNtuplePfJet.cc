@@ -16,9 +16,11 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometrySurface/interface/Line.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -36,10 +38,12 @@
 
 using Point = math::XYZPointF;
 using LorentzVector = math::XYZTLorentzVectorF;
+using Global2DVector = Vector2DBase< float, GlobalTag>;
 
 class ffNtuplePfJet : public ffNtupleBase
 {
   public:
+
     ffNtuplePfJet(const edm::ParameterSet&);
 
     void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
@@ -51,7 +55,7 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<reco::PFCandidatePtr> getTrackEmbededPFCands(const reco::PFJet&) const;
     std::vector<reco::TrackRef>       getSelectedTracks(const reco::PFJet&,
                                                         const StringCutObjectSelector<reco::Track>&) const;
-    
+
     LorentzVector sumP4(const std::vector<reco::PFCandidatePtr>&) const;
     reco::PFCandidatePtr getCandWithMaxPt(const std::vector<reco::PFCandidatePtr>&) const;
     float chargedMass(const reco::PFJet&) const;
@@ -60,22 +64,22 @@ class ffNtuplePfJet : public ffNtupleBase
 
     /**
      * genralTracks Isolation
-     * 
+     *
      * pT of tracks in cone associated with the jet over
      * pT of tracks in cone that NOT associated with the jet + above
      * --> The higher the value, the more isolated
-     */ 
+     */
     float getTkIsolation(const reco::PFJet&,
                          const edm::Handle<reco::TrackCollection>&,
                          const float&) const;
 
     /**
      * PFCandidate Isolation
-     * 
+     *
      * energy of candidates in cone associated with the jet over
      * energy of candidates in cone that NOT associated with the jet + above
      * --> The higher the value, the more isolated
-     */ 
+     */
     float getPfIsolation(const reco::PFJet&,
                          const edm::Handle<reco::PFCandidateCollection>&,
                          const float&) const;
@@ -83,7 +87,7 @@ class ffNtuplePfJet : public ffNtupleBase
     int getCandType(const reco::PFCandidatePtr&,
                     const edm::Handle<reco::TrackCollection>&) const;
 
-    
+
     std::vector<reco::TransientTrack> transientTracksFromPFJet(const reco::PFJet&,
                                                                const edm::EventSetup&) const;
     std::pair<TransientVertex, float> kalmanVertexFromTransientTracks(const std::vector<reco::TransientTrack>&) const;
@@ -91,12 +95,30 @@ class ffNtuplePfJet : public ffNtupleBase
 
     Measurement1D signedDistanceXY(const reco::Vertex&,
                                    const VertexState&,
-                                   GlobalVector&) const;
+                                   const GlobalVector&) const;
     Measurement1D signedDistance3D(const reco::Vertex&,
                                    const VertexState&,
-                                   GlobalVector&) const;
+                                   const GlobalVector&) const;
+
+    float cosThetaOfJetPvXY(const reco::Vertex&,
+                            const VertexState&,
+                            const GlobalVector&) const;
+
+    float cosThetaOfJetPv3D(const reco::Vertex&,
+                            const VertexState&,
+                            const GlobalVector&) const;
+
+    float impactDistanceXY(const reco::Vertex&,
+                           const VertexState&,
+                           const GlobalVector&) const;
+    
+    float impactDistance3D(const reco::Vertex&,
+                           const VertexState&,
+                           const GlobalVector&) const;
+
 
   private:
+
     void clear() final;
 
     edm::EDGetToken pfjet_token_;
@@ -144,6 +166,7 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<std::vector<float>> pfjet_tracks_dzSig_   ;
     std::vector<std::vector<float>> pfjet_tracks_normChi2_;
 
+    std::vector<Point> pfjet_klmvtx_         ;
     std::vector<float> pfjet_klmvtx_lxy_     ;
     std::vector<float> pfjet_klmvtx_l3d_     ;
     std::vector<float> pfjet_klmvtx_lxySig_  ;
@@ -151,7 +174,12 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<float> pfjet_klmvtx_normChi2_;
     std::vector<float> pfjet_klmvtx_prob_    ;
     std::vector<float> pfjet_klmvtx_mass_    ;
+    std::vector<float> pfjet_klmvtx_cosThetaXy_  ;
+    std::vector<float> pfjet_klmvtx_cosTheta3d_  ;
+    std::vector<float> pfjet_klmvtx_impactDistXy_;
+    std::vector<float> pfjet_klmvtx_impactDist3d_;
 
+    std::vector<Point> pfjet_kinvtx_         ;
     std::vector<float> pfjet_kinvtx_lxy_     ;
     std::vector<float> pfjet_kinvtx_l3d_     ;
     std::vector<float> pfjet_kinvtx_lxySig_  ;
@@ -159,6 +187,11 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<float> pfjet_kinvtx_normChi2_;
     std::vector<float> pfjet_kinvtx_prob_    ;
     std::vector<float> pfjet_kinvtx_mass_    ;
+    std::vector<float> pfjet_kinvtx_cosThetaXy_  ;
+    std::vector<float> pfjet_kinvtx_cosTheta3d_  ;
+    std::vector<float> pfjet_kinvtx_impactDistXy_;
+    std::vector<float> pfjet_kinvtx_impactDist3d_;
+
 };
 
 DEFINE_EDM_PLUGIN(ffNtupleFactory,
@@ -186,8 +219,8 @@ ffNtuplePfJet::initialize(TTree& tree,
 
   tree.Branch("pfjet_n", &pfjet_n_, "pfjet_n/I");
   tree.Branch("pfjet_p4",               &pfjet_p4_             );
-  tree.Branch("pfjet_chargedHadronE ",  &pfjet_chargedHadronE_ );
-  tree.Branch("pfjet_neutralHadronE ",  &pfjet_neutralHadronE_ );
+  tree.Branch("pfjet_chargedHadronE",   &pfjet_chargedHadronE_ );
+  tree.Branch("pfjet_neutralHadronE",   &pfjet_neutralHadronE_ );
   tree.Branch("pfjet_chargedEmE",       &pfjet_chargedEmE_     );
   tree.Branch("pfjet_neutralEmE",       &pfjet_neutralEmE_     );
   tree.Branch("pfjet_photonE",          &pfjet_photonE_        );
@@ -210,7 +243,7 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_tracks_n",         &pfjet_tracks_n_       );
   tree.Branch("pfjet_ptDistribution",   &pfjet_ptDistribution_ );
   tree.Branch("pfjet_pfcands_chargedMass", &pfjet_pfcands_chargedMass_);
-  tree.Branch("pfjet_pfcands_hasDsaMu_"  , &pfjet_pfcands_hasDsaMu_   );
+  tree.Branch("pfjet_pfcands_hasDsaMu",    &pfjet_pfcands_hasDsaMu_   );
   tree.Branch("pfjet_pfcands_maxPtType",   &pfjet_pfcands_maxPtType_  );
   tree.Branch("pfjet_tracks_pt",        &pfjet_tracks_pt_      );
   tree.Branch("pfjet_tracks_eta",       &pfjet_tracks_eta_     );
@@ -218,6 +251,7 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_tracks_dzSig",     &pfjet_tracks_dzSig_   );
   tree.Branch("pfjet_tracks_normChi2",  &pfjet_tracks_normChi2_);
 
+  tree.Branch("pfjet_klmvtx",          &pfjet_klmvtx_         );
   tree.Branch("pfjet_klmvtx_lxy",      &pfjet_klmvtx_lxy_     );
   tree.Branch("pfjet_klmvtx_l3d",      &pfjet_klmvtx_l3d_     );
   tree.Branch("pfjet_klmvtx_lxySig",   &pfjet_klmvtx_lxySig_  );
@@ -225,7 +259,12 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_klmvtx_normChi2", &pfjet_klmvtx_normChi2_);
   tree.Branch("pfjet_klmvtx_prob",     &pfjet_klmvtx_prob_    );
   tree.Branch("pfjet_klmvtx_mass",     &pfjet_klmvtx_mass_    );
+  tree.Branch("pfjet_klmvtx_cosThetaXy",   &pfjet_klmvtx_cosThetaXy_  );
+  tree.Branch("pfjet_klmvtx_cosTheta3d",   &pfjet_klmvtx_cosTheta3d_  );
+  tree.Branch("pfjet_klmvtx_impactDistXy", &pfjet_klmvtx_impactDistXy_);
+  tree.Branch("pfjet_klmvtx_impactDist3d", &pfjet_klmvtx_impactDist3d_);
 
+  tree.Branch("pfjet_kinvtx",          &pfjet_kinvtx_         );
   tree.Branch("pfjet_kinvtx_lxy",      &pfjet_kinvtx_lxy_     );
   tree.Branch("pfjet_kinvtx_l3d",      &pfjet_kinvtx_l3d_     );
   tree.Branch("pfjet_kinvtx_lxySig",   &pfjet_kinvtx_lxySig_  );
@@ -233,6 +272,10 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_kinvtx_normChi2", &pfjet_kinvtx_normChi2_);
   tree.Branch("pfjet_kinvtx_prob",     &pfjet_kinvtx_prob_    );
   tree.Branch("pfjet_kinvtx_mass",     &pfjet_kinvtx_mass_    );
+  tree.Branch("pfjet_kinvtx_cosThetaXy",   &pfjet_kinvtx_cosThetaXy_  );
+  tree.Branch("pfjet_kinvtx_cosTheta3d",   &pfjet_kinvtx_cosTheta3d_  );
+  tree.Branch("pfjet_kinvtx_impactDistXy", &pfjet_kinvtx_impactDistXy_);
+  tree.Branch("pfjet_kinvtx_impactDist3d", &pfjet_kinvtx_impactDist3d_);
 }
 
 void
@@ -338,6 +381,11 @@ ffNtuplePfJet::fill(const edm::Event& e,
     distXY = klmVtxValid ? signedDistanceXY(pv, klmVtx.vertexState(), pfjetMomentum) : Measurement1D();
     dist3D = klmVtxValid ? signedDistance3D(pv, klmVtx.vertexState(), pfjetMomentum) : Measurement1D();
 
+    pfjet_klmvtx_.emplace_back(
+      klmVtxValid ?
+      Point(klmVtx.position().x(), klmVtx.position().y(), klmVtx.position().z()) :
+      Point(NAN, NAN, NAN)
+    );
     pfjet_klmvtx_lxy_     .emplace_back(distXY.significance() ? distXY.value() : NAN);
     pfjet_klmvtx_l3d_     .emplace_back(dist3D.significance() ? dist3D.value() : NAN);
     pfjet_klmvtx_lxySig_  .emplace_back(distXY.significance() ? distXY.value()/distXY.error() : NAN);
@@ -345,6 +393,10 @@ ffNtuplePfJet::fill(const edm::Event& e,
     pfjet_klmvtx_normChi2_.emplace_back(klmVtxValid && klmVtx.degreesOfFreedom() ? klmVtx.normalisedChiSquared() : NAN);
     pfjet_klmvtx_prob_    .emplace_back(klmVtxValid ? ChiSquaredProbability(klmVtx.totalChiSquared(), klmVtx.degreesOfFreedom()) : NAN );
     pfjet_klmvtx_mass_    .emplace_back(klmVtxValid ? klmVtxMass : NAN);
+    pfjet_klmvtx_cosThetaXy_  .emplace_back(klmVtxValid ? cosThetaOfJetPvXY(pv, klmVtx.vertexState(), pfjetMomentum) : NAN);
+    pfjet_klmvtx_cosTheta3d_  .emplace_back(klmVtxValid ? cosThetaOfJetPv3D(pv, klmVtx.vertexState(), pfjetMomentum) : NAN);
+    pfjet_klmvtx_impactDistXy_.emplace_back(klmVtxValid ? impactDistanceXY(pv, klmVtx.vertexState(), pfjetMomentum) : NAN);
+    pfjet_klmvtx_impactDist3d_.emplace_back(klmVtxValid ? impactDistance3D(pv, klmVtx.vertexState(), pfjetMomentum) : NAN);
 
 
     const auto kinVtxInfo = kinematicVertexFromTransientTracks(transientTks);
@@ -355,6 +407,11 @@ ffNtuplePfJet::fill(const edm::Event& e,
     distXY = kinVtxValid ? signedDistanceXY(pv, kinVtx.vertexState(), pfjetMomentum) : Measurement1D();
     dist3D = kinVtxValid ? signedDistance3D(pv, kinVtx.vertexState(), pfjetMomentum) : Measurement1D();
 
+    pfjet_kinvtx_.emplace_back(
+      kinVtxValid ?
+      Point(kinVtx.position().x(), kinVtx.position().y(), kinVtx.position().z()) :
+      Point(NAN, NAN, NAN)
+    );
     pfjet_kinvtx_lxy_     .emplace_back(distXY.significance() ? distXY.value() : NAN);
     pfjet_kinvtx_l3d_     .emplace_back(dist3D.significance() ? dist3D.value() : NAN);
     pfjet_kinvtx_lxySig_  .emplace_back(distXY.significance() ? distXY.value()/distXY.error() : NAN);
@@ -362,6 +419,10 @@ ffNtuplePfJet::fill(const edm::Event& e,
     pfjet_kinvtx_normChi2_.emplace_back(kinVtxValid && kinVtx.degreesOfFreedom() ? kinVtx.chiSquared()/kinVtx.degreesOfFreedom() : NAN);
     pfjet_kinvtx_prob_    .emplace_back(kinVtxValid ? ChiSquaredProbability(kinVtx.chiSquared(), kinVtx.degreesOfFreedom()) : NAN );
     pfjet_kinvtx_mass_    .emplace_back(kinVtxValid ? kinVtxMass : NAN);
+    pfjet_kinvtx_cosThetaXy_  .emplace_back(kinVtxValid ? cosThetaOfJetPvXY(pv, kinVtx.vertexState(), pfjetMomentum) : NAN);
+    pfjet_kinvtx_cosTheta3d_  .emplace_back(kinVtxValid ? cosThetaOfJetPv3D(pv, kinVtx.vertexState(), pfjetMomentum) : NAN);
+    pfjet_kinvtx_impactDistXy_.emplace_back(kinVtxValid ? impactDistanceXY(pv, kinVtx.vertexState(), pfjetMomentum) : NAN);
+    pfjet_kinvtx_impactDist3d_.emplace_back(kinVtxValid ? impactDistance3D(pv, kinVtx.vertexState(), pfjetMomentum) : NAN);
 
   }
 }
@@ -403,7 +464,8 @@ ffNtuplePfJet::clear()
   pfjet_tracks_d0Sig_   .clear();
   pfjet_tracks_dzSig_   .clear();
   pfjet_tracks_normChi2_.clear();
-  
+
+  pfjet_klmvtx_         .clear();
   pfjet_klmvtx_lxy_     .clear();
   pfjet_klmvtx_l3d_     .clear();
   pfjet_klmvtx_lxySig_  .clear();
@@ -411,7 +473,12 @@ ffNtuplePfJet::clear()
   pfjet_klmvtx_normChi2_.clear();
   pfjet_klmvtx_prob_    .clear();
   pfjet_klmvtx_mass_    .clear();
-  
+  pfjet_klmvtx_cosThetaXy_  .clear();
+  pfjet_klmvtx_cosTheta3d_  .clear();
+  pfjet_klmvtx_impactDistXy_.clear();
+  pfjet_klmvtx_impactDist3d_.clear();
+
+  pfjet_kinvtx_         .clear();
   pfjet_kinvtx_lxy_     .clear();
   pfjet_kinvtx_l3d_     .clear();
   pfjet_kinvtx_lxySig_  .clear();
@@ -419,6 +486,10 @@ ffNtuplePfJet::clear()
   pfjet_kinvtx_normChi2_.clear();
   pfjet_kinvtx_prob_    .clear();
   pfjet_kinvtx_mass_    .clear();
+  pfjet_kinvtx_cosThetaXy_  .clear();
+  pfjet_kinvtx_cosTheta3d_  .clear();
+  pfjet_kinvtx_impactDistXy_.clear();
+  pfjet_kinvtx_impactDist3d_.clear();
 }
 
 
@@ -719,10 +790,6 @@ ffNtuplePfJet::kinematicVertexFromTransientTracks(const std::vector<reco::Transi
       dynamic_cast<const TransientTrackKinematicParticle*>(dau.get());
     if (ttkp==nullptr) { continue; }
 
-    const reco::TrackTransientTrack* ttt = 
-      dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
-    if (ttt==nullptr) { continue; }
-
     reco::Track dauTk = ttkp->refittedTransientTrack().track();
     double dauMass = dau->initialState().mass();
 
@@ -736,7 +803,7 @@ ffNtuplePfJet::kinematicVertexFromTransientTracks(const std::vector<reco::Transi
 Measurement1D
 ffNtuplePfJet::signedDistance3D(const reco::Vertex& vtx1,
                                 const VertexState& vs2,
-                                GlobalVector& ref) const
+                                const GlobalVector& ref) const
 {
   VertexDistance3D vdist3D;
 
@@ -753,7 +820,7 @@ ffNtuplePfJet::signedDistance3D(const reco::Vertex& vtx1,
 Measurement1D
 ffNtuplePfJet::signedDistanceXY(const reco::Vertex& vtx1,
                                 const VertexState& vs2,
-                                GlobalVector& ref) const
+                                const GlobalVector& ref) const
 {
   VertexDistanceXY vdistXY;
 
@@ -764,6 +831,57 @@ ffNtuplePfJet::signedDistanceXY(const reco::Vertex& vtx1,
     return Measurement1D(-1.0*unsignedDistance.value(), unsignedDistance.error());
   
   return unsignedDistance;
+}
+
+
+float
+ffNtuplePfJet::cosThetaOfJetPvXY(const reco::Vertex& vtx1,
+                                 const VertexState& vs2,
+                                 const GlobalVector& ref) const
+{
+  GlobalVector diff = GlobalPoint(Basic3DVector<float> (vtx1.position())) - vs2.position();
+  Global2DVector diff2D = Global2DVector(diff.x(), diff.y());
+  Global2DVector ref2D  = Global2DVector(ref.x(), ref.y());
+  return diff2D.unit().dot(ref2D.unit());
+}
+
+
+float
+ffNtuplePfJet::cosThetaOfJetPv3D(const reco::Vertex& vtx1,
+                                 const VertexState& vs2,
+                                 const GlobalVector& ref) const
+{
+  GlobalVector diff = GlobalPoint(Basic3DVector<float> (vtx1.position())) - vs2.position();
+  return diff.unit().dot(ref.unit());
+}
+
+
+float
+ffNtuplePfJet::impactDistanceXY(const reco::Vertex& vtx1,
+                                const VertexState& vs2,
+                                const GlobalVector& ref) const
+{
+  Line::PositionType pos(GlobalPoint(vs2.position().x(), vs2.position().y(), 0));
+  Line::DirectionType dir(GlobalVector(ref.x(), ref.y(), 0).unit());
+  Line jetDirectionLineXY(pos, dir);
+
+  GlobalPoint pv(vtx1.position().x(), vtx1.position().y(), 0);
+
+  return jetDirectionLineXY.distance(pv).mag();
+}
+
+float
+ffNtuplePfJet::impactDistance3D(const reco::Vertex& vtx1,
+                                const VertexState& vs2,
+                                const GlobalVector& ref) const
+{
+  Line::PositionType pos(vs2.position());
+  Line::DirectionType dir(ref.unit());
+  Line jetDirectionLine(pos, dir);
+
+  GlobalPoint pv(vtx1.position().x(), vtx1.position().y(), vtx1.position().z());
+
+  return jetDirectionLine.distance(pv).mag();
 }
 
 
