@@ -99,7 +99,7 @@ ffNtupleHLT::fill(const edm::Event& e,
     if (!hlt_resultH->wasrun(triggerPathIndex) or hlt_resultH->error(triggerPathIndex)) continue;
     
     hlt_bit_[p] = hlt_resultH->accept(triggerPathIndex);
-    
+
     if (!hlt_resultH->accept(triggerPathIndex)) continue;
 
     // picking out last filter(index) of this trigger p.
@@ -112,7 +112,7 @@ ffNtupleHLT::fill(const edm::Event& e,
       if (hcp.moduleEDMType(nameFilter) != "EDFilter") continue;
       if (!hcp.saveTags(nameFilter)) continue;
       
-      lastFilterIndex = hlt_eventH->filterIndex(edm::InputTag(nameFilter));
+      lastFilterIndex = hlt_eventH->filterIndex(edm::InputTag(nameFilter, "", "HLT"));
       break;
     }
 
