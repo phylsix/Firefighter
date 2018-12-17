@@ -7,7 +7,7 @@ from Firefighter.recoStuff.TrackToPFCandProd_cfi import PFCandsFromTracks
 from Firefighter.recoStuff.PFCandidateSelections_cfi import selectedPFCandidates
 # from Firefighter.recoStuff.ForkCandAgainstDsaMuon_cfi import forkCandAgainstDsaMuon
 from Firefighter.recoStuff.SplitPFCandByMatchingDsaMuonProd_cfi import *
-from Firefighter.recoStuff.CandMerger_cfi import candmerger
+from Firefighter.recoStuff.PFCandMerger_cfi import pfcandmerger
 
 
 from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
@@ -28,7 +28,7 @@ dsaMuPFCandFork = splitPFCandByMatchingDsaMuon.clone(
     src     = cms.InputTag("selectedPFCands"),
     matched = cms.InputTag("dsaMuPFCand")
 )
-particleFlowIncDSA = candmerger.clone(
+particleFlowIncDSA = pfcandmerger.clone(
     src=cms.VInputTag(
         cms.InputTag("selectedPFCands"),
         cms.InputTag("dsaMuPFCandFork", "nonMatched")
