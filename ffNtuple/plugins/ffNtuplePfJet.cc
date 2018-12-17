@@ -545,8 +545,10 @@ ffNtuplePfJet::getSelectedTracks(const reco::PFJet& jet,
                                  const StringCutObjectSelector<reco::Track>& tkSelector) const
 {
   std::vector<reco::TrackRef> result{};
-  for (const auto& tk : jet.getTrackRefs())
+  result.reserve(jet.chargedMultiplicity());
+  for (const auto& cand : getTrackEmbededPFCands(jet))
   {
+    reco::TrackRef tk = cand->trackRef();
     if (tkSelector(*(tk.get())))
     {
       result.push_back(tk);
