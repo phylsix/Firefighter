@@ -52,9 +52,11 @@ process.TFileService = cms.Service(
     fileName = cms.string(_output_fname),
     closeFileFast = cms.untracked.bool(True)
 )
-
+process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
 process.load('Firefighter.ffNtuple.ffNtuples_cff')
-process.ntuple_step = cms.Path(process.ffNtuplesSeq)
+process.ntuple_pfjet.src = cms.InputTag("ffLeptonJet")
+
+process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
 process.schedule = cms.Schedule(
