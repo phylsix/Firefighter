@@ -8,6 +8,7 @@ from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 from Configuration.Generator.Pythia8aMCatNLOSettings_cfi import *
 
 from Firefighter.recoStuff.MCGeometryFilter_cfi import *
+from Firefighter.recoStuff.MCKinematicFilter_cfi import *
 
 # External LHE producer configuration
 externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
@@ -67,7 +68,11 @@ geomfilter = mcgeometryfilter.clone(
     GenParticles = cms.InputTag('genParticlesForFilter')
 )
 
+kinefilter = mckinematicfilter.clone(
+    GenParticles = cms.InputTag('genParticlesForFilter')
+)
+
 ProductionFilterSequence = cms.Sequence(
-    generator * (genParticlesForFilter + geomfilter)
+    generator * (genParticlesForFilter + geomfilter + kinefilter)
 )
 """

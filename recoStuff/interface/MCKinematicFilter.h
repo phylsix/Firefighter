@@ -1,30 +1,25 @@
-#ifndef recoStuff_MCGeometryFilter_H
-#define recoStuff_MCGeometryFilter_H
+#ifndef recoStuff_MCKinematicFilter_H
+#define recoStuff_MCKinematicFilter_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Firefighter/recoStuff/interface/GeometryBoundary.h"
 
-
-class MCGeometryFilter : public edm::one::EDFilter<>
+class MCKinematicFilter : public edm::one::EDFilter<>
 {
   public:
-    explicit MCGeometryFilter(const edm::ParameterSet&);
-    ~MCGeometryFilter() {}
+    explicit MCKinematicFilter(const edm::ParameterSet&);
+    ~MCKinematicFilter() {}
   
   private:
     bool filter(edm::Event&, const edm::EventSetup&) override;
 
     edm::EDGetToken gen_token_;
     std::vector<int> pdgId_;
-    float boundR_;
-    float boundZ_;
-    float maxEta_;
+    float minPt_;
 
-    ff::GeometryBoundary bound_;
 };
 
 #endif
