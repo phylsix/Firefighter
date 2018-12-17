@@ -33,8 +33,8 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
 
 
-
 #include <algorithm>
+#include <numeric>
 
 using Point = math::XYZPointF;
 using LorentzVector = math::XYZTLorentzVectorF;
@@ -83,6 +83,17 @@ class ffNtuplePfJet : public ffNtupleBase
     float getPfIsolation(const reco::PFJet&,
                          const edm::Handle<reco::PFCandidateCollection>&,
                          const float&) const;
+
+    /**
+     * Neutral isolation
+     *
+     * energy of candidates in cone associated with the jet over
+     * energy of neutral candidates in clone + above
+     * --> The higher value, the more isolated
+     */
+    float getNeutralIsolation(const reco::PFJet&,
+                              const edm::Handle<reco::PFCandidateCollection>&,
+                              const float&) const;
 
     int getCandType(const reco::PFCandidatePtr&,
                     const edm::Handle<reco::TrackCollection>&) const;
@@ -154,6 +165,7 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<float> pfjet_maxDistance_    ;
     std::vector<float> pfjet_tkIsolation_    ;
     std::vector<float> pfjet_pfIsolation_    ;
+    std::vector<float> pfjet_neuIsolation_   ;
     std::vector<int>   pfjet_pfcands_n_      ;
     std::vector<int>   pfjet_tracks_n_       ;
     std::vector<float> pfjet_ptDistribution_ ;
@@ -239,6 +251,7 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_maxDistance",      &pfjet_maxDistance_    );
   tree.Branch("pfjet_tkIsolation",      &pfjet_tkIsolation_    );
   tree.Branch("pfjet_pfIsolation",      &pfjet_pfIsolation_    );
+  tree.Branch("pfjet_neuIsolation",     &pfjet_neuIsolation_   );
   tree.Branch("pfjet_pfcands_n",        &pfjet_pfcands_n_      );
   tree.Branch("pfjet_tracks_n",         &pfjet_tracks_n_       );
   tree.Branch("pfjet_ptDistribution",   &pfjet_ptDistribution_ );
@@ -338,6 +351,7 @@ ffNtuplePfJet::fill(const edm::Event& e,
     pfjet_maxDistance_    .emplace_back(pfjet.maxDistance());
     pfjet_tkIsolation_    .emplace_back(getTkIsolation(pfjet, generalTk_h, isoRadius_));
     pfjet_pfIsolation_    .emplace_back(getPfIsolation(pfjet, pfCand_h, isoRadius_));
+    pfjet_neuIsolation_   .emplace_back(getNeutralIsolation(pfjet, pfCand_h, isoRadius_));
     pfjet_pfcands_n_      .emplace_back(pfCands.size());
     pfjet_tracks_n_       .emplace_back(tracksSelected.size());
     pfjet_ptDistribution_ .emplace_back(pfjet.constituentPtDistribution());
@@ -453,6 +467,7 @@ ffNtuplePfJet::clear()
   pfjet_maxDistance_    .clear();
   pfjet_tkIsolation_    .clear();
   pfjet_pfIsolation_    .clear();
+  pfjet_neuIsolation_   .clear();
   pfjet_pfcands_n_      .clear();
   pfjet_tracks_n_       .clear();
   pfjet_ptDistribution_ .clear();
@@ -619,9 +634,12 @@ ffNtuplePfJet::getTkIsolation(const reco::PFJet& jet,
     notOfCands += tkRef->pt();
   }
   
-  float ofCands(0.);
-  for (const auto& cand : cands)
-    ofCands += cand->trackRef()->pt();
+  float ofCands = std::accumulate(
+    cands.begin(),
+    cands.end(),
+    0.,
+    [](float ptsum, const reco::PFCandidatePtr& jc){return ptsum+jc->trackRef()->pt();}
+    );
   
   return (ofCands+notOfCands) == 0 ? NAN : notOfCands/(ofCands+notOfCands);
 }
@@ -653,9 +671,50 @@ ffNtuplePfJet::getPfIsolation(const reco::PFJet& jet,
     notOfCands += cand->energy();
   }
   
-  float ofCands(0.);
-  for (const auto& jc : jetcands)
-    ofCands += jc->energy();
+  float ofCands = std::accumulate(
+    jetcands.begin(),
+    jetcands.end(),
+    0.,
+    [](float esum, const reco::PFCandidatePtr& jc){return esum+jc->energy();}
+    );
+
+  return (ofCands+notOfCands) == 0 ? NAN : notOfCands/(ofCands+notOfCands);
+}
+
+
+float
+ffNtuplePfJet::getNeutralIsolation(const reco::PFJet& jet,
+                                   const edm::Handle<reco::PFCandidateCollection>& pfH,
+                                   const float& isoRadius) const
+{
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for (size_t i(0); i!=pfH->size(); ++i) pfCandPtrs.emplace_back(pfH, i);
+
+  std::vector<reco::PFCandidatePtr> jetcands = getPFCands(jet);
+
+  float notOfCands(0.);
+  for (const auto& cand : pfCandPtrs)
+  {
+    if (cand->charge() != 0) continue;            // charged
+    if (deltaR(jet, *cand) > isoRadius) continue; // outside radius
+
+    if (
+      std::find_if(
+        jetcands.begin(),
+        jetcands.end(),
+        [&cand](const auto& jc){return jc==cand;}
+      )!=jetcands.end()
+    ) continue;                                   // associated with the jet
+
+    notOfCands += cand->energy();
+  }
+
+  float ofCands = std::accumulate(
+    jetcands.begin(),
+    jetcands.end(),
+    0.,
+    [](float esum, const reco::PFCandidatePtr& jc){return esum+jc->energy();}
+    );
   
   return (ofCands+notOfCands) == 0 ? NAN : notOfCands/(ofCands+notOfCands);
 }
