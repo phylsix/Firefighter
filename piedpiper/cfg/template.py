@@ -7,8 +7,6 @@ from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 from Configuration.Generator.Pythia8aMCatNLOSettings_cfi import *
 
-from Firefighter.recoStuff.MCGeometryFilter_cfi import *
-from Firefighter.recoStuff.MCKinematicFilter_cfi import *
 
 # External LHE producer configuration
 externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
@@ -64,15 +62,24 @@ genParticlesForFilter = cms.EDProducer(
     abortOnUnknownPDGCode=cms.untracked.bool(False)
 )
 
-geomfilter = mcgeometryfilter.clone(
-    GenParticles = cms.InputTag('genParticlesForFilter')
+genfilter = cms.EDFilter(
+    "GenParticleSelector",
+    src = cms.InputTag("genParticlesForFilter"),
+    cut = cms.string(' && '.join([
+        '(abs(pdgId)==11 || abs(pdgId)==13)',
+        'abs(eta)<2.4',
+        '(vertex.rho<740. && abs(vertex.Z)<960.)',
+        'pt>5.',
+        'isHardProcess()'
+    ]))
 )
-
-kinefilter = mckinematicfilter.clone(
-    GenParticles = cms.InputTag('genParticlesForFilter')
+gencount = cms.EDFilter(
+    "CandViewCountFilter",
+    src = cms.InputTag("genfilter"),
+    minNumber = cms.uint32(4)
 )
 
 ProductionFilterSequence = cms.Sequence(
-    generator * (genParticlesForFilter + geomfilter + kinefilter)
+    generator * (genParticlesForFilter + genfilter + gencount)
 )
 """
