@@ -14,14 +14,11 @@ CONFIG_NAME = 'multicrabConfig-1.yml'
 
 def main():
 
-    # set BASEDIR
+    # safety check
     if os.environ['CMSSW_BASE'] not in os.path.abspath(__file__):
         print('$CMSSW_BASE: ', os.environ['CMSSW_BASE'])
         print('__file__: ', os.path.abspath(__file__))
         sys.exit('Inconsistant release environment!')
-
-    BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src/Firefighter/piedpiper')
-    print(BASEDIR)
 
     # load config
     multiconf = yaml.load(open(CONFIG_NAME).read())
@@ -42,10 +39,13 @@ def main():
         print("nametag: ", nametag)
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
-        config.General.requestName = '{0}MCSIDM_PREMIXRAWHLT_{1}'.format(
+        config.General.requestName = '_'.join([
             getUsernameFromSiteDB(),
+            'PREMIXRAWHLT',
+            str(year),
+            nametag,
             time.strftime('%y%m%d-%H%M%S')
-        )
+        ])
 
         if doCmd:
             from CRABAPI.RawCommand import crabCommand

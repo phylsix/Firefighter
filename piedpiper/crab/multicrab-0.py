@@ -46,10 +46,13 @@ def main():
         nametag = gridpack_name.split('_slc')[0]
 
         config.Data.outputDatasetTag = nametag
-        config.General.requestName = '{0}MCSIDM_GENSIM_{1}'.format(
+        config.General.requestName = '_'.join([
             getUsernameFromSiteDB(),
+            'GENSIM',
+            str(year),
+            nametag,
             time.strftime('%y%m%d-%H%M%S')
-        )
+        ])
 
         if gridpack.startswith('root://'):
             cpcmd = 'xrdcp -f {0} {1}'.format(gridpack,

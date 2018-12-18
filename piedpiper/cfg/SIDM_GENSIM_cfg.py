@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py --fileout file:SIDM_GENSIM.root --mc -s LHE,GEN,SIM --era Run2_2017 --nThreads 4 --conditions auto:phase1_2017_realistic --beamspot Realistic25ns13TeVEarly2017Collision --datatier GEN-SIM --eventcontent RAWSIM -n 10 --no_exec --python_filename SIDM_GENSIM_cfg.py --customise Configuration/DataProcessing/Utils.addMonitoring
+# with command line options: Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py --fileout file:SIDM_GENSIM.root --mc -s LHE,GEN,SIM --era Run2_2017 --nThreads 4 --conditions auto:phase1_2017_realistic --beamspot Realistic25ns13TeVEarly2017Collision --datatier GEN-SIM --eventcontent RAWSIM -n 10 --no_exec --python_filename ../cfg/SIDM_GENSIM_cfg.py --customise Configuration/DataProcessing/Utils.addMonitoring
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
@@ -93,7 +93,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
             'processParameters'),
         processParameters = cms.vstring('ParticleDecays:tau0Max = 1000.1', 
             'LesHouches:setLifetime = 2', 
-            '32:tau0 = 0.48'),
+            '32:tau0 = 46.875'),
         pythia8CP5Settings = cms.vstring('Tune:pp 14', 
             'Tune:ee 7', 
             'MultipartonInteractions:ecmPow=0.03344', 

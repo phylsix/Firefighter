@@ -52,6 +52,13 @@ if __name__ == '__main__':
     config.Data.inputDataset = myconf['dataset']
     config.Data.outputDatasetTag = myconf['nametag']
     config.Data.outLFNDirBase += '/{0}'.format(year)
+    config.General.requestName = '_'.join([
+        getUsernameFromSiteDB(),
+        'PREMIXRAWHLT',
+        str(year),
+        myconf['nametag'],
+        time.strftime('%y%m%d-%H%M%S')
+    ])
 
     from CRABAPI.RawCommand import crabCommand
     crabCommand('submit', config = config)
