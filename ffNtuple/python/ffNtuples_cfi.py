@@ -65,16 +65,16 @@ ntuple_pfjet = cms.PSet(
     DisplacedStandAloneMuons = cms.InputTag('displacedStandAloneMuons'),
     GeneralTracks = cms.InputTag('generalTracks'),
     ParticleFlowCands = cms.InputTag('particleFlow'),
-    PFJetSelection = cms.string(
-        'abs(eta)<2.4 & \
-        numberOfDaughters>1 & \
-        neutralHadronEnergyFraction<0.99 & \
-        neutralEmEnergyFraction<0.99'
-    ),
-    TrackSelection = cms.string(
-        'pt>0.5 & \
-        normalizedChi2<5'
-    ),
+    PFJetSelection = cms.string(' && '.join([
+        'abs(eta)<2.4',
+        'numberOfDaughters>1',
+        'neutralHadronEnergyFraction<0.99',
+        'neutralEmEnergyFraction<0.99'
+    ])),
+    TrackSelection = cms.string(' && '.join([
+        'pt>0.5',
+        'normalizedChi2<5.'
+    ])),
     kvfParam=cms.PSet(
         maxDistance=cms.double(0.01), # It is said this is mm.
         maxNbrOfIterations=cms.int32(10),
