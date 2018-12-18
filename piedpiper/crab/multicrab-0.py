@@ -7,7 +7,7 @@ import time
 from Firefighter.piedpiper.utils import *
 from Firefighter.piedpiper.template import genTemplate
 
-from crabConfig-0 import *
+from crabConfig_0 import *
 
 verbose = False
 alwaysDoCmd = True
@@ -46,6 +46,10 @@ def main():
         nametag = gridpack_name.split('_slc')[0]
 
         config.Data.outputDatasetTag = nametag
+        config.General.requestName = '{0}MCSIDM_GENSIM_{1}'.format(
+            getUsernameFromSiteDB(),
+            time.strftime('%y%m%d-%H%M%S')
+        )
 
         if gridpack.startswith('root://'):
             cpcmd = 'xrdcp -f {0} {1}'.format(gridpack,

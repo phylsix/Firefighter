@@ -6,7 +6,7 @@ import time
 
 from Firefighter.piedpiper.utils import *
 
-from crabConfig-2 import *
+from crabConfig_2 import *
 
 doCmd = True
 CONFIG_NAME = 'multicrabConfig-2.yml'
@@ -42,6 +42,10 @@ def main():
         print("nametag: ", nametag)
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
+        config.General.requestName = '{0}MCSIDM_AODSIM_{1}'.format(
+            getUsernameFromSiteDB(),
+            time.strftime('%y%m%d-%H%M%S')
+        )
 
         if doCmd:
             from CRABAPI.RawCommand import crabCommand
