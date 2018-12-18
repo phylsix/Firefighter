@@ -1,22 +1,19 @@
-#include "Firefighter/recoStuff/interface/MCGeometryFilter.h"
+#include "Firefighter/recoStuff/interface/MCKinematicFilter.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include <algorithm>
 
-MCGeometryFilter::MCGeometryFilter(const edm::ParameterSet& ps) :
+MCKinematicFilter::MCKinematicFilter(const edm::ParameterSet& ps) :
   gen_token_(consumes<reco::GenParticleCollection>(ps.getParameter<edm::InputTag>("GenParticles"))),
   pdgId_(ps.getParameter<std::vector<int>>("pdgId")),
-  boundR_(ps.getParameter<double>("boundR")),
-  boundZ_(ps.getParameter<double>("boundZ")),
-  maxEta_(ps.getParameter<double>("maxEta"))
+  minPt_(ps.getParameter<double>("minPt"))
 {
-  bound_ = ff::GeometryBoundary(maxEta_, boundR_, boundZ_); 
 }
 
 bool
-MCGeometryFilter::filter(edm::Event& e, const edm::EventSetup& es)
+MCKinematicFilter::filter(edm::Event& e, const edm::EventSetup& es)
 {
   using namespace std;
   using namespace edm;
@@ -32,7 +29,7 @@ MCGeometryFilter::filter(edm::Event& e, const edm::EventSetup& es)
     {
       return find(pdgId_.cbegin(), pdgId_.cend(), abs(p.pdgId())) != pdgId_.cend()
         and p.isHardProcess()
-        and bound_.inRegionByRZ(p.vertex().rho(), fabs(p.vz()));
+        and p.pt() >= minPt_;
     };
 
   return count_if(genparticles.begin(), genparticles.end(), daughterParticleInRange) >=4;
@@ -41,4 +38,4 @@ MCGeometryFilter::filter(edm::Event& e, const edm::EventSetup& es)
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(MCGeometryFilter);
+DEFINE_FWK_MODULE(MCKinematicFilter);

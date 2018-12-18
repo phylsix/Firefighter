@@ -12,6 +12,7 @@ class ffNtupleHLT : public ffNtupleBase
 {
   public:
     ffNtupleHLT(const edm::ParameterSet&);
+    ~ffNtupleHLT();
 
     void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
     void fill(const edm::Event&, const edm::EventSetup&) override {}
@@ -38,6 +39,13 @@ ffNtupleHLT::ffNtupleHLT(const edm::ParameterSet& ps) :
   ffNtupleBase(ps)
 {}
 
+ffNtupleHLT::~ffNtupleHLT()
+{
+  hlt_pathsNoVer_.clear();
+  hlt_bit_.clear();
+  hlt_triggerObjectP4_.clear();
+}
+
 void
 ffNtupleHLT::initialize(TTree& tree,
                         const edm::ParameterSet& ps,
@@ -49,6 +57,9 @@ ffNtupleHLT::initialize(TTree& tree,
   
   for (const auto& p : hlt_pathsNoVer_)
   {
+    hlt_bit_[p] = false;
+    hlt_triggerObjectP4_[p] = math::XYZTLorentzVectorFCollection();
+
     tree.Branch(p.c_str(), &hlt_bit_[p], (p+"/O").c_str());
     tree.Branch(("TO"+p).c_str(), &hlt_triggerObjectP4_[p]);
   }
@@ -74,8 +85,6 @@ ffNtupleHLT::fill(const edm::Event& e,
   
   for (const auto& p : hlt_pathsNoVer_)
   {
-    hlt_bit_[p] = false;
-    hlt_triggerObjectP4_[p] = math::XYZTLorentzVectorFCollection();
 
     const vector<string> matchedPaths(hcp.restoreVersion(allTriggerPaths, p));
     if (matchedPaths.size() == 0) {
@@ -87,10 +96,10 @@ ffNtupleHLT::fill(const edm::Event& e,
       throw cms::Exception("Cannot find trigger path -> "+trigPath);
     }
     
-    if (!hlt_resultH->wasrun(triggerPathIndex) or !hlt_resultH->error(triggerPathIndex)) continue;
+    if (!hlt_resultH->wasrun(triggerPathIndex) or hlt_resultH->error(triggerPathIndex)) continue;
     
     hlt_bit_[p] = hlt_resultH->accept(triggerPathIndex);
-    
+
     if (!hlt_resultH->accept(triggerPathIndex)) continue;
 
     // picking out last filter(index) of this trigger p.
@@ -103,23 +112,22 @@ ffNtupleHLT::fill(const edm::Event& e,
       if (hcp.moduleEDMType(nameFilter) != "EDFilter") continue;
       if (!hcp.saveTags(nameFilter)) continue;
       
-      lastFilterIndex = hlt_eventH->filterIndex(edm::InputTag(nameFilter));
-      if (lastFilterIndex >= hlt_eventH->sizeFilters()) continue;
+      lastFilterIndex = hlt_eventH->filterIndex(edm::InputTag(nameFilter, "", "HLT"));
       break;
     }
 
+    if (lastFilterIndex >= hlt_eventH->sizeFilters()) continue;
+
     // filling trigger objects' indexes.
-    vector<trigger::size_type> triggerObjectIndices{};
+    set<trigger::size_type> triggerObjectIndices{};
     
     const trigger::Keys& keys = hlt_eventH->filterKeys(lastFilterIndex);
     const trigger::Vids& types= hlt_eventH->filterIds(lastFilterIndex);
 
     for (size_t iK(0); iK!=keys.size(); ++iK) {
-      if (types[lastFilterIndex]!=trigger::TriggerObjectType::TriggerL1Mu and
-          types[lastFilterIndex]!=trigger::TriggerObjectType::TriggerMuon) { continue; }
-      if (find(triggerObjectIndices.begin(), triggerObjectIndices.end(), keys[iK])
-          != triggerObjectIndices.end()) { continue; } // do not push same TO index.
-      triggerObjectIndices.push_back(keys[iK]);
+      if (types[iK]!=trigger::TriggerObjectType::TriggerL1Mu and
+          types[iK]!=trigger::TriggerObjectType::TriggerMuon) { continue; }
+      triggerObjectIndices.emplace(keys[iK]);
     }
 
     for (const auto& iTOidx: triggerObjectIndices)
@@ -135,6 +143,9 @@ ffNtupleHLT::fill(const edm::Event& e,
 void
 ffNtupleHLT::clear()
 {
-  hlt_bit_.clear();
-  hlt_triggerObjectP4_.clear();
+  for (const auto& p : hlt_pathsNoVer_)
+  {
+    hlt_bit_[p] = false;
+    hlt_triggerObjectP4_[p].clear();
+  }
 }

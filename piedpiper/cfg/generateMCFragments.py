@@ -175,7 +175,7 @@ if __name__ == "__main__":
     # print(config)
 
     ## Generate gen cfi fragment file
-    #generate_gencfi(config)
+    generate_gencfi(config)
 
     ## Get year
     cmsswrel = os.environ.get('CMSSW_VERSION', '')

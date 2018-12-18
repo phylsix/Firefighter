@@ -68,19 +68,9 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
-process.mcgeometryfilter = cms.EDFilter("MCGeometryFilter",
-    GenParticles = cms.InputTag("genParticles"),
-    boundR = cms.double(740.0),
-    boundZ = cms.double(960.0),
-    maxEta = cms.double(2.4)
-)
-
-
-process.geomfilter = cms.EDFilter("MCGeometryFilter",
-    GenParticles = cms.InputTag("genParticlesForFilter"),
-    boundR = cms.double(740.0),
-    boundZ = cms.double(960.0),
-    maxEta = cms.double(2.4)
+process.gencount = cms.EDFilter("CandViewCountFilter",
+    minNumber = cms.uint32(4),
+    src = cms.InputTag("genfilter")
 )
 
 
@@ -152,6 +142,12 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
 )
 
 
+process.genfilter = cms.EDFilter("GenParticleSelector",
+    cut = cms.string('(abs(pdgId)==11 || abs(pdgId)==13) && abs(eta)<2.4 && (vertex.rho<740. && abs(vertex.Z)<960.) && pt>5. && isHardProcess()'),
+    src = cms.InputTag("genParticlesForFilter")
+)
+
+
 process.genParticlesForFilter = cms.EDProducer("GenParticleProducer",
     abortOnUnknownPDGCode = cms.untracked.bool(False),
     saveBarCodes = cms.untracked.bool(True),
@@ -168,7 +164,7 @@ process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
 )
 
 
-process.ProductionFilterSequence = cms.Sequence(process.generator+process.genParticlesForFilter+process.geomfilter)
+process.ProductionFilterSequence = cms.Sequence(process.generator+process.genParticlesForFilter+process.genfilter+process.gencount)
 
 # Path and EndPath definitions
 process.lhe_step = cms.Path(process.externalLHEProducer)

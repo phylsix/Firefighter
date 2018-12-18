@@ -73,7 +73,7 @@ ntuple_pfjet = cms.PSet(
     ),
     TrackSelection = cms.string(
         'pt>0.5 & \
-        normalizedChi2>5'
+        normalizedChi2<5'
     ),
     kvfParam=cms.PSet(
         maxDistance=cms.double(0.01), # It is said this is mm.
