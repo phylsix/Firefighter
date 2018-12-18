@@ -5,11 +5,11 @@ import yaml
 import time
 
 from Firefighter.piedpiper.utils import *
-from Firefighter.piedpiper.template import singlecrabConfigRECO
 
+from crabConfig-2 import *
 
-verbose = True
-doCmd = False
+doCmd = True
+CONFIG_NAME = 'multicrabConfig-2.yml'
 
 
 def main():
@@ -24,29 +24,31 @@ def main():
     print(BASEDIR)
 
     # load config
-    multiconf = yaml.load(open('multicrabConfig-2.yml').read())
+    multiconf = yaml.load(open(CONFIG_NAME).read())
 
     inputdatasets = multiconf['premixdigihltdatasets']
+    year          = multiconf['year']
+    config.Data.outLFNDirBase += '/{0}'.format(year)
+
+    if year == 2017: memreq = 6000
+    elif year == 2018: memreq = 15100
+    config.JobType.maxMemoryMB = memreq
 
     donelist = list()
     for ds in inputdatasets:
 
-        print("dataset: ", ds)
         nametag = get_nametag_from_dataset(ds)
-        cmd = 'crab submit -c crabConfig-2.py'
-
-        if verbose:
-            print(">> ", os.path.join(BASEDIR, 'crab/config-2.yml'))
-            print(singlecrabConfigRECO.format(DS=ds, NT=nametag))
-            print(cmd)
-            print('-----------------------------------------------------')
+        print("dataset: ", ds)
+        print("nametag: ", nametag)
+        config.Data.inputDataset = ds
+        config.Data.outputDatasetTag = nametag
 
         if doCmd:
-            with open(os.path.join(BASEDIR, 'crab/config-2.yml'), 'w') as conf:
-                conf.write(singlecrabConfigRECO.format(DS=ds, NT=nametag))
-            os.system(cmd)
-            time.sleep(10)
+            from CRABAPI.RawCommand import crabCommand
+            crabCommand('submit', config = config)
+            time.sleep(5)
             donelist.append(ds)
+
 
     print('submitted: ', len(donelist))
     for x in donelist: print(x)
@@ -56,8 +58,8 @@ def main():
     print('unsubmitted: ', len(undonelist))
     for x in undonelist: print(x)
     if undonelist:
-        with open('unsubmitted-1.yml', 'w') as outf:
-            yaml.dump({'premixdigihltdatasets': undonelist}, outf, default_flow_style=False)
+        with open('unsubmitted-2.yml.log', 'w') as outf:
+            yaml.dump({'premixdigihltdatasets': undonelist, 'year': year}, outf, default_flow_style=False)
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     main()

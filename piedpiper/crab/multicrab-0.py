@@ -5,10 +5,14 @@ import yaml
 import time
 
 from Firefighter.piedpiper.utils import *
-from Firefighter.piedpiper.template import genTemplate, singlecrabConfigGEN
+from Firefighter.piedpiper.template import genTemplate
+
+from crabConfig-0 import *
 
 verbose = False
 alwaysDoCmd = True
+CONFIG_NAME = 'multicrabConfig-0.yml'
+
 
 def main():
 
@@ -22,10 +26,15 @@ def main():
     print(BASEDIR)
 
     # load config
-    multiconf = yaml.load(open('multicrabConfig-0.yml').read())
+    multiconf = yaml.load(open(CONFIG_NAME).read())
 
     gridpacks = multiconf['gridpacks']
-    njobs = multiconf['njobs']
+    njobs     = multiconf['njobs']
+    year      = multiconf['year']
+
+    config.Data.totalUnits = config.Data.unitsPerJob * njobs
+    config.Data.outLFNDirBase += '/{0}'.format(year)
+
 
     # loop through
     donelist = list()
@@ -34,42 +43,56 @@ def main():
         print(gridpack)
         gridpack_name = os.path.basename(gridpack)
         mbs, mdp, ctau  = get_param_from_gridpackname(gridpack_name)
+        nametag = gridpack_name.split('_slc')[0]
+
+        config.Data.outputDatasetTag = nametag
 
         if gridpack.startswith('root://'):
-            cmd1 = 'xrdcp -f {0} {1}'.format(gridpack,
+            cpcmd = 'xrdcp -f {0} {1}'.format(gridpack,
                                              os.path.join(BASEDIR, 'cfg/gridpack.tar.xz'))
         else:
-            cmd1 = 'cp {0} {1}'.format(gridpack,
+            cpcmd = 'cp {0} {1}'.format(gridpack,
                                        os.path.join(BASEDIR, 'cfg/gridpack.tar.xz'))
 
-        cmd2 = 'crab submit -c crabConfig-0.py'
 
         if verbose:
-
-            print(cmd1)
-
+            print(cpcmd)
             print('>> ', os.path.join(BASEDIR, 'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'))
             print(genTemplate.format(CTAU=ctau))
-            print('>> ', os.path.join(BASEDIR, 'crab/config.yml'))
-            print(singlecrabConfigGEN.format(NT=gridpack_name.split('_slc')[0], NJ=njobs))
-
-            print(cmd2)
             print('------------------------------------------------------------')
 
+
         doCmd = True if alwaysDoCmd else raw_input('OK to go? [y/n]').lower() in ['y', 'yes']
-
         if doCmd:
-
-            os.system(cmd1)
-
+            # 1. copy gridpack
+            os.system(cpcmd)
+            # 2. write genfrag_cfi
             with open(os.path.join(BASEDIR, 'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'), 'w') as genfrag_cfi:
                 genfrag_cfi.write(genTemplate.format(CTAU=ctau))
-
-            with open(os.path.join(BASEDIR, 'crab/config.yml'), 'w') as singlecrabConf:
-                singlecrabConf.write(singlecrabConfigGEN.format(NT=gridpack_name.split('_slc')[0], NJ=njobs))
-
-            os.system(cmd2)
-            time.sleep(10) # give some time to crab
+            # 3. write gen_cfg
+            cfgcmd = ' '.join([
+                'cmsDriver.py',
+                'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
+                '--fileout file:SIDM_GENSIM.root',
+                '--mc',
+                '-s LHE,GEN,SIM',
+                '--era Run2_{0}',
+                '--nThreads 4',
+                '--conditions auto:phase1_{0}_realistic',
+                '--beamspot Realistic25ns13TeVEarly{0}Collision',
+                '--datatier GEN-SIM',
+                '--eventcontent RAWSIM',
+                '-n 10',
+                '--no_exec',
+                '--python_filename ../cfg/SIDM_GENSIM_cfg.py',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year)
+            os.system(cfgcmd)
+            # 4. crab submit
+            from CRABAPI.RawCommand import crabCommand
+            crabCommand('submit', config = config)
+            # give some time to crab
+            time.sleep(5)
             donelist.append(gridpack)
 
     print('submitted: ', len(donelist))
@@ -80,8 +103,8 @@ def main():
     print('unsubmitted: ', len(undonelist))
     for x in undonelist: print(x)
     if undonelist:
-        with open('unsubmitted.yml', 'w') as outf:
-            yaml.dump({'gridpacks': undonelist, 'njobs': njobs}, outf, default_flow_style=False)
+        with open('unsubmitted-0.yml.log', 'w') as outf:
+            yaml.dump({'gridpacks': undonelist, 'njobs': njobs, 'year': year}, outf, default_flow_style=False)
 
 
 if __name__ == "__main__":
