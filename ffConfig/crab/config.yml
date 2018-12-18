@@ -1,3 +1,2 @@
-inputdataset: /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48-eb433d1eb14ce84ba202079d381f98cd/USER
-jobtype: MCSIDM
+dataset: /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48-eb433d1eb14ce84ba202079d381f98cd/USER
 nametag: SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48
