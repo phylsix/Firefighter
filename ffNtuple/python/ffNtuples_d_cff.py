@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Firefighter.ffNtuple.ffNtuples_cfi import *
+from Firefighter.ffNtuple.ffNtuples_cff import *
 
 ffNtuples = ffNtuplizer.clone()
 ffNtuples.Ntuples = cms.VPSet(

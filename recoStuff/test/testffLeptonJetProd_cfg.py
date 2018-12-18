@@ -54,6 +54,24 @@ process.skimOutput = cms.OutputModule(
     )
 )
 
+process.genfilter = cms.EDFilter(
+    "GenParticleSelector",
+    src = cms.InputTag("genParticles"),
+    cut = cms.string(' && '.join([
+        '(abs(pdgId)==11 || abs(pdgId)==13)',
+        'abs(eta)<2.4',
+        '(vertex.rho<740. && abs(vertex.Z)<960.)',
+        'pt>5.',
+        'isHardProcess()'
+    ]))
+)
+process.gencount = cms.EDFilter(
+    "CandViewCountFilter",
+    src = cms.InputTag("genfilter"),
+    minNumber = cms.uint32(4)
+)
+process.gen_step = cms.Path(process.genfilter + process.gencount)
+
 process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
 process.leptonjet_step = cms.Path(process.ffLeptonJetSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
@@ -61,6 +79,7 @@ process.output_step = cms.EndPath(process.skimOutput)
 
 
 process.schedule = cms.Schedule(
+    process.gen_step,
     process.leptonjet_step,
     process.endjob_step,
     process.output_step

@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("USER")
 
+IS_DATA = False
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.EventContent.EventContent_cff")
@@ -39,15 +41,18 @@ process.TFileService = cms.Service(
     closeFileFast = cms.untracked.bool(True)
 )
 
-process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
-process.load('Firefighter.ffNtuple.ffNtuples_cff')
+if IS_DATA:
+    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
+    process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
+else:
+    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
+    process.load('Firefighter.ffNtuple.ffNtuples_cff')
+process.ntuple_pfjet.src = cms.InputTag('ffLeptonJet')
 
-process.leptonjet_step = cms.Path(process.ffLeptonJetSeq)
-process.ntuple_step = cms.Path(process.ffNtuplesSeq)
+process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
 process.schedule = cms.Schedule(
-    process.leptonjet_step,
     process.ntuple_step,
     process.endjob_step
 )
