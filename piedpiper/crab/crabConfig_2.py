@@ -27,7 +27,7 @@ config.Data.publication = True
 config.Data.outputDatasetTag = ''
 config.Data.ignoreLocality = True
 
-config.Site.whitelist = ['T3_US_FNALLPC', 'T2_CH_CERN', 'T2_US_Purdue']
+config.Site.whitelist = ['T3_US_FNALLPC', 'T2_CH_CERN', 'T2_US_*', 'T3_US_*']
 config.Site.ignoreGlobalBlacklist = True
 config.Site.storageSite = 'T3_US_FNALLPC'
 

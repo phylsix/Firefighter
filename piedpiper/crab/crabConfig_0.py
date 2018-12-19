@@ -31,7 +31,7 @@ config.Data.outputDatasetTag = ''
 config.Data.outputPrimaryDataset = 'CRAB_PrivateMC'
 config.Data.ignoreLocality = True
 
-config.Site.whitelist = ['T3_US_FNALLPC']
+config.Site.whitelist = ['T3_US_FNALLPC', 'T2_US_*', 'T3_US_*']
 config.Site.ignoreGlobalBlacklist = True
 config.Site.storageSite = 'T3_US_FNALLPC'
 

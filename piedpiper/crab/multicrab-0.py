@@ -11,19 +11,21 @@ from crabConfig_0 import *
 
 verbose = False
 alwaysDoCmd = True
-CONFIG_NAME = 'multicrabConfig-0.yml'
+
+if os.environ['CMSSW_BASE'] not in os.path.abspath(__file__):
+    print('$CMSSW_BASE: ', os.environ['CMSSW_BASE'])
+    print('__file__: ', os.path.abspath(__file__))
+    sys.exit('Inconsistant release environment!')
+
+BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src/Firefighter/piedpiper')
+print(BASEDIR)
+
+CONFIG_NAME = os.path.join(BASEDIR, 'crab/multicrabConfig-0.yml')
 
 
 def main():
 
     # set BASEDIR
-    if os.environ['CMSSW_BASE'] not in os.path.abspath(__file__):
-        print('$CMSSW_BASE: ', os.environ['CMSSW_BASE'])
-        print('__file__: ', os.path.abspath(__file__))
-        sys.exit('Inconsistant release environment!')
-
-    BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src/Firefighter/piedpiper')
-    print(BASEDIR)
 
     # load config
     multiconf = yaml.load(open(CONFIG_NAME).read())

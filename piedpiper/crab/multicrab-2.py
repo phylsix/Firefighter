@@ -9,7 +9,12 @@ from Firefighter.piedpiper.utils import *
 from crabConfig_2 import *
 
 doCmd = True
-CONFIG_NAME = 'multicrabConfig-2.yml'
+CONFIG_NAME = os.path.join(
+    os.path.dirname(
+        os.path.abspath(__file__)
+    ),
+    'multicrabConfig-2.yml'
+)
 
 
 def main():
