@@ -25,9 +25,9 @@ config.Data.unitsPerJob = 1
 config.Data.outLFNDirBase = '/store/user/%s/MCSIDM/ffNtuple' % (getUsernameFromSiteDB())
 config.Data.publication = True # cannot really
 config.Data.outputDatasetTag = ''
-config.Data.ignoreLocality = False
+config.Data.ignoreLocality = True
 
-#config.Site.whitelist = ['T3_US_FNALLPC', 'T2_US_*', 'T3_US_*']
+config.Site.whitelist = ['T3_US_FNALLPC', 'T2_US_*', 'T3_US_*']
 config.Site.ignoreGlobalBlacklist = True
 config.Site.storageSite = 'T3_US_FNALLPC'
 

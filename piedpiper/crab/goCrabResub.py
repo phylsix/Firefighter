@@ -10,7 +10,7 @@ def main():
 
     for t in toResub:
         
-        relDir = 'crabWorkArea/{0}'.format(t)
+        relDir = os.path.relpath(os.path.abspath(t), '.')
         statusDict = crabCommand('status', dir=relDir)
         if statusDict.get('status', '') != 'FAILED': continue
         
