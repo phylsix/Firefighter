@@ -45,6 +45,7 @@ class ffNtupleGen : public ffNtupleBase
     std::vector<std::vector<float>> gen_posz_;
 
     std::vector<int>   gen2_pid_;
+    math::XYZTLorentzVectorFCollection gen2_p4_;
     std::vector<math::XYZPointF> gen2_vtx_;
     std::vector<float> gen2_dr_;
     std::vector<std::vector<float>> gen2_posdr_;
@@ -90,6 +91,7 @@ ffNtupleGen::initialize(TTree& tree,
   tree.Branch("gen_posy",   &gen_posy_);
   tree.Branch("gen_posz",   &gen_posz_);
 
+  tree.Branch("gen2_p4",    &gen2_p4_);
   tree.Branch("gen2_vtx",   &gen2_vtx_);
   tree.Branch("gen2_dr",    &gen2_dr_);
   tree.Branch("gen2_pid",   &gen2_pid_);
@@ -120,20 +122,27 @@ ffNtupleGen::fill(const edm::Event& e,
   vector<float> xp{}, yp{}, zp{};
   ff::TrackExtrapolator tkExtrap(es);
 
-  for (const auto& particle : *gen_h)
+  vector<reco::GenParticleRef> genRefs{};
+  for (size_t i(0); i!=gen_h->size(); ++i)
   {
-    if (!particle.isHardProcess()
-        or abs(particle.pdgId())<9)
-    {
-      continue;
-    }
+    const auto& particle = (*gen_h)[i];
+    if (!particle.isHardProcess()) continue;
+    if (abs(particle.pdgId())<9) continue;
+    genRefs.emplace_back(gen_h, i);
+  }
 
-
-    const auto& vtx = particle.vertex();
+  for (const auto& particle : genRefs)
+  {
+    const auto& vtx = particle->vertex();
     
-    gen_charge_.push_back(particle.charge());
-    gen_pid_.push_back(particle.pdgId());
-    gen_p4_.emplace_back(particle.px(), particle.py(), particle.pz(), particle.energy());
+    gen_charge_.push_back(particle->charge());
+    gen_pid_.push_back(particle->pdgId());
+    gen_p4_.emplace_back(
+      particle->px(),
+      particle->py(),
+      particle->pz(),
+      particle->energy()
+    );
     gen_vtx_.emplace_back(vtx.X(), vtx.Y(), vtx.Z());
 
 
@@ -141,7 +150,7 @@ ffNtupleGen::fill(const edm::Event& e,
     xp.clear(); yp.clear(); zp.clear();
 
     // propagation for charged particles
-    if (particle.charge()!=0)
+    if (particle->charge()!=0)
     {
       for (const auto& cbound : cylinderBounds_)
       {
@@ -154,7 +163,7 @@ ffNtupleGen::fill(const edm::Event& e,
             and abs(vtx.Rho()) <= cb_r)
         {
           tkExtrap.setParameters(cb_r, cb_z);
-          TrajectoryStateOnSurface tsos = tkExtrap.propagate(particle);
+          TrajectoryStateOnSurface tsos = tkExtrap.propagate(*particle.get());
           if (tsos.isValid())
           {
             _x = tsos.globalPosition().x();
@@ -173,69 +182,96 @@ ffNtupleGen::fill(const edm::Event& e,
     gen_posy_  .push_back(yp);
     gen_posz_  .push_back(zp);
     
-    size_t parIdx = &particle - &((*gen_h)[0]);
-    myGenIndex[parIdx] = gen_posx_.size() - 1;
+    myGenIndex[particle.key()] = gen_posx_.size() - 1;
 
   }
 
-  // gen2
-  for (auto i(myGenIndex.begin()); i!=myGenIndex.end(); ++i)
+  map<size_t, pair<size_t, size_t>> dp2dauLink{}; // default key_compare is *less*
+  for (const auto& particle : genRefs)
   {
-    const auto& parA = (*gen_h)[i->first];
-    const size_t idxA = i->second;
+    if (particle->charge()!=0) continue;
+    if (particle->numberOfDaughters()!=2) continue;
 
-    if (parA.charge()==0) continue;
+    const reco::Candidate* _dau0 = particle->daughter(0);
+    const reco::Candidate* _dau1 = particle->daughter(1);
+    if (_dau0->charge()==0 or _dau1->charge()==0) continue;
 
-    for (auto j(next(i)); j!=myGenIndex.end(); ++j)
+    size_t dau0Index(9999), dau1Index(9999);
+    for (const auto& dau : genRefs)
     {
-      const auto& parB = (*gen_h)[j->first];
-      const size_t idxB = j->second;
-
-      if (parB.charge()==0) continue;
-      if (abs(parA.pdgId()) != abs(parB.pdgId())) continue;
-      if (parA.vertex() != parB.vertex()) continue;
-
-      const auto& vtx2 = parA.vertex();
-      float _dr = deltaR(parA, parB);
-      int _pid = abs(parA.pdgId());
-      bool _aPosbNeg = parA.charge()>0 && parB.charge()<0; // parA is positive and parB is negative
-      
-      vector<float> _posdrs, _posdzs, _posdphis;
-      for (size_t i(0); i!=cylinderBounds_.size(); ++i)
+      if (dau->charge()==0) continue;
+      if (dynamic_cast<const reco::Candidate*>(dau.get())==_dau0)
       {
-        float& _xA = gen_posx_[idxA][i];
-        float& _yA = gen_posy_[idxA][i];
-        float& _zA = gen_posz_[idxA][i];
-        float& _xB = gen_posx_[idxB][i];
-        float& _yB = gen_posy_[idxB][i];
-        float& _zB = gen_posz_[idxB][i];
+        dau0Index = dau.key();
+        continue;
+      }
+      if (dynamic_cast<const reco::Candidate*>(dau.get())==_dau1)
+      {
+        dau1Index = dau.key();
+        continue;
+      }
+    }
+    if (dau0Index==9999 or dau1Index==9999) continue;
+    dp2dauLink[particle.key()] = make_pair(dau0Index, dau1Index);
+  }
+
+
+  // gen2
+  for (auto i(dp2dauLink.begin()); i!=dp2dauLink.end(); ++i)
+  {
+    const auto& dpIdx = i->first;
+    const auto& daus  = i->second;
+    const auto& dau0Idx = daus.first;
+    const auto& dau1Idx = daus.second;
+
+    const size_t& dau0IdxLocal = myGenIndex[dau0Idx];
+    const size_t& dau1IdxLocal = myGenIndex[dau1Idx];
+
+    const auto& dp   = (*gen_h)[dpIdx];
+    const auto& dau0 = (*gen_h)[dau0Idx];
+    const auto& dau1 = (*gen_h)[dau1Idx];
+
+    const auto& vtxCommon = dau0.vertex();
+    float _dr = deltaR(dau0, dau1);
+    int _pid = abs(dau0.pdgId());
+    bool _aPos_bNeg = dau0.charge()>0 && dau1.charge()<0; // dau0 is positive and dau1 is negative
+
+    vector<float> _posdrs, _posdzs, _posdphis; // "pos" => position
+    for (size_t cb(0); cb!=cylinderBounds_.size(); ++cb)
+    {
+        float& _x0 = gen_posx_[dau0IdxLocal][cb];
+        float& _y0 = gen_posy_[dau0IdxLocal][cb];
+        float& _z0 = gen_posz_[dau0IdxLocal][cb];
+        float& _x1 = gen_posx_[dau1IdxLocal][cb];
+        float& _y1 = gen_posy_[dau1IdxLocal][cb];
+        float& _z1 = gen_posz_[dau1IdxLocal][cb];
         float _posdr(NAN), _posdz(NAN), _posdphi(NAN);
 
-        if (    _xA!=NAN and _yA!=NAN and _zA!=NAN
-            and _xB!=NAN and _yB!=NAN and _zB!=NAN)
+        if (    _x0!=NAN and _y0!=NAN and _z0!=NAN
+            and _x1!=NAN and _y1!=NAN and _z1!=NAN)
         {
-          _posdr = hypot((_xA - _xB), (_yA - _yB));
-          _posdz = abs(_zA - _zB);
-          float dphiAB = deltaPhi(
-            math::XYZVectorF(_xA, _yA, _zA).phi(),
-            math::XYZVectorF(_xB, _yB, _zB).phi()
+          _posdr = hypot((_x0 - _x1), (_y0 - _y1));
+          _posdz = abs(_z0 - _z1);
+          float dphi = deltaPhi(
+            math::XYZVectorF(_x0, _y0, _z0).phi(),
+            math::XYZVectorF(_x1, _y1, _z1).phi()
           );
-          _posdphi = _aPosbNeg ? dphiAB : -dphiAB; // make sure dphi means from positive to negative
+          _posdphi = _aPos_bNeg ? dphi : -dphi; // make sure dphi means from positive to negative
         }
         
-        _posdrs.push_back(_posdr);
-        _posdzs.push_back(_posdz);
+        _posdrs  .push_back(_posdr);
+        _posdzs  .push_back(_posdz);
         _posdphis.push_back(_posdphi);
-      }
-
-      gen2_vtx_.emplace_back(vtx2.X(), vtx2.Y(), vtx2.Z());
-      gen2_dr_.push_back(_dr);
-      gen2_pid_.push_back(_pid);
-      gen2_posdr_.push_back(_posdrs);
-      gen2_posdz_.push_back(_posdzs);
-      gen2_posdphi_.push_back(_posdphis);
-
     }
+
+    gen2_p4_.emplace_back(dp.px(), dp.py(), dp.pz(), dp.energy());
+    gen2_vtx_.emplace_back(vtxCommon.X(), vtxCommon.Y(), vtxCommon.Z());
+    gen2_dr_.push_back(_dr);
+    gen2_pid_.push_back(_pid);
+    gen2_posdr_  .push_back(_posdrs);
+    gen2_posdz_  .push_back(_posdzs);
+    gen2_posdphi_.push_back(_posdphis);
+
   }
 
 
@@ -266,6 +302,7 @@ ffNtupleGen::clear()
   gen_posy_.clear();
   gen_posz_.clear();
   
+  gen2_p4_.clear();
   gen2_vtx_.clear();
   gen2_dr_.clear();
   gen2_pid_.clear();
