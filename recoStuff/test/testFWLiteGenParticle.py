@@ -25,9 +25,20 @@ for i, event in enumerate(events, 1):
 
     nGen = len(gen)
     print("Number of gen particles: ", nGen)
-    print('pdgId\tstatus\tpt\teta\tphi\tisHP\tmother[0].pdgId')
+    print('pdgId\tstatus\tpt\teta\tphi\tisHP\tmother[0].pdgId\tnDaughters\tdaughtersPdgId')
     for g in gen:
         
         # if abs(g.pdgId())<9 or not g.isHardProcess(): continue
         if abs(g.pdgId()) not in (11,13, 32): continue
-        print(g.pdgId(), g.status(), round(g.pt(),3), round(g.eta(),3), round(g.phi(),3), g.isHardProcess(), g.mother(0).pdgId(), sep='\t')
+        print(
+            g.pdgId(),
+            g.status(),
+            round(g.pt(),3),
+            round(g.eta(),3),
+            round(g.phi(),3),
+            g.isHardProcess(),
+            g.mother(0).pdgId(),
+            g.numberOfDaughters(),
+            [g.daughter(i).pdgId() for i in range(g.numberOfDaughters())],
+            sep='\t'
+        )
