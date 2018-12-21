@@ -65,9 +65,10 @@ class ffNtuplePfJet : public ffNtupleBase
     /**
      * genralTracks Isolation
      *
-     * pT of tracks in cone associated with the jet over
-     * pT of tracks in cone that NOT associated with the jet + above
-     * --> The higher the value, the more isolated
+     * pT of tracks in cone that NOT associated with the jet
+     * ---------------------- over ----------------------
+     * pT of tracks in cone that associated with the jet + above
+     * --> The lower the value, the more isolated
      */
     float getTkIsolation(const reco::PFJet&,
                          const edm::Handle<reco::TrackCollection>&,
@@ -76,9 +77,10 @@ class ffNtuplePfJet : public ffNtupleBase
     /**
      * PFCandidate Isolation
      *
-     * energy of candidates in cone associated with the jet over
-     * energy of candidates in cone that NOT associated with the jet + above
-     * --> The higher the value, the more isolated
+     * energy of candidates in cone that NOT associated with the jet
+     * ---------------------- over ----------------------
+     * energy of candidates in cone that associated with the jet + above
+     * --> The lower the value, the more isolated
      */
     float getPfIsolation(const reco::PFJet&,
                          const edm::Handle<reco::PFCandidateCollection>&,
@@ -87,9 +89,10 @@ class ffNtuplePfJet : public ffNtupleBase
     /**
      * Neutral isolation
      *
-     * energy of candidates in cone associated with the jet over
-     * energy of neutral candidates in clone + above
-     * --> The higher value, the more isolated
+     * energy of neutral candidates in clone (NOT associated with the jet)
+     * ---------------------- over ----------------------
+     * energy of candidates in cone associated with the jet + above
+     * --> The lower value, the more isolated
      */
     float getNeutralIsolation(const reco::PFJet&,
                               const edm::Handle<reco::PFCandidateCollection>&,
