@@ -15,6 +15,7 @@ for i, event in enumerate(t,1):
     print('genp4', [(round(p.pt(),3), round(p.eta(),3), round(p.phi(),3)) for p in event.gen_p4])
     print('gen2pid', [p for p in event.gen2_pid])
     print('gen2p4', [(round(p.pt(),3), round(p.eta(),3), round(p.phi(),3)) for p in event.gen2_p4])
+    print('jetTkimpact2d', [m for x in event.pfjet_kinvtx_tkImpactDist2d for m in x])
 
     #print('genpt', [round(p.pt(), 3) for p in event.gen_p4])
     # print('klm', [(v.x(), v.y(), v.z()) for v in event.pfjet_klmvtx])

@@ -2,6 +2,12 @@
 #define recoStuff_RecoHelpers_H
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
 #include <set>
 #include <map>
@@ -15,6 +21,27 @@
 namespace ff {
 
   bool genAccept(reco::GenParticle const&);
+
+  // same functionality as IPTools::absoluteImpactParameter,
+  // replace reco::Vertex with VertexState
+  std::pair<bool, Measurement1D>
+  absoluteImpactParameter(const TrajectoryStateOnSurface&,
+                          const VertexState&,
+                          VertexDistance&);
+
+
+  // same functionality as IPTools::absoluteImpactParameter3D,
+  // replace reco::Vertex with VertexState
+  std::pair<bool, Measurement1D>
+  absoluteImpactParameter3D(const reco::TransientTrack&,
+                            const VertexState&);
+
+
+  // same functionality as IPTools::absoluteTransverseImpactParameter,
+  // replace reco::Vertex with VertexState
+  std::pair<bool, Measurement1D>
+  absoluteTransverseImpactParameter(const reco::TransientTrack&,
+                                    const VertexState&);
 
   template<typename T>
   std::set<T>

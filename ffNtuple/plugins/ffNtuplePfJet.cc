@@ -1,6 +1,7 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 #include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
 #include "Firefighter/recoStuff/interface/KinematicParticleVertexFitter.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
@@ -22,11 +23,13 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicStateBuilder.h"
@@ -103,6 +106,7 @@ class ffNtuplePfJet : public ffNtupleBase
 
 
     std::vector<reco::TransientTrack> transientTracksFromPFJet(const reco::PFJet&,
+                                                               const StringCutObjectSelector<reco::Track>&,
                                                                const edm::EventSetup&) const;
     std::pair<TransientVertex, float> kalmanVertexFromTransientTracks(const std::vector<reco::TransientTrack>&) const;
     std::pair<KinematicVertex, float> kinematicVertexFromTransientTracks(const std::vector<reco::TransientTrack>&) const;
@@ -193,6 +197,8 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<float> pfjet_klmvtx_cosTheta3d_  ;
     std::vector<float> pfjet_klmvtx_impactDistXy_;
     std::vector<float> pfjet_klmvtx_impactDist3d_;
+    std::vector<std::vector<float>> pfjet_klmvtx_tkImpactDist2d_;
+    std::vector<std::vector<float>> pfjet_klmvtx_tkImpactDist3d_;
 
     std::vector<Point> pfjet_kinvtx_         ;
     std::vector<float> pfjet_kinvtx_lxy_     ;
@@ -206,6 +212,8 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<float> pfjet_kinvtx_cosTheta3d_  ;
     std::vector<float> pfjet_kinvtx_impactDistXy_;
     std::vector<float> pfjet_kinvtx_impactDist3d_;
+    std::vector<std::vector<float>> pfjet_kinvtx_tkImpactDist2d_;
+    std::vector<std::vector<float>> pfjet_kinvtx_tkImpactDist3d_;
 
 };
 
@@ -279,6 +287,8 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_klmvtx_cosTheta3d",   &pfjet_klmvtx_cosTheta3d_  );
   tree.Branch("pfjet_klmvtx_impactDistXy", &pfjet_klmvtx_impactDistXy_);
   tree.Branch("pfjet_klmvtx_impactDist3d", &pfjet_klmvtx_impactDist3d_);
+  tree.Branch("pfjet_klmvtx_tkImpactDist2d", &pfjet_klmvtx_tkImpactDist2d_);
+  tree.Branch("pfjet_klmvtx_tkImpactDist3d", &pfjet_klmvtx_tkImpactDist3d_);
 
   tree.Branch("pfjet_kinvtx",          &pfjet_kinvtx_         );
   tree.Branch("pfjet_kinvtx_lxy",      &pfjet_kinvtx_lxy_     );
@@ -292,6 +302,9 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_kinvtx_cosTheta3d",   &pfjet_kinvtx_cosTheta3d_  );
   tree.Branch("pfjet_kinvtx_impactDistXy", &pfjet_kinvtx_impactDistXy_);
   tree.Branch("pfjet_kinvtx_impactDist3d", &pfjet_kinvtx_impactDist3d_);
+  tree.Branch("pfjet_kinvtx_tkImpactDist2d", &pfjet_kinvtx_tkImpactDist2d_);
+  tree.Branch("pfjet_kinvtx_tkImpactDist3d", &pfjet_kinvtx_tkImpactDist3d_);
+
 }
 
 void
@@ -383,7 +396,7 @@ ffNtuplePfJet::fill(const edm::Event& e,
 
 
     // vertices..
-    vector<reco::TransientTrack> transientTks = transientTracksFromPFJet(pfjet, es);
+    vector<reco::TransientTrack> transientTks = transientTracksFromPFJet(pfjet, track_selector_, es);
     Measurement1D distXY;
     Measurement1D dist3D;
 
@@ -415,6 +428,24 @@ ffNtuplePfJet::fill(const edm::Event& e,
     pfjet_klmvtx_impactDistXy_.emplace_back(klmVtxValid ? impactDistanceXY(pv, klmVtx.vertexState(), pfjetMomentum) : NAN);
     pfjet_klmvtx_impactDist3d_.emplace_back(klmVtxValid ? impactDistance3D(pv, klmVtx.vertexState(), pfjetMomentum) : NAN);
 
+    vector<float> trackImpactDist2dKlmVtx{}, trackImpactDist3dKlmVtx{};
+    if (klmVtxValid)
+    {
+      for (const auto& tt : transientTks)
+      {
+        pair<bool, Measurement1D> impact2dResult = ff::absoluteTransverseImpactParameter(tt, klmVtx.vertexState());
+        trackImpactDist2dKlmVtx.emplace_back(
+          impact2dResult.first && impact2dResult.second.significance() ? impact2dResult.second.value() : NAN
+        );
+
+        pair<bool, Measurement1D> impact3dResult = ff::absoluteImpactParameter3D(tt, klmVtx.vertexState());
+        trackImpactDist3dKlmVtx.emplace_back(
+          impact3dResult.first && impact3dResult.second.significance() ? impact3dResult.second.value() : NAN
+        );
+      }
+    }
+    pfjet_klmvtx_tkImpactDist2d_.emplace_back(trackImpactDist2dKlmVtx);
+    pfjet_klmvtx_tkImpactDist3d_.emplace_back(trackImpactDist3dKlmVtx);
 
     const auto kinVtxInfo = kinematicVertexFromTransientTracks(transientTks);
     const KinematicVertex& kinVtx = kinVtxInfo.first;
@@ -440,6 +471,25 @@ ffNtuplePfJet::fill(const edm::Event& e,
     pfjet_kinvtx_cosTheta3d_  .emplace_back(kinVtxValid ? cosThetaOfJetPv3D(pv, kinVtx.vertexState(), pfjetMomentum) : NAN);
     pfjet_kinvtx_impactDistXy_.emplace_back(kinVtxValid ? impactDistanceXY(pv, kinVtx.vertexState(), pfjetMomentum) : NAN);
     pfjet_kinvtx_impactDist3d_.emplace_back(kinVtxValid ? impactDistance3D(pv, kinVtx.vertexState(), pfjetMomentum) : NAN);
+
+    vector<float> trackImpactDist2dKinVtx{}, trackImpactDist3dKinVtx{};
+    if (kinVtxValid)
+    {
+      for (const auto& tt : transientTks)
+      {
+        pair<bool, Measurement1D> impact2dResult = ff::absoluteTransverseImpactParameter(tt, kinVtx.vertexState());
+        trackImpactDist2dKinVtx.emplace_back(
+          impact2dResult.first && impact2dResult.second.significance() ? impact2dResult.second.value() : NAN
+        );
+
+        pair<bool, Measurement1D> impact3dResult = ff::absoluteImpactParameter3D(tt, kinVtx.vertexState());
+        trackImpactDist3dKinVtx.emplace_back(
+          impact3dResult.first && impact3dResult.second.significance() ? impact3dResult.second.value() : NAN
+        );
+      }
+    }
+    pfjet_kinvtx_tkImpactDist2d_.emplace_back(trackImpactDist2dKinVtx);
+    pfjet_kinvtx_tkImpactDist3d_.emplace_back(trackImpactDist3dKinVtx);
 
   }
 }
@@ -495,6 +545,8 @@ ffNtuplePfJet::clear()
   pfjet_klmvtx_cosTheta3d_  .clear();
   pfjet_klmvtx_impactDistXy_.clear();
   pfjet_klmvtx_impactDist3d_.clear();
+  pfjet_klmvtx_tkImpactDist2d_.clear();
+  pfjet_klmvtx_tkImpactDist3d_.clear();
 
   pfjet_kinvtx_         .clear();
   pfjet_kinvtx_lxy_     .clear();
@@ -508,6 +560,8 @@ ffNtuplePfJet::clear()
   pfjet_kinvtx_cosTheta3d_  .clear();
   pfjet_kinvtx_impactDistXy_.clear();
   pfjet_kinvtx_impactDist3d_.clear();
+  pfjet_kinvtx_tkImpactDist2d_.clear();
+  pfjet_kinvtx_tkImpactDist3d_.clear();
 }
 
 
@@ -758,6 +812,7 @@ ffNtuplePfJet::getCandType(const reco::PFCandidatePtr& cand,
 
  std::vector<reco::TransientTrack>
  ffNtuplePfJet::transientTracksFromPFJet(const reco::PFJet& jet,
+                                         const StringCutObjectSelector<reco::Track>& tkSelector,
                                          const edm::EventSetup& es) const
 {
   std::vector<reco::PFCandidatePtr> cands = getTrackEmbededPFCands(jet);
@@ -768,6 +823,7 @@ ffNtuplePfJet::getCandType(const reco::PFCandidatePtr& cand,
   std::vector<reco::TransientTrack> t_tks{};
   for (const auto& c : cands)
   {
+    if (!tkSelector(*(c->trackRef().get()))) continue;
     reco::TransientTrack tt = theB->build(c);
     if (!tt.isValid()) continue;
     t_tks.push_back(tt);
