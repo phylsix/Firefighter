@@ -846,9 +846,16 @@ ffNtuplePfJet::kalmanVertexFromTransientTracks(const std::vector<reco::Transient
     )
   );
 
+  TransientVertex tv;
+  try
+  {
+    tv = kvf->vertex(t_tks);
+  } catch (...)
+  {
+    std::cout<<"Exception from ffNtuplePfJet::kalmanVertexFromTransientTracks !"<<std::endl;
+    return std::make_pair(TransientVertex(), NAN);
+  }
 
-  TransientVertex tv = kvf->vertex(t_tks);
-  
   if (!tv.isValid()) return std::make_pair(TransientVertex(), NAN);
   
   /// mass
@@ -891,7 +898,15 @@ ffNtuplePfJet::kinematicVertexFromTransientTracks(const std::vector<reco::Transi
   }
 
   std::unique_ptr<ff::KinematicParticleVertexFitter> kinFitter(new ff::KinematicParticleVertexFitter());
-  RefCountedKinematicTree kinTree = kinFitter->fit(allParticles);
+  RefCountedKinematicTree kinTree;
+  try
+  {
+    kinTree = kinFitter->fit(allParticles);
+  } catch (...)
+  {
+    std::cout<<"Exception from ffNtuplePfJet::kinematicVertexFromTransientTracks !"<<std::endl;
+    return std::make_pair(KinematicVertex(), NAN);
+  }
 
   if (!kinTree->isValid())
     return std::make_pair(KinematicVertex(), NAN);
