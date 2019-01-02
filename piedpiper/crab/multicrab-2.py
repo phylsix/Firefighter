@@ -30,7 +30,9 @@ def main():
 
     inputdatasets = multiconf['premixdigihltdatasets']
     year          = multiconf['year']
-    config.Data.outLFNDirBase += '/{0}'.format(year)
+    manualdatasets = multiconf['manual']
+    # config.Data.outLFNDirBase += '/{0}'.format(year)
+    config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/AODSIM/{0}'.format(year)
 
     if year == 2017: memreq = 6000
     elif year == 2018: memreq = 15100

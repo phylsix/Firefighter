@@ -30,7 +30,8 @@ def main():
 
     inputdatasets = multiconf['gensimdatasets']
     year          = multiconf['year']
-    config.Data.outLFNDirBase += '/{0}'.format(year)
+    # config.Data.outLFNDirBase += '/{0}'.format(year)
+    config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/PREMIXRAWHLT/{0}'.format(year)
 
     if year == 2017: memreq = 6000
     elif year == 2018: memreq = 15100
