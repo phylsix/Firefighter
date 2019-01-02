@@ -14,6 +14,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 
 
 process.GlobalTag.globaltag = '94X_mc2017_realistic_v15'
+import os
+if os.environ['CMSSW_VERSION'].startswith('CMSSW_10'):
+    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v15'
 
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
