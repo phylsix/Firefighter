@@ -53,7 +53,7 @@ def main():
     for x in donelist: print(x)
     print('------------------------------------------------------------')
 
-    undonelist = [x for x in inputdatasets if x not in donelist]
+    undonelist = [x for x in datasets if x not in donelist]
     print('unsubmitted: ', len(undonelist))
     for x in undonelist: print(x)
     if undonelist:

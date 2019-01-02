@@ -37,7 +37,7 @@ process.source = cms.Source(
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string('testffNtuple.root'),
+    fileName = cms.string('ffNtuple.root'),
     closeFileFast = cms.untracked.bool(True)
 )
 
