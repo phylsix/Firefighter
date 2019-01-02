@@ -3,6 +3,8 @@ from __future__ import print_function
 import os
 import time
 from CRABAPI.RawCommand import crabCommand
+from CRABClient.ClientExceptions import ClientException
+from httplib import HTTPException
 
 def main():
 
@@ -21,7 +23,12 @@ def main():
         if statusDict.get('publication', {}).get('failed', 0) != 0:
             print('-'*79)
             print(os.path.abspath(t))
-            crabCommand('resubmit', dir=relDir, publication=True)
+            try:
+                crabCommand('resubmit', dir=relDir, publication=True)
+            except HTTPException as hte:
+                print('Failed to resubmit for task {0}: {1}'.format(relDir, hte.headers))
+            except ClientException as cle:
+                print('Failed to resubmit for task {0}: {1}'.format(relDir, cle))
             print('-'*79)
             time.sleep(1)
 
@@ -29,7 +36,12 @@ def main():
             or statusDict.get('jobsPerStatus',{}).get('failed',0) != 0:
             print('-'*79)
             print(os.path.abspath(t))
-            crabCommand('resubmit', dir=relDir)
+            try:
+                crabCommand('resubmit', dir=relDir)
+            except HTTPException as hte:
+                print('Failed to resubmit for task {0}: {1}'.format(relDir, hte.headers))
+            except ClientException as cle:
+                print('Failed to resubmit for task {0}: {1}'.format(relDir, cle))
             print('-'*79)
             time.sleep(1)
 

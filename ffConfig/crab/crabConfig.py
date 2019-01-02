@@ -23,7 +23,7 @@ config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 config.Data.outLFNDirBase = '/store/user/%s/MCSIDM/ffNtuple' % (getUsernameFromSiteDB())
-config.Data.publication = True # cannot really
+config.Data.publication = False
 config.Data.outputDatasetTag = ''
 config.Data.ignoreLocality = True
 
