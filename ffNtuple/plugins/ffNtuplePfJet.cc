@@ -129,7 +129,7 @@ class ffNtuplePfJet : public ffNtupleBase
     float impactDistanceXY(const reco::Vertex&,
                            const VertexState&,
                            const GlobalVector&) const;
-    
+
     float impactDistance3D(const reco::Vertex&,
                            const VertexState&,
                            const GlobalVector&) const;
@@ -141,7 +141,6 @@ class ffNtuplePfJet : public ffNtupleBase
 
     edm::EDGetToken pfjet_token_;
     edm::EDGetToken pvs_token_;
-    edm::EDGetToken dsamu_token_;
     edm::EDGetToken generaltk_token_;
     edm::EDGetToken pfcand_token_;
 
@@ -236,7 +235,6 @@ ffNtuplePfJet::initialize(TTree& tree,
 {
   pfjet_token_     = cc.consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("src"));
   pvs_token_       = cc.consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PrimaryVertices"));
-  dsamu_token_     = cc.consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("DisplacedStandAloneMuons"));
   generaltk_token_ = cc.consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("GeneralTracks"));
   pfcand_token_    = cc.consumes<reco::PFCandidateCollection>(ps.getParameter<edm::InputTag>("ParticleFlowCands"));
 
@@ -318,15 +316,11 @@ ffNtuplePfJet::fill(const edm::Event& e,
   e.getByToken(pfjet_token_, pfjet_h);
   assert(pfjet_h.isValid());
   const reco::PFJetCollection& pfjets = *pfjet_h;
-  
+
   Handle<reco::VertexCollection> pvs_h;
   e.getByToken(pvs_token_, pvs_h);
   assert(pvs_h.isValid() && pvs_h->size()>0);
   const auto& pv  = *(pvs_h->begin());
-
-  Handle<reco::TrackCollection> dsamu_h;
-  e.getByToken(dsamu_token_, dsamu_h);
-  assert(dsamu_h.isValid());
 
   Handle<reco::TrackCollection> generalTk_h;
   e.getByToken(generaltk_token_, generalTk_h);
@@ -336,8 +330,9 @@ ffNtuplePfJet::fill(const edm::Event& e,
   e.getByToken(pfcand_token_, pfCand_h);
   assert(pfCand_h.isValid());
 
+
   clear();
-  
+
   pfjet_n_ = pfjets.size();
   for (const auto& pfjet : pfjets)
   {
@@ -372,8 +367,8 @@ ffNtuplePfJet::fill(const edm::Event& e,
     pfjet_tracks_n_       .emplace_back(tracksSelected.size());
     pfjet_ptDistribution_ .emplace_back(pfjet.constituentPtDistribution());
     pfjet_pfcands_chargedMass_.emplace_back(chargedMass(pfjet));
-    pfjet_pfcands_hasDsaMu_   .emplace_back(hasDisplacedStandAloneMuon(pfjet, dsamu_h));
-    pfjet_pfcands_maxPtType_  .emplace_back(getCandType(getCandWithMaxPt(pfCands), dsamu_h));
+    pfjet_pfcands_hasDsaMu_   .emplace_back(hasDisplacedStandAloneMuon(pfjet, generalTk_h));
+    pfjet_pfcands_maxPtType_  .emplace_back(getCandType(getCandWithMaxPt(pfCands), generalTk_h));
 
 
     // tracks
@@ -651,13 +646,13 @@ ffNtuplePfJet::chargedMass(const reco::PFJet& jet) const
 
 bool
 ffNtuplePfJet::hasDisplacedStandAloneMuon(const reco::PFJet& jet,
-                                          const edm::Handle<reco::TrackCollection>& dsaH) const
+                                          const edm::Handle<reco::TrackCollection>& generalTkH) const
 {
   std::vector<reco::PFCandidatePtr> candsWithTk = getTrackEmbededPFCands(jet);
 
   for (const auto& cand : candsWithTk)
   {
-    if (cand->trackRef().id() == dsaH.id())
+    if (cand->trackRef().id() != generalTkH.id())
       return true;
   }
 
@@ -679,7 +674,7 @@ ffNtuplePfJet::getTkIsolation(const reco::PFJet& jet,
   for (const auto& tkRef : generalTkRefs)
   {
     if (deltaR(jet, *tkRef) > isoRadius) continue; // outside radius
-    
+
     if (
       std::find_if(
         cands.begin(),
@@ -690,14 +685,14 @@ ffNtuplePfJet::getTkIsolation(const reco::PFJet& jet,
 
     notOfCands += tkRef->pt();
   }
-  
+
   float ofCands = std::accumulate(
     cands.begin(),
     cands.end(),
     0.,
     [](float ptsum, const reco::PFCandidatePtr& jc){return ptsum+jc->trackRef()->pt();}
     );
-  
+
   return (ofCands+notOfCands) == 0 ? NAN : notOfCands/(ofCands+notOfCands);
 }
 
@@ -727,7 +722,7 @@ ffNtuplePfJet::getPfIsolation(const reco::PFJet& jet,
 
     notOfCands += cand->energy();
   }
-  
+
   float ofCands = std::accumulate(
     jetcands.begin(),
     jetcands.end(),
@@ -772,7 +767,7 @@ ffNtuplePfJet::getNeutralIsolation(const reco::PFJet& jet,
     0.,
     [](float esum, const reco::PFCandidatePtr& jc){return esum+jc->energy();}
     );
-  
+
   return (ofCands+notOfCands) == 0 ? NAN : notOfCands/(ofCands+notOfCands);
 }
 
@@ -799,13 +794,13 @@ ffNtuplePfJet::getCandWithMaxPt(const std::vector<reco::PFCandidatePtr>& cands) 
 
 int
 ffNtuplePfJet::getCandType(const reco::PFCandidatePtr& cand,
-                           const edm::Handle<reco::TrackCollection>& dsaH) const
+                           const edm::Handle<reco::TrackCollection>& generalTkH) const
 {
   if (cand.isNull()) return 0;
 
-  if (cand->trackRef().isNonnull() && cand->trackRef().id() == dsaH.id())
+  if (cand->trackRef().isNonnull() && cand->trackRef().id() != generalTkH.id())
     return 8; // This is coming from a displacedStandAloneMuon
-  
+
   return cand->particleId();
 }
 
@@ -838,7 +833,7 @@ ffNtuplePfJet::kalmanVertexFromTransientTracks(const std::vector<reco::Transient
 {
   /// vertexing
   if (t_tks.size()<2) return std::make_pair(TransientVertex(), NAN);
-  
+
   std::unique_ptr<ff::KalmanVertexFitter> kvf(
     new ff::KalmanVertexFitter(
       kvfParam_,
@@ -857,7 +852,7 @@ ffNtuplePfJet::kalmanVertexFromTransientTracks(const std::vector<reco::Transient
   }
 
   if (!tv.isValid()) return std::make_pair(TransientVertex(), NAN);
-  
+
   /// mass
   LorentzVector vtxp4;
   for (const auto& refitTks : tv.refittedTracks())
@@ -865,7 +860,7 @@ ffNtuplePfJet::kalmanVertexFromTransientTracks(const std::vector<reco::Transient
     const reco::Track& tk = refitTks.track();
     reco::CandidatePtr cand = refitTks.basicTransientTrack()->candidate();
     float mass = cand.isNonnull() ? cand->mass() : 0.;
-    
+
     vtxp4 += LorentzVector(tk.px(), tk.py(), tk.pz(), std::hypot(tk.p(), mass));
   }
 
@@ -885,8 +880,8 @@ ffNtuplePfJet::kinematicVertexFromTransientTracks(const std::vector<reco::Transi
   TransientTrackKinematicStateBuilder ttkStateBuilder;
   // sigma to avoid singularities in the covariance matrix.
   float pSigma = 0.0000001;
-  // initial chi2 and ndf before kinematic fits. 
-  // The chi2 of the reconstruction is not considered 
+  // initial chi2 and ndf before kinematic fits.
+  // The chi2 of the reconstruction is not considered
   float chi = 0.;
   float ndf = 0.;
 
@@ -921,7 +916,7 @@ ffNtuplePfJet::kinematicVertexFromTransientTracks(const std::vector<reco::Transi
   LorentzVector vtxp4;
   for (const auto& dau : kinTree->daughterParticles())
   {
-    const TransientTrackKinematicParticle* ttkp = 
+    const TransientTrackKinematicParticle* ttkp =
       dynamic_cast<const TransientTrackKinematicParticle*>(dau.get());
     if (ttkp==nullptr) { continue; }
 
@@ -947,7 +942,7 @@ ffNtuplePfJet::signedDistance3D(const reco::Vertex& vtx1,
 
   if ( (ref.x()*diff.x() + ref.y()*diff.y() + ref.z()*diff.z())<0 )
     return Measurement1D(-1.0*unsignedDistance.value(), unsignedDistance.error());
-  
+
   return unsignedDistance;
 }
 
@@ -964,7 +959,7 @@ ffNtuplePfJet::signedDistanceXY(const reco::Vertex& vtx1,
 
   if ( (ref.x()*diff.x() + ref.y()*diff.y())<0 )
     return Measurement1D(-1.0*unsignedDistance.value(), unsignedDistance.error());
-  
+
   return unsignedDistance;
 }
 

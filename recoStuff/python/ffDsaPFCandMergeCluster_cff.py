@@ -15,7 +15,14 @@ from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 
 mcGeometryFilter = mcgeometryfilter.clone()
 mcKinematicFilter = mckinematicfilter.clone()
-selectedDsaMuons = selectedTracks.clone()
+selectedDsaMuons = selectedTracks.clone(
+    cut = cms.string(' && '.join([
+        'pt>5.',
+        'abs(eta)<2.4',
+        'hitPattern.muonStationsWithValidHits>2',
+        'normalizedChi2<4.'
+    ]))
+)
 dsaMuPFCand = PFCandsFromTracks.clone(
     src = cms.InputTag('selectedDsaMuons')
 )
@@ -36,7 +43,7 @@ particleFlowIncDSA = pfcandmerger.clone(
 )
 ffLeptonJet = ak4PFJets.clone(
     src = cms.InputTag('particleFlowIncDSA'),
-    rParam = cms.double(0.1),
+    rParam = cms.double(0.4),
 )
 
 

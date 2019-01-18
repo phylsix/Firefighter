@@ -14,3 +14,18 @@ datafiles = [
         ]
 
 outputfilename = 'ffNtuple_SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48.root'
+
+datafiles = [
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_1.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_2.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_3.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_4.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_5.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_6.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_7.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_8.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_9.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_10.root'
+]
+
+outputfilename = 'ffNtuple_SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250.root'

@@ -32,6 +32,7 @@ class ffNtupleDsaMuon : public ffNtupleBase
     std::vector<float> dsamuon_normChi2_   ;
     std::vector<int>   dsamuon_nValStaHits_;
     std::vector<int>   dsamuon_nLosStaHits_;
+    std::vector<int>   dsamuon_nStaValHits_;
     std::vector<int>   dsamuon_tkQual_     ;
     std::vector<int>   dsamuon_algo_       ;
     std::vector<int>   dsamuon_algoOrig_   ;
@@ -40,7 +41,7 @@ class ffNtupleDsaMuon : public ffNtupleBase
     std::vector<float> dsamuon_dzSig_      ;
     std::vector<int>   dsamuon_charge_     ;
     std::vector<Point> dsamuon_refPoint_   ;
-    
+
     std::vector<Point> dsamuon_innerPos_   ;
     std::vector<Point> dsamuon_outerPos_   ;
     math::XYZTLorentzVectorFCollection dsamuon_innerP4_;
@@ -68,6 +69,7 @@ ffNtupleDsaMuon::initialize(TTree& tree,
   tree.Branch("dsamuon_normChi2",    &dsamuon_normChi2_   );
   tree.Branch("dsamuon_nValStaHits", &dsamuon_nValStaHits_);
   tree.Branch("dsamuon_nLosStaHits", &dsamuon_nLosStaHits_);
+  tree.Branch("dsamuon_nStaValHits", &dsamuon_nStaValHits_);
   tree.Branch("dsamuon_tkQual",      &dsamuon_tkQual_     );
   tree.Branch("dsamuon_algo",        &dsamuon_algo_       );
   tree.Branch("dsamuon_algoOrig",    &dsamuon_algoOrig_   );
@@ -110,6 +112,7 @@ ffNtupleDsaMuon::fill(const edm::Event& e,
     dsamuon_normChi2_   .emplace_back((dsamuon.ndof()!=0) ? dsamuon.normalizedChi2() : NAN);
     dsamuon_nValStaHits_.emplace_back(hitPattern.numberOfValidMuonHits());
     dsamuon_nLosStaHits_.emplace_back(hitPattern.numberOfLostMuonHits());
+    dsamuon_nStaValHits_.emplace_back(hitPattern.muonStationsWithValidHits());
     dsamuon_tkQual_     .emplace_back(dsamuon.qualityMask());
     dsamuon_algo_       .emplace_back(dsamuon.algo());
     dsamuon_algoOrig_   .emplace_back(dsamuon.originalAlgo());
@@ -122,7 +125,7 @@ ffNtupleDsaMuon::fill(const edm::Event& e,
     bool _tkExtraAvail = trackExtra.isNonnull();
     bool _innerOk = _tkExtraAvail and dsamuon.innerOk();
     bool _outerOk = _tkExtraAvail and dsamuon.outerOk();
-    
+
     dsamuon_innerPos_.push_back(
       _innerOk ?
       Point(dsamuon.innerPosition().X(), dsamuon.innerPosition().Y(), dsamuon.innerPosition().Z()) :
@@ -183,6 +186,7 @@ ffNtupleDsaMuon::clear()
   dsamuon_normChi2_   .clear();
   dsamuon_nValStaHits_.clear();
   dsamuon_nLosStaHits_.clear();
+  dsamuon_nStaValHits_.clear();
   dsamuon_tkQual_     .clear();
   dsamuon_algo_       .clear();
   dsamuon_algoOrig_   .clear();

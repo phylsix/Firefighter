@@ -62,14 +62,14 @@ ntuple_pfjet = cms.PSet(
     NtupleName = cms.string("ffNtuplePfJet"),
     src = cms.InputTag('ak4PFJets'),
     PrimaryVertices = cms.InputTag('offlinePrimaryVertices'),
-    DisplacedStandAloneMuons = cms.InputTag('displacedStandAloneMuons'),
     GeneralTracks = cms.InputTag('generalTracks'),
     ParticleFlowCands = cms.InputTag('particleFlow'),
     PFJetSelection = cms.string(' && '.join([
         'abs(eta)<2.4',
         'numberOfDaughters>1',
         'neutralHadronEnergyFraction<0.99',
-        'neutralEmEnergyFraction<0.99'
+        'neutralEmEnergyFraction<0.99',
+        '(chargedEmEnergyFraction+muonEnergyFraction+neutralEmEnergyFraction)>0.5'
     ])),
     TrackSelection = cms.string(' && '.join([
         'pt>0.5',
