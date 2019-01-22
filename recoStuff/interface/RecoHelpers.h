@@ -12,6 +12,7 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <numeric>
 
 
 /** some helper functions that can be applied across
@@ -42,6 +43,51 @@ namespace ff {
   std::pair<bool, Measurement1D>
   absoluteTransverseImpactParameter(const reco::TransientTrack&,
                                     const VertexState&);
+
+
+  template<typename T>
+  T
+  medianValue(const std::vector<T>& v)
+  {
+    std::vector<T> vcopy;
+    std::copy(v.begin(), v.end(), back_inserter(vcopy));
+    size_t vsize = vcopy.size();
+
+    T res;
+    if (vsize==0)
+    {
+      res = NAN;
+    } else
+    {
+      std::sort(vcopy.begin(), vcopy.end());
+      if (vsize%2==0)
+      {
+        res = (vcopy[vsize/2-1]+vcopy[vsize/2])/2;
+      } else
+      {
+        res = vcopy[vsize/2];
+      }
+    }
+
+    return res;
+  }
+
+
+  template<typename T>
+  float
+  averageValue(const std::vector<T>& v)
+  {
+    float res;
+    if (v.size()==0)
+    {
+      res = NAN;
+    } else
+    {
+      res = std::accumulate(v.begin(), v.end(), 0)/v.size();
+    }
+
+    return res;
+  }
 
   template<typename T>
   std::set<T>
@@ -100,7 +146,7 @@ namespace ff {
 
     return (float)std::count(maskbits.begin(), maskbits.end(), true)/maskbits.size();
   }
-  
+
 }
 
 #endif

@@ -108,6 +108,18 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<reco::TransientTrack> transientTracksFromPFJet(const reco::PFJet&,
                                                                const StringCutObjectSelector<reco::Track>&,
                                                                const edm::EventSetup&) const;
+    /*!
+     * \brief estimate vertex as the median value of innermost points of tracks of the jet
+     * \param pTks : vector of trackRefs
+     */
+    Point estimatedVertexFromMedianInnermostPoints(const std::vector<reco::TrackRef>& pTks) const;
+
+    /*!
+     * \brief estimate vertex as the average value of innermost points of tracks of the jet
+     * \param pTks : vector of trackRefs
+     */
+    Point estimatedVertexFromAverageInnermostPoints(const std::vector<reco::TrackRef>& pTks) const;
+
     std::pair<TransientVertex, float> kalmanVertexFromTransientTracks(const std::vector<reco::TransientTrack>&) const;
     std::pair<KinematicVertex, float> kinematicVertexFromTransientTracks(const std::vector<reco::TransientTrack>&) const;
 
@@ -183,6 +195,9 @@ class ffNtuplePfJet : public ffNtupleBase
     std::vector<std::vector<float>> pfjet_tracks_d0Sig_   ;
     std::vector<std::vector<float>> pfjet_tracks_dzSig_   ;
     std::vector<std::vector<float>> pfjet_tracks_normChi2_;
+
+    std::vector<Point> pfjet_medianvtx_;
+    std::vector<Point> pfjet_averagevtx_;
 
     std::vector<Point> pfjet_klmvtx_         ;
     std::vector<float> pfjet_klmvtx_lxy_     ;
@@ -272,6 +287,9 @@ ffNtuplePfJet::initialize(TTree& tree,
   tree.Branch("pfjet_tracks_d0Sig",     &pfjet_tracks_d0Sig_   );
   tree.Branch("pfjet_tracks_dzSig",     &pfjet_tracks_dzSig_   );
   tree.Branch("pfjet_tracks_normChi2",  &pfjet_tracks_normChi2_);
+
+  tree.Branch("pfjet_medianvtx", &pfjet_medianvtx_ );
+  tree.Branch("pfjet_averagevtx",&pfjet_averagevtx_);
 
   tree.Branch("pfjet_klmvtx",          &pfjet_klmvtx_         );
   tree.Branch("pfjet_klmvtx_lxy",      &pfjet_klmvtx_lxy_     );
@@ -389,6 +407,8 @@ ffNtuplePfJet::fill(const edm::Event& e,
     pfjet_tracks_dzSig_   .push_back(trackDzSig);
     pfjet_tracks_normChi2_.push_back(trackNormChi2);
 
+    pfjet_medianvtx_ .push_back(estimatedVertexFromMedianInnermostPoints(tracksSelected));
+    pfjet_averagevtx_.push_back(estimatedVertexFromAverageInnermostPoints(tracksSelected));
 
     // vertices..
     vector<reco::TransientTrack> transientTks = transientTracksFromPFJet(pfjet, track_selector_, es);
@@ -527,6 +547,9 @@ ffNtuplePfJet::clear()
   pfjet_tracks_d0Sig_   .clear();
   pfjet_tracks_dzSig_   .clear();
   pfjet_tracks_normChi2_.clear();
+
+  pfjet_medianvtx_ .clear();
+  pfjet_averagevtx_.clear();
 
   pfjet_klmvtx_         .clear();
   pfjet_klmvtx_lxy_     .clear();
@@ -805,10 +828,10 @@ ffNtuplePfJet::getCandType(const reco::PFCandidatePtr& cand,
 }
 
 
- std::vector<reco::TransientTrack>
- ffNtuplePfJet::transientTracksFromPFJet(const reco::PFJet& jet,
-                                         const StringCutObjectSelector<reco::Track>& tkSelector,
-                                         const edm::EventSetup& es) const
+std::vector<reco::TransientTrack>
+ffNtuplePfJet::transientTracksFromPFJet(const reco::PFJet& jet,
+                                        const StringCutObjectSelector<reco::Track>& tkSelector,
+                                        const edm::EventSetup& es) const
 {
   std::vector<reco::PFCandidatePtr> cands = getTrackEmbededPFCands(jet);
 
@@ -825,6 +848,44 @@ ffNtuplePfJet::getCandType(const reco::PFCandidatePtr& cand,
   }
 
   return t_tks;
+}
+
+
+Point
+ffNtuplePfJet::estimatedVertexFromMedianInnermostPoints(const std::vector<reco::TrackRef>& pTks) const
+{
+  std::vector<float> cXinnerPos, cYinnerPos, cZinnerPos;
+  for (const auto& cTk : pTks)
+  {
+    cXinnerPos.push_back(cTk->innerPosition().X());
+    cYinnerPos.push_back(cTk->innerPosition().Y());
+    cZinnerPos.push_back(cTk->innerPosition().Z());
+  }
+
+  return Point(
+    ff::medianValue<float>(cXinnerPos),
+    ff::medianValue<float>(cYinnerPos),
+    ff::medianValue<float>(cZinnerPos)
+    );
+}
+
+
+Point
+ffNtuplePfJet::estimatedVertexFromAverageInnermostPoints(const std::vector<reco::TrackRef>& pTks) const
+{
+  std::vector<float> cXinnerPos, cYinnerPos, cZinnerPos;
+  for (const auto& cTk : pTks)
+  {
+    cXinnerPos.push_back(cTk->innerPosition().X());
+    cYinnerPos.push_back(cTk->innerPosition().Y());
+    cZinnerPos.push_back(cTk->innerPosition().Z());
+  }
+
+  return Point(
+    ff::averageValue<float>(cXinnerPos),
+    ff::averageValue<float>(cYinnerPos),
+    ff::averageValue<float>(cZinnerPos)
+    );
 }
 
 
