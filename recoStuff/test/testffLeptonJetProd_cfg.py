@@ -12,14 +12,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 
 
 process.GlobalTag.globaltag = '94X_mc2017_realistic_v15'
+import os
+if os.environ['CMSSW_VERSION'].startswith('CMSSW_10'):
+    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v15'
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring('joblog', 'cerr'),
-    joblog = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
-    )
-)
+process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False),
@@ -34,7 +32,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:AODSIM.root',
+        'root://cmseos.fnal.gov//store/user/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_1.root',
     )
  )
 
