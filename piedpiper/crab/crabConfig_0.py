@@ -10,7 +10,7 @@ config.General.requestName = '{0}MCSIDM_GENSIM_{1}'.format(
     )
 config.General.workArea = 'crabWorkArea'
 config.General.transferOutputs = True
-config.General.transferLogs = False
+config.General.transferLogs = True
 
 config.JobType.pluginName = 'PrivateMC'
 config.JobType.psetName = '../cfg/SIDM_GENSIM_cfg.py'
