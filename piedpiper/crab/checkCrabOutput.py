@@ -36,13 +36,13 @@ def main():
                 of.write('status:\t {0} {1}/{2}\n'.format(
                     statusDict.get('status', ''),
                     statusDict.get('jobsPerStatus', {}).get('finished', 0),
-                    statusDict.get('jobsPerStatus', {}).get('finished', 0)+statusDict.get('jobsPerStatus', {}).get('failed', 0),
+                    sum(statusDict.get('jobsPerStatus', {}).values()),
                 ))
                 of.write('publication:\t dataset: {0} | done: {1}\n'.format(
                     statusDict.get('outdatasets', ''),
                     statusDict.get('publication', {}).get('done', 0)
                 ))
-                of.wrtie('\n')
+                of.write('\n')
 
                 taskstatus = statusDict.get('status', '')
                 taskStatusDictShort = {
@@ -52,7 +52,7 @@ def main():
                     'dataset' : statusDict.get('outdatasets', ''),
                     'fraction' : '{0}/{1}'.format(
                         statusDict.get('jobsPerStatus', {}).get('finished', 0),
-                        statusDict.get('jobsPerStatus', {}).get('finished', 0)+statusDict.get('jobsPerStatus', {}).get('failed', 0),
+                        sum(statusDict.get('jobsPerStatus', {}).values()),
                     )
                 }
                 if taskstatus.lower() == 'completed':
