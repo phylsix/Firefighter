@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import os
+cmsrel = os.environ['CMSSW_VERSION']
 
 process = cms.Process("USER")
 
@@ -6,15 +8,22 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+if cmsrel.startswith('CMSSW_8'):
+    process.load('Configuration.StandardSequences.MagneticField_cff')
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+else:
+    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 
-process.GlobalTag.globaltag = '94X_mc2017_realistic_v15'
-import os
-if os.environ['CMSSW_VERSION'].startswith('CMSSW_10'):
+
+if cmsrel.startswith('CMSSW_10'):
     process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v15'
+if cmsrel.startswith('CMSSW_9'):
+    process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'
+if cmsrel.startswith('CMSSW_8'):
+    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
 TEST_FAST = True
 

@@ -5,7 +5,6 @@
 #include "TLorentzVector.h"
 #include "Firefighter/recoStuff/interface/GeometryBoundary.h"
 
-
 class ljGunProd : public edm::BaseFlatGunProducer
 {
   public:
@@ -14,7 +13,7 @@ class ljGunProd : public edm::BaseFlatGunProducer
 
     void produce(edm::Event&, const edm::EventSetup&) override;
 
-  
+
   private:
     float fMinPt;
     float fMaxPt;
