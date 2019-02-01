@@ -4,6 +4,7 @@
 *.tar.xz
 *.yml
 .vscode
+*.sqlite
 messages.txt
 nohup.out
 crabWorkArea

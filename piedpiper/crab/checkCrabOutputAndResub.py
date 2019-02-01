@@ -66,7 +66,7 @@ def resubmitSingleTask(checkdict):
             res['exceptionMsg'] = str(e)
             res['success'] = False
 
-    if _status == 'failed' or checkdict.get('jobsPerStatus',{}).get('failed',0) != 0:
+    if _status == 'failed' or checkdict.get('jobsperstatus',{}).get('failed',0) != 0:
         try:
             crabCommand('resubmit', dir=_dir)
         except Exception as e:
