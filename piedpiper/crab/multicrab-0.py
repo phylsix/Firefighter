@@ -79,23 +79,7 @@ def main():
             with open(os.path.join(BASEDIR, 'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'), 'w') as genfrag_cfi:
                 genfrag_cfi.write(genTemplate.format(CTAU=ctau))
             # 3. write gen_cfg
-            cfgcmd = ' '.join([
-                'cmsDriver.py',
-                'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
-                '--fileout file:SIDM_GENSIM.root',
-                '--mc',
-                '-s LHE,GEN,SIM',
-                '--era Run2_{0}',
-                '--nThreads 4',
-                '--conditions auto:phase1_{0}_realistic',
-                '--beamspot Realistic25ns13TeVEarly{0}Collision',
-                '--datatier GEN-SIM',
-                '--eventcontent RAWSIM',
-                '-n 10',
-                '--no_exec',
-                '--python_filename ../cfg/SIDM_GENSIM_cfg.py',
-                '--customise Configuration/DataProcessing/Utils.addMonitoring'
-            ]).format(year)
+            cfgcmd = get_command('GEN-SIM', year)
             os.system(cfgcmd)
             # 4. crab submit
             from CRABAPI.RawCommand import crabCommand

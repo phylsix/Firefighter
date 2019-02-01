@@ -2,13 +2,20 @@
 from __future__ import print_function
 import os
 import time
+from datetime import datetime
 from CRABAPI.RawCommand import crabCommand
 from CRABClient.ClientExceptions import ClientException
 from httplib import HTTPException
 
 def main():
 
-    toResub = ['crabWorkArea/{0}'.format(d) for d in os.listdir('crabWorkArea') if 'AODSIM' in d]
+    #toResub = ['crabWorkArea/{0}'.format(d) for d in os.listdir('crabWorkArea') if 'AODSIM' in d]
+    toResub = [
+            'crabWorkArea/{0}'.format(d) \
+                    for d in os.listdir('crabWorkArea') \
+                    if 'GENSIM' in d \
+                    and ( datetime.now()-datetime.strptime(d.rsplit('_',1)[-1], '%y%m%d-%H%M%S') ).days<3
+            ]
 
     for t in toResub:
 

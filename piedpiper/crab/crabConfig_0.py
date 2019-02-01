@@ -25,7 +25,7 @@ config.JobType.disableAutomaticOutputCollection = False
 config.Data.splitting = 'EventBased'
 config.Data.unitsPerJob = 1000
 config.Data.totalUnits = config.Data.unitsPerJob * 1
-config.Data.outLFNDirBase = '/store/user/%s/MCSIDM/GENSIM' % (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/GENSIM'
 config.Data.publication = True
 config.Data.outputDatasetTag = ''
 config.Data.outputPrimaryDataset = 'CRAB_PrivateMC'
@@ -43,9 +43,13 @@ if __name__ == '__main__':
 
     import os
     import sys
-    if os.environ['CMSSW_VERSION'].startswith('CMSSW_9'):
+    cmsrel = os.environ['CMSSW_VERSION']
+
+    if cmsrel.startswith('CMSSW_8'):
+        year = 2016
+    elif cmsrel.startswith('CMSSW_9'):
         year = 2017
-    elif os.environ['CMSSW_VERSION'].startswith('CMSSW_10'):
+    elif cmsrel.startswith('CMSSW_10'):
         year = 2018
     else:
         sys.exit('Wrong release!')

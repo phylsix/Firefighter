@@ -8,7 +8,7 @@ def get_param_from_gridpackname(gpname):
     '''
     infer parameters to generate the gridpack
     e.g. SIDM_BsTo2DpTo2Mu2e_MBs-1000_MDp-1p2_ctau-9p6_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz
-    
+
     returns (mbs, mdp, ctau)
     '''
 
@@ -66,3 +66,215 @@ def get_voms_certificate():
 
     if not check_voms_valid():
         os.system('voms-proxy-init -voms cms -valid 192:00')
+
+
+def get_command(step, year):
+
+    if step.upper() not in ['GEN-SIM', 'PREMIX-RAW-HLT', 'AODSIM'] \
+        or str(year) not in ['2016', '2017', '2018']:
+        print('Unsupported parameter for get_command(step, year):')
+        print('-- step: {0}'.format(step))
+        print('-- year: {0}'.format(year))
+        sys.exit()
+
+    step = step.upper()
+    year = str(year)
+
+    cmd = ''
+
+    if step == 'GEN-SIM':
+
+        if year == '2016':
+
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
+                    '--fileout file:SIDM_GENSIM.root',
+                    '--mc',
+                    '-s LHE,GEN,SIM',
+                    '--era Run2_{0}',
+                    '--nThreads 4',
+                    '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
+                    '--beamspot Realistic50ns13TeVCollision',
+                    '--datatier GEN-SIM',
+                    '--eventcontent RAWSIM',
+                    '-n 10',
+                    '--no_exec',
+                    '--python_filename SIDM_GENSIM_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+                ]
+            ).format(year)
+
+        else:
+
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
+                    '--fileout file:SIDM_GENSIM.root',
+                    '--mc',
+                    '-s LHE,GEN,SIM',
+                    '--era Run2_{0}',
+                    '--nThreads 4',
+                    '--conditions auto:phase1_{0}_realistic',
+                    '--beamspot Realistic25ns13TeVEarly{0}Collision',
+                    '--datatier GEN-SIM',
+                    '--eventcontent RAWSIM',
+                    '-n 10',
+                    '--no_exec',
+                    '--python_filename SIDM_GENSIM_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+                ]
+            ).format(year)
+
+    if step == 'PREMIX-RAW-HLT':
+
+        if year == '2016':
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'step1',
+                    '--filein file:SIDM_GENSIM.root',
+                    '--fileout file:SIDM_PREMIXRAWHLT.root',
+                    '--mc',
+                    '-s DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
+                    '--era Run2_{0}',
+                    '--nThreads 4',
+                    '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
+                    '--datatier GEN-SIM-RAW',
+                    '--eventcontent PREMIXRAW',
+                    '--datamix PreMix',
+                    '-n -1',
+                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISpring15PrePremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/GEN-SIM-DIGI-RAW"',
+                    '--no_exec',
+                    '--python_filename SIDM_PREMIXRAWHLT_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+
+                ]
+            ).format(year)
+
+        elif year == '2017':
+
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'step1',
+                    '--filein file:SIDM_GENSIM.root',
+                    '--fileout file:SIDM_PREMIXRAWHLT.root',
+                    '--mc',
+                    '-s DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
+                    '--era Run2_{0}',
+                    '--nThreads 8',
+                    '--conditions auto:phase1_{0}_realistic',
+                    '--beamspot Realistic25ns13TeVEarly{0}Collision',
+                    '--datatier GEN-SIM-RAW',
+                    '--eventcontent PREMIXRAW',
+                    '--datamix PreMix',
+                    '-n -1',
+                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-MCv2_correctPU_94X_mc2017_realistic_v9-v1/GEN-SIM-DIGI-RAW"',
+                    '--no_exec',
+                    '--python_filename SIDM_PREMIXRAWHLT_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+                ]
+            ).format(year)
+
+        elif year == '2018':
+
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'step1',
+                    '--filein file:SIDM_GENSIM.root',
+                    '--fileout file:SIDM_PREMIXRAWHLT.root',
+                    '--mc',
+                    '-s DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
+                    '--procModifiers premix_stage2',
+                    '--era Run2_{0}',
+                    '--nThreads 8',
+                    '--conditions auto:phase1_{0}_realistic',
+                    '--beamspot Realistic25ns13TeVEarly{0}Collision',
+                    '--datatier GEN-SIM-RAW',
+                    '--eventcontent PREMIXRAW',
+                    '--geometry DB:Extended',
+                    '--datamix PreMix',
+                    '-n -1',
+                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUFull18_102X_upgrade2018_realistic_v11-v1/GEN-SIM-DIGI-RAW"',
+                    '--no_exec',
+                    '--python_filename SIDM_PREMIXRAWHLT_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+                ]
+            ).format(year)
+
+    if step == 'AODSIM':
+
+        if year == '2016':
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'step2',
+                    '--filein file:SIDM_PREMIXRAWHLT.root',
+                    '--fileout file:SIDM_AODSIM.root',
+                    '--mc',
+                    '--runUnscheduled',
+                    '-s RAW2DIGI,RECO,EI',
+                    '--era Run2_{0}',
+                    '--nThreads 4',
+                    '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
+                    '--datatier AODSIM',
+                    '--eventcontent AODSIM',
+                    '-n -1',
+                    '--no_exec',
+                    '--python_filename SIDM_AODSIM_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+                ]
+            ).format(year)
+
+        elif year == '2017':
+
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'step2',
+                    '--filein file:SIDM_PREMIXRAWHLT.root',
+                    '--fileout file:SIDM_AODSIM.root',
+                    '--mc',
+                    '--runUnscheduled',
+                    '-s RAW2DIGI,RECO,EI',
+                    '--era Run2_{0}',
+                    '--nThreads 8',
+                    '--conditions auto:phase1_{0}_realistic',
+                    '--datatier AODSIM',
+                    '--eventcontent AODSIM',
+                    '-n -1',
+                    '--no_exec',
+                    '--python_filename SIDM_AODSIM_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+                ]
+            ).format(year)
+
+        elif year == '2018':
+
+            cmd = ' '.join(
+                [
+                    'cmsDriver.py',
+                    'step2',
+                    '--filein file:SIDM_PREMIXRAWHLT.root',
+                    '--fileout file:SIDM_AODSIM.root',
+                    '--mc',
+                    '--runUnscheduled',
+                    '-s RAW2DIGI,L1Reco,RECO,RECOSIM,EI',
+                    '--procModifiers premix_stage2',
+                    '--era Run2_{0}',
+                    '--nThreads 8',
+                    '--conditions auto:phase1_{0}_realistic',
+                    '--datatier AODSIM',
+                    '--eventcontent AODSIM',
+                    '-n -1',
+                    '--no_exec',
+                    '--python_filename SIDM_AODSIM_cfg.py',
+                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
+                ]
+            ).format(year)
+
+    return cmd

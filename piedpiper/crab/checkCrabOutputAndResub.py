@@ -124,7 +124,8 @@ def main():
 
 
         if task_completed:
-            of.write('Completed tasks:\n===========================\n')
+            of.write('Completed tasks: [{}]\n'.format(len(task_completed)))
+            of.write('===========================\n')
 
             for t in task_completed:
                 toprint = 'directory: {0}\ntask: {1}\ndataset: {2}\n\n'.format(
@@ -135,7 +136,8 @@ def main():
 
 
         if task_others:
-            of.write('Other tasks:\n===========================\n')
+            of.write('Other tasks: [{}]\n'.format(len(task_others)))
+            of.write('===========================\n')
 
             for t in task_others:
                 toprint = 'directory: {0}\ntask: {1}\nstatus: {2}\njobsPerStatus: {3}\npublication: {4}\n\n'.format(
@@ -146,7 +148,8 @@ def main():
 
 
         if task_failed:
-            of.write('Failed tasks:\n===========================\n')
+            of.write('Failed tasks: [{}]\n'.format(len(task_failed)))
+            of.write('===========================\n')
 
             for t in task_failed:
                 toprint = 'directory: {0}\ntask: {1}\njobsPerStatus: {2}\npublication: {3}\n\n'.format(
@@ -157,7 +160,8 @@ def main():
 
 
         if task_exception:
-            of.write('Exception tasks:\n===========================\n')
+            of.write('Exception tasks [{}]:\n'.format(len(task_exception)))
+            of.write('===========================\n')
             for t in task_exception:
                 toprint = 'directory: {0}\nmessage: {1}\n\n'.format(
                     t['directory'], t['msg'])
@@ -168,14 +172,14 @@ def main():
 
 
         if resubTaskSuccess:
-            of.write('Successfully resubmitted tasks\n')
-            of.write('==============================\n')
+            of.write('Successfully resubmitted tasks: [{}]\n'.format(len(resubTaskSuccess)))
+            of.write('====================================\n')
             for d in resubTaskSuccess:
                 of.write(d['directory']+'\n')
             of.write('-'*79+'\n\n')
 
         if resubTaskFail:
-            of.write('Failed resubmitted tasks\n')
+            of.write('Failed resubmitted tasks: [%d]\n'.format(len(resubTaskFail)))
             of.write('==============================\n')
             for d in resubTaskFail:
                 of.write(d['directory']+'\n')
