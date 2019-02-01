@@ -33,9 +33,9 @@ def main():
     # config.Data.outLFNDirBase += '/{0}'.format(year)
     config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/PREMIXRAWHLT/{0}'.format(year)
 
-    if year == 2017: memreq = 6000
-    elif year == 2018: memreq = 15100
+    memreq = 15100 if year==2018 else 6000
     config.JobType.maxMemoryMB = memreq
+    config.JobType.numCores = 4 if year==2016 else 8
 
     donelist = list()
     for ds in inputdatasets:
@@ -44,6 +44,10 @@ def main():
         nametag = 'mXX-{0}_mA-{1}_ctau-{2}_PREMIXRAWHLT_{3}'.format(
             floatpfy(mxx), floatpfy(ma), floatpfy(ctau), year
             )
+        # this is fix for previous non-careful naming convention
+        if 'CRAB_PrivateMC' in ds:
+            pd = ds.split('/')[-2].split('_')[1].replace('Bs', 'XX').replace('Dp', 'A')
+            nametag = pd + '_' + nametag
         print("dataset: ", ds)
         print("nametag: ", nametag)
         config.Data.inputDataset = ds
@@ -59,7 +63,6 @@ def main():
         if doCmd:
             from CRABAPI.RawCommand import crabCommand
             crabCommand('submit', config = config)
-            time.sleep(5)
             donelist.append(ds)
 
 
