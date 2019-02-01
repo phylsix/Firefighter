@@ -86,7 +86,8 @@ def main():
 
     sql_table_creation = """CREATE TABLE IF NOT EXISTS crabJobStatuses (
         directory TEXT PRIMARY KEY,
-        status TEXT
+        status TEXT,
+        dataset TEXT
     );"""
     conn = sqlite3.connect(JOB_STATUS_DB)
     crabTaskListCompleted = []
@@ -131,13 +132,13 @@ def main():
     conn = sqlite3.connect(JOB_STATUS_DB)
     with conn:
         c = conn.cursor()
-        set_complete = [(t['directory'], 'completed') for t in task_completed]
-        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?)", set_complete)
-        set_noncomplete = [(t['directory'], 'failed') for t in task_failed + task_others]
-        exceptedTasks = [(t['directory'], 'failed') for t in task_exception if '.requestcache' not in t['msg']]
+        set_complete = [(t['directory'], 'completed', t['outdatasets']) for t in task_completed]
+        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_complete)
+        set_noncomplete = [(t['directory'], 'failed', '') for t in task_failed + task_others]
+        exceptedTasks = [(t['directory'], 'failed', '') for t in task_exception if '.requestcache' not in t['msg']]
         print("Number of tasks excepted when querying: ", len(exceptedTasks))
         set_noncomplete.extend(exceptedTasks)
-        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?)", set_noncomplete)
+        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_noncomplete)
 
     p = ThreadPool()
     crabResubmitResult = p.map(resubmitSingleTask, task_failed+task_others)
