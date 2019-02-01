@@ -27,8 +27,8 @@ config.Data.unitsPerJob = 1000
 config.Data.totalUnits = config.Data.unitsPerJob * 1
 config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/GENSIM'
 config.Data.publication = True
+config.Data.outputPrimaryDataset = ''
 config.Data.outputDatasetTag = ''
-config.Data.outputPrimaryDataset = 'CRAB_PrivateMC'
 config.Data.ignoreLocality = True
 
 config.Site.whitelist = ['T3_US_FNALLPC', 'T2_US_*', 'T3_US_*']
@@ -56,7 +56,8 @@ if __name__ == '__main__':
 
     # you need to take care of copying gridpacks and update genfrag_cfi/gencfg
     config.Data.totalUnits = config.Data.unitsPerJob * myconf['totaljobs']
-    config.Data.outputDatasetTag = myconf['nametag']
+    config.Data.outputPrimaryDataset = myconf['pd']
+    config.Data.outputDatasetTag = '{0}_{1}'.format(myconf['nametag'], year)
     config.Data.outLFNDirBase += '/{0}'.format(year)
     config.General.requestName = '_'.join([
         getUsernameFromSiteDB(),

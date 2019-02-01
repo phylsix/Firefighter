@@ -14,15 +14,15 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '../cfg/ffNtupleFromAOD_cfg.py'
-config.JobType.numCores = 4
+config.JobType.numCores = 2
 config.JobType.maxMemoryMB = 2500
 config.JobType.disableAutomaticOutputCollection = False
 
 config.Data.inputDataset = ''
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 1
-config.Data.outLFNDirBase = '/store/user/%s/MCSIDM/ffNtuple' % (getUsernameFromSiteDB())
+config.Data.unitsPerJob = 10
+config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/ffNtuple'
 config.Data.publication = False
 config.Data.outputDatasetTag = ''
 config.Data.ignoreLocality = True
@@ -35,7 +35,7 @@ config.Site.storageSite = 'T3_US_FNALLPC'
 if __name__ == '__main__':
 
     import yaml
-    myconf = yaml.load(open('config.yml').read())
+    myconf = yaml.load(open('config_bkg_JpsiToMuMu.yml').read())
 
     import os
     import sys
@@ -47,8 +47,10 @@ if __name__ == '__main__':
         sys.exit('Wrong release!')
 
     config.Data.inputDataset = myconf['dataset']
-    config.Data.outputDatasetTag = myconf['nametag']
-    config.Data.outLFNDirBase += '/{0}'.format(year)
+    if not myconf['dataset'].endswith('USER'):
+        config.Data.inputDBS = 'global'
+    config.Data.outputDatasetTag = myconf['nametag'] + '_ffNtuple'
+    config.Data.outLFNDirBase += '/{0}/{1}'.format(year, myconf['nametag'])
     config.General.requestName = '_'.join([
         getUsernameFromSiteDB(),
         'ffNtuple',

@@ -5,7 +5,6 @@ import yaml
 import time
 
 from Firefighter.piedpiper.utils import *
-from Firefighter.piedpiper.template import genTemplate
 
 from crabConfig_0 import *
 
@@ -46,8 +45,14 @@ def main():
         gridpack_name = os.path.basename(gridpack)
         mbs, mdp, ctau  = get_param_from_gridpackname(gridpack_name)
         nametag = gridpack_name.split('_slc')[0]
+        if '4Mu' in nametag:
+            config.Data.outputPrimaryDataset = 'SIDM_XXTo2ATo4Mu'
+        elif '2Mu2e' in nametag:
+            config.Data.outputPrimaryDataset = 'SIDM_XXTo2ATo2Mu2e'
 
-        config.Data.outputDatasetTag = nametag
+        config.Data.outputDatasetTag = 'mXX-{0}_mA-{1}_ctau-{2}_GENSIM_{3}'.format(
+            floatpfy(mbs), floatpfy(mdp), floatpfy(ctau), year
+            )
         config.General.requestName = '_'.join([
             getUsernameFromSiteDB(),
             'GENSIM',
@@ -67,7 +72,7 @@ def main():
         if verbose:
             print(cpcmd)
             print('>> ', os.path.join(BASEDIR, 'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'))
-            print(genTemplate.format(CTAU=ctau))
+            print(get_gentemplate(year).format(CTAU=ctau))
             print('------------------------------------------------------------')
 
 
@@ -77,15 +82,13 @@ def main():
             os.system(cpcmd)
             # 2. write genfrag_cfi
             with open(os.path.join(BASEDIR, 'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'), 'w') as genfrag_cfi:
-                genfrag_cfi.write(genTemplate.format(CTAU=ctau))
+                genfrag_cfi.write(get_gentemplate(year).format(CTAU=ctau))
             # 3. write gen_cfg
             cfgcmd = get_command('GEN-SIM', year)
             os.system(cfgcmd)
             # 4. crab submit
             from CRABAPI.RawCommand import crabCommand
             crabCommand('submit', config = config)
-            # give some time to crab
-            time.sleep(5)
             donelist.append(gridpack)
 
     print('submitted: ', len(donelist))

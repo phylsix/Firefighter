@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("USER")
 
-IS_DATA = False
+SIG_MC = False
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
@@ -23,7 +23,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False),
-    numberOfThreads = cms.untracked.uint32(4),
+    numberOfThreads = cms.untracked.uint32(2),
     numberOfStreams = cms.untracked.uint32(0)
 )
 
@@ -44,12 +44,13 @@ process.TFileService = cms.Service(
     closeFileFast = cms.untracked.bool(True)
 )
 
-if IS_DATA:
-    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
-    process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
-else:
+if SIG_MC:
     process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
     process.load('Firefighter.ffNtuple.ffNtuples_cff')
+else:
+    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
+    process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
+
 process.ntuple_pfjet.src = cms.InputTag('ffLeptonJet')
 
 process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)

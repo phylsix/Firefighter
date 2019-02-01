@@ -2,7 +2,16 @@
 from __future__ import print_function
 import os
 import subprocess
+from Firefighter.piedpiper.template import *
 
+
+def floatpfy(f):
+    ''' Given a float, return its string with . replaced with p'''
+
+    if int(f)-f:
+        return str(f).replace('.', 'p')
+    else:
+        return str(int(f))
 
 def get_param_from_gridpackname(gpname):
     '''
@@ -67,6 +76,13 @@ def get_voms_certificate():
     if not check_voms_valid():
         os.system('voms-proxy-init -voms cms -valid 192:00')
 
+def get_gentemplate(year):
+    ''' return the gen fragmeent in template.py, adjust if necessary '''
+
+    if int(year)==2016:
+        return '\n'.join([l for l in genTemplate.split('\n') if 'CP5Settings' not in l])
+    else:
+        return genTemplate
 
 def get_command(step, year):
 

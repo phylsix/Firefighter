@@ -4,7 +4,6 @@ import yaml
 import os
 import shutil
 from Firefighter.piedpiper.utils import *
-from Firefighter.piedpiper.template import genTemplate
 
 
 def generate_gencfi(config, year):
@@ -16,9 +15,7 @@ def generate_gencfi(config, year):
     mbs, mdp, ctau = get_param_from_gridpackname(gridpack_name)
 
     genfrag_cfi = open('../python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py', 'w')
-    if year == '2016':
-        genTemplate = '\n'.join([l for l in genTemplate.split('\n') if 'CP5Settings' not in l])
-    genfrag_cfi.write(genTemplate.format(CTAU=ctau))
+    genfrag_cfi.write(get_gentemplate(year).format(CTAU=ctau))
     genfrag_cfi.close()
 
 

@@ -2,14 +2,19 @@
 from __future__ import print_function
 import os
 import time
+import sqlite3
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
 from CRABAPI.RawCommand import crabCommand
+from CRABClient.UserUtilities import setConsoleLogLevel
+from CRABClient.ClientUtilities import LOGLEVEL_MUTE
+from CRABClient.UserUtilities import getLoggers
 
 
 CRAB_WORK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'crabWorkArea')
+JOB_STATUS_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'crabjobsStatus.sqlite')
 VERBOSE = True
-MOST_RECENT_DAYS = 3
+MOST_RECENT_DAYS = 4
 
 def checkSingleTask(crabTaskDir):
     ''' checking a status of a given crab task directory, returns a dict. '''
@@ -78,16 +83,35 @@ def resubmitSingleTask(checkdict):
 
 def main():
 
+
+    sql_table_creation = """CREATE TABLE IF NOT EXISTS crabJobStatuses (
+        directory TEXT PRIMARY KEY,
+        status TEXT
+    );"""
+    conn = sqlite3.connect(JOB_STATUS_DB)
+    crabTaskListCompleted = []
+    with conn:
+        c = conn.cursor()
+        c.execute(sql_table_creation)
+        for row in c.execute("SELECT * FROM crabJobStatuses WHERE status='completed'"):
+            crabTaskListCompleted.append(row[0])
+
+
     crabTaskList = [
             os.path.join(CRAB_WORK_DIR, d) for d in os.listdir(CRAB_WORK_DIR) \
                     if os.path.isdir('%s/%s' % (CRAB_WORK_DIR, d)) \
                     and ( datetime.now()-datetime.strptime(d.rsplit('_',1)[-1], '%y%m%d-%H%M%S') ).days < MOST_RECENT_DAYS
                 ]
-    print('Total tasks to check: ', len(crabTaskList))
+    crabTaskListToCheck = [t for t in crabTaskList if t not in crabTaskListCompleted]
+    print('Total tasks to check: ', len(crabTaskListToCheck))
 
+    setConsoleLogLevel(LOGLEVEL_MUTE)
+    crabLoggers = getLoggers()
 
     p = ThreadPool()
-    crabTaskStatuses = p.map(checkSingleTask, crabTaskList)
+    crabTaskStatuses = []
+    r = p.map_async(checkSingleTask, crabTaskListToCheck, callback=crabTaskStatuses.extend)
+    r.wait()
     p.close()
 
     task_completed, task_failed, task_others, task_exception = [], [], [], []
@@ -103,6 +127,17 @@ def main():
             else:
                 task_others.append(d)
 
+    # updating local db
+    conn = sqlite3.connect(JOB_STATUS_DB)
+    with conn:
+        c = conn.cursor()
+        set_complete = [(t['directory'], 'completed') for t in task_completed]
+        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?)", set_complete)
+        set_noncomplete = [(t['directory'], 'failed') for t in task_failed + task_others]
+        exceptedTasks = [(t['directory'], 'failed') for t in task_exception if '.requestcache' not in t['msg']]
+        print("Number of tasks excepted when querying: ", len(exceptedTasks))
+        set_noncomplete.extend(exceptedTasks)
+        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?)", set_noncomplete)
 
     p = ThreadPool()
     crabResubmitResult = p.map(resubmitSingleTask, task_failed+task_others)
@@ -179,7 +214,7 @@ def main():
             of.write('-'*79+'\n\n')
 
         if resubTaskFail:
-            of.write('Failed resubmitted tasks: [%d]\n'.format(len(resubTaskFail)))
+            of.write('Failed resubmitted tasks: [{}]\n'.format(len(resubTaskFail)))
             of.write('==============================\n')
             for d in resubTaskFail:
                 of.write(d['directory']+'\n')

@@ -40,7 +40,10 @@ def main():
     donelist = list()
     for ds in inputdatasets:
 
-        nametag = get_nametag_from_dataset(ds)
+        mxx, ma, ctau = get_param_from_gridpackname(ds.split('/')[-2])
+        nametag = 'mXX-{0}_mA-{1}_ctau-{2}_PREMIXRAWHLT_{3}'.format(
+            floatpfy(mxx), floatpfy(ma), floatpfy(ctau), year
+            )
         print("dataset: ", ds)
         print("nametag: ", nametag)
         config.Data.inputDataset = ds

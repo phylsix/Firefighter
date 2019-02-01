@@ -1,5 +1,5 @@
 from Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff import *
 
-for m in ffLeptonJetSeq._seq._collection:
-    if m._TypedParameterizable__type.startswith('MC'):
-        ffLeptonJetSeq.remove(m)
+for _m in ffLeptonJetSeq._seq._collection:
+    if _m._TypedParameterizable__type.startswith('MC'):
+        ffLeptonJetSeq.remove(_m)
