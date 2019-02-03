@@ -19,7 +19,7 @@ def main():
         print('$CMSSW_BASE: ', os.environ['CMSSW_BASE'])
         print('__file__: ', os.path.abspath(__file__))
         sys.exit('Inconsistant release environment!')
-    
+
     # load config
     multiconf = yaml.load(open(CONFIG_NAME).read())
 
@@ -31,14 +31,16 @@ def main():
     for ds in datasets:
 
         nametag = get_nametag_from_dataset(ds)
+        # wsi-wsi-XXTo2ATo2Mu2e_mXX-200_mA-5_ctau-187p5_AODSIM_2016-f2c0ffe4ffe87676d44a2224049487a7
+        nametag = ds.split('/')[-2].rsplit('-', 1)[0]
         print("dataset: ", ds)
         print("nametag: ", nametag)
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
         config.General.requestName = '_'.join([
-            getUsernameFromSiteDB(),
+            #getUsernameFromSiteDB(),
             'ffNtuple',
-            str(year),
+            #str(year),
             nametag,
             time.strftime('%y%m%d-%H%M%S')
         ])
@@ -46,7 +48,6 @@ def main():
         if doCmd:
             from CRABAPI.RawCommand import crabCommand
             crabCommand('submit', config = config)
-            time.sleep(5)
             donelist.append(ds)
 
     print('submitted: ', len(donelist))

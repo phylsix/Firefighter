@@ -30,18 +30,21 @@ def main():
 
     inputdatasets = multiconf['premixdigihltdatasets']
     year          = multiconf['year']
-    manualdatasets = multiconf['manual']
+    # manualdatasets = multiconf['manual']
     # config.Data.outLFNDirBase += '/{0}'.format(year)
     config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/AODSIM/{0}'.format(year)
 
-    if year == 2017: memreq = 6000
-    elif year == 2018: memreq = 15100
+    memreq = 15100 if year==2018 else 6000
     config.JobType.maxMemoryMB = memreq
+    config.JobType.numCores = 4 if year==2016 else 8
 
     donelist = list()
     for ds in inputdatasets:
 
-        nametag = get_nametag_from_dataset(ds)
+        nametag =  ds.split('/')[1] + '_' + ds.split('/')[-2].rsplit('-', 1)[0].replace('PREMIXRAWHLT', 'AODSIM')
+        # this is fix for previous non-careful naming convention
+        if 'CRAB_PrivateMC' in ds:
+            nametag = ds.split('/')[-2].rsplit('-', 1)[0].replace('PREMIXRAWHLT', 'AODSIM')
         print("dataset: ", ds)
         print("nametag: ", nametag)
         config.Data.inputDataset = ds
