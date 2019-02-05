@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import os
+PPBASE = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'piedpiper')
+
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
@@ -13,10 +16,10 @@ config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'PrivateMC'
-config.JobType.psetName = '../cfg/SIDM_GENSIM_cfg.py'
+config.JobType.psetName = os.path.join(PPBASE, 'cfg', 'SIDM_GENSIM_cfg.py')
 config.JobType.inputFiles = [
-    '../data/run_generic_tarball_cvmfs.sh',
-    '../cfg/gridpack.tar.xz'
+    os.path.join(PPBASE, 'data', 'run_generic_tarball_cvmfs.sh'),
+    os.path.join(PPBASE, 'cfg', 'gridpack.tar.xz')
 ]
 config.JobType.numCores = 4
 config.JobType.maxMemoryMB = 4000

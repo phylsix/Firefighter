@@ -10,7 +10,7 @@ def main():
     with conn:
         c = conn.cursor()
         for row in c.execute("SELECT * FROM crabJobStatuses WHERE status='completed'"):
-            print('[ {0:^10} ]\t{1}'.format(row[1], row[2]))
+            print('[ {0:^10} ]\t{1}'.format(row[1], row[2] or row[0]))
         for row in c.execute("SELECT * FROM crabJobStatuses WHERE status='failed'"):
             print('[ {0:^10} ]\t{1}'.format(row[1], row[0]))
 

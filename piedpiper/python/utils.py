@@ -97,8 +97,11 @@ def get_command(step, year):
     year = str(year)
 
     cmd = ''
+    cfgOutput = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'piedpiper', 'cfg')
 
     if step == 'GEN-SIM':
+
+        cfgOutput = os.path.join(cfgOutput, 'SIDM_GENSIM_cfg.py')
 
         if year == '2016':
 
@@ -117,10 +120,10 @@ def get_command(step, year):
                     '--eventcontent RAWSIM',
                     '-n 10',
                     '--no_exec',
-                    '--python_filename SIDM_GENSIM_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
         else:
 
@@ -139,14 +142,17 @@ def get_command(step, year):
                     '--eventcontent RAWSIM',
                     '-n 10',
                     '--no_exec',
-                    '--python_filename SIDM_GENSIM_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
     if step == 'PREMIX-RAW-HLT':
 
+        cfgOutput = os.path.join(cfgOutput, 'SIDM_PREMIXRAWHLT_cfg.py')
+
         if year == '2016':
+
             cmd = ' '.join(
                 [
                     'cmsDriver.py',
@@ -164,11 +170,11 @@ def get_command(step, year):
                     '-n -1',
                     '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISpring15PrePremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/GEN-SIM-DIGI-RAW"',
                     '--no_exec',
-                    '--python_filename SIDM_PREMIXRAWHLT_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
 
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
         elif year == '2017':
 
@@ -190,10 +196,10 @@ def get_command(step, year):
                     '-n -1',
                     '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-MCv2_correctPU_94X_mc2017_realistic_v9-v1/GEN-SIM-DIGI-RAW"',
                     '--no_exec',
-                    '--python_filename SIDM_PREMIXRAWHLT_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
         elif year == '2018':
 
@@ -217,14 +223,17 @@ def get_command(step, year):
                     '-n -1',
                     '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUFull18_102X_upgrade2018_realistic_v11-v1/GEN-SIM-DIGI-RAW"',
                     '--no_exec',
-                    '--python_filename SIDM_PREMIXRAWHLT_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
     if step == 'AODSIM':
 
+        cfgOutput = os.path.join(cfgOutput, 'SIDM_AODSIM_cfg.py')
+
         if year == '2016':
+
             cmd = ' '.join(
                 [
                     'cmsDriver.py',
@@ -241,10 +250,10 @@ def get_command(step, year):
                     '--eventcontent AODSIM',
                     '-n -1',
                     '--no_exec',
-                    '--python_filename SIDM_AODSIM_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
         elif year == '2017':
 
@@ -264,10 +273,10 @@ def get_command(step, year):
                     '--eventcontent AODSIM',
                     '-n -1',
                     '--no_exec',
-                    '--python_filename SIDM_AODSIM_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
         elif year == '2018':
 
@@ -288,9 +297,10 @@ def get_command(step, year):
                     '--eventcontent AODSIM',
                     '-n -1',
                     '--no_exec',
-                    '--python_filename SIDM_AODSIM_cfg.py',
+                    '--python_filename {1}',
                     '--customise Configuration/DataProcessing/Utils.addMonitoring'
                 ]
-            ).format(year)
+            ).format(year, cfgOutput)
 
+    print("><><><>Output python cfg file: {}".format(cfgOutput))
     return cmd

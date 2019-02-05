@@ -25,7 +25,7 @@ if cmsrel.startswith('CMSSW_9'):
 if cmsrel.startswith('CMSSW_8'):
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
-SIG_MC = False
+SIG_MC = True
 
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)

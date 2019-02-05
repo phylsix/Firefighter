@@ -25,6 +25,10 @@ def checkSingleTask(crabTaskDir):
     res['directory'] = crabTaskDir
 
     try:
+        try:
+            os.remove(os.path.join(os.environ['HOME'], '.crab3'))
+        except:
+            pass
         statusDict = crabCommand('status', dir=crabTaskDir)
         _task = statusDict.get('userWebDirURL', '').split('/')[-1]
         _status = statusDict.get('status', '').lower()

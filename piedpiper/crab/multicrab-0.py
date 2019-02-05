@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
 import os
 import yaml
 import time
 
-from Firefighter.piedpiper.utils import *
+from CRABAPI.RawCommand import crabCommand
 
+from Firefighter.piedpiper.utils import *
 from crabConfig_0 import *
 
 verbose = False
@@ -24,9 +26,6 @@ CONFIG_NAME = os.path.join(BASEDIR, 'crab/multicrabConfig-0.yml')
 
 def main():
 
-    # set BASEDIR
-
-    # load config
     multiconf = yaml.load(open(CONFIG_NAME).read())
 
     gridpacks = multiconf['gridpacks']
@@ -87,7 +86,6 @@ def main():
             cfgcmd = get_command('GEN-SIM', year)
             os.system(cfgcmd)
             # 4. crab submit
-            from CRABAPI.RawCommand import crabCommand
             crabCommand('submit', config = config)
             donelist.append(gridpack)
 
