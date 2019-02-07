@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os
+BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'ffConfig')
 
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
@@ -13,7 +15,7 @@ config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '../cfg/ffNtupleFromAOD_cfg.py'
+config.JobType.psetName = os.path.join(BASEDIR, 'cfg', 'ffNtupleFromAOD_cfg.py')
 config.JobType.numCores = 2
 config.JobType.maxMemoryMB = 2500
 config.JobType.disableAutomaticOutputCollection = False
@@ -49,8 +51,8 @@ if __name__ == '__main__':
     config.Data.inputDataset = myconf['dataset']
     if not myconf['dataset'].endswith('USER'):
         config.Data.inputDBS = 'global'
-    config.Data.outputDatasetTag = myconf['nametag'] + '_ffNtuple'
-    config.Data.outLFNDirBase += '/{0}/{1}'.format(year, myconf['nametag'])
+    config.Data.outputDatasetTag = 'ffNtuple_' + myconf['nametag']
+    config.Data.outLFNDirBase += '/{0}'.format(year)
     config.General.requestName = '_'.join([
         getUsernameFromSiteDB(),
         'ffNtuple',
