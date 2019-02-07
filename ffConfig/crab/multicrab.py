@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
 import os
+import sys
 import yaml
 import time
 
+from CRABAPI.RawCommand import crabCommand
 from Firefighter.piedpiper.utils import *
-
 from crabConfig import *
 
-doCmd = True
-CONFIG_NAME = 'multicrabConfig.yml'
 
+doCmd = True
+CONFIG_NAME = sys.argv[1]
 
 def main():
 
@@ -24,29 +26,39 @@ def main():
     multiconf = yaml.load(open(CONFIG_NAME).read())
 
     datasets = multiconf['aodsimdatasets']
-    year     = multiconf['year']
     config.Data.outLFNDirBase += '/{0}'.format(year)
 
     donelist = list()
     for ds in datasets:
 
-        nametag = get_nametag_from_dataset(ds)
-        # wsi-wsi-XXTo2ATo2Mu2e_mXX-200_mA-5_ctau-187p5_AODSIM_2016-f2c0ffe4ffe87676d44a2224049487a7
-        nametag = ds.split('/')[-2].rsplit('-', 1)[0]
+        signalMC = ds.endswith('USER')
+
+        if signalMC:
+            print('===== SIGNAL MC =====')
+            nametag = get_nametag_from_dataset(ds)
+            # wsi-wsi-XXTo2ATo2Mu2e_mXX-200_mA-5_ctau-187p5_AODSIM_2016-f2c0ffe4ffe87676d44a2224049487a7
+            nametag = ds.split('/')[-2].rsplit('-', 1)[0]
+        else:
+            print('===== DATA or BKG MC =====')
+            nametag = 'ffNtuple_' + ds.split('/')[-2]
+            config.Data.inputDBS = 'global'
+
+        pd = ds.split('/')[1]
+
         print("dataset: ", ds)
         print("nametag: ", nametag)
+        print("primarydataset: ", pd)
+
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
         config.General.requestName = '_'.join([
-            #getUsernameFromSiteDB(),
             'ffNtuple',
-            #str(year),
-            nametag,
+            str(year),
+            pd,
             time.strftime('%y%m%d-%H%M%S')
         ])
 
         if doCmd:
-            from CRABAPI.RawCommand import crabCommand
             crabCommand('submit', config = config)
             donelist.append(ds)
 

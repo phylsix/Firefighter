@@ -1,11 +1,23 @@
 #!/usr/bin/env python
 import os
-BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'ffConfig')
+import sys
+import time
 
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
+
+BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'ffConfig')
+
+if os.environ['CMSSW_VERSION'].startswith('CMSSW_9'):
+    year = 2016
+elif os.environ['CMSSW_VERSION'].startswith('CMSSW_9'):
+    year = 2017
+elif os.environ['CMSSW_VERSION'].startswith('CMSSW_10'):
+    year = 2018
+else:
+    sys.exit('Wrong release!')
+
 config = config()
 
-import time
 config.General.requestName = '{0}_ffNtuple_{1}'.format(
     getUsernameFromSiteDB(),
     time.strftime('%y%m%d-%H%M%S')
@@ -38,15 +50,6 @@ if __name__ == '__main__':
 
     import yaml
     myconf = yaml.load(open('config_bkg_JpsiToMuMu.yml').read())
-
-    import os
-    import sys
-    if os.environ['CMSSW_VERSION'].startswith('CMSSW_9'):
-        year = 2017
-    elif os.environ['CMSSW_VERSION'].startswith('CMSSW_10'):
-        year = 2018
-    else:
-        sys.exit('Wrong release!')
 
     config.Data.inputDataset = myconf['dataset']
     if not myconf['dataset'].endswith('USER'):
