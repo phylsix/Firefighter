@@ -13,8 +13,8 @@ def main():
     toResub = [
             'crabWorkArea/{0}'.format(d) \
                     for d in os.listdir('crabWorkArea') \
-                    if 'GENSIM' in d \
-                    and ( datetime.now()-datetime.strptime(d.rsplit('_',1)[-1], '%y%m%d-%H%M%S') ).days<3
+                    if 'AODSIM' in d \
+                    and ( datetime.now()-datetime.strptime(d.rsplit('_',1)[-1], '%y%m%d-%H%M%S') ).days<1
             ]
 
     for t in toResub:

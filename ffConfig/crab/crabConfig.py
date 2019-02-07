@@ -7,7 +7,7 @@ from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 
 BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'ffConfig')
 
-if os.environ['CMSSW_VERSION'].startswith('CMSSW_9'):
+if os.environ['CMSSW_VERSION'].startswith('CMSSW_8'):
     year = 2016
 elif os.environ['CMSSW_VERSION'].startswith('CMSSW_9'):
     year = 2017

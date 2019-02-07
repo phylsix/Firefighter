@@ -4,9 +4,10 @@ import os
 import yaml
 import time
 
+from CRABAPI.RawCommand import crabCommand
 from Firefighter.piedpiper.utils import *
-
 from crabConfig_2 import *
+
 
 doCmd = True
 CONFIG_NAME = os.path.join(
@@ -41,26 +42,26 @@ def main():
     donelist = list()
     for ds in inputdatasets:
 
-        nametag =  ds.split('/')[1] + '_' + ds.split('/')[-2].rsplit('-', 1)[0].replace('PREMIXRAWHLT', 'AODSIM')
+        nametag = ds.split('/')[-2].split('-', 1)[-1].rsplit('-', 1)[0].replace('PREMIXRAWHLT', 'AODSIM')
+        pd = ds.split('/')[1]
         # this is fix for previous non-careful naming convention
         if 'CRAB_PrivateMC' in ds:
             nametag = ds.split('/')[-2].rsplit('-', 1)[0].replace('PREMIXRAWHLT', 'AODSIM')
         print("dataset: ", ds)
         print("nametag: ", nametag)
+        print("primarydataset: ", pd)
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
         config.General.requestName = '_'.join([
-            getUsernameFromSiteDB(),
             'AODSIM',
             str(year),
+            pd,
             nametag,
             time.strftime('%y%m%d-%H%M%S')
         ])
 
         if doCmd:
-            from CRABAPI.RawCommand import crabCommand
             crabCommand('submit', config = config)
-            time.sleep(5)
             donelist.append(ds)
 
 

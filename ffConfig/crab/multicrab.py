@@ -33,17 +33,23 @@ def main():
 
         signalMC = ds.endswith('USER')
 
+        pd = ds.split('/')[1]
+        nametag = get_nametag_from_dataset(ds)
+        reqNameItems = [str(year), pd, time.strftime('%y%m%d-%H%M%S')]
+
         if signalMC:
+            print('+++++++++++++++++++++')
             print('===== SIGNAL MC =====')
-            nametag = get_nametag_from_dataset(ds)
-            # wsi-wsi-XXTo2ATo2Mu2e_mXX-200_mA-5_ctau-187p5_AODSIM_2016-f2c0ffe4ffe87676d44a2224049487a7
-            nametag = ds.split('/')[-2].rsplit('-', 1)[0]
+            print('+++++++++++++++++++++')
+            nametag = nametag.replace('AODSIM', 'ffNtuple')
+            reqNameItems[1] += nametag
         else:
+            print('--------------------------')
             print('===== DATA or BKG MC =====')
-            nametag = 'ffNtuple_' + ds.split('/')[-2]
+            print('--------------------------')
+            nametag += '_ffNtuple'
             config.Data.inputDBS = 'global'
 
-        pd = ds.split('/')[1]
 
         print("dataset: ", ds)
         print("nametag: ", nametag)
@@ -51,12 +57,7 @@ def main():
 
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
-        config.General.requestName = '_'.join([
-            'ffNtuple',
-            str(year),
-            pd,
-            time.strftime('%y%m%d-%H%M%S')
-        ])
+        config.General.requestName = '_'.join( reqNameItems )
 
         if doCmd:
             crabCommand('submit', config = config)

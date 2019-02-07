@@ -17,7 +17,6 @@ def get_param_from_gridpackname(gpname):
     '''
     infer parameters to generate the gridpack
     e.g. SIDM_BsTo2DpTo2Mu2e_MBs-1000_MDp-1p2_ctau-9p6_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz
-
     returns (mbs, mdp, ctau)
     '''
 
@@ -25,16 +24,41 @@ def get_param_from_gridpackname(gpname):
     mbs, mdp, ctau = None, None, None
     for p in params:
         if 'MBs' in p:
-            mbs = float(p.split('-')[1].replace('p', '.'))
+            mbs = float(p.split('-')[-1].replace('p', '.'))
         if 'MDp' in p:
-            mdp = float(p.split('-')[1].replace('p', '.'))
+            mdp = float(p.split('-')[-1].replace('p', '.'))
         if 'ctau' in p:
-            ctau = float(p.split('-')[1].replace('p', '.'))
+            ctau = float(p.split('-')[-1].replace('p', '.'))
 
     if not all([mbs, mdp, ctau]):
         print('Cannot infer from gridpack name: "{0}"'.format(gpname))
 
     return (mbs, mdp, ctau)
+
+
+def get_param_from_dataset(ds):
+    '''
+    infer parameters from signal MC dataset name
+    e.g. /SIDM_XXTo2ATo4Mu/wsi-mXX-200_mA-5_ctau-187p5_GENSIM_2016-ce4b469d5a8a6c79b1702c0e107219c7/USER
+    returns (mxx, ma, ctau)
+    '''
+
+    nametag = ds.split('/')[-2]
+    paramstring = nametag.split('-', 1)[-1].rsplit('/', 1)[0]
+    paramtuple = [s for s in paramstring.split('_') if '-' in s]
+    mxx, ma, ctau = None, None, None
+    for p in paramtuple:
+        if 'mXX' in p:
+            mxx = float(p.split('-')[-1].replace('p', '.'))
+        if 'mA' in p:
+            ma = float(p.split('-')[-1].replace('p', '.'))
+        if 'ctau' in p:
+            ctau = float(p.split('-')[-1].replace('p', '.'))
+
+    if not all([mxx, ma, ctau]):
+        print('Cannot infer from dataset name: "{0}"'.format(ds))
+
+    return (mxx, ma, ctau)
 
 
 def get_nametag_from_dataset(dataset):
@@ -45,14 +69,7 @@ def get_nametag_from_dataset(dataset):
     returns SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48
     '''
 
-    fullstr = [x for x in dataset.split('/') if 'SIDM' in x]
-    if not fullstr: return None
-    fullstr = fullstr[0]
-
-    nametag = fullstr.split('-',1)[1]
-    nametag = nametag.rsplit('-',1)[0]
-
-    return nametag
+    return dataset.split('/')[-2].split('-', 1)[-1].rsplit('-', 1)[0]
 
 
 def check_voms_valid():

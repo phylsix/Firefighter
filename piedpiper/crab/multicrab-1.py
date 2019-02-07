@@ -4,9 +4,10 @@ import os
 import yaml
 import time
 
+from CRABAPI.RawCommand import crabCommand
 from Firefighter.piedpiper.utils import *
-
 from crabConfig_1 import *
+
 
 doCmd = True
 CONFIG_NAME = os.path.join(
@@ -40,7 +41,7 @@ def main():
     donelist = list()
     for ds in inputdatasets:
 
-        mxx, ma, ctau = get_param_from_gridpackname(ds.split('/')[-2])
+        mxx, ma, ctau = get_param_from_dataset(ds)
         nametag = 'mXX-{0}_mA-{1}_ctau-{2}_PREMIXRAWHLT_{3}'.format(
             floatpfy(mxx), floatpfy(ma), floatpfy(ctau), year
             )
@@ -53,7 +54,6 @@ def main():
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
         config.General.requestName = '_'.join([
-            getUsernameFromSiteDB(),
             'PREMIXRAWHLT',
             str(year),
             nametag,
@@ -61,7 +61,6 @@ def main():
         ])
 
         if doCmd:
-            from CRABAPI.RawCommand import crabCommand
             crabCommand('submit', config = config)
             donelist.append(ds)
 

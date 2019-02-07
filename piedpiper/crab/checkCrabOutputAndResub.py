@@ -14,7 +14,7 @@ from CRABClient.UserUtilities import getLoggers
 CRAB_WORK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'crabWorkArea')
 JOB_STATUS_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'crabjobsStatus.sqlite')
 VERBOSE = True
-MOST_RECENT_DAYS = 4
+MOST_RECENT_DAYS = 1
 
 def checkSingleTask(crabTaskDir):
     ''' checking a status of a given crab task directory, returns a dict. '''
