@@ -1,8 +1,63 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import os
+import time
 import subprocess
 from Firefighter.piedpiper.template import *
+
+
+class ffDataset:
+
+    def __init__(self, ds, year=2018):
+        if year not in [2016, 2017, 2018]:
+            raise ValueError("Constructing ffDataset() for dataset: {} with non-allowed year paramter: {}".format(ds, year))
+        self._year = year
+
+        if len(ds.split('/')) != 4:
+            raise ValueError("Constructing ffDataset() with incorrect dataset name: {}".format(ds))
+
+        self._isSignalMC = ds.endswith('USER')
+        self._primaryDataset = ds.split('/')[1]
+        self._dataset = ds
+        self._nameTag = self.get_nametag_from_dataset(ds) + '_ffNtuple'
+
+    def __str__(self):
+        return self._dataset
+
+    @property
+    def isSignalMC(self):
+        return self._isSignalMC
+
+    @property
+    def dataset(self):
+        return self._dataset
+
+    @property
+    def year(self):
+        return self._year
+
+    @property
+    def primaryDataset(self):
+        return self._primaryDataset
+
+    @property
+    def nameTag(self):
+        return self._nameTag
+
+    def get_nametag_from_dataset(self, dataset):
+        '''
+        infer nametag from a dataset string
+        e.g.: /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48-354cda32a6a404e25b0eb21bb1bef952/USER
+        returns SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48
+
+        e.g. /DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v2/AODSIM
+        returns RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v2
+        '''
+
+        if dataset.endswith('USER'):
+            return dataset.split('/')[-2].split('-', 1)[-1].rsplit('-', 1)[0]
+        else:
+            return dataset.split('/')[-2]
 
 
 def floatpfy(f):
@@ -61,15 +116,45 @@ def get_param_from_dataset(ds):
     return (mxx, ma, ctau)
 
 
-def get_nametag_from_dataset(dataset):
-    '''
-    infer nametag from a dataset string
-    e.g.: /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48-354cda32a6a404e25b0eb21bb1bef952/USER
 
-    returns SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48
-    '''
+def adapt_config_with_dataset(crabconfig, dataset):
+    """
+    tune crab config object parameters for different dataset
 
-    return dataset.split('/')[-2].split('-', 1)[-1].rsplit('-', 1)[0]
+    :param `config` crabconfig: crab config object
+    :param str or ffDataset dataset: dataset name or ffDataset Object
+    :returns: crabconfig
+    """
+
+    if isinstance(dataset, str):
+        dataset = ffDataset(dataset)
+
+    if dataset.isSignalMC:
+        print('+++++++++++++++++++++')
+        print('===== SIGNAL MC =====')
+        print('+++++++++++++++++++++')
+    else:
+        print('--------------------------')
+        print('===== DATA or BKG MC =====')
+        print('--------------------------')
+        crabconfig.Data.inputDBS = 'global'
+        crabconfig.Data.splitting = 'Automatic'
+
+    print("dataset: ", str(dataset))
+    print("nametag: ", dataset.nameTag)
+    print("primarydataset: ", dataset.primaryDataset)
+
+    crabconfig.Data.inputDataset = str(dataset)
+    crabconfig.Data.outputDatasetTag = dataset.nameTag
+    crabconfig.General.requestName = '_'.join([
+        str(dataset.year),
+        dataset.primaryDataset,
+        dataset.nameTag,
+        time.strftime('%y%m%d-%H%M%S')
+    ])
+
+    return crabconfig
+
 
 
 def check_voms_valid():

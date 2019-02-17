@@ -7,8 +7,8 @@ import yaml
 import time
 
 from CRABAPI.RawCommand import crabCommand
-from Firefighter.piedpiper.utils import *
-from crabConfig import *
+from Firefighter.piedpiper.utils import ffDataset, adapt_config_with_dataset
+from crabConfig import config, year
 
 
 doCmd = True
@@ -27,52 +27,23 @@ def main():
     multiconf = yaml.load(open(CONFIG_NAME).read())
 
     datasets = multiconf['aodsimdatasets']
-    config.Data.outLFNDirBase += '/{0}'.format(year)
 
     donelist = list()
     for ds in datasets:
 
-        signalMC = ds.endswith('USER')
-
-        pd = ds.split('/')[1]
-        nametag = get_nametag_from_dataset(ds)
-        reqNameItems = [str(year), pd, time.strftime('%y%m%d-%H%M%S')]
-
-        if signalMC:
-            print('+++++++++++++++++++++')
-            print('===== SIGNAL MC =====')
-            print('+++++++++++++++++++++')
-            nametag = nametag.replace('AODSIM', 'ffNtuple')
-            reqNameItems[1] += nametag
-        else:
-            print('--------------------------')
-            print('===== DATA or BKG MC =====')
-            print('--------------------------')
-            nametag += '_ffNtuple'
-            config.Data.inputDBS = 'global'
-            config.Data.splitting = 'Automatic'
-
-        print("dataset: ", ds)
-        print("nametag: ", nametag)
-        print("primarydataset: ", pd)
-
-        config.Data.inputDataset = ds
-        config.Data.outputDatasetTag = nametag
-        config.General.requestName = '_'.join(reqNameItems)
+        thisData = ffDataset(ds, year)
+        config = adapt_config_with_dataset(config, thisData)
 
         if doCmd:
             crabCommand('submit', config=config)
             donelist.append(ds)
 
-    print('submitted: ', len(donelist))
-    for x in donelist:
-        print(x)
+    print('submitted: {}'.format(len(donelist)), *donelist, sep='\n')
     print('------------------------------------------------------------')
 
     undonelist = [x for x in datasets if x not in donelist]
-    print('unsubmitted: ', len(undonelist))
-    for x in undonelist:
-        print(x)
+    print('unsubmitted: {}'.format(len(undonelist)), *undonelist, sep='\n')
+
     if undonelist:
         with open('unsubmitted.yml.log', 'w') as outf:
             yaml.dump({'aodsimdatasets': undonelist, 'year': year},
