@@ -5,6 +5,7 @@
 *.yml
 .vscode
 *.sqlite
+*.png
 messages.txt
 nohup.out
 crabWorkArea

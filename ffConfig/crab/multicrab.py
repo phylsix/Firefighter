@@ -14,6 +14,7 @@ from crabConfig import *
 doCmd = True
 CONFIG_NAME = sys.argv[1]
 
+
 def main():
 
     # safety check
@@ -49,7 +50,7 @@ def main():
             print('--------------------------')
             nametag += '_ffNtuple'
             config.Data.inputDBS = 'global'
-
+            config.Data.splitting = 'Automatic'
 
         print("dataset: ", ds)
         print("nametag: ", nametag)
@@ -57,22 +58,25 @@ def main():
 
         config.Data.inputDataset = ds
         config.Data.outputDatasetTag = nametag
-        config.General.requestName = '_'.join( reqNameItems )
+        config.General.requestName = '_'.join(reqNameItems)
 
         if doCmd:
-            crabCommand('submit', config = config)
+            crabCommand('submit', config=config)
             donelist.append(ds)
 
     print('submitted: ', len(donelist))
-    for x in donelist: print(x)
+    for x in donelist:
+        print(x)
     print('------------------------------------------------------------')
 
     undonelist = [x for x in datasets if x not in donelist]
     print('unsubmitted: ', len(undonelist))
-    for x in undonelist: print(x)
+    for x in undonelist:
+        print(x)
     if undonelist:
         with open('unsubmitted.yml.log', 'w') as outf:
-            yaml.dump({'aodsimdatasets': undonelist, 'year': year}, outf, default_flow_style=False)
+            yaml.dump({'aodsimdatasets': undonelist, 'year': year},
+                      outf, default_flow_style=False)
 
 
 if __name__ == '__main__':
