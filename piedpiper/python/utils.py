@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import time
 import subprocess
+
 from Firefighter.piedpiper.template import *
 
 
@@ -133,12 +134,16 @@ def adapt_config_with_dataset(crabconfig, dataset):
         print('+++++++++++++++++++++')
         print('===== SIGNAL MC =====')
         print('+++++++++++++++++++++')
+        crabconfig.JobType.psetName = os.path.join(
+            crabconfig.JobType.psetName, 'ffNtupleFromAOD_sigMC_cfg.py')
     else:
         print('--------------------------')
         print('===== DATA or BKG MC =====')
         print('--------------------------')
         crabconfig.Data.inputDBS = 'global'
         crabconfig.Data.splitting = 'Automatic'
+        crabconfig.JobType.psetName = os.path.join(
+            crabconfig.JobType.psetName, 'ffNtupleFromAOD_dataOrBkg_cfg.py')
 
     print("dataset: ", str(dataset))
     print("nametag: ", dataset.nameTag)

@@ -26,7 +26,7 @@ if cmsrel.startswith('CMSSW_8'):
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
 TEST_FAST = True
-SIG_MC = False
+SIG_MC = True
 
 from testDataSource import *
 _event_runover = -1
@@ -38,7 +38,14 @@ if TEST_FAST:
     _event_runover= 50
     _report_every = 1
     _data_runover = [datafiles[0]]
-    _data_runover = ['root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/20000/FDF58147-9D2C-804E-9865-77691C66636C.root']
+    if SIG_MC:
+        _data_runover = [
+            'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_1.root',
+        ]
+    else:
+        _data_runover = [
+            'root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/20000/FDF58147-9D2C-804E-9865-77691C66636C.root',
+        ]
     _output_fname = 'testffNtuple.root'
 
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')

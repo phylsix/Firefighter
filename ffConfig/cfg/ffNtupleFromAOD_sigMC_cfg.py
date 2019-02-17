@@ -26,7 +26,6 @@ if cmsrel.startswith('CMSSW_9'):
 if cmsrel.startswith('CMSSW_8'):
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
-SIG_MC = True
 
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
@@ -54,12 +53,8 @@ process.TFileService = cms.Service(
     closeFileFast=cms.untracked.bool(True)
 )
 
-if SIG_MC:
-    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
-    process.load('Firefighter.ffNtuple.ffNtuples_cff')
-else:
-    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
-    process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
+process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
+process.load('Firefighter.ffNtuple.ffNtuples_cff')
 
 process.ntuple_pfjet.src = cms.InputTag('ffLeptonJet')
 
