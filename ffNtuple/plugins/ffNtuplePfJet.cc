@@ -800,7 +800,7 @@ ffNtuplePfJet::getTkIsolation( const reco::PFJet&                        jet,
   float ofCands =
       std::accumulate( cands.begin(), cands.end(), 0.,
                        []( float ptsum, const reco::PFCandidatePtr& jc ) {
-                         return ptsum + jc->trackRef()->pt();
+                         return ptsum + jc->bestTrack()->pt();
                        } );
 
   return ( ofCands + notOfCands ) == 0 ? NAN
