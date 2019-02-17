@@ -4,70 +4,64 @@
 /** \class FlatRandomEGunProducer
  *
  * Generates single particle gun in HepMC format
- * Julia Yarba 10/2005 
+ * Julia Yarba 10/2005
  ***************************************/
 #include <string>
 
-#include "HepPDT/defs.h"
-#include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
+#include "HepPDT/TableBuilder.hh"
+#include "HepPDT/defs.h"
 
 #include "HepMC/GenEvent.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
-namespace edm
-{
-  
-  class BaseFlatGunProducer : public one::EDProducer<one::WatchRuns,
-                                                     EndRunProducer>
-  {
-  
-  public:
-    BaseFlatGunProducer(const ParameterSet &);
-    ~BaseFlatGunProducer() override;
-    void beginRun(const edm::Run & r, const edm::EventSetup&) override;
-    void endRun(edm::Run const& r, const edm::EventSetup&) override;
-    void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
+namespace edm {
 
-  private:
-   
-  protected:
-  
-    // non-virtuals ! this and only way !
-    //
-    // data members
-    
-    // gun particle(s) characteristics
-    std::vector<int> fPartIDs ;
-    double           fMinEta ;
-    double           fMaxEta ;
-    double           fMinPhi ;
-    double           fMaxPhi ;
+class BaseFlatGunProducer
+    : public one::EDProducer<one::WatchRuns, EndRunProducer> {
+ public:
+  BaseFlatGunProducer( const ParameterSet& );
+  ~BaseFlatGunProducer() override;
+  void beginRun( const edm::Run& r, const edm::EventSetup& ) override;
+  void endRun( edm::Run const& r, const edm::EventSetup& ) override;
+  void endRunProduce( edm::Run& r, const edm::EventSetup& ) override;
 
-    // the event format itself
-    HepMC::GenEvent* fEvt;
+ private:
+ protected:
+  // non-virtuals ! this and only way !
+  //
+  // data members
 
-    // HepMC/HepPDT related things 
-    // (for particle/event construction)
-    //std::string      fPDGTablePath ;
-    //std::string      fPDGTableName ; 
-    // DefaultConfig::ParticleDataTable* fPDGTable;
-    // DefaultConfig::ParticleDataTable* fTestTable ;
-    // ESHandle<DefaultConfig::ParticleDataTable> fPDGTable ;
-    ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-            	    	
-    int              fVerbosity ;
+  // gun particle(s) characteristics
+  std::vector<int> fPartIDs;
+  double           fMinEta;
+  double           fMaxEta;
+  double           fMinPhi;
+  double           fMaxPhi;
 
-    bool             fAddAntiParticle;
-    
-  };
-} 
+  // the event format itself
+  HepMC::GenEvent* fEvt;
+
+  // HepMC/HepPDT related things
+  // (for particle/event construction)
+  // std::string      fPDGTablePath ;
+  // std::string      fPDGTableName ;
+  // DefaultConfig::ParticleDataTable* fPDGTable;
+  // DefaultConfig::ParticleDataTable* fTestTable ;
+  // ESHandle<DefaultConfig::ParticleDataTable> fPDGTable ;
+  ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+
+  int fVerbosity;
+
+  bool fAddAntiParticle;
+};
+}  // namespace edm
 
 #endif

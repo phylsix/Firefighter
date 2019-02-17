@@ -5,6 +5,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-using CandMerger=Merger<reco::PFCandidateCollection>;
+using CandMerger = Merger<reco::PFCandidateCollection>;
 
 #endif
