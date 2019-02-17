@@ -80,7 +80,7 @@ ntuple_pfjet = cms.PSet(
         maxNbrOfIterations=cms.int32(10),
         doSmoothing=cms.bool(True),
     ),
-    IsolationRadius = cms.double(0.4),
+    IsolationRadius = cms.double(0.5),
 )
 
 

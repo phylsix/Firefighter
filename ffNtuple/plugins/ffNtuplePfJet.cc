@@ -58,7 +58,7 @@ class ffNtuplePfJet : public ffNtupleBase {
       const reco::PFJet& ) const;
   std::vector<reco::PFCandidatePtr> getTrackEmbededPFCands(
       const reco::PFJet& ) const;
-  std::vector<reco::TrackRef> getSelectedTracks(
+  std::vector<const reco::Track*> getSelectedTracks(
       const reco::PFJet&,
       const StringCutObjectSelector<reco::Track>& ) const;
 
@@ -71,36 +71,42 @@ class ffNtuplePfJet : public ffNtupleBase {
        const edm::Handle<reco::TrackCollection>& ) const;
 
   /**
-   * genralTracks Isolation
+   * @brief genralTracks Isolation
    *
    * pT of tracks in cone that NOT associated with the jet
    * ---------------------- over ----------------------
    * pT of tracks in cone that associated with the jet + above
    * --> The lower the value, the more isolated
+   *
+   * @return float
    */
   float getTkIsolation( const reco::PFJet&,
                         const edm::Handle<reco::TrackCollection>&,
                         const float& ) const;
 
   /**
-   * PFCandidate Isolation
+   * @brief PFCandidate Isolation
    *
    * energy of candidates in cone that NOT associated with the jet
    * ---------------------- over ----------------------
    * energy of candidates in cone that associated with the jet + above
    * --> The lower the value, the more isolated
+   *
+   * @return float
    */
   float getPfIsolation( const reco::PFJet&,
                         const edm::Handle<reco::PFCandidateCollection>&,
                         const float& ) const;
 
   /**
-   * Neutral isolation
+   * @brief Neutral isolation
    *
    * energy of neutral candidates in clone (NOT associated with the jet)
    * ---------------------- over ----------------------
    * energy of candidates in cone associated with the jet + above
    * --> The lower value, the more isolated
+   *
+   * @return float
    */
   float getNeutralIsolation( const reco::PFJet&,
                              const edm::Handle<reco::PFCandidateCollection>&,
@@ -113,19 +119,26 @@ class ffNtuplePfJet : public ffNtupleBase {
       const reco::PFJet&,
       const StringCutObjectSelector<reco::Track>&,
       const edm::EventSetup& ) const;
-  /*!
-   * \brief estimate vertex as the median value of reference points of tracks of
-   * the jet \param pTks : vector of trackRefs
+
+  /**
+   * @brief Estimate vertex as the median value of reference points of tracks of
+   * the jet.
+   *
+   * @param pTks vector of tracks.
+   * @return Point
    */
   Point estimatedVertexFromMedianReferencePoints(
-      const std::vector<reco::TrackRef>& pTks ) const;
+      const std::vector<const reco::Track*>& pTks ) const;
 
-  /*!
-   * \brief estimate vertex as the average value of reference points of tracks
-   * of the jet \param pTks : vector of trackRefs
+  /**
+   * @brief Estimate vertex as the average value of reference points of tracks
+   * of the jet.
+   *
+   * @param pTks vector of tracks.
+   * @return Point
    */
   Point estimatedVertexFromAverageReferencePoints(
-      const std::vector<reco::TrackRef>& pTks ) const;
+      const std::vector<const reco::Track*>& pTks ) const;
 
   std::pair<TransientVertex, float> kalmanVertexFromTransientTracks(
       const std::vector<reco::TransientTrack>& ) const;
@@ -168,40 +181,45 @@ class ffNtuplePfJet : public ffNtupleBase {
   edm::ParameterSet                    kvfParam_;
   float                                isoRadius_;
 
-  int                             pfjet_n_;
-  std::vector<LorentzVector>      pfjet_p4_;
-  std::vector<float>              pfjet_chargedHadronE_;
-  std::vector<float>              pfjet_neutralHadronE_;
-  std::vector<float>              pfjet_chargedEmE_;
-  std::vector<float>              pfjet_neutralEmE_;
-  std::vector<float>              pfjet_photonE_;
-  std::vector<float>              pfjet_electronE_;
-  std::vector<float>              pfjet_muonE_;
-  std::vector<float>              pfjet_hfHadronE_;
-  std::vector<float>              pfjet_hfEmE_;
-  std::vector<int>                pfjet_charged_n_;
-  std::vector<int>                pfjet_neutral_n_;
-  std::vector<int>                pfjet_chargedHadron_n_;
-  std::vector<int>                pfjet_neutralHadron_n_;
-  std::vector<int>                pfjet_photon_n_;
-  std::vector<int>                pfjet_electron_n_;
-  std::vector<int>                pfjet_muon_n_;
-  std::vector<float>              pfjet_area_;
-  std::vector<float>              pfjet_maxDistance_;
-  std::vector<float>              pfjet_tkIsolation_;
-  std::vector<float>              pfjet_pfIsolation_;
-  std::vector<float>              pfjet_neuIsolation_;
-  std::vector<int>                pfjet_pfcands_n_;
-  std::vector<int>                pfjet_tracks_n_;
-  std::vector<float>              pfjet_ptDistribution_;
-  std::vector<float>              pfjet_pfcands_chargedMass_;
-  std::vector<bool>               pfjet_pfcands_hasDsaMu_;
-  std::vector<int>                pfjet_pfcands_maxPtType_;
-  std::vector<std::vector<float>> pfjet_tracks_pt_;
-  std::vector<std::vector<float>> pfjet_tracks_eta_;
-  std::vector<std::vector<float>> pfjet_tracks_d0Sig_;
-  std::vector<std::vector<float>> pfjet_tracks_dzSig_;
-  std::vector<std::vector<float>> pfjet_tracks_normChi2_;
+  int                        pfjet_n_;
+  std::vector<LorentzVector> pfjet_p4_;
+  std::vector<float>         pfjet_chargedHadronE_;
+  std::vector<float>         pfjet_neutralHadronE_;
+  std::vector<float>         pfjet_chargedEmE_;
+  std::vector<float>         pfjet_neutralEmE_;
+  std::vector<float>         pfjet_photonE_;
+  std::vector<float>         pfjet_electronE_;
+  std::vector<float>         pfjet_muonE_;
+  std::vector<float>         pfjet_hfHadronE_;
+  std::vector<float>         pfjet_hfEmE_;
+  std::vector<int>           pfjet_charged_n_;
+  std::vector<int>           pfjet_neutral_n_;
+  std::vector<int>           pfjet_chargedHadron_n_;
+  std::vector<int>           pfjet_neutralHadron_n_;
+  std::vector<int>           pfjet_photon_n_;
+  std::vector<int>           pfjet_electron_n_;
+  std::vector<int>           pfjet_muon_n_;
+  std::vector<float>         pfjet_area_;
+  std::vector<float>         pfjet_maxDistance_;
+  std::vector<float>         pfjet_tkIsolation_;
+  std::vector<float>         pfjet_pfIsolation_;
+  std::vector<float>         pfjet_neuIsolation_;
+  std::vector<int>           pfjet_tracks_n_;
+  std::vector<float>         pfjet_ptDistribution_;
+
+  std::vector<int>   pfjet_pfcands_n_;
+  std::vector<float> pfjet_pfcands_chargedMass_;
+  std::vector<bool>  pfjet_pfcands_hasDsaMu_;
+  std::vector<int>   pfjet_pfcands_maxPtType_;
+
+  std::vector<std::vector<int>>           pfjet_pfcand_type_;
+  std::vector<std::vector<int>>           pfjet_pfcand_charge_;
+  std::vector<std::vector<LorentzVector>> pfjet_pfcand_p4_;
+  std::vector<std::vector<float>>         pfjet_pfcand_tkD0_;
+  std::vector<std::vector<float>>         pfjet_pfcand_tkD0Sig_;
+  std::vector<std::vector<float>>         pfjet_pfcand_tkDz_;
+  std::vector<std::vector<float>>         pfjet_pfcand_tkDzSig_;
+  std::vector<std::vector<float>>         pfjet_pfcand_tkNormChi2_;
 
   std::vector<Point> pfjet_medianvtx_;
   std::vector<Point> pfjet_averagevtx_;
@@ -288,11 +306,15 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcands_chargedMass", &pfjet_pfcands_chargedMass_ );
   tree.Branch( "pfjet_pfcands_hasDsaMu", &pfjet_pfcands_hasDsaMu_ );
   tree.Branch( "pfjet_pfcands_maxPtType", &pfjet_pfcands_maxPtType_ );
-  tree.Branch( "pfjet_tracks_pt", &pfjet_tracks_pt_ );
-  tree.Branch( "pfjet_tracks_eta", &pfjet_tracks_eta_ );
-  tree.Branch( "pfjet_tracks_d0Sig", &pfjet_tracks_d0Sig_ );
-  tree.Branch( "pfjet_tracks_dzSig", &pfjet_tracks_dzSig_ );
-  tree.Branch( "pfjet_tracks_normChi2", &pfjet_tracks_normChi2_ );
+
+  tree.Branch( "pfjet_pfcand_type", &pfjet_pfcand_type_ );
+  tree.Branch( "pfjet_pfcand_charge", &pfjet_pfcand_charge_ );
+  tree.Branch( "pfjet_pfcand_p4", &pfjet_pfcand_p4_ );
+  tree.Branch( "pfjet_pfcand_tkD0", &pfjet_pfcand_tkD0_ );
+  tree.Branch( "pfjet_pfcand_tkD0Sig", &pfjet_pfcand_tkD0Sig_ );
+  tree.Branch( "pfjet_pfcand_tkDz", &pfjet_pfcand_tkDz_ );
+  tree.Branch( "pfjet_pfcand_tkDzSig", &pfjet_pfcand_tkDzSig_ );
+  tree.Branch( "pfjet_pfcand_tkNormChi2", &pfjet_pfcand_tkNormChi2_ );
 
   tree.Branch( "pfjet_medianvtx", &pfjet_medianvtx_ );
   tree.Branch( "pfjet_averagevtx", &pfjet_averagevtx_ );
@@ -358,7 +380,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     if ( !pfjet_selector_( pfjet ) )
       continue;
 
-    const vector<reco::TrackRef> tracksSelected =
+    const vector<const reco::Track*> tracksSelected =
         getSelectedTracks( pfjet, track_selector_ );
     const vector<reco::PFCandidatePtr> pfCands = getPFCands( pfjet );
 
@@ -397,30 +419,56 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcands_maxPtType_.emplace_back(
         getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
 
-    // tracks
-    vector<float> trackPt{}, trackEta{};
-    vector<float> trackD0Sig{}, trackDzSig{};
-    vector<float> trackNormChi2{};
-    for ( const auto& track : tracksSelected ) {
-      trackPt.emplace_back( track->pt() );
-      trackEta.emplace_back( track->eta() );
-      trackD0Sig.emplace_back( fabs( track->d0() ) / track->d0Error() );
-      trackDzSig.emplace_back( fabs( track->dz() ) / track->dzError() );
-      trackNormChi2.emplace_back( track->ndof() ? track->normalizedChi2()
-                                                : NAN );
-    }
-    pfjet_tracks_pt_.push_back( trackPt );
-    pfjet_tracks_eta_.push_back( trackEta );
-    pfjet_tracks_d0Sig_.push_back( trackD0Sig );
-    pfjet_tracks_dzSig_.push_back( trackDzSig );
-    pfjet_tracks_normChi2_.push_back( trackNormChi2 );
+    // pfcand -------------------------------------------------------------
+    vector<int>           cPFCandType{};
+    vector<int>           cPFCandCharge{};
+    vector<LorentzVector> cPFCandP4{};
+    vector<float>         cPFCandTkD0{}, cPFCandTkD0Sig{};
+    vector<float>         cPFCandTkDz{}, cPFCandTkDzSig{};
+    vector<float>         cPFCandTkNormChi2{};
 
+    for ( const auto& cand : pfCands ) {
+      cPFCandType.emplace_back( cand->particleId() );
+      cPFCandCharge.emplace_back( cand->charge() );
+      cPFCandP4.push_back(
+          LorentzVector( cand->px(), cand->py(), cand->pz(), cand->energy() ) );
+
+      const reco::Track* candEmbedTrack = cand->bestTrack();
+
+      cPFCandTkD0.emplace_back( candEmbedTrack != nullptr ? candEmbedTrack->d0()
+                                                          : NAN );
+      cPFCandTkD0Sig.emplace_back(
+          candEmbedTrack != nullptr
+              ? fabs( candEmbedTrack->d0() / candEmbedTrack->d0Error() )
+              : NAN );
+      cPFCandTkDz.emplace_back( candEmbedTrack != nullptr ? candEmbedTrack->dz()
+                                                          : NAN );
+      cPFCandTkDzSig.emplace_back(
+          candEmbedTrack != nullptr
+              ? fabs( candEmbedTrack->dz() / candEmbedTrack->dzError() )
+              : NAN );
+      cPFCandTkNormChi2.emplace_back( candEmbedTrack != nullptr &&
+                                              candEmbedTrack->ndof() != 0
+                                          ? candEmbedTrack->normalizedChi2()
+                                          : NAN );
+    }
+
+    pfjet_pfcand_type_.push_back( cPFCandType );
+    pfjet_pfcand_charge_.push_back( cPFCandCharge );
+    pfjet_pfcand_p4_.push_back( cPFCandP4 );
+    pfjet_pfcand_tkD0_.push_back( cPFCandTkD0 );
+    pfjet_pfcand_tkD0Sig_.push_back( cPFCandTkD0Sig );
+    pfjet_pfcand_tkDz_.push_back( cPFCandTkDz );
+    pfjet_pfcand_tkDzSig_.push_back( cPFCandTkDzSig );
+    pfjet_pfcand_tkNormChi2_.push_back( cPFCandTkNormChi2 );
+    // --------------------------------------------------------------------
+
+    // vertices -----------------------------------------------------------
     pfjet_medianvtx_.push_back(
         estimatedVertexFromMedianReferencePoints( tracksSelected ) );
     pfjet_averagevtx_.push_back(
         estimatedVertexFromAverageReferencePoints( tracksSelected ) );
 
-    // vertices..
     vector<reco::TransientTrack> transientTks =
         transientTracksFromPFJet( pfjet, track_selector_, es );
     Measurement1D distXY;
@@ -568,6 +616,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     }
     pfjet_kinvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKinVtx );
     pfjet_kinvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKinVtx );
+    // --------------------------------------------------------------------
   }
 }
 
@@ -602,11 +651,15 @@ ffNtuplePfJet::clear() {
   pfjet_pfcands_chargedMass_.clear();
   pfjet_pfcands_hasDsaMu_.clear();
   pfjet_pfcands_maxPtType_.clear();
-  pfjet_tracks_pt_.clear();
-  pfjet_tracks_eta_.clear();
-  pfjet_tracks_d0Sig_.clear();
-  pfjet_tracks_dzSig_.clear();
-  pfjet_tracks_normChi2_.clear();
+
+  pfjet_pfcand_type_.clear();
+  pfjet_pfcand_charge_.clear();
+  pfjet_pfcand_p4_.clear();
+  pfjet_pfcand_tkD0_.clear();
+  pfjet_pfcand_tkD0Sig_.clear();
+  pfjet_pfcand_tkDz_.clear();
+  pfjet_pfcand_tkDzSig_.clear();
+  pfjet_pfcand_tkNormChi2_.clear();
 
   pfjet_medianvtx_.clear();
   pfjet_averagevtx_.clear();
@@ -669,22 +722,22 @@ ffNtuplePfJet::getTrackEmbededPFCands( const reco::PFJet& jet ) const {
   std::vector<reco::PFCandidatePtr> result = getChargedPFCands( jet );
   result.erase( std::remove_if( result.begin(), result.end(),
                                 []( const auto& cand ) {
-                                  return ( cand->trackRef() ).isNull();
+                                  return cand->bestTrack() == nullptr;
                                 } ),
                 result.end() );
 
   return result;
 }
 
-std::vector<reco::TrackRef>
+std::vector<const reco::Track*>
 ffNtuplePfJet::getSelectedTracks(
     const reco::PFJet&                          jet,
     const StringCutObjectSelector<reco::Track>& tkSelector ) const {
-  std::vector<reco::TrackRef> result{};
+  std::vector<const reco::Track*> result{};
   result.reserve( jet.chargedMultiplicity() );
   for ( const auto& cand : getTrackEmbededPFCands( jet ) ) {
-    reco::TrackRef tk = cand->trackRef();
-    if ( tkSelector( *( tk.get() ) ) ) {
+    const reco::Track* tk = cand->bestTrack();
+    if ( tkSelector( *tk ) ) {
       result.push_back( tk );
     }
   }
@@ -868,7 +921,7 @@ ffNtuplePfJet::transientTracksFromPFJet(
 
   std::vector<reco::TransientTrack> t_tks{};
   for ( const auto& c : cands ) {
-    if ( !tkSelector( *( c->trackRef().get() ) ) )
+    if ( !tkSelector( *( c->bestTrack() ) ) )
       continue;
     reco::TransientTrack tt = theB->build( c );
     if ( !tt.isValid() )
@@ -881,7 +934,7 @@ ffNtuplePfJet::transientTracksFromPFJet(
 
 Point
 ffNtuplePfJet::estimatedVertexFromMedianReferencePoints(
-    const std::vector<reco::TrackRef>& pTks ) const {
+    const std::vector<const reco::Track*>& pTks ) const {
   std::vector<float> cXinnerPos, cYinnerPos, cZinnerPos;
   for ( const auto& cTk : pTks ) {
     cXinnerPos.push_back( cTk->referencePoint().X() );
@@ -896,7 +949,7 @@ ffNtuplePfJet::estimatedVertexFromMedianReferencePoints(
 
 Point
 ffNtuplePfJet::estimatedVertexFromAverageReferencePoints(
-    const std::vector<reco::TrackRef>& pTks ) const {
+    const std::vector<const reco::Track*>& pTks ) const {
   std::vector<float> cXinnerPos, cYinnerPos, cZinnerPos;
   for ( const auto& cTk : pTks ) {
     cXinnerPos.push_back( cTk->referencePoint().X() );
