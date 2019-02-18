@@ -212,14 +212,17 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::vector<bool>  pfjet_pfcands_hasDsaMu_;
   std::vector<int>   pfjet_pfcands_maxPtType_;
 
-  std::vector<std::vector<int>>           pfjet_pfcand_type_;
-  std::vector<std::vector<int>>           pfjet_pfcand_charge_;
-  std::vector<std::vector<LorentzVector>> pfjet_pfcand_p4_;
-  std::vector<std::vector<float>>         pfjet_pfcand_tkD0_;
-  std::vector<std::vector<float>>         pfjet_pfcand_tkD0Sig_;
-  std::vector<std::vector<float>>         pfjet_pfcand_tkDz_;
-  std::vector<std::vector<float>>         pfjet_pfcand_tkDzSig_;
-  std::vector<std::vector<float>>         pfjet_pfcand_tkNormChi2_;
+  std::vector<std::vector<int>>   pfjet_pfcand_type_;
+  std::vector<std::vector<int>>   pfjet_pfcand_charge_;
+  std::vector<std::vector<float>> pfjet_pfcand_pt_;
+  std::vector<std::vector<float>> pfjet_pfcand_eta_;
+  std::vector<std::vector<float>> pfjet_pfcand_phi_;
+  std::vector<std::vector<float>> pfjet_pfcand_energy_;
+  std::vector<std::vector<float>> pfjet_pfcand_tkD0_;
+  std::vector<std::vector<float>> pfjet_pfcand_tkD0Sig_;
+  std::vector<std::vector<float>> pfjet_pfcand_tkDz_;
+  std::vector<std::vector<float>> pfjet_pfcand_tkDzSig_;
+  std::vector<std::vector<float>> pfjet_pfcand_tkNormChi2_;
 
   std::vector<Point> pfjet_medianvtx_;
   std::vector<Point> pfjet_averagevtx_;
@@ -309,7 +312,10 @@ ffNtuplePfJet::initialize( TTree&                   tree,
 
   tree.Branch( "pfjet_pfcand_type", &pfjet_pfcand_type_ );
   tree.Branch( "pfjet_pfcand_charge", &pfjet_pfcand_charge_ );
-  tree.Branch( "pfjet_pfcand_p4", &pfjet_pfcand_p4_ );
+  tree.Branch( "pfjet_pfcand_pt", &pfjet_pfcand_pt_ );
+  tree.Branch( "pfjet_pfcand_eta", &pfjet_pfcand_eta_ );
+  tree.Branch( "pfjet_pfcand_phi", &pfjet_pfcand_phi_ );
+  tree.Branch( "pfjet_pfcand_energy", &pfjet_pfcand_energy_ );
   tree.Branch( "pfjet_pfcand_tkD0", &pfjet_pfcand_tkD0_ );
   tree.Branch( "pfjet_pfcand_tkD0Sig", &pfjet_pfcand_tkD0Sig_ );
   tree.Branch( "pfjet_pfcand_tkDz", &pfjet_pfcand_tkDz_ );
@@ -420,18 +426,21 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
         getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
 
     // pfcand -------------------------------------------------------------
-    vector<int>           cPFCandType{};
-    vector<int>           cPFCandCharge{};
-    vector<LorentzVector> cPFCandP4{};
-    vector<float>         cPFCandTkD0{}, cPFCandTkD0Sig{};
-    vector<float>         cPFCandTkDz{}, cPFCandTkDzSig{};
-    vector<float>         cPFCandTkNormChi2{};
+    vector<int>   cPFCandType{};
+    vector<int>   cPFCandCharge{};
+    vector<float> cPFCandPt{}, cPFCandEnergy{};
+    vector<float> cPFCandEta{}, cPFCandPhi{};
+    vector<float> cPFCandTkD0{}, cPFCandTkD0Sig{};
+    vector<float> cPFCandTkDz{}, cPFCandTkDzSig{};
+    vector<float> cPFCandTkNormChi2{};
 
     for ( const auto& cand : pfCands ) {
       cPFCandType.emplace_back( cand->particleId() );
       cPFCandCharge.emplace_back( cand->charge() );
-      cPFCandP4.push_back(
-          LorentzVector( cand->px(), cand->py(), cand->pz(), cand->energy() ) );
+      cPFCandPt.emplace_back( cand->pt() );
+      cPFCandEta.emplace_back( cand->eta() );
+      cPFCandPhi.emplace_back( cand->phi() );
+      cPFCandEnergy.emplace_back( cand->energy() );
 
       const reco::Track* candEmbedTrack = cand->bestTrack();
 
@@ -455,7 +464,10 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
     pfjet_pfcand_type_.push_back( cPFCandType );
     pfjet_pfcand_charge_.push_back( cPFCandCharge );
-    pfjet_pfcand_p4_.push_back( cPFCandP4 );
+    pfjet_pfcand_pt_.push_back( cPFCandPt );
+    pfjet_pfcand_eta_.push_back( cPFCandEta );
+    pfjet_pfcand_phi_.push_back( cPFCandPhi );
+    pfjet_pfcand_energy_.push_back( cPFCandEnergy );
     pfjet_pfcand_tkD0_.push_back( cPFCandTkD0 );
     pfjet_pfcand_tkD0Sig_.push_back( cPFCandTkD0Sig );
     pfjet_pfcand_tkDz_.push_back( cPFCandTkDz );
@@ -654,7 +666,10 @@ ffNtuplePfJet::clear() {
 
   pfjet_pfcand_type_.clear();
   pfjet_pfcand_charge_.clear();
-  pfjet_pfcand_p4_.clear();
+  pfjet_pfcand_pt_.clear();
+  pfjet_pfcand_eta_.clear();
+  pfjet_pfcand_phi_.clear();
+  pfjet_pfcand_energy_.clear();
   pfjet_pfcand_tkD0_.clear();
   pfjet_pfcand_tkD0Sig_.clear();
   pfjet_pfcand_tkDz_.clear();
