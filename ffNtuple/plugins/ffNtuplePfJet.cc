@@ -444,17 +444,21 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
       const reco::Track* candEmbedTrack = cand->bestTrack();
 
-      cPFCandTkD0.emplace_back( candEmbedTrack != nullptr ? candEmbedTrack->d0()
-                                                          : NAN );
+      cPFCandTkD0.emplace_back( candEmbedTrack != nullptr
+                                    ? -candEmbedTrack->dxy( pv.position() )
+                                    : NAN );
       cPFCandTkD0Sig.emplace_back(
           candEmbedTrack != nullptr
-              ? fabs( candEmbedTrack->d0() / candEmbedTrack->d0Error() )
+              ? fabs( -candEmbedTrack->dxy( pv.position() ) /
+                      candEmbedTrack->dxyError() )
               : NAN );
-      cPFCandTkDz.emplace_back( candEmbedTrack != nullptr ? candEmbedTrack->dz()
-                                                          : NAN );
+      cPFCandTkDz.emplace_back( candEmbedTrack != nullptr
+                                    ? candEmbedTrack->dz( pv.position() )
+                                    : NAN );
       cPFCandTkDzSig.emplace_back(
           candEmbedTrack != nullptr
-              ? fabs( candEmbedTrack->dz() / candEmbedTrack->dzError() )
+              ? fabs( candEmbedTrack->dz( pv.position() ) /
+                      candEmbedTrack->dzError() )
               : NAN );
       cPFCandTkNormChi2.emplace_back( candEmbedTrack != nullptr &&
                                               candEmbedTrack->ndof() != 0
