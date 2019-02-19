@@ -22,7 +22,7 @@ class ffDataset:
         self._isSignalMC = ds.endswith('USER')
         self._primaryDataset = ds.split('/')[1]
         self._dataset = ds
-        self._nameTag = self.get_nametag_from_dataset(ds) + '_ffNtuple'
+        self._nameTag = self.get_nametag_from_dataset(ds)
 
     def __str__(self):
         return self._dataset
@@ -134,6 +134,14 @@ def adapt_config_with_dataset(crabconfig, dataset):
     if isinstance(dataset, str):
         dataset = ffDataset(dataset)
 
+    requestNameComponents = [
+        str(dataset.year),
+        dataset.primaryDataset,
+        dataset.nameTag,
+        'ffNtuple'
+        time.strftime('%y%m%d-%H%M%S')
+    ]
+
     if dataset.isSignalMC:
         print('+++++++++++++++++++++')
         print('===== SIGNAL MC =====')
@@ -146,6 +154,7 @@ def adapt_config_with_dataset(crabconfig, dataset):
         print('--------------------------')
         crabconfig.Data.inputDBS = 'global'
         crabconfig.Data.splitting = 'Automatic'
+        requestNameComponents.pop(2)
         crabconfig.JobType.psetName = os.path.join(
             crabconfig.JobType.psetName, 'ffNtupleFromAOD_dataOrBkg_cfg.py')
 
@@ -155,12 +164,7 @@ def adapt_config_with_dataset(crabconfig, dataset):
 
     crabconfig.Data.inputDataset = str(dataset)
     crabconfig.Data.outputDatasetTag = dataset.nameTag
-    crabconfig.General.requestName = '_'.join([
-        str(dataset.year),
-        dataset.primaryDataset,
-        dataset.nameTag,
-        time.strftime('%y%m%d-%H%M%S')
-    ])
+    crabconfig.General.requestName = '_'.join(requestNameComponents)
 
     return crabconfig
 
