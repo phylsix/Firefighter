@@ -11,11 +11,13 @@ class ffDataset:
 
     def __init__(self, ds, year=2018):
         if year not in [2016, 2017, 2018]:
-            raise ValueError("Constructing ffDataset() for dataset: {} with non-allowed year paramter: {}".format(ds, year))
+            raise ValueError(
+                "Constructing ffDataset() for dataset: {} with non-allowed year paramter: {}".format(ds, year))
         self._year = year
 
         if len(ds.split('/')) != 4:
-            raise ValueError("Constructing ffDataset() with incorrect dataset name: {}".format(ds))
+            raise ValueError(
+                "Constructing ffDataset() with incorrect dataset name: {}".format(ds))
 
         self._isSignalMC = ds.endswith('USER')
         self._primaryDataset = ds.split('/')[1]
@@ -64,10 +66,13 @@ class ffDataset:
 def floatpfy(f):
     ''' Given a float, return its string with . replaced with p'''
 
-    if int(f)-f:
-        return str(f).replace('.', 'p')
+    num_as_str = '{:5.2}'.format(f)
+    num = float(num_as_str)
+    if abs(int(num)-num) > 10e-7:
+        return str(num).replace('.', 'p')
     else:
-        return str(int(f))
+        return str(int(num))
+
 
 def get_param_from_gridpackname(gpname):
     '''
@@ -117,7 +122,6 @@ def get_param_from_dataset(ds):
     return (mxx, ma, ctau)
 
 
-
 def adapt_config_with_dataset(crabconfig, dataset):
     """
     tune crab config object parameters for different dataset
@@ -161,14 +165,15 @@ def adapt_config_with_dataset(crabconfig, dataset):
     return crabconfig
 
 
-
 def check_voms_valid():
     '''
     check if certificate is expired
     '''
 
-    cmd = 'voms-proxy-info -file /tmp/x509up_u{0} -timeleft'.format(os.getuid())
-    p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    cmd = 'voms-proxy-info -file /tmp/x509up_u{0} -timeleft'.format(
+        os.getuid())
+    p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE).communicate()
     if p[0] and not p[1]:
         return True
     else:
@@ -183,18 +188,20 @@ def get_voms_certificate():
     if not check_voms_valid():
         os.system('voms-proxy-init -voms cms -valid 192:00')
 
+
 def get_gentemplate(year):
     ''' return the gen fragmeent in template.py, adjust if necessary '''
 
-    if int(year)==2016:
+    if int(year) == 2016:
         return '\n'.join([l for l in genTemplate.split('\n') if 'CP5Settings' not in l])
     else:
         return genTemplate
 
+
 def get_command(step, year):
 
     if step.upper() not in ['GEN-SIM', 'PREMIX-RAW-HLT', 'AODSIM'] \
-        or str(year) not in ['2016', '2017', '2018']:
+            or str(year) not in ['2016', '2017', '2018']:
         print('Unsupported parameter for get_command(step, year):')
         print('-- step: {0}'.format(step))
         print('-- year: {0}'.format(year))
@@ -204,7 +211,8 @@ def get_command(step, year):
     year = str(year)
 
     cmd = ''
-    cfgOutput = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'piedpiper', 'cfg')
+    cfgOutput = os.path.join(
+        os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'piedpiper', 'cfg')
 
     if step == 'GEN-SIM':
 
