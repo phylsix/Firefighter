@@ -16,7 +16,7 @@ from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 mcGeometryFilter = mcgeometryfilter.clone()
 mcKinematicFilter = mckinematicfilter.clone()
 selectedDsaMuons = selectedTracks.clone(
-    cut = cms.string(' && '.join([
+    cut=cms.string(' && '.join([
         'pt>5.',
         'abs(eta)<2.4',
         'hitPattern.muonStationsWithValidHits>2',
@@ -24,7 +24,7 @@ selectedDsaMuons = selectedTracks.clone(
     ]))
 )
 dsaMuPFCand = PFCandsFromTracks.clone(
-    src = cms.InputTag('selectedDsaMuons')
+    src=cms.InputTag('selectedDsaMuons')
 )
 selectedPFCands = selectedPFCandidates.clone()
 # dsaMuPFCandFork = forkCandAgainstDsaMuon.clone(
@@ -32,8 +32,8 @@ selectedPFCands = selectedPFCandidates.clone()
 #     matched = cms.InputTag("dsaMuPFCand")
 # )
 dsaMuPFCandFork = splitPFCandByMatchingDsaMuon.clone(
-    src     = cms.InputTag("selectedPFCands"),
-    matched = cms.InputTag("dsaMuPFCand")
+    src=cms.InputTag("selectedPFCands"),
+    matched=cms.InputTag("dsaMuPFCand")
 )
 particleFlowIncDSA = pfcandmerger.clone(
     src=cms.VInputTag(
@@ -42,8 +42,8 @@ particleFlowIncDSA = pfcandmerger.clone(
     )
 )
 ffLeptonJet = ak4PFJets.clone(
-    src = cms.InputTag('particleFlowIncDSA'),
-    rParam = cms.double(0.4),
+    src=cms.InputTag('particleFlowIncDSA'),
+    rParam=cms.double(0.4),
 )
 
 
