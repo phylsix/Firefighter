@@ -69,7 +69,7 @@ ntuple_pfjet = cms.PSet(
         'numberOfDaughters>1',
         'neutralHadronEnergyFraction<0.99',
         'neutralEmEnergyFraction<0.99',
-        '(chargedEmEnergyFraction+muonEnergyFraction+neutralEmEnergyFraction)>0.5'
+        '(chargedEmEnergyFraction+muonEnergyFraction+neutralEmEnergyFraction)>0.6'
     ])),
     TrackSelection=cms.string(' && '.join([
         'pt>0.5',
@@ -81,6 +81,7 @@ ntuple_pfjet = cms.PSet(
         doSmoothing=cms.bool(True),
     ),
     IsolationRadius=cms.double(0.5),
+    MinChargedMass=cms.double(0.15),
 )
 
 

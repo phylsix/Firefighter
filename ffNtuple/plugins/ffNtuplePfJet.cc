@@ -180,6 +180,7 @@ class ffNtuplePfJet : public ffNtupleBase {
   StringCutObjectSelector<reco::Track> track_selector_;
   edm::ParameterSet                    kvfParam_;
   float                                isoRadius_;
+  float                                minChargedMass_;
 
   int                        pfjet_n_;
   std::vector<LorentzVector> pfjet_p4_;
@@ -265,7 +266,8 @@ ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
       pfjet_selector_( ps.getParameter<std::string>( "PFJetSelection" ) ),
       track_selector_( ps.getParameter<std::string>( "TrackSelection" ) ),
       kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
-      isoRadius_( ps.getParameter<double>( "IsolationRadius" ) ) {}
+      isoRadius_( ps.getParameter<double>( "IsolationRadius" ) ),
+      minChargedMass_( ps.getParameter<double>( "MinChargedMass" ) ) {}
 
 void
 ffNtuplePfJet::initialize( TTree&                   tree,
@@ -384,6 +386,8 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   pfjet_n_ = pfjets.size();
   for ( const auto& pfjet : pfjets ) {
     if ( !pfjet_selector_( pfjet ) )
+      continue;
+    if ( chargedMass( pfjet ) < minChargedMass_ )
       continue;
 
     const vector<const reco::Track*> tracksSelected =
@@ -786,7 +790,8 @@ ffNtuplePfJet::hasDisplacedStandAloneMuon(
   std::vector<reco::PFCandidatePtr> candsWithTk = getTrackEmbededPFCands( jet );
 
   for ( const auto& cand : candsWithTk ) {
-    if ( cand->trackRef().id() != generalTkH.id() )
+    if ( cand->trackRef().isNonnull() and
+         ( cand->trackRef().id() != generalTkH.id() ) )
       return true;
   }
 
@@ -902,16 +907,16 @@ ffNtuplePfJet::getCandWithMaxPt(
   if ( cands.size() == 0 )
     return reco::PFCandidatePtr();
 
-  float                _ptmax( 0. );
-  reco::PFCandidatePtr result = cands[ 0 ];
-  for ( const auto& cand : cands ) {
-    if ( cand->pt() > _ptmax ) {
-      _ptmax = cand->pt();
-      result = cand;
+  float  _ptmax( 0. );
+  size_t _idxmax( cands.size() );
+  for ( size_t id( 0 ); id != cands.size(); ++id ) {
+    if ( cands[ id ]->pt() > _ptmax ) {
+      _ptmax  = cands[ id ]->pt();
+      _idxmax = id;
     }
   }
 
-  return result;
+  return _idxmax == cands.size() ? reco::PFCandidatePtr() : cands[ _idxmax ];
 }
 
 int
