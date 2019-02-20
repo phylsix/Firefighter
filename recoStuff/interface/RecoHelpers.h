@@ -70,7 +70,7 @@ averageValue( const std::vector<T>& v ) {
   if ( v.size() == 0 ) {
     res = NAN;
   } else {
-    res = std::accumulate( v.begin(), v.end(), 0 ) / v.size();
+    res = std::accumulate( v.begin(), v.end(), 0. ) / v.size();
   }
 
   return res;
