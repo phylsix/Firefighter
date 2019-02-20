@@ -138,7 +138,7 @@ def adapt_config_with_dataset(crabconfig, dataset):
         str(dataset.year),
         dataset.primaryDataset,
         dataset.nameTag,
-        'ffNtuple'
+        'ffNtuple',
         time.strftime('%y%m%d-%H%M%S')
     ]
 
@@ -153,7 +153,6 @@ def adapt_config_with_dataset(crabconfig, dataset):
         print('===== DATA or BKG MC =====')
         print('--------------------------')
         crabconfig.Data.inputDBS = 'global'
-        crabconfig.Data.splitting = 'Automatic'
         requestNameComponents.pop(2)
         crabconfig.JobType.psetName = os.path.join(
             crabconfig.JobType.psetName, 'ffNtupleFromAOD_dataOrBkg_cfg.py')
