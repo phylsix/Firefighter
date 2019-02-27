@@ -11,11 +11,12 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 if cmsrel.startswith('CMSSW_8'):
     process.load('Configuration.StandardSequences.MagneticField_cff')
-    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    process.load(
+        'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 else:
     process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-
+    process.load(
+        'Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 
 if cmsrel.startswith('CMSSW_10'):
@@ -25,42 +26,36 @@ if cmsrel.startswith('CMSSW_9'):
 if cmsrel.startswith('CMSSW_8'):
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
-SIG_MC = True
 
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False),
-    numberOfThreads = cms.untracked.uint32(2),
-    numberOfStreams = cms.untracked.uint32(0)
+    wantSummary=cms.untracked.bool(False),
+    numberOfThreads=cms.untracked.uint32(2),
+    numberOfStreams=cms.untracked.uint32(0)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input=cms.untracked.int32(-1)
 )
 
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(
+    fileNames=cms.untracked.vstring(
         'file:AODSIM.root'
     )
- )
+)
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string('ffNtuple.root'),
-    closeFileFast = cms.untracked.bool(True)
+    fileName=cms.string('ffNtuple.root'),
+    closeFileFast=cms.untracked.bool(True)
 )
 
-if SIG_MC:
-    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
-    process.load('Firefighter.ffNtuple.ffNtuples_cff')
-else:
-    process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
-    process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
+process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
+process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
 
-process.ntuple_pfjet.src = cms.InputTag('ffLeptonJet')
 
 process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)

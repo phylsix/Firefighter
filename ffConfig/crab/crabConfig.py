@@ -4,6 +4,7 @@ import sys
 import time
 
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
+from Firefighter.piedpiper.utils import ffDataset, adapt_config_with_dataset
 
 BASEDIR = os.path.join(
     os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'ffConfig')
@@ -28,8 +29,7 @@ config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = os.path.join(
-    BASEDIR, 'cfg', 'ffNtupleFromAOD_cfg.py')
+config.JobType.psetName = os.path.join(BASEDIR, 'cfg')
 config.JobType.numCores = 2
 config.JobType.maxMemoryMB = 2500
 config.JobType.disableAutomaticOutputCollection = False
@@ -38,7 +38,8 @@ config.Data.inputDataset = ''
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
-config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/ffNtuple'
+config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/ffNtuple/{}'.format(
+    year)
 config.Data.publication = False
 config.Data.outputDatasetTag = ''
 config.Data.ignoreLocality = True
@@ -51,20 +52,10 @@ config.Site.storageSite = 'T3_US_FNALLPC'
 if __name__ == '__main__':
 
     import yaml
-    myconf = yaml.load(open('config_bkg_JpsiToMuMu.yml').read())
+    myconf = yaml.load(open(sys.argv[1]).read())
 
-    config.Data.inputDataset = myconf['dataset']
-    if not myconf['dataset'].endswith('USER'):
-        config.Data.inputDBS = 'global'
-    config.Data.outputDatasetTag = 'ffNtuple_' + myconf['nametag']
-    config.Data.outLFNDirBase += '/{0}'.format(year)
-    config.General.requestName = '_'.join([
-        getUsernameFromSiteDB(),
-        'ffNtuple',
-        str(year),
-        myconf['nametag'],
-        time.strftime('%y%m%d-%H%M%S')
-    ])
+    thisData = ffDataset(myconf['dataset'], year)
+    config = adapt_config_with_dataset(config, thisData)
 
     from CRABAPI.RawCommand import crabCommand
     crabCommand('submit', config=config)

@@ -16,12 +16,12 @@ elif cmsrel.startswith('CMSSW_10'):
 else:
     sys.exit('Wrong release! Not in the year of [2016, 2017, 2018]')
 
-if year==2016:
+if year == 2016:
     hltfilter.TriggerPaths = cms.vstring(
         'HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10',
         'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10'
     )
-if year==2017:
+if year == 2017:
     hltfilter.TriggerPaths = cms.vstring(
         'HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx',
         'HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx'

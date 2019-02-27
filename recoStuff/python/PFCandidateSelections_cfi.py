@@ -3,10 +3,10 @@ import FWCore.ParameterSet.Config as cms
 
 selectedPFCandidates = cms.EDFilter(
     "GenericPFCandidateSelector",
-    src = cms.InputTag("particleFlow"),
-    cut = cms.string(' && '.join([
-        'charge!=0',
-        'pt>2.',
-        'abs(eta)<2.5'
+    src=cms.InputTag("particleFlow"),
+    cut=cms.string(' && '.join([
+        'abs(eta)<2.5',
+        'particleId!=1',
+        'particleId!=5',
     ]))
 )
