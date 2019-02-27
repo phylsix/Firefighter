@@ -6,14 +6,14 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 
 ntuple_event = cms.PSet(
-    NtupleName=cms.string('ffNtupleEvent')
+    NtupleName=cms.string('ffNtupleEvent'),
+    PileUp=cms.InputTag('addPileupInfo'),
 )
 
 
 ntuple_gen = cms.PSet(
     NtupleName=cms.string('ffNtupleGen'),
     GenParticles=cms.InputTag('genParticles'),
-    GenPU=cms.InputTag('addPileupInfo'),
     MCEvent=cms.InputTag('generatorSmeared'),
     CylinderRZ=cms.VPSet(
         cms.PSet(
@@ -60,7 +60,7 @@ ntuple_dsamuon = cms.PSet(
 
 ntuple_pfjet = cms.PSet(
     NtupleName=cms.string("ffNtuplePfJet"),
-    src=cms.InputTag('ak4PFJets'),
+    src=cms.InputTag('ffLeptonJet'),
     PrimaryVertices=cms.InputTag('offlinePrimaryVertices'),
     GeneralTracks=cms.InputTag('generalTracks'),
     ParticleFlowCands=cms.InputTag('particleFlow'),

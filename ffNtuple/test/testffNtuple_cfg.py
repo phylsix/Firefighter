@@ -25,8 +25,8 @@ if cmsrel.startswith('CMSSW_9'):
 if cmsrel.startswith('CMSSW_8'):
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
-TEST_FAST = True
-SIG_MC = True
+TEST_FAST = False
+SIG_MC = False
 
 from testDataSource import *
 _event_runover = -1
@@ -44,7 +44,7 @@ if TEST_FAST:
         ]
     else:
         _data_runover = [
-            'root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/20000/FDF58147-9D2C-804E-9865-77691C66636C.root',
+            'root://xrootd.unl.edu//store/mc/RunIIAutumn18DRPremix/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/60000/3248C8A6-00AC-E14A-B832-4E8B81E81BA2.root',
         ]
     _output_fname = 'testffNtuple.root'
 
@@ -79,7 +79,6 @@ if SIG_MC:
 else:
     process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
     process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
-process.ntuple_pfjet.src = cms.InputTag("ffLeptonJet")
 
 process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)

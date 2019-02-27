@@ -7,7 +7,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include <memory>
 
@@ -27,12 +26,8 @@ class ffNtupleGen : public ffNtupleBase {
   void clear() final;
 
   edm::EDGetToken gen_token_;
-  edm::EDGetToken gen_PU_token_;
 
   std::vector<std::pair<float, float>> cylinderBounds_;
-
-  int   gen_PUNumInt_;
-  float gen_TrueNumInt_;
 
   std::vector<int>                   gen_pid_;
   std::vector<int>                   gen_charge_;
@@ -62,11 +57,6 @@ ffNtupleGen::initialize( TTree&                   tree,
                          edm::ConsumesCollector&& cc ) {
   gen_token_ = cc.consumes<reco::GenParticleCollection>(
       ps.getParameter<edm::InputTag>( "GenParticles" ) );
-  gen_PU_token_ = cc.consumes<std::vector<PileupSummaryInfo>>(
-      ps.getParameter<edm::InputTag>( "GenPU" ) );
-
-  tree.Branch( "gen_PUNumInt", &gen_PUNumInt_, "gen_PUNumInt/I" );
-  tree.Branch( "gen_TrueNumInt", &gen_TrueNumInt_, "gen_TrueNumInt/F" );
 
   const std::vector<edm::ParameterSet>& cylinder_rz_ =
       ps.getParameterSetVector( "CylinderRZ" );
@@ -99,13 +89,11 @@ ffNtupleGen::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   using namespace edm;
   using namespace std;
-  Handle<vector<PileupSummaryInfo>> PupInfo_h;
-  e.getByToken( gen_PU_token_, PupInfo_h );
 
   Handle<vector<reco::GenParticle>> gen_h;
   e.getByToken( gen_token_, gen_h );
 
-  assert( PupInfo_h.isValid() && gen_h.isValid() );
+  assert( gen_h.isValid() );
 
   map<size_t, size_t>   myGenIndex;  // bookkeeping
   vector<float>         xp{}, yp{}, zp{};
@@ -211,9 +199,10 @@ ffNtupleGen::fill( const edm::Event& e, const edm::EventSetup& es ) {
     const auto& dau1 = ( *gen_h )[ dau1Idx ];
 
     const auto& vtxCommon = dau0.vertex();
-    float       _dr       = deltaR( dau0, dau1 );
-    int         _pid      = abs( dau0.pdgId() );
-    bool        _aPos_bNeg =
+
+    float _dr  = deltaR( dau0, dau1 );
+    int   _pid = abs( dau0.pdgId() );
+    bool  _aPos_bNeg =
         dau0.charge() > 0 &&
         dau1.charge() < 0;  // dau0 is positive and dau1 is negative
 
@@ -252,20 +241,10 @@ ffNtupleGen::fill( const edm::Event& e, const edm::EventSetup& es ) {
     gen2_posdz_.push_back( _posdzs );
     gen2_posdphi_.push_back( _posdphis );
   }
-
-  for ( const auto& PVI : *PupInfo_h ) {
-    if ( PVI.getBunchCrossing() == 0 ) {
-      gen_PUNumInt_   = PVI.getPU_NumInteractions();
-      gen_TrueNumInt_ = PVI.getTrueNumInteractions();
-    }
-  }
 }
 
 void
 ffNtupleGen::clear() {
-  gen_PUNumInt_   = 0;
-  gen_TrueNumInt_ = 0.;
-
   gen_charge_.clear();
   gen_pid_.clear();
   gen_p4_.clear();

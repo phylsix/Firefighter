@@ -56,7 +56,6 @@ process.TFileService = cms.Service(
 process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
 process.load('Firefighter.ffNtuple.ffNtuples_cff')
 
-process.ntuple_pfjet.src = cms.InputTag('ffLeptonJet')
 
 process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
