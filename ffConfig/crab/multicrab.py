@@ -32,10 +32,10 @@ def main():
     for ds in datasets:
 
         thisData = ffDataset(ds, year)
-        config = adapt_config_with_dataset(config, thisData)
+        _config = adapt_config_with_dataset(config, thisData)
 
         if doCmd:
-            crabCommand('submit', config=config)
+            crabCommand('submit', config=_config)
             donelist.append(ds)
 
     print('submitted: {}'.format(len(donelist)), *donelist, sep='\n')

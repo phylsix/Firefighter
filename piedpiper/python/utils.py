@@ -2,6 +2,7 @@
 from __future__ import print_function
 import os
 import time
+import copy
 import subprocess
 
 from Firefighter.piedpiper.template import *
@@ -122,14 +123,16 @@ def get_param_from_dataset(ds):
     return (mxx, ma, ctau)
 
 
-def adapt_config_with_dataset(crabconfig, dataset):
+def adapt_config_with_dataset(config, dataset):
     """
     tune crab config object parameters for different dataset
 
     :param `config` crabconfig: crab config object
     :param str or ffDataset dataset: dataset name or ffDataset Object
-    :returns: crabconfig
+    :returns: tuned crabconfig
     """
+
+    crabconfig = copy.deepcopy(config)
 
     if isinstance(dataset, str):
         dataset = ffDataset(dataset)
@@ -148,6 +151,7 @@ def adapt_config_with_dataset(crabconfig, dataset):
         print('+++++++++++++++++++++')
         crabconfig.JobType.psetName = os.path.join(
             crabconfig.JobType.psetName, 'ffNtupleFromAOD_sigMC_cfg.py')
+
     else:
         print('--------------------------')
         print('===== DATA or BKG MC =====')
