@@ -2,7 +2,7 @@
 from __future__ import print_function
 import ROOT
 
-inputFn = 'testffNtuple.root'
+inputFn = 'ffNtuple_zz4l.root'
 f = ROOT.TFile(inputFn)
 
 dName = f.GetListOfKeys()[0].GetName()
@@ -33,5 +33,8 @@ for i, event in enumerate(t, 1):
     print('[pfcands] <tkD0Sig>', *[map(lambda v: round(v, 3), list(j))
                                    for j in event.pfjet_pfcand_tkD0Sig], sep='\n')
 
-    if i > 20:
+    print('[Event] <pu> - ', event.puInteractionNum)
+    print('[Event] <trueInter> - ', event.trueInteractionNum)
+
+    if i > 50:
         break
