@@ -76,10 +76,10 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_dzSig", &dsamuon_dzSig_ );
   tree.Branch( "dsamuon_charge", &dsamuon_charge_ );
   tree.Branch( "dsamuon_refPoint", &dsamuon_refPoint_ );
-  tree.Branch( "dsamuon_innerPos_", &dsamuon_innerPos_ );
-  tree.Branch( "dsamuon_outerPos_", &dsamuon_outerPos_ );
-  tree.Branch( "dsamuon_innerP4_", &dsamuon_innerP4_ );
-  tree.Branch( "dsamuon_outerP4_", &dsamuon_outerP4_ );
+  tree.Branch( "dsamuon_innerPos", &dsamuon_innerPos_ );
+  tree.Branch( "dsamuon_outerPos", &dsamuon_outerPos_ );
+  tree.Branch( "dsamuon_innerP4", &dsamuon_innerP4_ );
+  tree.Branch( "dsamuon_outerP4", &dsamuon_outerP4_ );
 }
 
 void
