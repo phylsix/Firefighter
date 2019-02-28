@@ -37,7 +37,7 @@ config.JobType.disableAutomaticOutputCollection = False
 config.Data.inputDataset = ''
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 1
+config.Data.unitsPerJob = 10
 config.Data.outLFNDirBase = '/store/group/lpcmetx/MCSIDM/ffNtuple/{}'.format(
     year)
 config.Data.publication = False
