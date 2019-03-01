@@ -8,7 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ROOT
 from DataFormats.FWLite import Events, Handle
-from utils import *
+import Firefighter.ffLite.utils as fu
+from Firefighter.ffLite.dataSample import samples
 
 ROOT.gROOT.SetBatch()
 
@@ -17,9 +18,9 @@ plt.rcParams['grid.linestyle'] = ':'
 plt.rcParams['savefig.dpi'] = 120
 plt.rcParams['savefig.bbox'] = 'tight'
 
-
+bkgType = 'ZZZ'
 # ZZZ
-fn = 'root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZZ_TuneCP5_13TeV-amcatnlo-pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/100000/EE36B8E0-B9E2-7943-9DD4-DBD9D0573AD7.root'
+fn = samples[bkgType]
 events = Events(fn)
 print('- Sample: {}'.format(fn))
 print("- Number of events: {}".format(events.size()))

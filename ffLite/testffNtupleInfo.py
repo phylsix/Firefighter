@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 from __future__ import print_function
+import os
 import ROOT
 
-inputFn = 'ffNtuple_zz4l.root'
+inputFn = os.path.join(
+    os.getenv('CMSSW_BASE'),
+    'src/Firefighter/ffNtuple/test',
+    'ffNtuple_zz4l.root')
 f = ROOT.TFile(inputFn)
 
 dName = f.GetListOfKeys()[0].GetName()
@@ -19,12 +23,12 @@ for i, event in enumerate(t, 1):
     print('\n', '-' * 75, [i])
     if sigMC:
         print('genpid', [p for p in event.gen_pid])
-        print('genp4',*['({:8.3f}, {:8.3f}, {:8.3f}, {:8.3f})'.format(p.pt(),
+        print('genp4', *['({:8.3f}, {:8.3f}, {:8.3f}, {:8.3f})'.format(p.pt(),
                                                                        p.eta(), p.phi(), p.energy()) for p in event.gen_p4], sep='\n')
         print('gen2pid', [p for p in event.gen2_pid])
         print('gen2vtx', [round(v.rho(), 3) for v in event.gen2_vtx])
         print('gen2p4', *['({:8.3f}, {:8.3f}, {:8.3f}, {:8.3f})'.format(p.pt(),
-                                                                       p.eta(), p.phi(), p.energy()) for p in event.gen2_p4], sep='\n')
+                                                                        p.eta(), p.phi(), p.energy()) for p in event.gen2_p4], sep='\n')
 
     print('[pfcands] <type>', *[list(j)
                                 for j in event.pfjet_pfcand_type], sep='\n')

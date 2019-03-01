@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 from __future__ import print_function
+import os
 import ROOT
 from DataFormats.FWLite import Events, Handle
+import Firefighter.ffLite.utils as fu
+
 ROOT.gROOT.SetBatch()
 
-def formatPoint(p):
-    return (
-        round(p.X(), 3),
-        round(p.Y(), 3),
-        round(p.Z(), 3)
-    )
 
-events = Events('skimOutputLeptonJetProd.root')
+events = Events(
+    os.path.join(
+        os.getenv('CMSSW_BASE'),
+        'src/Firefighter/recoStuff/test',
+        'skimOutputLeptonJetProd.root'
+    )
+)
 print("len(events): ", events.size())
 
 handle = Handle('std::vector<reco::PFCandidate>')
@@ -30,7 +33,8 @@ genParLbl = ('genParticles', '', 'HLT')
 
 for i, event in enumerate(events, 1):
 
-    if i>20: break
+    if i > 20:
+        break
 
     print("="*70, end='\n\n')
     print("## Event ", i)
@@ -46,14 +50,16 @@ for i, event in enumerate(events, 1):
             'vertex'
         ))
         for p in genparticles:
-            if abs(p.pdgId())<9 or not p.isHardProcess(): continue
-            if abs(p.pdgId()) not in (11,13, 32): continue
+            if abs(p.pdgId()) < 9 or not p.isHardProcess():
+                continue
+            if abs(p.pdgId()) not in (11, 13, 32):
+                continue
             print('{:5} ({:5}, {:5}) {:6} {:^25}'.format(
                 p.pdgId(),
                 round(p.eta(), 3),
                 round(p.phi(), 3),
                 p.charge(),
-                str(formatPoint(p.vertex()))
+                str(fu.formatPoint(p.vertex()))
             ))
         print('*'*20, end='\n\n')
 
@@ -73,11 +79,11 @@ for i, event in enumerate(events, 1):
                     round(tk.pt(), 3),
                     round(tk.eta(), 3),
                     round(tk.phi(), 3),
-                    str(formatPoint(tk.referencePoint())),
-                    str(formatPoint(tk.innerPosition()))
+                    str(fu.formatPoint(tk.referencePoint())),
+                    str(fu.formatPoint(tk.innerPosition()))
                 ))
             print('*'*20, end='\n\n')
-        #if len(dsamu):
+        # if len(dsamu):
         #    print(tkLabel, (dsamu.id().processIndex(), dsamu.id().productIndex()))
 
     event.getByLabel(gtkLabel, gtkHandle)
@@ -86,7 +92,8 @@ for i, event in enumerate(events, 1):
         if len(gtks):
             print(gtkLabel)
             for igtk, gtk in enumerate(gtks, 1):
-                if igtk>5: break
+                if igtk > 5:
+                    break
                 print('vtx ({:.3f}, {:.3f}, {:.3f})'.format(
                     gtk.referencePoint().X(),
                     gtk.referencePoint().Y(),
@@ -99,17 +106,17 @@ for i, event in enumerate(events, 1):
         selectedPFCands = selectedPFCandHdl.product()
         if len(selectedPFCands):
             print(selectedPFCandLbl)
-            for ic, cand in enumerate(selectedPFCands,1):
-                if ic>5: break
-                if cand.trackRef().isNull(): continue
+            for ic, cand in enumerate(selectedPFCands, 1):
+                if ic > 5:
+                    break
+                if cand.trackRef().isNull():
+                    continue
                 print('vtx ({:.3f}, {:.3f}, {:.3f})'.format(
                     cand.trackRef().referencePoint().X(),
                     cand.trackRef().referencePoint().Y(),
                     cand.trackRef().referencePoint().Z()
                 ))
             print('*'*20, end='\n\n')
-
-
 
     event.getByLabel(label, handle)
     if handle.isValid():
@@ -124,7 +131,7 @@ for i, event in enumerate(events, 1):
                 'IsTimeValid',
                 'parType',
                 'hdlId'
-                ))
+            ))
             for c in cands:
 
                 print('{:5} {:6} {:>8} {:>8} {:^12} {:>8} {:>8}'.format(
@@ -134,6 +141,7 @@ for i, event in enumerate(events, 1):
                     c.timeError(),
                     str(c.isTimeValid()),
                     c.particleId(),
-                    (c.trackRef().id().processIndex(), c.trackRef().id().productIndex()) if c.trackRef().isNonnull() else -1
-                    ))
+                    (c.trackRef().id().processIndex(), c.trackRef().id(
+                    ).productIndex()) if c.trackRef().isNonnull() else -1
+                ))
             print('*'*20, end='\n\n')

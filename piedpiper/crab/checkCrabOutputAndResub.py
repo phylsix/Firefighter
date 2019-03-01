@@ -16,7 +16,7 @@ CRAB_WORK_DIR = os.path.join(os.path.dirname(
 JOB_STATUS_DB = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), 'crabjobsStatus.sqlite')
 VERBOSE = True
-MOST_RECENT_DAYS = 1
+MOST_RECENT_DAYS = 2
 
 
 def checkSingleTask(crabTaskDir):

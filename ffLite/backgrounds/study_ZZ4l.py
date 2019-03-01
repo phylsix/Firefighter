@@ -8,7 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ROOT
 from DataFormats.FWLite import Events, Handle
-from utils import *
+import Firefighter.ffLite.utils as fu
+from Firefighter.ffLite.dataSample import samples
 
 ROOT.gROOT.SetBatch()
 
@@ -17,8 +18,8 @@ plt.rcParams['grid.linestyle'] = ':'
 plt.rcParams['savefig.dpi'] = 120
 plt.rcParams['savefig.bbox'] = 'tight'
 
-fn = 'root://xrootd.unl.edu//store/mc/RunIIAutumn18DRPremix/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/60000/3248C8A6-00AC-E14A-B832-4E8B81E81BA2.root'
-# fn = 'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_1.root'
+bkgType = 'ZZTo4L'
+fn = samples[bkgType]
 events = Events(fn)
 print('- Sample: {}'.format(fn))
 print("- Number of events: {}".format(events.size()))
