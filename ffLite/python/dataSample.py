@@ -15,3 +15,8 @@ samples = {
     'ZZZ': 'root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZZ_TuneCP5_13TeV-amcatnlo-pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/100000/EE36B8E0-B9E2-7943-9DD4-DBD9D0573AD7.root',
     'ZZTo4L': 'root://xrootd.unl.edu//store/mc/RunIIAutumn18DRPremix/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/60000/3248C8A6-00AC-E14A-B832-4E8B81E81BA2.root',
 }
+
+ffSamples = {
+    'signal': 'root://cmseos.fnal.gov///store/group/lpcmetx/MCSIDM/ffNtuple/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/190227_043028/0000/ffNtuple_1.root',
+    'ZZTo4L': 'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/ffNtuple/2018/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/190227_043143/0000/ffNtuple_1.root',
+}
