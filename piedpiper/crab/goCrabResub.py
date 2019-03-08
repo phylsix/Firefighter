@@ -7,6 +7,7 @@ from CRABAPI.RawCommand import crabCommand
 from CRABClient.ClientExceptions import ClientException
 from httplib import HTTPException
 
+
 def main():
 
     #toResub = ['crabWorkArea/{0}'.format(d) for d in os.listdir('crabWorkArea') if 'AODSIM' in d]
@@ -28,28 +29,32 @@ def main():
             pass
 
         if statusDict.get('publication', {}).get('failed', 0) != 0:
-            print('-'*79)
+            print('-' * 79)
             print(os.path.abspath(t))
             try:
                 crabCommand('resubmit', dir=relDir, publication=True)
             except HTTPException as hte:
-                print('Failed to resubmit for task {0}: {1}'.format(relDir, hte.headers))
+                print('Failed to resubmit for task {0}: {1}'.format(
+                    relDir, hte.headers))
             except ClientException as cle:
-                print('Failed to resubmit for task {0}: {1}'.format(relDir, cle))
-            print('-'*79)
+                print('Failed to resubmit for task {0}: {1}'.format(
+                    relDir, cle))
+            print('-' * 79)
             time.sleep(1)
 
         if statusDict.get('status', '') == 'FAILED' \
             or statusDict.get('jobsPerStatus',{}).get('failed',0) != 0:
-            print('-'*79)
+            print('-' * 79)
             print(os.path.abspath(t))
             try:
                 crabCommand('resubmit', dir=relDir)
             except HTTPException as hte:
-                print('Failed to resubmit for task {0}: {1}'.format(relDir, hte.headers))
+                print('Failed to resubmit for task {0}: {1}'.format(
+                    relDir, hte.headers))
             except ClientException as cle:
-                print('Failed to resubmit for task {0}: {1}'.format(relDir, cle))
-            print('-'*79)
+                print('Failed to resubmit for task {0}: {1}'.format(
+                    relDir, cle))
+            print('-' * 79)
             time.sleep(1)
 
 

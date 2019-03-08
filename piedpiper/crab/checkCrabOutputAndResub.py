@@ -10,11 +10,10 @@ from CRABClient.UserUtilities import setConsoleLogLevel
 from CRABClient.ClientUtilities import LOGLEVEL_MUTE
 from CRABClient.UserUtilities import getLoggers
 
-
-CRAB_WORK_DIR = os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), 'crabWorkArea')
-JOB_STATUS_DB = os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), 'crabjobsStatus.sqlite')
+CRAB_WORK_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'crabWorkArea')
+JOB_STATUS_DB = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'crabjobsStatus.sqlite')
 VERBOSE = True
 MOST_RECENT_DAYS = 2
 
@@ -47,10 +46,7 @@ def checkSingleTask(crabTaskDir):
             'publication': _publication,
         })
     except Exception as e:
-        res.update({
-            'exception': True,
-            'msg': str(e)
-        })
+        res.update({'exception': True, 'msg': str(e)})
 
     return res
 
@@ -74,7 +70,8 @@ def resubmitSingleTask(checkdict):
             res['exceptionMsg'] = str(e)
             res['success'] = False
 
-    if _status == 'failed' or checkdict.get('jobsperstatus', {}).get('failed', 0) != 0:
+    if _status == 'failed' or checkdict.get('jobsperstatus', {}).get(
+            'failed', 0) != 0:
         try:
             crabCommand('resubmit', dir=_dir)
         except Exception as e:
@@ -98,16 +95,19 @@ def main():
     with conn:
         c = conn.cursor()
         c.execute(sql_table_creation)
-        for row in c.execute("SELECT * FROM crabJobStatuses WHERE status='completed'"):
+        for row in c.execute(
+                "SELECT * FROM crabJobStatuses WHERE status='completed'"):
             crabTaskListCompleted.append(row[0])
 
     crabTaskList = [
         os.path.join(CRAB_WORK_DIR, d) for d in os.listdir(CRAB_WORK_DIR)
-        if os.path.isdir('%s/%s' % (CRAB_WORK_DIR, d))
-        and (datetime.now()-datetime.strptime(d.rsplit('_', 1)[-1], '%y%m%d-%H%M%S')).days < MOST_RECENT_DAYS
+        if os.path.isdir('%s/%s' % (CRAB_WORK_DIR, d)) and
+        (datetime.now() - datetime.strptime(
+            d.rsplit('_', 1)[-1], '%y%m%d-%H%M%S')).days < MOST_RECENT_DAYS
     ]
     crabTaskListToCheck = [
-        t for t in crabTaskList if t not in crabTaskListCompleted]
+        t for t in crabTaskList if t not in crabTaskListCompleted
+    ]
     print('Total tasks to check: ', len(crabTaskListToCheck))
 
     setConsoleLogLevel(LOGLEVEL_MUTE)
@@ -115,8 +115,8 @@ def main():
 
     p = ThreadPool()
     crabTaskStatuses = []
-    r = p.map_async(checkSingleTask, crabTaskListToCheck,
-                    callback=crabTaskStatuses.extend)
+    r = p.map_async(
+        checkSingleTask, crabTaskListToCheck, callback=crabTaskStatuses.extend)
     r.wait()
     p.close()
 
@@ -139,19 +139,19 @@ def main():
         c = conn.cursor()
         set_complete = [(t['directory'], 'completed', t['outdatasets'])
                         for t in task_completed]
-        c.executemany(
-            "INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_complete)
+        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)",
+                      set_complete)
         set_noncomplete = [(t['directory'], 'failed', '')
                            for t in task_failed + task_others]
-        exceptedTasks = [(t['directory'], 'failed', '')
-                         for t in task_exception if '.requestcache' not in t['msg']]
+        exceptedTasks = [(t['directory'], 'failed', '') for t in task_exception
+                         if '.requestcache' not in t['msg']]
         print("Number of tasks excepted when querying: ", len(exceptedTasks))
         set_noncomplete.extend(exceptedTasks)
-        c.executemany(
-            "INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_noncomplete)
+        c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)",
+                      set_noncomplete)
 
     p = ThreadPool()
-    crabResubmitResult = p.map(resubmitSingleTask, task_failed+task_others)
+    crabResubmitResult = p.map(resubmitSingleTask, task_failed + task_others)
     p.close()
 
     resubmittedTasks = [t for t in crabResubmitResult if t]
@@ -163,8 +163,8 @@ def main():
             resubTaskFail.append(t)
 
     with open('crabjobsCheckAndResubReport.log', 'w') as of:
-        of.write(time.asctime()+'\n')
-        of.write('='*79 + '\n\n')
+        of.write(time.asctime() + '\n')
+        of.write('=' * 79 + '\n\n')
 
         if task_completed:
             of.write('Completed tasks: [{}]\n'.format(len(task_completed)))
@@ -175,7 +175,7 @@ def main():
                     t['directory'], t['task'], t['outdatasets'])
                 of.write(toprint)
 
-            of.write('-'*79+'\n\n')
+            of.write('-' * 79 + '\n\n')
 
         if task_others:
             of.write('Other tasks: [{}]\n'.format(len(task_others)))
@@ -183,10 +183,11 @@ def main():
 
             for t in task_others:
                 toprint = 'directory: {0}\ntask: {1}\nstatus: {2}\njobsPerStatus: {3}\npublication: {4}\n\n'.format(
-                    t['directory'], t['task'], t['status'], str(t['jobsperstatus']), str(t['publication']))
+                    t['directory'], t['task'], t['status'],
+                    str(t['jobsperstatus']), str(t['publication']))
                 of.write(toprint)
 
-            of.write('-'*79+'\n\n')
+            of.write('-' * 79 + '\n\n')
 
         if task_failed:
             of.write('Failed tasks: [{}]\n'.format(len(task_failed)))
@@ -194,10 +195,11 @@ def main():
 
             for t in task_failed:
                 toprint = 'directory: {0}\ntask: {1}\njobsPerStatus: {2}\npublication: {3}\n\n'.format(
-                    t['directory'], t['task'], str(t['jobsperstatus']), str(t['publication']))
+                    t['directory'], t['task'], str(t['jobsperstatus']),
+                    str(t['publication']))
                 of.write(toprint)
 
-            of.write('-'*79+'\n\n')
+            of.write('-' * 79 + '\n\n')
 
         if task_exception:
             of.write('Exception tasks [{}]:\n'.format(len(task_exception)))
@@ -209,24 +211,24 @@ def main():
                 of.write(toprint)
                 print("crab resubmit -d {}".format(t['directory']))
 
-            of.write('+'*79+'\n\n')
+            of.write('+' * 79 + '\n\n')
 
         if resubTaskSuccess:
             of.write('Successfully resubmitted tasks: [{}]\n'.format(
                 len(resubTaskSuccess)))
             of.write('====================================\n')
             for d in resubTaskSuccess:
-                of.write(d['directory']+'\n')
-            of.write('-'*79+'\n\n')
+                of.write(d['directory'] + '\n')
+            of.write('-' * 79 + '\n\n')
 
         if resubTaskFail:
             of.write('Failed resubmitted tasks: [{}]\n'.format(
                 len(resubTaskFail)))
             of.write('==============================\n')
             for d in resubTaskFail:
-                of.write(d['directory']+'\n')
-                of.write(d['exceptionMsg']+'\n\n')
-            of.write('-'*79+'\n\n')
+                of.write(d['directory'] + '\n')
+                of.write(d['exceptionMsg'] + '\n\n')
+            of.write('-' * 79 + '\n\n')
 
 
 if __name__ == "__main__":

@@ -77,10 +77,13 @@ if not os.path.exists(outdir):
     os.makedirs(outdir)
 
 fig, ax = plt.subplots(figsize=(8, 6))
-ax.hist(np.array(puNum), histtype='step',
-        normed=True, label='#pu interactions')
-ax.hist(np.array(trueNum), histtype='step',
-        normed=True, label='#true interactions')
+ax.hist(
+    np.array(puNum), histtype='step', normed=True, label='#pu interactions')
+ax.hist(
+    np.array(trueNum),
+    histtype='step',
+    normed=True,
+    label='#true interactions')
 
 ax.set_xlabel('# interactions')
 ax.set_ylabel('A.U.')

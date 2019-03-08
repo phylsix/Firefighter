@@ -3,13 +3,12 @@ from __future__ import print_function
 
 import os
 import sys
-import yaml
 import time
 
+import yaml
 from CRABAPI.RawCommand import crabCommand
 from Firefighter.piedpiper.utils import ffDataset, adapt_config_with_dataset
 from crabConfig import config, year
-
 
 doCmd = True
 CONFIG_NAME = sys.argv[1]
@@ -46,8 +45,12 @@ def main():
 
     if undonelist:
         with open('unsubmitted.yml.log', 'w') as outf:
-            yaml.dump({'aodsimdatasets': undonelist, 'year': year},
-                      outf, default_flow_style=False)
+            yaml.dump({
+                'aodsimdatasets': undonelist,
+                'year': year
+            },
+                      outf,
+                      default_flow_style=False)
 
 
 if __name__ == '__main__':

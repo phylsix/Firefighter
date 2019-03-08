@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 import os
-PPBASE = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'piedpiper')
+PPBASE = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter',
+                      'piedpiper')
 
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
 import time
 config.General.requestName = '{0}MCSIDM_GENSIM_{1}'.format(
-    getUsernameFromSiteDB(),
-    time.strftime('%y%m%d-%H%M%S')
-    )
+    getUsernameFromSiteDB(), time.strftime('%y%m%d-%H%M%S'))
 config.General.workArea = 'crabWorkArea'
 config.General.transferOutputs = True
 config.General.transferLogs = True
@@ -38,7 +37,6 @@ config.Site.whitelist = ['T3_US_FNALLPC', 'T2_US_*', 'T3_US_*']
 config.Site.ignoreGlobalBlacklist = True
 config.Site.storageSite = 'T3_US_FNALLPC'
 
-
 if __name__ == '__main__':
 
     import yaml
@@ -63,12 +61,10 @@ if __name__ == '__main__':
     config.Data.outputDatasetTag = '{0}_{1}'.format(myconf['nametag'], year)
     config.Data.outLFNDirBase += '/{0}'.format(year)
     config.General.requestName = '_'.join([
-        getUsernameFromSiteDB(),
-        'GENSIM',
-        str(year),
-        myconf['nametag'],
+        getUsernameFromSiteDB(), 'GENSIM',
+        str(year), myconf['nametag'],
         time.strftime('%y%m%d-%H%M%S')
     ])
 
     from CRABAPI.RawCommand import crabCommand
-    crabCommand('submit', config = config)
+    crabCommand('submit', config=config)

@@ -27,8 +27,8 @@ except KeyError:
         dataType, list(ffSamples.keys()))
     sys.exit(msg)
 
-outdir = os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), 'PFEnergy', dataType)
+outdir = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'PFEnergy', dataType)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
@@ -60,15 +60,17 @@ def main():
             if not all(map(lambda p: abs(p[0]) < 2.4, darkphotons)):
                 continue
             desc_ = '({:.3f}, {:.3f}) pT: {:.3f} GeV'
-            desc = '\n'.join(['darkphotons']+[desc_.format(*dp)
-                                              for dp in darkphotons])
+            desc = '\n'.join(['darkphotons'] +
+                             [desc_.format(*dp) for dp in darkphotons])
             print(desc)
 
         candsData = defaultdict(list)
         candsData['type'] = [
-            x for j in event.pfjet_pfcand_type for x in list(j)]
+            x for j in event.pfjet_pfcand_type for x in list(j)
+        ]
         candsData['energy'] = [
-            x for j in event.pfjet_pfcand_energy for x in list(j)]
+            x for j in event.pfjet_pfcand_energy for x in list(j)
+        ]
         candsData['eta'] = [x for j in event.pfjet_pfcand_eta for x in list(j)]
         candsData['phi'] = [x for j in event.pfjet_pfcand_phi for x in list(j)]
         candsData['color'] = [colors[t] for t in candsData['type']]
@@ -80,9 +82,12 @@ def main():
         fig, ax = plt.subplots(figsize=(8, 6))
 
         ax = candsDf.plot.scatter(
-            x='eta', y='phi', s=candsDf['energy'] * 50, c=candsDf['color'],
-            ax=ax, alpha=0.8
-        )
+            x='eta',
+            y='phi',
+            s=candsDf['energy'] * 50,
+            c=candsDf['color'],
+            ax=ax,
+            alpha=0.8)
         ax.set_xlim([-2.4, 2.4])
         ax.set_ylim([-3.142, 3.142])
         ax.grid()
@@ -90,17 +95,29 @@ def main():
 
         if sigMC:
             bprops = dict(facecolor='w', alpha=0.75)
-            ax.text(0, 0, desc, ha='left', va='bottom',
-                    transform=ax.transAxes, fontsize=9, bbox=bprops)
-            ax.scatter(
-                [d[0] for d in darkphotons],
-                [d[1] for d in darkphotons],
-                c='k', marker='D', s=100)
+            ax.text(
+                0,
+                0,
+                desc,
+                ha='left',
+                va='bottom',
+                transform=ax.transAxes,
+                fontsize=9,
+                bbox=bprops)
+            ax.scatter([d[0] for d in darkphotons],
+                       [d[1] for d in darkphotons],
+                       c='k',
+                       marker='D',
+                       s=100)
 
         for ic, color in enumerate(colors[:9]):
             ax.scatter([], [], s=100, c=color, label=pType[ic])
-            ax.legend(scatterpoints=1, title='type',
-                      fontsize=9, framealpha=0.75, labelspacing=0.2)
+            ax.legend(
+                scatterpoints=1,
+                title='type',
+                fontsize=9,
+                framealpha=0.75,
+                labelspacing=0.2)
 
         outfn = os.path.join(outdir, 'ffNtuple_{}.png'.format(i))
         fig.savefig(outfn)

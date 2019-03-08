@@ -16,7 +16,8 @@ def generate_gencfi(config, year):
     shutil.copy(gridpack_fullpath, 'gridpack.tar.xz')
     mbs, mdp, ctau = get_param_from_gridpackname(gridpack_name)
 
-    genfrag_cfi = open('../python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py', 'w')
+    genfrag_cfi = open(
+        '../python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py', 'w')
     genfrag_cfi.write(get_gentemplate(year).format(CTAU=ctau))
     genfrag_cfi.close()
 
@@ -25,11 +26,10 @@ if __name__ == "__main__":
 
     ## Load config file
     config = yaml.load(
-            open(os.path.join(
+        open(
+            os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
-                'config.yml'
-                )).read()
-            )
+                'config.yml')).read())
     # print(config)
 
     ## Get year

@@ -29,12 +29,11 @@ def main():
     multiconf = yaml.load(open(CONFIG_NAME).read())
 
     gridpacks = multiconf['gridpacks']
-    njobs     = multiconf['njobs']
-    year      = multiconf['year']
+    njobs = multiconf['njobs']
+    year = multiconf['year']
 
     config.Data.totalUnits = config.Data.unitsPerJob * njobs
     config.Data.outLFNDirBase += '/{0}'.format(year)
-
 
     # loop through
     donelist = list()
@@ -42,7 +41,7 @@ def main():
 
         print(gridpack)
         gridpack_name = os.path.basename(gridpack)
-        mbs, mdp, ctau  = get_param_from_gridpackname(gridpack_name)
+        mbs, mdp, ctau = get_param_from_gridpackname(gridpack_name)
         nametag = gridpack_name.split('_slc')[0]
         if '4Mu' in nametag:
             config.Data.outputPrimaryDataset = 'SIDM_XXTo2ATo4Mu'
@@ -50,55 +49,69 @@ def main():
             config.Data.outputPrimaryDataset = 'SIDM_XXTo2ATo2Mu2e'
 
         config.Data.outputDatasetTag = 'mXX-{0}_mA-{1}_ctau-{2}_GENSIM_{3}'.format(
-            floatpfy(mbs), floatpfy(mdp), floatpfy(ctau), year
-            )
+            floatpfy(mbs), floatpfy(mdp), floatpfy(ctau), year)
         config.General.requestName = '_'.join([
-            getUsernameFromSiteDB(),
-            'GENSIM',
-            str(year),
-            nametag,
+            getUsernameFromSiteDB(), 'GENSIM',
+            str(year), nametag,
             time.strftime('%y%m%d-%H%M%S')
         ])
 
         if gridpack.startswith('root://'):
-            cpcmd = 'xrdcp -f {0} {1}'.format(gridpack,
-                                             os.path.join(BASEDIR, 'cfg/gridpack.tar.xz'))
+            cpcmd = 'xrdcp -f {0} {1}'.format(
+                gridpack, os.path.join(BASEDIR, 'cfg/gridpack.tar.xz'))
         else:
-            cpcmd = 'cp {0} {1}'.format(gridpack,
-                                       os.path.join(BASEDIR, 'cfg/gridpack.tar.xz'))
-
+            cpcmd = 'cp {0} {1}'.format(
+                gridpack, os.path.join(BASEDIR, 'cfg/gridpack.tar.xz'))
 
         if verbose:
             print(cpcmd)
-            print('>> ', os.path.join(BASEDIR, 'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'))
+            print(
+                '>> ',
+                os.path.join(
+                    BASEDIR,
+                    'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py')
+            )
             print(get_gentemplate(year).format(CTAU=ctau))
-            print('------------------------------------------------------------')
+            print(
+                '------------------------------------------------------------')
 
-
-        doCmd = True if alwaysDoCmd else raw_input('OK to go? [y/n]').lower() in ['y', 'yes']
+        doCmd = True if alwaysDoCmd else raw_input(
+            'OK to go? [y/n]').lower() in ['y', 'yes']
         if doCmd:
             # 1. copy gridpack
             os.system(cpcmd)
             # 2. write genfrag_cfi
-            with open(os.path.join(BASEDIR, 'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'), 'w') as genfrag_cfi:
+            with open(
+                    os.path.join(
+                        BASEDIR,
+                        'python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py'
+                    ), 'w') as genfrag_cfi:
                 genfrag_cfi.write(get_gentemplate(year).format(CTAU=ctau))
             # 3. write gen_cfg
             cfgcmd = get_command('GEN-SIM', year)
             os.system(cfgcmd)
             # 4. crab submit
-            crabCommand('submit', config = config)
+            crabCommand('submit', config=config)
             donelist.append(gridpack)
 
     print('submitted: ', len(donelist))
-    for x in donelist: print(x)
+    for x in donelist:
+        print(x)
     print('------------------------------------------------------------')
 
     undonelist = [x for x in gridpacks if x not in donelist]
     print('unsubmitted: ', len(undonelist))
-    for x in undonelist: print(x)
+    for x in undonelist:
+        print(x)
     if undonelist:
         with open('unsubmitted-0.yml.log', 'w') as outf:
-            yaml.dump({'gridpacks': undonelist, 'njobs': njobs, 'year': year}, outf, default_flow_style=False)
+            yaml.dump({
+                'gridpacks': undonelist,
+                'njobs': njobs,
+                'year': year
+            },
+                      outf,
+                      default_flow_style=False)
 
 
 if __name__ == "__main__":

@@ -5,14 +5,10 @@ import ROOT
 from DataFormats.FWLite import Events, Handle
 ROOT.gROOT.SetBatch()
 
-
 events = Events(
     os.path.join(
-        os.getenv('CMSSW_BASE'),
-        'src/Firefighter/recoStuff/test',
-        'skimOutputLeptonJetProd.root'
-    )
-)
+        os.getenv('CMSSW_BASE'), 'src/Firefighter/recoStuff/test',
+        'skimOutputLeptonJetProd.root'))
 
 handle = {
     'PFCand': Handle('std::vector<reco::PFCandidate>'),

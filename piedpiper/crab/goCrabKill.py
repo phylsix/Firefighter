@@ -4,12 +4,13 @@ import os
 import time
 from CRABAPI.RawCommand import crabCommand
 
+
 def main():
 
     toResub = [d for d in os.listdir('crabWorkArea') if 'PREMIXRAWHLT' in d]
 
     for t in toResub:
-        
+
         relDir = os.path.relpath(os.path.abspath(t), '.')
         crabCommand('kill', dir=relDir)
 

@@ -9,16 +9,17 @@ from Firefighter.piedpiper.template import *
 
 
 class ffDataset:
-
     def __init__(self, ds, year=2018):
         if year not in [2016, 2017, 2018]:
             raise ValueError(
-                "Constructing ffDataset() for dataset: {} with non-allowed year paramter: {}".format(ds, year))
+                "Constructing ffDataset() for dataset: {} with non-allowed year paramter: {}"
+                .format(ds, year))
         self._year = year
 
         if len(ds.split('/')) != 4:
             raise ValueError(
-                "Constructing ffDataset() with incorrect dataset name: {}".format(ds))
+                "Constructing ffDataset() with incorrect dataset name: {}".
+                format(ds))
 
         self._isSignalMC = ds.endswith('USER')
         self._primaryDataset = ds.split('/')[1]
@@ -69,7 +70,7 @@ def floatpfy(f):
 
     num_as_str = '{:5.2}'.format(f)
     num = float(num_as_str)
-    if abs(int(num)-num) > 10e-7:
+    if abs(int(num) - num) > 10e-7:
         return str(num).replace('.', 'p')
     else:
         return str(int(num))
@@ -138,10 +139,7 @@ def adapt_config_with_dataset(config, dataset):
         dataset = ffDataset(dataset)
 
     requestNameComponents = [
-        str(dataset.year),
-        dataset.primaryDataset,
-        dataset.nameTag,
-        'ffNtuple',
+        str(dataset.year), dataset.primaryDataset, dataset.nameTag, 'ffNtuple',
         time.strftime('%y%m%d-%H%M%S')
     ]
 
@@ -179,8 +177,9 @@ def check_voms_valid():
 
     cmd = 'voms-proxy-info -file /tmp/x509up_u{0} -timeleft'.format(
         os.getuid())
-    p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).communicate()
+    p = subprocess.Popen(
+        cmd.split(), stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE).communicate()
     if p[0] and not p[1]:
         return True
     else:
@@ -200,7 +199,8 @@ def get_gentemplate(year):
     ''' return the gen fragmeent in template.py, adjust if necessary '''
 
     if int(year) == 2016:
-        return '\n'.join([l for l in genTemplate.split('\n') if 'CP5Settings' not in l])
+        return '\n'.join(
+            [l for l in genTemplate.split('\n') if 'CP5Settings' not in l])
     else:
         return genTemplate
 
@@ -218,8 +218,8 @@ def get_command(step, year):
     year = str(year)
 
     cmd = ''
-    cfgOutput = os.path.join(
-        os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'piedpiper', 'cfg')
+    cfgOutput = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter',
+                             'piedpiper', 'cfg')
 
     if step == 'GEN-SIM':
 
@@ -227,47 +227,31 @@ def get_command(step, year):
 
         if year == '2016':
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
-                    '--fileout file:SIDM_GENSIM.root',
-                    '--mc',
-                    '-s LHE,GEN,SIM',
-                    '--era Run2_{0}',
-                    '--nThreads 4',
-                    '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
-                    '--beamspot Realistic50ns13TeVCollision',
-                    '--datatier GEN-SIM',
-                    '--eventcontent RAWSIM',
-                    '-n 10',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py',
+                'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
+                '--fileout file:SIDM_GENSIM.root', '--mc', '-s LHE,GEN,SIM',
+                '--era Run2_{0}', '--nThreads 4',
+                '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
+                '--beamspot Realistic50ns13TeVCollision', '--datatier GEN-SIM',
+                '--eventcontent RAWSIM', '-n 10', '--no_exec',
+                '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
         else:
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
-                    '--fileout file:SIDM_GENSIM.root',
-                    '--mc',
-                    '-s LHE,GEN,SIM',
-                    '--era Run2_{0}',
-                    '--nThreads 4',
-                    '--conditions auto:phase1_{0}_realistic',
-                    '--beamspot Realistic25ns13TeVEarly{0}Collision',
-                    '--datatier GEN-SIM',
-                    '--eventcontent RAWSIM',
-                    '-n 10',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py',
+                'Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py',
+                '--fileout file:SIDM_GENSIM.root', '--mc', '-s LHE,GEN,SIM',
+                '--era Run2_{0}', '--nThreads 4',
+                '--conditions auto:phase1_{0}_realistic',
+                '--beamspot Realistic25ns13TeVEarly{0}Collision',
+                '--datatier GEN-SIM', '--eventcontent RAWSIM', '-n 10',
+                '--no_exec', '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
     if step == 'PREMIX-RAW-HLT':
 
@@ -275,80 +259,50 @@ def get_command(step, year):
 
         if year == '2016':
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'step1',
-                    '--filein file:SIDM_GENSIM.root',
-                    '--fileout file:SIDM_PREMIXRAWHLT.root',
-                    '--mc',
-                    '-s DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
-                    '--era Run2_{0}',
-                    '--nThreads 4',
-                    '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
-                    '--datatier GEN-SIM-RAW',
-                    '--eventcontent PREMIXRAW',
-                    '--datamix PreMix',
-                    '-n -1',
-                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISpring15PrePremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/GEN-SIM-DIGI-RAW"',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py', 'step1', '--filein file:SIDM_GENSIM.root',
+                '--fileout file:SIDM_PREMIXRAWHLT.root', '--mc',
+                '-s DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
+                '--era Run2_{0}', '--nThreads 4',
+                '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
+                '--datatier GEN-SIM-RAW', '--eventcontent PREMIXRAW',
+                '--datamix PreMix', '-n -1',
+                '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISpring15PrePremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/GEN-SIM-DIGI-RAW"',
+                '--no_exec', '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
         elif year == '2017':
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'step1',
-                    '--filein file:SIDM_GENSIM.root',
-                    '--fileout file:SIDM_PREMIXRAWHLT.root',
-                    '--mc',
-                    '-s DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
-                    '--era Run2_{0}',
-                    '--nThreads 8',
-                    '--conditions auto:phase1_{0}_realistic',
-                    '--beamspot Realistic25ns13TeVEarly{0}Collision',
-                    '--datatier GEN-SIM-RAW',
-                    '--eventcontent PREMIXRAW',
-                    '--datamix PreMix',
-                    '-n -1',
-                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-MCv2_correctPU_94X_mc2017_realistic_v9-v1/GEN-SIM-DIGI-RAW"',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py', 'step1', '--filein file:SIDM_GENSIM.root',
+                '--fileout file:SIDM_PREMIXRAWHLT.root', '--mc',
+                '-s DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
+                '--era Run2_{0}', '--nThreads 8',
+                '--conditions auto:phase1_{0}_realistic',
+                '--beamspot Realistic25ns13TeVEarly{0}Collision',
+                '--datatier GEN-SIM-RAW', '--eventcontent PREMIXRAW',
+                '--datamix PreMix', '-n -1',
+                '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-MCv2_correctPU_94X_mc2017_realistic_v9-v1/GEN-SIM-DIGI-RAW"',
+                '--no_exec', '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
         elif year == '2018':
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'step1',
-                    '--filein file:SIDM_GENSIM.root',
-                    '--fileout file:SIDM_PREMIXRAWHLT.root',
-                    '--mc',
-                    '-s DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
-                    '--procModifiers premix_stage2',
-                    '--era Run2_{0}',
-                    '--nThreads 8',
-                    '--conditions auto:phase1_{0}_realistic',
-                    '--beamspot Realistic25ns13TeVEarly{0}Collision',
-                    '--datatier GEN-SIM-RAW',
-                    '--eventcontent PREMIXRAW',
-                    '--geometry DB:Extended',
-                    '--datamix PreMix',
-                    '-n -1',
-                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUFull18_102X_upgrade2018_realistic_v11-v1/GEN-SIM-DIGI-RAW"',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py', 'step1', '--filein file:SIDM_GENSIM.root',
+                '--fileout file:SIDM_PREMIXRAWHLT.root', '--mc',
+                '-s DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval{0}',
+                '--procModifiers premix_stage2', '--era Run2_{0}',
+                '--nThreads 8', '--conditions auto:phase1_{0}_realistic',
+                '--beamspot Realistic25ns13TeVEarly{0}Collision',
+                '--datatier GEN-SIM-RAW', '--eventcontent PREMIXRAW',
+                '--geometry DB:Extended', '--datamix PreMix', '-n -1',
+                '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUFull18_102X_upgrade2018_realistic_v11-v1/GEN-SIM-DIGI-RAW"',
+                '--no_exec', '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
     if step == 'AODSIM':
 
@@ -356,73 +310,43 @@ def get_command(step, year):
 
         if year == '2016':
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'step2',
-                    '--filein file:SIDM_PREMIXRAWHLT.root',
-                    '--fileout file:SIDM_AODSIM.root',
-                    '--mc',
-                    '--runUnscheduled',
-                    '-s RAW2DIGI,RECO,EI',
-                    '--era Run2_{0}',
-                    '--nThreads 4',
-                    '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
-                    '--datatier AODSIM',
-                    '--eventcontent AODSIM',
-                    '-n -1',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py', 'step2',
+                '--filein file:SIDM_PREMIXRAWHLT.root',
+                '--fileout file:SIDM_AODSIM.root', '--mc', '--runUnscheduled',
+                '-s RAW2DIGI,RECO,EI', '--era Run2_{0}', '--nThreads 4',
+                '--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6',
+                '--datatier AODSIM', '--eventcontent AODSIM', '-n -1',
+                '--no_exec', '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
         elif year == '2017':
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'step2',
-                    '--filein file:SIDM_PREMIXRAWHLT.root',
-                    '--fileout file:SIDM_AODSIM.root',
-                    '--mc',
-                    '--runUnscheduled',
-                    '-s RAW2DIGI,RECO,EI',
-                    '--era Run2_{0}',
-                    '--nThreads 8',
-                    '--conditions auto:phase1_{0}_realistic',
-                    '--datatier AODSIM',
-                    '--eventcontent AODSIM',
-                    '-n -1',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py', 'step2',
+                '--filein file:SIDM_PREMIXRAWHLT.root',
+                '--fileout file:SIDM_AODSIM.root', '--mc', '--runUnscheduled',
+                '-s RAW2DIGI,RECO,EI', '--era Run2_{0}', '--nThreads 8',
+                '--conditions auto:phase1_{0}_realistic', '--datatier AODSIM',
+                '--eventcontent AODSIM', '-n -1', '--no_exec',
+                '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
         elif year == '2018':
 
-            cmd = ' '.join(
-                [
-                    'cmsDriver.py',
-                    'step2',
-                    '--filein file:SIDM_PREMIXRAWHLT.root',
-                    '--fileout file:SIDM_AODSIM.root',
-                    '--mc',
-                    '--runUnscheduled',
-                    '-s RAW2DIGI,L1Reco,RECO,RECOSIM,EI',
-                    '--procModifiers premix_stage2',
-                    '--era Run2_{0}',
-                    '--nThreads 8',
-                    '--conditions auto:phase1_{0}_realistic',
-                    '--datatier AODSIM',
-                    '--eventcontent AODSIM',
-                    '-n -1',
-                    '--no_exec',
-                    '--python_filename {1}',
-                    '--customise Configuration/DataProcessing/Utils.addMonitoring'
-                ]
-            ).format(year, cfgOutput)
+            cmd = ' '.join([
+                'cmsDriver.py', 'step2',
+                '--filein file:SIDM_PREMIXRAWHLT.root',
+                '--fileout file:SIDM_AODSIM.root', '--mc', '--runUnscheduled',
+                '-s RAW2DIGI,L1Reco,RECO,RECOSIM,EI',
+                '--procModifiers premix_stage2', '--era Run2_{0}',
+                '--nThreads 8', '--conditions auto:phase1_{0}_realistic',
+                '--datatier AODSIM', '--eventcontent AODSIM', '-n -1',
+                '--no_exec', '--python_filename {1}',
+                '--customise Configuration/DataProcessing/Utils.addMonitoring'
+            ]).format(year, cfgOutput)
 
     print("><><><>Output python cfg file: {}".format(cfgOutput))
     return cmd
