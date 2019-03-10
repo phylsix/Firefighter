@@ -52,6 +52,11 @@ ntuple_muon = cms.PSet(
     src=cms.InputTag('muons')
 )
 
+ntuple_electron = cms.PSet(
+    NtupleName=cms.string("ffNtupleElectron"),
+    src=cms.InputTag('gedGsfElectrons')
+)
+
 ntuple_dsamuon = cms.PSet(
     NtupleName=cms.string("ffNtupleDsaMuon"),
     src=cms.InputTag('displacedStandAloneMuons'),
@@ -94,6 +99,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_genjet,
         ntuple_hlt,
         ntuple_muon,
+        ntuple_electron,
         ntuple_dsamuon,
         ntuple_pfjet
     )
