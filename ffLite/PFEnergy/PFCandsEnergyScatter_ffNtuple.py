@@ -6,7 +6,7 @@ from collections import defaultdict
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from Firefighter.ffLite.dataSample import ffSamples
+from Firefighter.ffConfig.dataSample import ffSamples
 from Firefighter.ffLite.utils import colors, pType
 
 import ROOT

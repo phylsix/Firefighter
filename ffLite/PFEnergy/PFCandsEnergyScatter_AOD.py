@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from DataFormats.FWLite import Events, Handle
-from Firefighter.ffLite.dataSample import samples
+from Firefighter.ffConfig.dataSample import samples
 from Firefighter.ffLite.utils import colors, pType
 
 import ROOT
@@ -154,8 +154,8 @@ def main():
             framealpha=0.75,
             labelspacing=0.2)
 
-        outfn = os.path.join(
-            outdir, 'event_r{}l{}e{}.png'.format(_run, _lumi, _event))
+        outfn = os.path.join(outdir, 'event_r{}l{}e{}.png'.format(
+            _run, _lumi, _event))
         fig.savefig(outfn)
 
         wentThroughEvents.append('{}:{}:{}'.format(_run, _lumi, _event))
@@ -163,7 +163,6 @@ def main():
     print('*' * 30, ' processed events ', '*' * 30)
     for e in wentThroughEvents:
         print(e)
-
 
 
 if __name__ == "__main__":
