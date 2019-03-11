@@ -6,10 +6,8 @@ from collections import defaultdict
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from DataFormats.FWLite import Events, Handle
 from Firefighter.ffLite.dataSample import ffSamples
 from Firefighter.ffLite.utils import colors, pType
-import Firefighter.ffLite.utils as fu
 
 import ROOT
 ROOT.gROOT.SetBatch()
@@ -18,6 +16,8 @@ plt.style.use('default')
 plt.rcParams['grid.linestyle'] = ':'
 plt.rcParams['savefig.dpi'] = 120
 plt.rcParams['savefig.bbox'] = 'tight'
+plt.rcParams['axes.titleweight'] = 'semibold'
+plt.rcParams['font.family'] = ['Ubuntu', 'sans-serif']
 
 dataType = sys.argv[1]
 try:
@@ -27,8 +27,7 @@ except KeyError:
         dataType, list(ffSamples.keys()))
     sys.exit(msg)
 
-outdir = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'PFEnergy', dataType)
+outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), dataType)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
@@ -43,24 +42,26 @@ def main():
     bNames = [b.GetName() for b in t.GetListOfBranches()]
 
     sigMC = any([b.startswith('gen') for b in bNames])
-    nonSig = not sigMC
 
-    wentThroughEvents = 0
+    wentThroughEvents = []
     for i, event in enumerate(t, 1):
 
-        if wentThroughEvents > 10:
+        if len(wentThroughEvents) > 10:
             break
 
         if sigMC:
             darkphotons = []
-            for pid, dp in zip(list(event.gen2_pid), list(event.gen2_p4)):
+            for pid, dp, vtx in zip(
+                    list(event.gen2_pid), list(event.gen2_p4),
+                    list(event.gen2_vtx)):
                 if abs(pid) != 13:
                     continue
-                darkphotons.append((dp.eta(), dp.phi(), dp.energy()))
+                darkphotons.append((dp.eta(), dp.phi(), dp.energy(),
+                                    vtx.rho()))
             if not all(map(lambda p: abs(p[0]) < 2.4, darkphotons)):
                 continue
-            desc_ = '({:.3f}, {:.3f}) pT: {:.3f} GeV'
-            desc = '\n'.join(['darkphotons'] +
+            desc_ = '({:-5.3f}, {:-5.3f}) {:7.3f} GeV {:7.3f} cm'
+            desc = '\n'.join(['darkphotons [(eta, phi) energy lxy]'] +
                              [desc_.format(*dp) for dp in darkphotons])
             print(desc)
 
@@ -91,7 +92,21 @@ def main():
         ax.set_xlim([-2.4, 2.4])
         ax.set_ylim([-3.142, 3.142])
         ax.grid()
-        ax.set_title('Energy spread of PFCandidates: event {}'.format(i))
+        ax.set_title(
+            '[{}] Energy spread of leptonJet constituents'.format(dataType),
+            x=0.,
+            ha='left')
+        ax.text(
+            1.,
+            1.,
+            'Run{}, Lumi{}, Event{}'.format(event.run, event.lumi,
+                                            event.event),
+            ha='right',
+            va='bottom',
+            fontsize=9,
+            transform=ax.transAxes)
+        ax.set_xlabel('eta', x=1.0, ha='right')
+        ax.set_ylabel('phi', y=1.0, ha='right')
 
         if sigMC:
             bprops = dict(facecolor='w', alpha=0.75)
@@ -110,7 +125,7 @@ def main():
                        marker='D',
                        s=100)
 
-        for ic, color in enumerate(colors[:9]):
+        for ic, color in enumerate(colors[:8]):
             ax.scatter([], [], s=100, c=color, label=pType[ic])
             ax.legend(
                 scatterpoints=1,
@@ -119,10 +134,16 @@ def main():
                 framealpha=0.75,
                 labelspacing=0.2)
 
-        outfn = os.path.join(outdir, 'ffNtuple_{}.png'.format(i))
+        outfn = os.path.join(
+            outdir, 'ffNtuple_r{}l{}e{}.png'.format(event.run, event.lumi,
+                                                    event.event))
         fig.savefig(outfn)
 
-        wentThroughEvents += 1
+        wentThroughEvents.append('{}:{}:{}'.format(event.run, event.lumi,
+                                                   event.event))
+    print('*' * 30, ' processed events ', '*' * 30)
+    for e in wentThroughEvents:
+        print(e)
 
 
 if __name__ == "__main__":
