@@ -69,10 +69,15 @@ SplitPFCandByMatchingDsaMuonProd::produce( edm::Event&            iEvent,
   std::set<reco::PFCandidateRef> matchInfo =
       ff::getMergedMapKeys<PFCandRefLink>( matchInfo_tk, matchInfo_mu );
 
+  // cout << endl
+  //      << "Run" << iEvent.id().run() << "Lumi" << iEvent.luminosityBlock()
+  //      << "Event" << iEvent.id().event() << endl;
   for ( const auto& matchCand : matchCands ) {
-    if ( matchInfo.find( matchCand ) == matchInfo.end() )
+    if ( matchInfo.find( matchCand ) == matchInfo.end() ) {
       nonMatchCol->push_back( *matchCand );
-    else
+      // cout << "(" << matchCand->eta() << ", " << matchCand->phi() << ") "
+      //      << matchCand->pt() << "GeV" << endl;
+    } else
       matchCol->push_back( *matchCand );
   }
 
