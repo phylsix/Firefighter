@@ -54,7 +54,7 @@ def main():
             for pid, dp, vtx in zip(
                     list(event.gen2_pid), list(event.gen2_p4),
                     list(event.gen2_vtx)):
-                if abs(pid) != 13:
+                if abs(pid) not in (11, 13):
                     continue
                 darkphotons.append((dp.eta(), dp.phi(), dp.energy(),
                                     vtx.rho()))

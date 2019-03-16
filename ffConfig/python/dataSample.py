@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 samples = {
-    'signal':
+    'signal-4mu':
     'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_1.root',
+    'signal-2mu2e':
+    'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo2Mu2e_MBs-150_MDp-5_ctau-250/181228_061110/0000/SIDM_AODSIM_1.root',
     'DYTo2L_M10To50':
     'root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v2/270000/FE785A80-4AF8-4740-9C23-42E4F5CD1D48.root',
     'DYTo2L_M50':
@@ -24,14 +26,17 @@ samples = {
     'ZZZ':
     'root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZZ_TuneCP5_13TeV-amcatnlo-pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/100000/EE36B8E0-B9E2-7943-9DD4-DBD9D0573AD7.root',
     'ZZTo4L':
-    # 'root://xrootd.unl.edu//store/mc/RunIIAutumn18DRPremix/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/60000/3248C8A6-00AC-E14A-B832-4E8B81E81BA2.root',
+    # 'root://cmsxrootd-site.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/10000/02230ABB-29B0-464B-8A12-C208717C96DF.root',
     '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffLite/PFEnergy/ZZTo4L/pickevents.root'
 }
 
 ffSamples = {
-    'signal':
+    'signal-4mu':
     # 'root://cmseos.fnal.gov///store/group/lpcmetx/MCSIDM/ffNtuple/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/190227_043028/0000/ffNtuple_1.root',
     '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/testffNtuple.root',
+    'signal-2mu2e':
+    'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/ffNtuple/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo2Mu2e_MBs-150_MDp-5_ctau-250/190305_023838/0000/ffNtuple_1.root',
     'ZZTo4L':
-    'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/ffNtuple/2018/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/190227_043143/0000/ffNtuple_1.root',
+    #'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/ffNtuple/2018/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/190227_043143/0000/ffNtuple_1.root',
+    '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_ZZTo4L.root',
 }

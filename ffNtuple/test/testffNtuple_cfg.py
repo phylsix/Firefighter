@@ -28,14 +28,17 @@ if cmsrel.startswith('CMSSW_8'):
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
 TEST_FAST = True
-dataType = 'signal'
+dataType = 'ZZTo4L'
 
 from Firefighter.ffConfig.dataSample import samples
 _event_runover = -1
 _report_every = 100
 try:
-    _data_runover = list(samples[dataType])
-    _output_fname = 'ffNtuple_{}.root'
+    _data_runover = [samples[dataType]] if isinstance(
+        samples[dataType], str) else samples[dataType]
+    _data_runover = map(
+        lambda f: f if f.startswith('root://') else 'file:' + f, _data_runover)
+    _output_fname = 'ffNtuple_{}.root'.format(dataType)
 except KeyError:
     sys.exit("Sample '{}' not available! choose from {}".format(
         dataType, samples.keys()))
@@ -43,8 +46,7 @@ except KeyError:
 if TEST_FAST:
     _event_runover = 50
     _report_every = 1
-    _data_runover = list(samples[dataType])
-    _output_fname = 'testffNtuple.root'
+    _data_runover = [_data_runover[0]]
 
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(

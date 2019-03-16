@@ -70,7 +70,7 @@ def main():
         _event = event.object().id().event()
 
         # darkphoton
-        if dataType == 'signal':
+        if dataType.startswith('signal'):
             genpars = genHdl.product()
             darkphotons = []
             for g in genpars:
@@ -128,7 +128,7 @@ def main():
         ax.set_xlabel('eta', x=1.0, ha='right')
         ax.set_ylabel('phi', y=1.0, ha='right')
         bprops = dict(facecolor='w', alpha=0.75)
-        if dataType == 'signal':
+        if dataType.startswith('signal'):
             ax.text(
                 0,
                 0,
