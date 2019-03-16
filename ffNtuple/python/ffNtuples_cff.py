@@ -20,7 +20,13 @@ if year==2018:
         'HLT_DoubleL2Mu23NoVtx_2Cha',
         'HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched',
         'HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed',
-        'HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched'
+        'HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched',
+        'HLT_DoubleL2Mu25NoVtx_2Cha',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_NoL2Matched',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_NoL2Matched',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4'
     ])
 
 if year == 2016:
