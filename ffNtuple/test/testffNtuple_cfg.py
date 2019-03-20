@@ -27,12 +27,14 @@ if cmsrel.startswith('CMSSW_9'):
 if cmsrel.startswith('CMSSW_8'):
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
 
+dataType = sys.argv[2]
 TEST_FAST = True
-dataType = 'ZZTo4L'
+if len(sys.argv) > 3 and sys.argv[3] == 'full':
+    TEST_FAST = False
 
 from Firefighter.ffConfig.dataSample import samples
 _event_runover = -1
-_report_every = 100
+_report_every = 1000
 try:
     _data_runover = [samples[dataType]] if isinstance(
         samples[dataType], str) else samples[dataType]
