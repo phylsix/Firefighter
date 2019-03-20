@@ -37,6 +37,9 @@ if not os.path.exists(outdir):
 
 def main():
 
+    trigHdl = Handle('edm::TriggerResults')
+    trigLbl = ('TriggerResults', '', 'HLT')
+
     candsHdl = Handle('std::vector<reco::PFCandidate>')
     candsLbl = ('particleFlow', '', 'RECO')
 
@@ -45,6 +48,17 @@ def main():
 
     dsaHdl = Handle('std::vector<reco::Track>')
     dsaLabel = ('displacedStandAloneMuons', '', 'RECO')
+
+    trigpaths = [
+        'HLT_DoubleL2Mu23NoVtx_2Cha', 'HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched',
+        'HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed',
+        'HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched',
+        'HLT_DoubleL2Mu25NoVtx_2Cha', 'HLT_DoubleL2Mu25NoVtx_2Cha_NoL2Matched',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_NoL2Matched',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4',
+        'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4'
+    ]
 
     events = Events(fn)
     print("Sample's event size: ", events.size())
@@ -55,8 +69,8 @@ def main():
         if len(wentThroughEvents) > 10:
             break
 
-        event.getByLabel(genLbl, genHdl)
-        if not genHdl.isValid():
+        event.getByLabel(trigLbl, trigHdl)
+        if not trigHdl.isValid():
             continue
         event.getByLabel(candsLbl, candsHdl)
         if not candsHdl.isValid():
@@ -69,8 +83,22 @@ def main():
         _lumi = event.object().luminosityBlock()
         _event = event.object().id().event()
 
+        triggerResults = trigHdl.product()
+        names = event.object().triggerNames(triggerResults)
+        trigpathsVersioned = map(
+            lambda p: [x for x in names.triggerNames() if x.startswith(p)][0],
+            trigpaths)
+        if not any(
+                map(lambda p: triggerResults.accept(names.triggerIndex(p)),
+                    trigpathsVersioned)):
+            continue
+
         # darkphoton
         if dataType.startswith('signal'):
+            event.getByLabel(genLbl, genHdl)
+            if not genHdl.isValid():
+                continue
+
             genpars = genHdl.product()
             darkphotons = []
             for g in genpars:
