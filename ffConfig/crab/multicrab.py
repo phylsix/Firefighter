@@ -29,16 +29,20 @@ def main():
 
     donelist = list()
     for ds in datasets:
+        try:
+            thisData = ffDataset(ds, year)
+            _config = adapt_config_with_dataset(config, thisData)
 
-        thisData = ffDataset(ds, year)
-        _config = adapt_config_with_dataset(config, thisData)
+            if doCmd:
+                crabCommand('submit', config=_config)
+                donelist.append(ds)
+        except Exception as e:
+            print("Dataset: ", ds)
+            print("Msg: ", str(e))
 
-        if doCmd:
-            crabCommand('submit', config=_config)
-            donelist.append(ds)
-
+    print('\n\n', '+' * 79)
     print('submitted: {}'.format(len(donelist)), *donelist, sep='\n')
-    print('------------------------------------------------------------')
+    print('+' * 79, '\n\n')
 
     undonelist = [x for x in datasets if x not in donelist]
     print('unsubmitted: {}'.format(len(undonelist)), *undonelist, sep='\n')
@@ -47,7 +51,6 @@ def main():
         with open('unsubmitted.yml.log', 'w') as outf:
             yaml.dump({
                 'aodsimdatasets': undonelist,
-                'year': year
             },
                       outf,
                       default_flow_style=False)
