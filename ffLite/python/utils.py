@@ -19,5 +19,10 @@ def delta_r(m, n):
     return math.hypot((m.eta() - n.eta()), delta_phi(m, n))
 
 
-def formatPoint(p):
-    return (round(p.X(), 3), round(p.Y(), 3), round(p.Z(), 3))
+def formatPoint(p, precision=3):
+    return (round(p.X(), precision), round(p.Y(), precision),
+            round(p.Z(), precision))
+
+
+def formatEtaPhi(p, precision=3):
+    return (round(p.eta(), precision), round(p.phi(), precision))

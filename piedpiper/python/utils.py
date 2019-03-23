@@ -155,7 +155,10 @@ def adapt_config_with_dataset(config, dataset):
         print('===== DATA or BKG MC =====')
         print('--------------------------')
         crabconfig.Data.inputDBS = 'global'
-        requestNameComponents.pop(2)
+        nameTagVersionSuffix = requestNameComponents[2].rsplit('_')[-1]
+        requestNameComponents[
+            2] = nameTagVersionSuffix if nameTagVersionSuffix.startswith(
+                'ext') else nameTagVersionSuffix.rsplit('-')[-1]
         crabconfig.JobType.psetName = os.path.join(
             crabconfig.JobType.psetName, 'ffNtupleFromAOD_dataOrBkg_cfg.py')
 

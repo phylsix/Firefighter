@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 from DataFormats.FWLite import Events, Handle
 from Firefighter.ffConfig.dataSample import samples
-from Firefighter.ffLite.utils import colors, pType
+from Firefighter.ffLite.utils import colors, pType, formatEtaPhi
 
 import ROOT
 ROOT.gROOT.SetBatch()
@@ -23,6 +23,8 @@ plt.rcParams['axes.titleweight'] = 'semibold'
 plt.rcParams['font.family'] = ['Ubuntu', 'sans-serif']
 
 dataType = sys.argv[1]
+drawISV = False
+
 try:
     fn = samples[dataType]
 except KeyError:
@@ -48,6 +50,9 @@ def main():
 
     dsaHdl = Handle('std::vector<reco::Track>')
     dsaLabel = ('displacedStandAloneMuons', '', 'RECO')
+
+    isvHdl = Handle('std::vector<reco::Vertex>')
+    isvLbl = ('inclusiveSecondaryVertices', '', 'RECO')
 
     trigpaths = [
         'HLT_DoubleL2Mu23NoVtx_2Cha', 'HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched',
@@ -77,6 +82,9 @@ def main():
             continue
         event.getByLabel(dsaLabel, dsaHdl)
         if not dsaHdl.isValid():
+            continue
+        event.getByLabel(isvLbl, isvHdl)
+        if not isvHdl.isValid():
             continue
 
         _run = event.object().id().run()
@@ -129,6 +137,12 @@ def main():
             candsData['type'].append(8)
             candsData['color'].append(colors[8])
         candsDf = pd.DataFrame(candsData)
+        if drawISV:
+            isv = isvHdl.product()
+            isvResults = [formatEtaPhi(v.position()) for v in isv if v.isValid()]
+            if isvResults:
+                print('InclusiveSecondaryVertices: ', isvResults)
+
         fig, ax = plt.subplots(figsize=(8, 6))
 
         ax = candsDf.plot.scatter(
@@ -171,6 +185,9 @@ def main():
                        c='k',
                        marker='D',
                        s=100)
+        if drawISV and isvResults:
+            ax.scatter([d[0] for d in isvResults],
+            [d[1] for d in isvResults], c='y', marker='+', s=80)
         ax.grid()
 
         for ic, color in enumerate(colors[:9]):
