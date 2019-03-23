@@ -36,12 +36,10 @@ samples = {
 
 ffSamples = {
     'signal-4mu':
-    # 'root://cmseos.fnal.gov///store/group/lpcmetx/MCSIDM/ffNtuple/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/190227_043028/0000/ffNtuple_1.root',
-    '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/testffNtuple.root',
+    '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_signal-4mu.root',
     'signal-2mu2e':
-    'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/ffNtuple/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo2Mu2e_MBs-150_MDp-5_ctau-250/190305_023838/0000/ffNtuple_1.root',
+    '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_signal-2mu2e.root',
     'ZZTo4L':
-    #'root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/ffNtuple/2018/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/190227_043143/0000/ffNtuple_1.root',
     '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_ZZTo4L.root',
     'QCD-MuEnriched_Pt20ToInf':
     '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_QCD-MuEnriched_Pt20ToInf.root',

@@ -1,12 +1,21 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import os
+import sys
 import ROOT
+from Firefighter.ffConfig.dataSample import ffSamples
 
-inputFn = os.path.join(
-    os.getenv('CMSSW_BASE'), 'src/Firefighter/ffNtuple/test',
-    'ffNtuple_signal-2mu2e.root')
-f = ROOT.TFile(inputFn)
+ROOT.gROOT.SetBatch()
+
+dataType = sys.argv[1]
+try:
+    fn = ffSamples[dataType]
+except KeyError:
+    msg = 'ERROR: sample for key "{}" not found!\nAvailable keys: {}'.format(
+        dataType, list(samples.keys()))
+    sys.exit(msg)
+
+f = ROOT.TFile(fn)
 
 dName = f.GetListOfKeys()[0].GetName()
 tName = f.Get(dName).GetListOfKeys()[0].GetName()
