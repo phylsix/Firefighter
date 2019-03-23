@@ -89,6 +89,15 @@ ntuple_pfjet = cms.PSet(
     MinChargedMass=cms.double(0.15),
 )
 
+ntuple_hftagscore = cms.PSet(
+    NtupleName=cms.string("ffNtupleHFtagScore"),
+    jet=cms.InputTag('ak4PFJetsCHS'),
+    deepcsv_b=cms.InputTag('pfDeepCSVJetTags', 'probb'),
+    deepcsv_bb=cms.InputTag('pfDeepCSVJetTags', 'probbb'),
+    deepcsv_c=cms.InputTag('pfDeepCSVJetTags', 'probc'),
+    deepcsv_udsg=cms.InputTag('pfDeepCSVJetTags', 'probudsg'),
+    csvv2_b=cms.InputTag('pfCombinedInclusiveSecondaryVertexV2BJetTags'),
+)
 
 ffNtuplizer = cms.EDAnalyzer(
     'ffNtupleManager',
@@ -101,6 +110,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_muon,
         ntuple_electron,
         ntuple_dsamuon,
-        ntuple_pfjet
+        ntuple_pfjet,
+        ntuple_hftagscore,
     )
 )

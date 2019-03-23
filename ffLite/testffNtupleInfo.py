@@ -5,7 +5,7 @@ import ROOT
 
 inputFn = os.path.join(
     os.getenv('CMSSW_BASE'), 'src/Firefighter/ffNtuple/test',
-    'ffNtuple_zz4l.root')
+    'ffNtuple_signal-2mu2e.root')
 f = ROOT.TFile(inputFn)
 
 dName = f.GetListOfKeys()[0].GetName()
@@ -58,6 +58,14 @@ for i, event in enumerate(t, 1):
 
     print('[Event] <pu> - ', event.puInteractionNum)
     print('[Event] <trueInter> - ', event.trueInteractionNum)
+    print(
+        '[HFTag] <DeepCSV b> [L, M, T]/Total',
+        '[{}, {}, {}]/{}'.format(
+            len(filter(lambda x: x > 0.1241, event.hftagscore_DeepCSV_b)),
+            len(filter(lambda x: x > 0.4184, event.hftagscore_DeepCSV_b)),
+            len(filter(lambda x: x > 0.7527, event.hftagscore_DeepCSV_b)),
+            len(event.hftagscore_DeepCSV_b)),
+        sep='\n')
 
     if i > 50:
         break
