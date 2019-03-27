@@ -14,8 +14,12 @@ CRAB_WORK_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'crabWorkArea')
 JOB_STATUS_DB = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'crabjobsStatus.sqlite')
+LOGSHEET = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    'crabjobsCheckAndResubReport.log')
 VERBOSE = True
 MOST_RECENT_DAYS = 2
+ASYNC_CHECK = False # crab relies on local ~/.crab3, which is the main reason of exception
 
 
 def checkSingleTask(crabTaskDir):
@@ -31,8 +35,10 @@ def checkSingleTask(crabTaskDir):
             os.remove(os.path.join(os.environ['HOME'], '.crab3'))
         except:
             pass
+        statusDict = dict()
         statusDict = crabCommand('status', dir=crabTaskDir)
-        _task = statusDict.get('userWebDirURL', '').split('/')[-1]
+        _userWebDirURL = statusDict.get('userWebDirURL')
+        _task = _userWebDirURL.split('/')[-1] if _userWebDirURL else 'NOT ASSIGNED'
         _status = statusDict.get('status', '').lower()
         _jobsPerStatus = statusDict.get('jobsPerStatus', {})
         _outDatasets = statusDict.get('outdatasets', '')
@@ -46,7 +52,7 @@ def checkSingleTask(crabTaskDir):
             'publication': _publication,
         })
     except Exception as e:
-        res.update({'exception': True, 'msg': str(e)})
+        res.update({'exception': True, 'msg': str(e), 'queryResult': statusDict})
 
     return res
 
@@ -113,12 +119,15 @@ def main():
     setConsoleLogLevel(LOGLEVEL_MUTE)
     crabLoggers = getLoggers()
 
-    p = ThreadPool()
     crabTaskStatuses = []
-    r = p.map_async(
-        checkSingleTask, crabTaskListToCheck, callback=crabTaskStatuses.extend)
-    r.wait()
-    p.close()
+    if ASYNC_CHECK:
+        p = ThreadPool()
+        r = p.map_async(
+            checkSingleTask, crabTaskListToCheck, callback=crabTaskStatuses.extend)
+        r.wait()
+        p.close()
+    else:
+        crabTaskStatuses = [checkSingleTask(d) for d in crabTaskListToCheck]
 
     task_completed, task_failed, task_others, task_exception = [], [], [], []
     for d in crabTaskStatuses:
@@ -162,7 +171,8 @@ def main():
         else:
             resubTaskFail.append(t)
 
-    with open('crabjobsCheckAndResubReport.log', 'w') as of:
+    print('Check&Resub result written to: ', LOGSHEET)
+    with open(LOGSHEET, 'w') as of:
         of.write(time.asctime() + '\n')
         of.write('=' * 79 + '\n\n')
 
@@ -206,8 +216,8 @@ def main():
             of.write('===========================\n')
             print("Resubmit manually for the following:")
             for t in task_exception:
-                toprint = 'directory: {0}\nmessage: {1}\n\n'.format(
-                    t['directory'], t['msg'])
+                toprint = 'directory: {0}\nmessage: {1}\nqueryResult: {2}\n\n'.format(
+                    t['directory'], t['msg'], t['queryResult'])
                 of.write(toprint)
                 print("crab resubmit -d {}".format(t['directory']))
 
