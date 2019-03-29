@@ -19,7 +19,7 @@ LOGSHEET = os.path.join(
     'crabjobsCheckAndResubReport.log')
 VERBOSE = True
 MOST_RECENT_DAYS = 2
-ASYNC_CHECK = False # crab relies on local ~/.crab3, which is the main reason of exception
+ASYNC_CHECK = False  # crab relies on local ~/.crab3, which is the main reason of exception
 
 
 def checkSingleTask(crabTaskDir):
@@ -38,7 +38,8 @@ def checkSingleTask(crabTaskDir):
         statusDict = dict()
         statusDict = crabCommand('status', dir=crabTaskDir)
         _userWebDirURL = statusDict.get('userWebDirURL')
-        _task = _userWebDirURL.split('/')[-1] if _userWebDirURL else 'NOT ASSIGNED'
+        _task = _userWebDirURL.split(
+            '/')[-1] if _userWebDirURL else 'NOT ASSIGNED'
         _status = statusDict.get('status', '').lower()
         _jobsPerStatus = statusDict.get('jobsPerStatus', {})
         _outDatasets = statusDict.get('outdatasets', '')
@@ -52,7 +53,11 @@ def checkSingleTask(crabTaskDir):
             'publication': _publication,
         })
     except Exception as e:
-        res.update({'exception': True, 'msg': str(e), 'queryResult': statusDict})
+        res.update({
+            'exception': True,
+            'msg': str(e),
+            'queryResult': statusDict
+        })
 
     return res
 
@@ -76,8 +81,9 @@ def resubmitSingleTask(checkdict):
             res['exceptionMsg'] = str(e)
             res['success'] = False
 
-    if _status == 'failed' or checkdict.get('jobsperstatus', {}).get(
-            'failed', 0) != 0:
+    if _status == 'failed' or (
+            checkdict.get('jobsperstatus', {}).get('failed', 0) != 0
+            and checkdict.get('jobsperstatus', {}).get('killed', 0) == 0):
         try:
             crabCommand('resubmit', dir=_dir)
         except Exception as e:
@@ -123,7 +129,9 @@ def main():
     if ASYNC_CHECK:
         p = ThreadPool()
         r = p.map_async(
-            checkSingleTask, crabTaskListToCheck, callback=crabTaskStatuses.extend)
+            checkSingleTask,
+            crabTaskListToCheck,
+            callback=crabTaskStatuses.extend)
         r.wait()
         p.close()
     else:
@@ -154,7 +162,9 @@ def main():
                            for t in task_failed + task_others]
         exceptedTasks = [(t['directory'], 'failed', '') for t in task_exception
                          if '.requestcache' not in t['msg']]
-        print("Number of tasks excepted when querying: ", len(exceptedTasks))
+        if exceptedTasks:
+            print("Number of tasks excepted when querying: ",
+                  len(exceptedTasks))
         set_noncomplete.extend(exceptedTasks)
         c.executemany("INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)",
                       set_noncomplete)

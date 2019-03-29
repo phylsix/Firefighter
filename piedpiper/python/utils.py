@@ -92,7 +92,8 @@ class ffDataset:
 
         """
         T23 = []
-        for s in self.get_storage_sites():
+        storageSites = self.get_storage_sites()
+        for s in storageSites:
             if s.startswith('T2'):
                 T23.append(s)
             elif s.startswith('T3'):
@@ -100,7 +101,10 @@ class ffDataset:
             else:
                 pass
         res = ['_'.join(s.split('_')[:2]) for s in T23]
-        res = [str(s+'_*') for s in set(res)]
+        res = [str(s + '_*') for s in set(res)]
+        # include T1_*_*Disk
+        res.extend([s for s in storageSites if 'disk' in s.lower()])
+        res.extend(['T2_CH_CERN', ])
 
         return res
 
