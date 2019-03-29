@@ -69,7 +69,7 @@ process.TFileService = cms.Service(
     "TFileService",
     fileName=cms.string(_output_fname),
     closeFileFast=cms.untracked.bool(True))
-if dataType == 'signal':
+if dataType.lower().startswith('signal'):
     process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff')
     process.load('Firefighter.ffNtuple.ffNtuples_cff')
 else:

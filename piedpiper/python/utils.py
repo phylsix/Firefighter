@@ -4,6 +4,7 @@ import os
 import time
 import copy
 import subprocess
+import shlex
 
 from Firefighter.piedpiper.template import *
 
@@ -63,6 +64,50 @@ class ffDataset:
             return dataset.split('/')[-2].split('-', 1)[-1].rsplit('-', 1)[0]
         else:
             return dataset.split('/')[-2]
+
+    def get_storage_sites(self):
+        """
+        Get storage sites by dasgoclient
+
+        Returns
+        -------
+        list
+            list of sites
+        """
+
+
+        dasquery_site = 'dasgoclient -query="site dataset={}"'.format(
+            self._dataset)
+        try:
+            dasres_site = subprocess.check_output(shlex.split((dasquery_site)))
+            return [s.decode() for s in dasres_site.split()]
+        except Exception as e:
+            print("Exception when dasgoclient querying sites..")
+            print("Msg: ", str(e))
+            return []
+
+    def sites_for_submission(self):
+        """
+        keep only T2&T3 sites' countries that actually hold the dataset
+
+        """
+        T23 = []
+        storageSites = self.get_storage_sites()
+        for s in storageSites:
+            if s.startswith('T2'):
+                T23.append(s)
+            elif s.startswith('T3'):
+                T23.append(s)
+            else:
+                pass
+        res = ['_'.join(s.split('_')[:2]) for s in T23]
+        res = [str(s + '_*') for s in set(res)]
+        # include T1_*_*Disk
+        res.extend([s for s in storageSites if 'disk' in s.lower()])
+        res.extend(['T2_CH_CERN', ])
+
+        return res
+
 
 
 def floatpfy(f):
@@ -154,17 +199,24 @@ def adapt_config_with_dataset(config, dataset):
         print('--------------------------')
         print('===== DATA or BKG MC =====')
         print('--------------------------')
-        crabconfig.Data.inputDBS = 'global'
         nameTagVersionSuffix = requestNameComponents[2].rsplit('_')[-1]
         requestNameComponents[
             2] = nameTagVersionSuffix if nameTagVersionSuffix.startswith(
                 'ext') else nameTagVersionSuffix.rsplit('-')[-1]
+        siteT23 = dataset.sites_for_submission()
+
+        crabconfig.Data.inputDBS = 'global'
         crabconfig.JobType.psetName = os.path.join(
             crabconfig.JobType.psetName, 'ffNtupleFromAOD_dataOrBkg_cfg.py')
+        if siteT23:
+            crabconfig.Site.whitelist = siteT23
+        else:
+            crabconfig.Data.ignoreLocality = False
 
     print("dataset: ", str(dataset))
     print("nametag: ", dataset.nameTag)
     print("primarydataset: ", dataset.primaryDataset)
+    print("submitSites: ", crabconfig.Site.whitelist)
 
     crabconfig.Data.inputDataset = str(dataset)
     crabconfig.Data.outputDatasetTag = dataset.nameTag
