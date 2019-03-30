@@ -86,7 +86,7 @@ ntuple_pfjet = cms.PSet(
         doSmoothing=cms.bool(True),
     ),
     IsolationRadius=cms.double(0.5),
-    MinChargedMass=cms.double(0.15),
+    MinChargedMass=cms.double(0.),
 )
 
 ntuple_hftagscore = cms.PSet(
