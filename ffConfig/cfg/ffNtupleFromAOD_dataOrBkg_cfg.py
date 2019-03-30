@@ -3,7 +3,7 @@ import os
 
 cmsrel = os.environ["CMSSW_VERSION"]
 
-process = cms.Process("USER")
+process = cms.Process("FF")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
