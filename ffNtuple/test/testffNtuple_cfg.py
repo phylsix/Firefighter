@@ -3,7 +3,7 @@ import os
 import sys
 cmsrel = os.environ['CMSSW_VERSION']
 
-process = cms.Process("USER")
+process = cms.Process("FF")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
@@ -76,7 +76,13 @@ else:
     process.load('Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff')
     process.load('Firefighter.ffNtuple.ffNtuples_d_cff')
 
+from Firefighter.recoStuff.skimOutput_cfi import skimOutput as _skimoutput
+process.skimOutput = _skimoutput.clone(
+    fileName=cms.untracked.string('skim' + _output_fname))
+
 process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
+process.output_step = cms.EndPath(process.skimOutput)
 
-process.schedule = cms.Schedule(process.ntuple_step, process.endjob_step)
+process.schedule = cms.Schedule(process.ntuple_step, process.endjob_step,
+                                process.output_step)
