@@ -6,8 +6,7 @@ import time
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 from Firefighter.piedpiper.utils import ffDataset, adapt_config_with_dataset
 
-BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter',
-                       'ffConfig')
+BASEDIR = os.path.join(os.environ['CMSSW_BASE'], 'src', 'Firefighter', 'ffConfig')
 
 if os.environ['CMSSW_VERSION'].startswith('CMSSW_8'):
     year = 2016
@@ -24,7 +23,7 @@ config.General.requestName = '{0}_ffNtuple_{1}'.format(
     getUsernameFromSiteDB(), time.strftime('%y%m%d-%H%M%S'))
 config.General.workArea = 'crabWorkArea'
 config.General.transferOutputs = True
-config.General.transferLogs = True
+config.General.transferLogs = False
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = os.path.join(BASEDIR, 'cfg')
