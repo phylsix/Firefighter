@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os
+CMSSW_BASE = os.environ['CMSSW_BASE']
 
 samples = {
     'signal-4mu':
@@ -43,4 +45,9 @@ ffSamples = {
     '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_ZZTo4L.root',
     'QCD-MuEnriched_Pt20ToInf':
     '/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_QCD-MuEnriched_Pt20ToInf.root',
+}
+
+skimmedSamples = {
+    'signal-4mu':
+    CMSSW_BASE + '/src/Firefighter/ffNtuple/test/skimffNtuple_signal-4mu.root',
 }

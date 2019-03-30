@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from DataFormats.FWLite import Events, Handle
-from Firefighter.ffConfig.dataSample import samples
+from Firefighter.ffConfig.dataSample import samples, skimmedSamples
 from Firefighter.ffLite.utils import colors, pType, formatEtaPhi
 
 import ROOT
@@ -24,6 +24,12 @@ plt.rcParams['font.family'] = ['Ubuntu', 'sans-serif']
 
 dataType = sys.argv[1]
 drawISV = False
+excludeHadType = True
+skimmed = 'skim' in sys.argv
+if skimmed:
+    samples = skimmedSamples
+    drawISV = False
+    excludeHadType = False
 
 try:
     fn = samples[dataType]
@@ -44,6 +50,10 @@ def main():
 
     candsHdl = Handle('std::vector<reco::PFCandidate>')
     candsLbl = ('particleFlow', '', 'RECO')
+
+    if skimmed:
+        candsHdl = Handle('std::vector<edm::FwdPtr<reco::PFCandidate> >')
+        candsLbl = ('filteredPFCandsFwdPtr', '', 'FF')
 
     genHdl = Handle('std::vector<reco::GenParticle>')
     genLbl = ('genParticles', '', 'HLT')
@@ -66,6 +76,10 @@ def main():
     ]
 
     events = Events(fn)
+    if excludeHadType:
+        print('---------------------------')
+        print('## draw lepton-type only ##')
+        print('---------------------------')
     print("Sample's event size: ", events.size())
 
     wentThroughEvents = []
@@ -83,9 +97,10 @@ def main():
         event.getByLabel(dsaLabel, dsaHdl)
         if not dsaHdl.isValid():
             continue
-        event.getByLabel(isvLbl, isvHdl)
-        if not isvHdl.isValid():
-            continue
+        if drawISV:
+            event.getByLabel(isvLbl, isvHdl)
+            if not isvHdl.isValid():
+                continue
 
         _run = event.object().id().run()
         _lumi = event.object().luminosityBlock()
@@ -124,6 +139,8 @@ def main():
         cands = candsHdl.product()
         candsData = defaultdict(list)
         for c in cands:
+            if excludeHadType and int(c.particleId()) in [1, 5]:
+                continue
             candsData['eta'].append(c.eta())
             candsData['phi'].append(c.phi())
             candsData['energy'].append(c.energy())
@@ -139,7 +156,9 @@ def main():
         candsDf = pd.DataFrame(candsData)
         if drawISV:
             isv = isvHdl.product()
-            isvResults = [formatEtaPhi(v.position()) for v in isv if v.isValid()]
+            isvResults = [
+                formatEtaPhi(v.position()) for v in isv if v.isValid()
+            ]
             if isvResults:
                 print('InclusiveSecondaryVertices: ', isvResults)
 
@@ -186,8 +205,10 @@ def main():
                        marker='D',
                        s=100)
         if drawISV and isvResults:
-            ax.scatter([d[0] for d in isvResults],
-            [d[1] for d in isvResults], c='y', marker='+', s=80)
+            ax.scatter([d[0] for d in isvResults], [d[1] for d in isvResults],
+                       c='y',
+                       marker='+',
+                       s=80)
         ax.grid()
 
         for ic, color in enumerate(colors[:9]):
@@ -199,8 +220,12 @@ def main():
             framealpha=0.75,
             labelspacing=0.2)
 
-        outfn = os.path.join(outdir, 'event_r{}l{}e{}.png'.format(
-            _run, _lumi, _event))
+        _outfn = 'event_r{}l{}e{}.png'.format(_run, _lumi, _event)
+        if excludeHadType:
+            _outfn = _outfn.replace('event', 'lepOnly')
+        if skimmed:
+            _outfn = _outfn.replace('event', 'skimmed')
+        outfn = os.path.join(outdir, _outfn)
         fig.savefig(outfn)
 
         wentThroughEvents.append('{}:{}:{}'.format(_run, _lumi, _event))
