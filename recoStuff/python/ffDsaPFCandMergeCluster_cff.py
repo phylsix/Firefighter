@@ -11,8 +11,7 @@ from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 
 particleFlowIncDSA = _pfcandmerger.clone(
     src=cms.VInputTag(
-        cms.InputTag("filteredPFCands"),
-        cms.InputTag("dsaMuPFCandFork", "nonMatched")
+        cms.InputTag("filteredPFCands"), cms.InputTag("dsaMuPFCandFork", "nonMatched")
     )
 )
 

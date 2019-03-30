@@ -10,13 +10,13 @@ KEYWORD = sys.argv[1]
 
 def main():
 
-    toKill = [d for d in os.listdir('crabWorkArea') if KEYWORD in d]
-    print('Going to kill:', *toKill, sep='\n')
+    toKill = [d for d in os.listdir("crabWorkArea") if KEYWORD in d]
+    print("Going to kill:", *toKill, sep="\n")
 
     for t in toKill:
-        relDir = os.path.join('crabWorkArea', t)
+        relDir = os.path.join("crabWorkArea", t)
         try:
-            crabCommand('kill', dir=relDir)
+            crabCommand("kill", dir=relDir)
         except:
             print("EXCEPTION: ", relDir)
             pass

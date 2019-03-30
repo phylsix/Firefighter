@@ -13,31 +13,28 @@ if not os.path.exists(outdir):
 
 def main():
 
-    indivImg = [x for x in os.listdir(outdir) if x.endswith('.png')]
-    fromAod = [
-        os.path.join(outdir, x) for x in indivImg if x.startswith('event')
-    ]
-    fromNtuple = [
-        os.path.join(outdir, x) for x in indivImg if x.startswith('ffNtuple')
-    ]
+    indivImg = [x for x in os.listdir(outdir) if x.endswith(".png")]
+    fromAod = [os.path.join(outdir, x) for x in indivImg if x.startswith("event")]
+    fromNtuple = [os.path.join(outdir, x) for x in indivImg if x.startswith("ffNtuple")]
 
     toCombPair = []
     for im in fromAod:
-        idx = os.path.basename(im).replace('.png', '').split('_')[1]
+        idx = os.path.basename(im).replace(".png", "").split("_")[1]
         matched = [
-            x for x in fromNtuple
-            if os.path.basename(x).replace('.png', '').split('_')[1] == idx
+            x
+            for x in fromNtuple
+            if os.path.basename(x).replace(".png", "").split("_")[1] == idx
         ]
         if matched:
             toCombPair.append((im, matched[0]))
 
     for p in toCombPair:
-        fn = p[0].replace('event', 'comb')
+        fn = p[0].replace("event", "comb")
         widths, heights = zip(*(Image.open(i).size for i in p))
         total_width = sum(widths)
         max_height = max(heights)
 
-        new_im = Image.new('RGB', (total_width, max_height))
+        new_im = Image.new("RGB", (total_width, max_height))
         x_offset = 0
         for im_ in p:
             im = Image.open(im_)
