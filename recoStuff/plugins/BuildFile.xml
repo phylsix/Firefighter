@@ -10,6 +10,7 @@
 <use name="CommonTools/CandAlgos"/>
 <use name="CommonTools/ParticleFlow"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="RecoJets/JetProducers"/>
 <use name="Firefighter/recoStuff"/>
 
 <library name="FirefighterrecoStuff_plugins" file="*.cc">
