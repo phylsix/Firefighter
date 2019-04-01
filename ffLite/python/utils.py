@@ -29,3 +29,42 @@ def formatPoint(p, precision=3):
 
 def formatEtaPhi(p, precision=3):
     return (round(p.eta(), precision), round(p.phi(), precision))
+
+
+def getMomId(par):
+    if par.numberOfMothers() > 0:
+        return par.mother(0).pdgId()
+    else:
+        return "*"
+
+
+def inferTypeFromPid(pid):
+    """
+    Given a pid, return a paritleType, ref - `pType`
+
+    Parameters
+    ----------
+    pid : int
+        paritle pdgId
+
+    Returns
+    -------
+    int
+        particle type
+    """
+
+    abspid = abs(pid)
+    res = 0
+    if abspid == 11:
+        res = 2
+    elif abspid == 13:
+        res = 3
+    elif abspid == 22:
+        res = 4
+    elif abspid in [111, 130, 310, 311]:  # pi0, Kl0, Ks0, K0
+        res = 5
+    elif abspid in [211, 321]:  # pi+, K+
+        res = 1
+    else:
+        res = 0
+    return res
