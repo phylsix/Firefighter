@@ -102,9 +102,10 @@ class ffDataset:
                 pass
         res = ["_".join(s.split("_")[:2]) for s in T23]
         res = [str(s + "_*") for s in set(res)]
-        # include T1_*_*Disk
-        res.extend([s for s in storageSites if "disk" in s.lower()])
-        res.extend(["T2_CH_CERN"])
+        if res:
+            res.extend(["T2_CH_CERN"])
+            if 'T2_US_*' not in res:
+                res.append('T2_US_*')
 
         return res
 
