@@ -207,6 +207,7 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::vector<float>         pfjet_neuIsolation_;
   std::vector<int>           pfjet_tracks_n_;
   std::vector<float>         pfjet_ptDistribution_;
+  std::vector<float>         pfjet_dRSpread_;
 
   std::vector<int>   pfjet_pfcands_n_;
   std::vector<float> pfjet_pfcands_chargedMass_;
@@ -308,6 +309,7 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcands_n", &pfjet_pfcands_n_ );
   tree.Branch( "pfjet_tracks_n", &pfjet_tracks_n_ );
   tree.Branch( "pfjet_ptDistribution", &pfjet_ptDistribution_ );
+  tree.Branch( "pfjet_dRSpread", &pfjet_dRSpread_ );
   tree.Branch( "pfjet_pfcands_chargedMass", &pfjet_pfcands_chargedMass_ );
   tree.Branch( "pfjet_pfcands_hasDsaMu", &pfjet_pfcands_hasDsaMu_ );
   tree.Branch( "pfjet_pfcands_maxPtType", &pfjet_pfcands_maxPtType_ );
@@ -423,6 +425,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcands_n_.emplace_back( pfCands.size() );
     pfjet_tracks_n_.emplace_back( tracksSelected.size() );
     pfjet_ptDistribution_.emplace_back( pfjet.constituentPtDistribution() );
+    pfjet_dRSpread_.emplace_back( pfjet.constituentEtaPhiSpread() );
     pfjet_pfcands_chargedMass_.emplace_back( chargedMass( pfjet ) );
     pfjet_pfcands_hasDsaMu_.emplace_back(
         hasDisplacedStandAloneMuon( pfjet, generalTk_h ) );
@@ -668,6 +671,7 @@ ffNtuplePfJet::clear() {
   pfjet_pfcands_n_.clear();
   pfjet_tracks_n_.clear();
   pfjet_ptDistribution_.clear();
+  pfjet_dRSpread_.clear();
   pfjet_pfcands_chargedMass_.clear();
   pfjet_pfcands_hasDsaMu_.clear();
   pfjet_pfcands_maxPtType_.clear();
