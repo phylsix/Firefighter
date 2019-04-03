@@ -62,7 +62,7 @@ ntuple_pfjet = cms.PSet(
                 "abs(eta)<2.4",
                 "numberOfDaughters>1",
                 "neutralHadronEnergyFraction<0.99",
-                "neutralEmEnergyFraction<0.99",
+                # "neutralEmEnergyFraction<0.99",
                 "(chargedEmEnergyFraction+muonEnergyFraction+neutralEmEnergyFraction)>0.6",
             ]
         )
