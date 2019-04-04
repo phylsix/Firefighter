@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 from RecoJets.JetProducers.SubJetParameters_cfi import SubJetParameters
+from RecoJets.JetProducers.ECFAdder_cfi import ECFAdder
 from Firefighter.recoStuff.JetPFJetMatcherDRLessByR_cfi import (
     jetpfjetmatcherdrlessbyr as _jetpfjetmatcherdrlessbyr,
 )
@@ -24,9 +25,20 @@ ffLeptonJetSLeptonJetMap = _jetpfjetmatcherdrlessbyr.clone()
 
 ffLeptonJetSubjetEMD = _jetemdadder.clone()
 
+maxECF = 3
+ecfBeta = 1.0
+ffLeptonJetSubjetECF = ECFAdder.clone(
+    src=cms.InputTag("ffLeptonJet"),
+    Njets=cms.vuint32(range(1, maxECF + 1)),
+    beta=cms.double(ecfBeta),
+)
+
 ffLeptonJetSubjetSeq = cms.Sequence(
-    ffLeptonJetConstituents
-    + ffLeptonJetSubjets
-    + ffLeptonJetSLeptonJetMap
-    + ffLeptonJetSubjetEMD
+    (
+        ffLeptonJetConstituents
+        + ffLeptonJetSubjets
+        + ffLeptonJetSLeptonJetMap
+        + ffLeptonJetSubjetEMD
+    )
+    * ffLeptonJetSubjetECF
 )
