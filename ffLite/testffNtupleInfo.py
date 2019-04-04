@@ -80,5 +80,8 @@ for i, event in enumerate(t, 1):
         sep="\n",
     )
 
+    print("[pfjet] <lambda>", *[round(v, 3) for v in event.pfjet_subjet_lambda])
+    print("[pfjet] <epsilon>", *[round(v, 3) for v in event.pfjet_subjet_epsilon])
+
     if i > 50:
         break
