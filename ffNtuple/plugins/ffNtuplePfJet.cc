@@ -5,6 +5,7 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
@@ -175,6 +176,8 @@ class ffNtuplePfJet : public ffNtupleBase {
   edm::EDGetToken pvs_token_;
   edm::EDGetToken generaltk_token_;
   edm::EDGetToken pfcand_token_;
+  edm::EDGetToken subjet_lambda_token_;
+  edm::EDGetToken subjet_epsilon_token_;
 
   StringCutObjectSelector<reco::PFJet> pfjet_selector_;
   StringCutObjectSelector<reco::Track> track_selector_;
@@ -257,6 +260,9 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::vector<float>              pfjet_kinvtx_impactDist3d_;
   std::vector<std::vector<float>> pfjet_kinvtx_tkImpactDist2d_;
   std::vector<std::vector<float>> pfjet_kinvtx_tkImpactDist3d_;
+
+  std::vector<float> pfjet_subjet_lambda_;
+  std::vector<float> pfjet_subjet_epsilon_;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
@@ -281,6 +287,10 @@ ffNtuplePfJet::initialize( TTree&                   tree,
       ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
   pfcand_token_ = cc.consumes<reco::PFCandidateCollection>(
       ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
+  subjet_lambda_token_ = cc.consumes<edm::ValueMap<float>>(
+      ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
+  subjet_epsilon_token_ = cc.consumes<edm::ValueMap<float>>(
+      ps.getParameter<edm::InputTag>( "SubjetEnergyDistributioin" ) );
 
   tree.Branch( "pfjet_n", &pfjet_n_, "pfjet_n/I" );
   tree.Branch( "pfjet_p4", &pfjet_p4_ );
@@ -356,6 +366,9 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_kinvtx_impactDist3d", &pfjet_kinvtx_impactDist3d_ );
   tree.Branch( "pfjet_kinvtx_tkImpactDist2d", &pfjet_kinvtx_tkImpactDist2d_ );
   tree.Branch( "pfjet_kinvtx_tkImpactDist3d", &pfjet_kinvtx_tkImpactDist3d_ );
+
+  tree.Branch( "pfjet_subjet_lambda", &pfjet_subjet_lambda_ );
+  tree.Branch( "pfjet_subjet_epsilon", &pfjet_subjet_epsilon_ );
 }
 
 void
@@ -380,6 +393,16 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   Handle<reco::PFCandidateCollection> pfCand_h;
   e.getByToken( pfcand_token_, pfCand_h );
   assert( pfCand_h.isValid() );
+
+  Handle<ValueMap<float>> subjet_lambda_h;
+  e.getByToken( subjet_lambda_token_, subjet_lambda_h );
+  assert( subjet_lambda_h.isValid() );
+  const auto& subjetLambdaVM = *subjet_lambda_h;
+
+  Handle<ValueMap<float>> subjet_epsilon_h;
+  e.getByToken( subjet_epsilon_token_, subjet_epsilon_h );
+  assert( subjet_epsilon_h.isValid() );
+  const auto& subjetEpsilonVM = *subjet_epsilon_h;
 
   clear();
 
@@ -637,6 +660,14 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_kinvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKinVtx );
     pfjet_kinvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKinVtx );
     // --------------------------------------------------------------------
+
+    // subjet -----------------------------------------------------------
+    size_t           idx( &pfjet - &*pfjets.begin() );
+    Ptr<reco::PFJet> pfjetptr( pfjet_h, idx );
+
+    pfjet_subjet_lambda_.emplace_back( subjetLambdaVM[ pfjetptr ] );
+    pfjet_subjet_epsilon_.emplace_back( subjetEpsilonVM[ pfjetptr ] );
+    // --------------------------------------------------------------------
   }
 }
 
@@ -716,6 +747,9 @@ ffNtuplePfJet::clear() {
   pfjet_kinvtx_impactDist3d_.clear();
   pfjet_kinvtx_tkImpactDist2d_.clear();
   pfjet_kinvtx_tkImpactDist3d_.clear();
+
+  pfjet_subjet_lambda_.clear();
+  pfjet_subjet_epsilon_.clear();
 }
 
 std::vector<reco::PFCandidatePtr>
