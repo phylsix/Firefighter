@@ -178,6 +178,9 @@ class ffNtuplePfJet : public ffNtupleBase {
   edm::EDGetToken pfcand_token_;
   edm::EDGetToken subjet_lambda_token_;
   edm::EDGetToken subjet_epsilon_token_;
+  edm::EDGetToken subjet_ecf1_token_;
+  edm::EDGetToken subjet_ecf2_token_;
+  edm::EDGetToken subjet_ecf3_token_;
 
   StringCutObjectSelector<reco::PFJet> pfjet_selector_;
   StringCutObjectSelector<reco::Track> track_selector_;
@@ -264,6 +267,9 @@ class ffNtuplePfJet : public ffNtupleBase {
 
   std::vector<float> pfjet_subjet_lambda_;
   std::vector<float> pfjet_subjet_epsilon_;
+  std::vector<float> pfjet_subjet_ecf1_;
+  std::vector<float> pfjet_subjet_ecf2_;
+  std::vector<float> pfjet_subjet_ecf3_;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
@@ -292,6 +298,12 @@ ffNtuplePfJet::initialize( TTree&                   tree,
       ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
   subjet_epsilon_token_ = cc.consumes<edm::ValueMap<float>>(
       ps.getParameter<edm::InputTag>( "SubjetEnergyDistributioin" ) );
+  subjet_ecf1_token_ = cc.consumes<edm::ValueMap<float>>(
+      ps.getParameter<edm::InputTag>( "SubjetEcf1" ) );
+  subjet_ecf2_token_ = cc.consumes<edm::ValueMap<float>>(
+      ps.getParameter<edm::InputTag>( "SubjetEcf2" ) );
+  subjet_ecf3_token_ = cc.consumes<edm::ValueMap<float>>(
+      ps.getParameter<edm::InputTag>( "SubjetEcf3" ) );
 
   tree.Branch( "pfjet_n", &pfjet_n_, "pfjet_n/I" );
   tree.Branch( "pfjet_p4", &pfjet_p4_ );
@@ -371,6 +383,9 @@ ffNtuplePfJet::initialize( TTree&                   tree,
 
   tree.Branch( "pfjet_subjet_lambda", &pfjet_subjet_lambda_ );
   tree.Branch( "pfjet_subjet_epsilon", &pfjet_subjet_epsilon_ );
+  tree.Branch( "pfjet_subjet_ecf1", &pfjet_subjet_ecf1_ );
+  tree.Branch( "pfjet_subjet_ecf2", &pfjet_subjet_ecf2_ );
+  tree.Branch( "pfjet_subjet_ecf3", &pfjet_subjet_ecf3_ );
 }
 
 void
@@ -405,6 +420,16 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( subjet_epsilon_token_, subjet_epsilon_h );
   assert( subjet_epsilon_h.isValid() );
   const auto& subjetEpsilonVM = *subjet_epsilon_h;
+
+  Handle<ValueMap<float>> subjet_ecf1_h, subjet_ecf2_h, subjet_ecf3_h;
+  e.getByToken( subjet_ecf1_token_, subjet_ecf1_h );
+  e.getByToken( subjet_ecf2_token_, subjet_ecf2_h );
+  e.getByToken( subjet_ecf3_token_, subjet_ecf3_h );
+  assert( subjet_ecf1_h.isValid() && subjet_ecf2_h.isValid() &&
+          subjet_ecf3_h.isValid() );
+  const auto& subjetecf1VM = *subjet_ecf1_h;
+  const auto& subjetecf2VM = *subjet_ecf2_h;
+  const auto& subjetecf3VM = *subjet_ecf3_h;
 
   clear();
 
@@ -670,6 +695,9 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
     pfjet_subjet_lambda_.emplace_back( subjetLambdaVM[ pfjetptr ] );
     pfjet_subjet_epsilon_.emplace_back( subjetEpsilonVM[ pfjetptr ] );
+    pfjet_subjet_ecf1_.emplace_back( subjetecf1VM[ pfjetptr ] );
+    pfjet_subjet_ecf2_.emplace_back( subjetecf2VM[ pfjetptr ] );
+    pfjet_subjet_ecf3_.emplace_back( subjetecf3VM[ pfjetptr ] );
     // --------------------------------------------------------------------
   }
 }
@@ -754,6 +782,9 @@ ffNtuplePfJet::clear() {
 
   pfjet_subjet_lambda_.clear();
   pfjet_subjet_epsilon_.clear();
+  pfjet_subjet_ecf1_.clear();
+  pfjet_subjet_ecf2_.clear();
+  pfjet_subjet_ecf3_.clear();
 }
 
 std::vector<reco::PFCandidatePtr>

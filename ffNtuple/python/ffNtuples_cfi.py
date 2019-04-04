@@ -77,6 +77,9 @@ ntuple_pfjet = cms.PSet(
     MinChargedMass=cms.double(0.0),
     SubjetEnergyDistributioin=cms.InputTag("ffLeptonJetSubjetEMD", "energy"),
     SubjetMomentumDistribution=cms.InputTag("ffLeptonJetSubjetEMD", "momentum"),
+    SubjetEcf1=cms.InputTag("ffLeptonJetSubjetECF", "ecf1"),
+    SubjetEcf2=cms.InputTag("ffLeptonJetSubjetECF", "ecf2"),
+    SubjetEcf3=cms.InputTag("ffLeptonJetSubjetECF", "ecf3"),
 )
 
 ntuple_hftagscore = cms.PSet(
