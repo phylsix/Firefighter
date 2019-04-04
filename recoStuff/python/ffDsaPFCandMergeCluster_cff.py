@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Firefighter.recoStuff.PFCandidateSelections_cff import *
 from Firefighter.recoStuff.DsaMuonSelections_cff import *
+from Firefighter.recoStuff.ffLeptonJetSubjet_cff import *
 from Firefighter.recoStuff.PFCandMerger_cfi import pfcandmerger as _pfcandmerger
 from Firefighter.recoStuff.JetConstituentSubtractor_cfi import (
     jetconstituentsubtractor as _jetconstituentsubtractor,
@@ -55,4 +56,5 @@ ffLeptonJetSeq = cms.Sequence(
     + particleFlowIncDSA
     + ffLeptonJetCHS
     + ffLeptonJet
+    + ffLeptonJetSubjetSeq
 )
