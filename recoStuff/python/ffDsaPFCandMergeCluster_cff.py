@@ -7,6 +7,8 @@ from Firefighter.recoStuff.PFCandMerger_cfi import pfcandmerger as _pfcandmerger
 from Firefighter.recoStuff.JetConstituentSubtractor_cfi import (
     jetconstituentsubtractor as _jetconstituentsubtractor,
 )
+from Firefighter.recoStuff.ffRecoSwitcher import switches
+
 
 from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 
@@ -18,7 +20,6 @@ particleFlowIncDSA = _pfcandmerger.clone(
 
 ffLeptonJetCHS = ak4PFJets.clone(
     src=cms.InputTag("particleFlowIncDSA"),
-    # jetAlgorithm=cms.string('Kt'),
     rParam=cms.double(0.4),
     # useFiltering=cms.bool(True),
     # nFilt=cms.int32(3),
@@ -29,32 +30,16 @@ ffLeptonJetCHS = ak4PFJets.clone(
     # trimPtFracMin=cms.double(0.03),
 )
 
-# ffLeptonJetCHSConstituents = cms.EDProducer(
-#     "PFJetConstituentSelector",
-#     src=cms.InputTag('ffLeptonJetCHS'),
-#     cut=cms.string('abs(eta)<2.5'))
-
-# ffLeptonJetCHSConstituentsNoHadron = cms.EDFilter(
-#     "PFCandidateFwdPtrCollectionStringFilter",
-#     src=cms.InputTag("ffLeptonJetCHSConstituents", "constituents"),
-#     cut=cms.string(' && '.join([
-#         'particleId!=1',
-#         'particleId!=5',
-#     ])))
-
-# ffLeptonJet = ak4PFJets.clone(
-#     src=cms.InputTag('ffLeptonJetCHSConstituentsNoHadron'),
-#     rParam=cms.double(0.4),
-#     jetAlgorithm=cms.string('Kt'),
-# )
 
 ffLeptonJet = _jetconstituentsubtractor.clone()
 
+ffLeptonJetProd = cms.Sequence(particleFlowIncDSA + ffLeptonJetCHS + ffLeptonJet)
+
+if switches["usingCHS"] == False:
+    ffLeptonJet = ffLeptonJetCHS.clone()
+    ffLeptonJetProd = cms.Sequence(particleFlowIncDSA + ffLeptonJet)
+
+
 ffLeptonJetSeq = cms.Sequence(
-    filteringPFCands
-    + filteringDsaMuAsPFCand
-    + particleFlowIncDSA
-    + ffLeptonJetCHS
-    + ffLeptonJet
-    + ffLeptonJetSubjetSeq
+    (filteringPFCands + filteringDsaMuAsPFCand) * ffLeptonJetProd * ffLeptonJetSubjetSeq
 )
