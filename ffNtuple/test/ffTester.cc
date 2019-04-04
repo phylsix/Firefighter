@@ -33,13 +33,20 @@ class ffTester : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   edm::EDGetTokenT<edm::Association<reco::PFJetCollection>> fJetsjetMapToken;
   edm::EDGetTokenT<edm::ValueMap<float>> fJetEnergyDistrToken;
   edm::EDGetTokenT<edm::ValueMap<float>> fJetMomentumDistrToken;
+  edm::EDGetTokenT<edm::ValueMap<float>> fJetEcf1Token;
+  edm::EDGetTokenT<edm::ValueMap<float>> fJetEcf2Token;
+  edm::EDGetTokenT<edm::ValueMap<float>> fJetEcf3Token;
 
   edm::Handle<reco::JetView>                           fjetHdl;
   edm::Handle<reco::JetView>                           fSjetHdl;
   edm::Handle<reco::PFJetCollection>                   fSubjetHdl;
   edm::Handle<edm::Association<reco::PFJetCollection>> fJetsjetMapHdl;
-  edm::Handle<edm::ValueMap<float>>                    fJetEnergyDistrHdl;
-  edm::Handle<edm::ValueMap<float>>                    fJetMomentumDistrHdl;
+
+  edm::Handle<edm::ValueMap<float>> fJetEnergyDistrHdl;
+  edm::Handle<edm::ValueMap<float>> fJetMomentumDistrHdl;
+  edm::Handle<edm::ValueMap<float>> fJetEcf1Hdl;
+  edm::Handle<edm::ValueMap<float>> fJetEcf2Hdl;
+  edm::Handle<edm::ValueMap<float>> fJetEcf3Hdl;
 };
 
 ffTester::ffTester( const edm::ParameterSet& iC ) {
@@ -53,6 +60,12 @@ ffTester::ffTester( const edm::ParameterSet& iC ) {
       edm::InputTag( "ffLeptonJetSubjetEMD", "energy" ) );
   fJetMomentumDistrToken = consumes<edm::ValueMap<float>>(
       edm::InputTag( "ffLeptonJetSubjetEMD", "momentum" ) );
+  fJetEcf1Token = consumes<edm::ValueMap<float>>(
+      edm::InputTag( "ffLeptonJetSubjetECF", "ecf1" ) );
+  fJetEcf2Token = consumes<edm::ValueMap<float>>(
+      edm::InputTag( "ffLeptonJetSubjetECF", "ecf2" ) );
+  fJetEcf3Token = consumes<edm::ValueMap<float>>(
+      edm::InputTag( "ffLeptonJetSubjetECF", "ecf3" ) );
 }
 
 ffTester::~ffTester() {}
@@ -73,12 +86,23 @@ ffTester::analyze( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( fJetEnergyDistrToken, fJetEnergyDistrHdl );
   assert( fJetEnergyDistrHdl.isValid() );
   e.getByToken( fJetMomentumDistrToken, fJetMomentumDistrHdl );
+  assert( fJetMomentumDistrHdl.isValid() );
+  e.getByToken( fJetEcf1Token, fJetEcf1Hdl );
+  assert( fJetEcf1Hdl.isValid() );
+  e.getByToken( fJetEcf2Token, fJetEcf2Hdl );
+  assert( fJetEcf2Hdl.isValid() );
+  e.getByToken( fJetEcf3Token, fJetEcf3Hdl );
+  assert( fJetEcf3Hdl.isValid() );
 
   const auto& subjets    = *fSubjetHdl;
   const auto& jetsjetMap = *fJetsjetMapHdl;
 
   const auto& jetEnergyDistrVM   = *fJetEnergyDistrHdl;
   const auto& jetMomentumDistrVM = *fJetMomentumDistrHdl;
+
+  const auto& jetecf1VM = *fJetEcf1Hdl;
+  const auto& jetecf2VM = *fJetEcf2Hdl;
+  const auto& jetecf3VM = *fJetEcf3Hdl;
 
   // cout<<"jet prodId: "<<fjetHdl.id()<<" sjet prodId:
   // "<<fSjetHdl.id()<<", the Assocation contains?
@@ -106,17 +130,37 @@ ffTester::analyze( const edm::Event& e, const edm::EventSetup& es ) {
     std::cout << std::endl;
   }
 
-  cout << "jet energy distribution/epsilon: ";
+  vector<Ptr<reco::Jet>> jetptrs{};
   for ( size_t i( 0 ); i != fjetHdl->size(); ++i ) {
-    Ptr<reco::Jet> jet( fjetHdl, i );
+    jetptrs.emplace_back( fjetHdl, i );
+  }
+  cout << "jet energy distribution/epsilon: ";
+  for ( const auto& jet : jetptrs ) {
     cout << jetEnergyDistrVM[ jet ] << " ";
   }
   cout << endl;
 
   cout << "jet momentum distribution/lambda: ";
-  for ( size_t i( 0 ); i != fjetHdl->size(); ++i ) {
-    Ptr<reco::Jet> jet( fjetHdl, i );
+  for ( const auto& jet : jetptrs ) {
     cout << jetMomentumDistrVM[ jet ] << " ";
+  }
+  cout << endl;
+
+  cout << "jet ECF 1: ";
+  for ( const auto& jet : jetptrs ) {
+    cout << jetecf1VM[ jet ] << " ";
+  }
+  cout << endl;
+
+  cout << "jet ECF 2: ";
+  for ( const auto& jet : jetptrs ) {
+    cout << jetecf2VM[ jet ] << " ";
+  }
+  cout << endl;
+
+  cout << "jet ECF 3: ";
+  for ( const auto& jet : jetptrs ) {
+    cout << jetecf3VM[ jet ] << " ";
   }
   cout << endl;
 }
