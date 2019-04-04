@@ -695,9 +695,12 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
     pfjet_subjet_lambda_.emplace_back( subjetLambdaVM[ pfjetptr ] );
     pfjet_subjet_epsilon_.emplace_back( subjetEpsilonVM[ pfjetptr ] );
-    pfjet_subjet_ecf1_.emplace_back( subjetecf1VM[ pfjetptr ] );
-    pfjet_subjet_ecf2_.emplace_back( subjetecf2VM[ pfjetptr ] );
-    pfjet_subjet_ecf3_.emplace_back( subjetecf3VM[ pfjetptr ] );
+    pfjet_subjet_ecf1_.emplace_back(
+        subjetecf1VM[ pfjetptr ] > 0 ? subjetecf1VM[ pfjetptr ] : NAN );
+    pfjet_subjet_ecf2_.emplace_back(
+        subjetecf2VM[ pfjetptr ] > 0 ? subjetecf2VM[ pfjetptr ] : NAN );
+    pfjet_subjet_ecf3_.emplace_back(
+        subjetecf3VM[ pfjetptr ] > 0 ? subjetecf3VM[ pfjetptr ] : NAN );
     // --------------------------------------------------------------------
   }
 }
