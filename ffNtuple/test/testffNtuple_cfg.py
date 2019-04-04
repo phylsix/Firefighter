@@ -29,7 +29,7 @@ if cmsrel.startswith("CMSSW_8"):
 
 dataType = sys.argv[2]
 TEST_FAST = True
-if len(sys.argv) > 3 and sys.argv[3] == "full":
+if len(sys.argv) > 3 and "full" in sys.argv:
     TEST_FAST = False
 
 from Firefighter.ffConfig.dataSample import samples

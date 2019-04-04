@@ -89,7 +89,7 @@ def main():
             # add some filters
             pabspid = abs(p.pdgId())
             if pabspid != 32 and p.numberOfDaughters() != 0:
-                continue # keep darkphotons and final state apriticles
+                continue  # keep darkphotons and final state apriticles
             if pabspid > 999:
                 continue  # mostly baryons
             if pabspid in [12, 14, 16]:
