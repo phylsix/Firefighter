@@ -10,3 +10,6 @@ messages.txt
 nohup.out
 crabWorkArea
 .fuse*
+
+!/ffConfig/crab/multicrabConfig_bkgMC.yml
+!/ffConfig/crab/multicrabConfig_sigMC.yml
