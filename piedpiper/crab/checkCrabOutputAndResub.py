@@ -136,7 +136,7 @@ def main():
     else:
         crabTaskStatuses = [checkSingleTask(d) for d in crabTaskListToCheck]
 
-    task_completed, task_failed, task_others, task_exception = [], [], [], []
+    task_completed, task_failed, task_submitfailed, task_others, task_exception = [], [], [], [], []
     for d in crabTaskStatuses:
         if d.get("exception", False):
             task_exception.append(d)
@@ -146,6 +146,8 @@ def main():
                 task_completed.append(d)
             elif _status == "failed":
                 task_failed.append(d)
+            elif _status == "submitfailed":
+                task_submitfailed.append(d)
             else:
                 task_others.append(d)
 
@@ -232,6 +234,16 @@ def main():
                 )
                 of.write(toprint)
 
+            of.write("-" * 79 + "\n\n")
+
+        if task_submitfailed:
+            of.write("Submitfailed tasks: [{}]\n".format(len(task_submitfailed)))
+            of.write("===========================\n")
+            print("Follwoing tasks are failed to submit:\n")
+            for t in task_submitfailed:
+                towrite = "directory: {}\n".format(t["directory"])
+                of.write(towrite)
+                print("crab resubmit -d {}".format(t["directory"]))
             of.write("-" * 79 + "\n\n")
 
         if task_exception:
