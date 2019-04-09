@@ -20,14 +20,17 @@ samples = {
     # 'root://cmsxrootd-site.fnal.gov//store/mc/RunIIAutumn18DRPremix/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/10000/02230ABB-29B0-464B-8A12-C208717C96DF.root',
     "/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffLite/PFEnergy/ZZTo4L/pickevents.root",
     "Cosmics": "root://cmsxrootd.fnal.gov//store/data/Run2018A/Cosmics/AOD/06Jun2018-v1/80000/FEBEAF7F-FD71-E811-86DA-782BCB3BCA77.root",
-    "QCD-MuEnriched_Pt20ToInf": "root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/QCD_Pt-20toInf_MuEnrichedPt15_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/810000/FA2C9B8F-4080-B34F-8D3F-65DD1C3A0224.root",
+    "QCD_Pt-300to470": "root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/90000/F522418C-3CA0-5949-A14E-33576ECB15D4.root",
 }
 
 ffSamples = {
-    "signal-4mu": "/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_signal-4mu.root",
-    "signal-2mu2e": "/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_signal-2mu2e.root",
-    "ZZTo4L": "/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_ZZTo4L.root",
-    "QCD-MuEnriched_Pt20ToInf": "/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffNtuple/test/ffNtuple_QCD-MuEnriched_Pt20ToInf.root",
+    "signal-4mu": CMSSW_BASE
+    + "/src/Firefighter/ffNtuple/test/ffNtuple_signal-4mu.root",
+    "signal-2mu2e": CMSSW_BASE
+    + "/src/Firefighter/ffNtuple/test/ffNtuple_signal-2mu2e.root",
+    "ZZ": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ffNtuple_ZZ.root",
+    "QCD_Pt-300to470": CMSSW_BASE
+    + "/src/Firefighter/ffNtuple/test/ffNtuple_QCD_Pt-300to470.root",
 }
 
 skimmedSamples = {

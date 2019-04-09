@@ -12,7 +12,7 @@ try:
     fn = ffSamples[dataType]
 except KeyError:
     msg = 'ERROR: sample for key "{}" not found!\nAvailable keys: {}'.format(
-        dataType, list(samples.keys())
+        dataType, list(ffSamples.keys())
     )
     sys.exit(msg)
 
@@ -69,6 +69,8 @@ for i, event in enumerate(t, 1):
 
     print("[Event] <pu> - ", event.puInteractionNum)
     print("[Event] <trueInter> - ", event.trueInteractionNum)
+    print("[Event] <weight> - ", event.weight)
+    print("[Event] <weightProduct> - ", event.weightProduct)
     print(
         "[HFTag] <DeepCSV b> [L, M, T]/Total",
         "[{}, {}, {}]/{}".format(
