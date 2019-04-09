@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 from __future__ import print_function
 import os
+import sys
 import time
 import sqlite3
 from datetime import datetime
@@ -17,8 +18,13 @@ JOB_STATUS_DB = os.path.join(
 LOGSHEET = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "crabjobsCheckAndResubReport.log"
 )
-VERBOSE = True
 MOST_RECENT_DAYS = 2
+if len(sys.argv) > 1:
+    try:
+        MOST_RECENT_DAYS = int(sys.argv[1])
+    except:
+        print("MOST_RECENT_DAYS need to be an integer!")
+        raise
 ASYNC_CHECK = (
     False
 )  # crab relies on local ~/.crab3, which is the main reason of exception
@@ -120,7 +126,11 @@ def main():
         < MOST_RECENT_DAYS
     ]
     crabTaskListToCheck = [t for t in crabTaskList if t not in crabTaskListCompleted]
-    print("Total tasks to check: ", len(crabTaskListToCheck))
+    print(
+        "Checking tasks submmited for most recent {} day(s), total tasks to check: {}. Checking...".format(
+            MOST_RECENT_DAYS, len(crabTaskListToCheck)
+        )
+    )
 
     setConsoleLogLevel(LOGLEVEL_MUTE)
     crabLoggers = getLoggers()
@@ -136,7 +146,12 @@ def main():
     else:
         crabTaskStatuses = [checkSingleTask(d) for d in crabTaskListToCheck]
 
-    task_completed, task_failed, task_submitfailed, task_others, task_exception = [], [], [], [], []
+    task_completed = []
+    task_failed = []
+    task_submitfailed = []
+    task_others = []
+    task_exception = []
+
     for d in crabTaskStatuses:
         if d.get("exception", False):
             task_exception.append(d)
@@ -176,6 +191,7 @@ def main():
             "INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_noncomplete
         )
 
+    print("Trying to resubmit {} task(s) ...".format(len(task_failed+task_others)))
     p = ThreadPool()
     crabResubmitResult = p.map(resubmitSingleTask, task_failed + task_others)
     p.close()
@@ -188,9 +204,10 @@ def main():
         else:
             resubTaskFail.append(t)
 
-    print("Check&Resub result written to: ", LOGSHEET)
+    print("Successfully resubmit {} task(s), !Yay!".format(len(resubTaskSuccess)))
+    print("Writing Check&Resub result to:\n\t", LOGSHEET)
     with open(LOGSHEET, "w") as of:
-        of.write(time.asctime() + "\n")
+        of.write("Generated at " + time.asctime() + "\n")
         of.write("=" * 79 + "\n\n")
 
         if task_completed:
