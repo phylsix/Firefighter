@@ -2,6 +2,7 @@
 from __future__ import print_function
 import os
 import sys
+import math
 import ROOT
 from Firefighter.ffConfig.dataSample import ffSamples
 
@@ -43,7 +44,8 @@ for i, event in enumerate(t, 1):
             sep="\n"
         )
         print("gen2pid", [p for p in event.gen2_pid])
-        print("gen2vtx", [round(v.rho(), 3) for v in event.gen2_vtx])
+        print("gen2vtx_rho", [round(v.rho(), 3) for v in event.gen2_vtx])
+        print("gen2vtx_mag", [round(math.sqrt(v.mag2()), 3) for v in event.gen2_vtx])
         print(
             "gen2p4",
             *[
