@@ -6,7 +6,9 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 
 ntuple_event = cms.PSet(
-    NtupleName=cms.string("ffNtupleEvent"), PileUp=cms.InputTag("addPileupInfo")
+    NtupleName=cms.string("ffNtupleEvent"),
+    PileUp=cms.InputTag("addPileupInfo"),
+    GenProd=cms.InputTag("generator"),
 )
 
 
