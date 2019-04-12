@@ -29,8 +29,11 @@ if cmsrel.startswith("CMSSW_8"):
 
 dataType = sys.argv[2]
 TEST_FAST = True
+KEEP_SKIM = False
 if len(sys.argv) > 3 and "full" in sys.argv:
     TEST_FAST = False
+if len(sys.argv) > 3 and "skim" in sys.argv:
+    KEEP_SKIM = True
 
 from Firefighter.ffConfig.dataSample import samples
 
@@ -91,6 +94,11 @@ process.ntuple_step = cms.Path(process.ffLeptonJetSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.skimOutput)
 
-process.schedule = cms.Schedule(
-    process.ntuple_step, process.endjob_step, process.output_step
-)
+if KEEP_SKIM:
+    process.schedule = cms.Schedule(
+        process.ntuple_step, process.endjob_step, process.output_step
+    )
+else:
+    process.schedule = cms.Schedule(
+        process.ntuple_step, process.endjob_step
+    )
