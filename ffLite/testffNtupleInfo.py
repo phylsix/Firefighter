@@ -84,6 +84,9 @@ for i, event in enumerate(t, 1):
         sep="\n",
     )
 
+    print("[pfjet] <tkiso05>", *[round(v, 3) for v in event.pfjet_tkIsolation05])
+    print("[pfjet] <pfiso06>", *[round(v, 3) for v in event.pfjet_pfIsolation06])
+    print("[pfjet] <neuiso07>", *[round(v, 3) for v in event.pfjet_neuIsolation07])
     print("[pfjet] <lambda>", *[round(v, 3) for v in event.pfjet_subjet_lambda])
     print("[pfjet] <epsilon>", *[round(v, 3) for v in event.pfjet_subjet_epsilon])
     print("[pfjet] <ecf1>", *[round(v, 3) for v in event.pfjet_subjet_ecf1])
