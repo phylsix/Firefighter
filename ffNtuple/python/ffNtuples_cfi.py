@@ -75,7 +75,7 @@ ntuple_pfjet = cms.PSet(
         maxNbrOfIterations=cms.int32(10),
         doSmoothing=cms.bool(True),
     ),
-    IsolationRadius=cms.double(0.5),
+    IsolationRadius=cms.vdouble(0.5, 0.6, 0.7),
     MinChargedMass=cms.double(0.0),
     SubjetEnergyDistributioin=cms.InputTag("ffLeptonJetSubjetEMD", "energy"),
     SubjetMomentumDistribution=cms.InputTag("ffLeptonJetSubjetEMD", "momentum"),

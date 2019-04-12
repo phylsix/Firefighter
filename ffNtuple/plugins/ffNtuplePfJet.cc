@@ -36,7 +36,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include <algorithm>
+#include <map>
 #include <numeric>
+#include <sstream>
 
 using Point          = math::XYZPointF;
 using LorentzVector  = math::XYZTLorentzVectorF;
@@ -185,35 +187,35 @@ class ffNtuplePfJet : public ffNtupleBase {
   StringCutObjectSelector<reco::PFJet> pfjet_selector_;
   StringCutObjectSelector<reco::Track> track_selector_;
   edm::ParameterSet                    kvfParam_;
-  float                                isoRadius_;
+  std::vector<double>                  isoRadius_;
   float                                minChargedMass_;
 
-  int                        pfjet_n_;
-  std::vector<LorentzVector> pfjet_p4_;
-  std::vector<float>         pfjet_chargedHadronE_;
-  std::vector<float>         pfjet_neutralHadronE_;
-  std::vector<float>         pfjet_chargedEmE_;
-  std::vector<float>         pfjet_neutralEmE_;
-  std::vector<float>         pfjet_photonE_;
-  std::vector<float>         pfjet_electronE_;
-  std::vector<float>         pfjet_muonE_;
-  std::vector<float>         pfjet_hfHadronE_;
-  std::vector<float>         pfjet_hfEmE_;
-  std::vector<int>           pfjet_charged_n_;
-  std::vector<int>           pfjet_neutral_n_;
-  std::vector<int>           pfjet_chargedHadron_n_;
-  std::vector<int>           pfjet_neutralHadron_n_;
-  std::vector<int>           pfjet_photon_n_;
-  std::vector<int>           pfjet_electron_n_;
-  std::vector<int>           pfjet_muon_n_;
-  std::vector<float>         pfjet_area_;
-  std::vector<float>         pfjet_maxDistance_;
-  std::vector<float>         pfjet_tkIsolation_;
-  std::vector<float>         pfjet_pfIsolation_;
-  std::vector<float>         pfjet_neuIsolation_;
-  std::vector<int>           pfjet_tracks_n_;
-  std::vector<float>         pfjet_ptDistribution_;
-  std::vector<float>         pfjet_dRSpread_;
+  int                                 pfjet_n_;
+  std::vector<LorentzVector>          pfjet_p4_;
+  std::vector<float>                  pfjet_chargedHadronE_;
+  std::vector<float>                  pfjet_neutralHadronE_;
+  std::vector<float>                  pfjet_chargedEmE_;
+  std::vector<float>                  pfjet_neutralEmE_;
+  std::vector<float>                  pfjet_photonE_;
+  std::vector<float>                  pfjet_electronE_;
+  std::vector<float>                  pfjet_muonE_;
+  std::vector<float>                  pfjet_hfHadronE_;
+  std::vector<float>                  pfjet_hfEmE_;
+  std::vector<int>                    pfjet_charged_n_;
+  std::vector<int>                    pfjet_neutral_n_;
+  std::vector<int>                    pfjet_chargedHadron_n_;
+  std::vector<int>                    pfjet_neutralHadron_n_;
+  std::vector<int>                    pfjet_photon_n_;
+  std::vector<int>                    pfjet_electron_n_;
+  std::vector<int>                    pfjet_muon_n_;
+  std::vector<float>                  pfjet_area_;
+  std::vector<float>                  pfjet_maxDistance_;
+  std::map<float, std::vector<float>> pfjet_tkIsolation_;
+  std::map<float, std::vector<float>> pfjet_pfIsolation_;
+  std::map<float, std::vector<float>> pfjet_neuIsolation_;
+  std::vector<int>                    pfjet_tracks_n_;
+  std::vector<float>                  pfjet_ptDistribution_;
+  std::vector<float>                  pfjet_dRSpread_;
 
   std::vector<int>   pfjet_pfcands_n_;
   std::vector<float> pfjet_pfcands_chargedMass_;
@@ -279,7 +281,7 @@ ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
       pfjet_selector_( ps.getParameter<std::string>( "PFJetSelection" ) ),
       track_selector_( ps.getParameter<std::string>( "TrackSelection" ) ),
       kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
-      isoRadius_( ps.getParameter<double>( "IsolationRadius" ) ),
+      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ),
       minChargedMass_( ps.getParameter<double>( "MinChargedMass" ) ) {}
 
 void
@@ -325,9 +327,20 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_muon_n", &pfjet_muon_n_ );
   tree.Branch( "pfjet_area", &pfjet_area_ );
   tree.Branch( "pfjet_maxDistance", &pfjet_maxDistance_ );
-  tree.Branch( "pfjet_tkIsolation", &pfjet_tkIsolation_ );
-  tree.Branch( "pfjet_pfIsolation", &pfjet_pfIsolation_ );
-  tree.Branch( "pfjet_neuIsolation", &pfjet_neuIsolation_ );
+  for ( const double& isor : isoRadius_ ) {
+    pfjet_tkIsolation_[ isor ]  = {};
+    pfjet_pfIsolation_[ isor ]  = {};
+    pfjet_neuIsolation_[ isor ] = {};
+    std::stringstream ss;
+    ss << isor;
+    std::string suffix = ss.str().replace( 1, 1, "" );
+    tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(),
+                 &pfjet_tkIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(),
+                 &pfjet_pfIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(),
+                 &pfjet_neuIsolation_[ isor ] );
+  }
   tree.Branch( "pfjet_pfcands_n", &pfjet_pfcands_n_ );
   tree.Branch( "pfjet_tracks_n", &pfjet_tracks_n_ );
   tree.Branch( "pfjet_ptDistribution", &pfjet_ptDistribution_ );
@@ -464,12 +477,16 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_muon_n_.emplace_back( pfjet.muonMultiplicity() );
     pfjet_area_.emplace_back( pfjet.jetArea() );
     pfjet_maxDistance_.emplace_back( pfjet.maxDistance() );
-    pfjet_tkIsolation_.emplace_back(
-        getTkIsolation( pfjet, generalTk_h, isoRadius_ ) );
-    pfjet_pfIsolation_.emplace_back(
-        getPfIsolation( pfjet, pfCand_h, isoRadius_ ) );
-    pfjet_neuIsolation_.emplace_back(
-        getNeutralIsolation( pfjet, pfCand_h, isoRadius_ ) );
+
+    for ( const double& isor : isoRadius_ ) {
+      pfjet_tkIsolation_[ isor ].emplace_back(
+          getTkIsolation( pfjet, generalTk_h, isor ) );
+      pfjet_pfIsolation_[ isor ].emplace_back(
+          getPfIsolation( pfjet, pfCand_h, isor ) );
+      pfjet_neuIsolation_[ isor ].emplace_back(
+          getNeutralIsolation( pfjet, pfCand_h, isor ) );
+    }
+
     pfjet_pfcands_n_.emplace_back( pfCands.size() );
     pfjet_tracks_n_.emplace_back( tracksSelected.size() );
     pfjet_ptDistribution_.emplace_back( pfjet.constituentPtDistribution() );
@@ -727,9 +744,11 @@ ffNtuplePfJet::clear() {
   pfjet_muon_n_.clear();
   pfjet_area_.clear();
   pfjet_maxDistance_.clear();
-  pfjet_tkIsolation_.clear();
-  pfjet_pfIsolation_.clear();
-  pfjet_neuIsolation_.clear();
+  for ( const double& isor : isoRadius_ ) {
+    pfjet_tkIsolation_[ isor ].clear();
+    pfjet_pfIsolation_[ isor ].clear();
+    pfjet_neuIsolation_[ isor ].clear();
+  }
   pfjet_pfcands_n_.clear();
   pfjet_tracks_n_.clear();
   pfjet_ptDistribution_.clear();
