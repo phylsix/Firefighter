@@ -21,11 +21,11 @@ class MatcherByExtrapolatingTracks {
 
   void init( const edm::EventSetup& );
 
-  using MapLink = std::map<reco::PFCandidateRef, reco::PFCandidateRef>;
-  using PFCandRefCollection = std::vector<reco::PFCandidateRef>;
+  using MapLink = std::map<reco::PFCandidatePtr, reco::PFCandidatePtr>;
+  using PFCandPtrCollection = std::vector<reco::PFCandidatePtr>;
   // match --> src
-  MapLink match( const PFCandRefCollection& srcCol,
-                 const PFCandRefCollection& matchCol ) const;
+  MapLink match( const PFCandPtrCollection& srcCol,
+                 const PFCandPtrCollection& matchCol ) const;
 
  private:
   std::unique_ptr<ff::TrackExtrapolator> tkExtrp_;

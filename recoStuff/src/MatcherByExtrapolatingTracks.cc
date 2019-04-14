@@ -44,15 +44,15 @@ ff::MatcherByExtrapolatingTracks::init( const edm::EventSetup& es ) {
   tkExtrp_ = std::make_unique<ff::TrackExtrapolator>( es );
 }
 
-std::map<reco::PFCandidateRef, reco::PFCandidateRef>
+std::map<reco::PFCandidatePtr, reco::PFCandidatePtr>
 ff::MatcherByExtrapolatingTracks::match(
-    const std::vector<reco::PFCandidateRef>& srcCol,
-    const std::vector<reco::PFCandidateRef>& matchCol ) const {
-  std::map<reco::PFCandidateRef, reco::PFCandidateRef>
+    const std::vector<reco::PFCandidatePtr>& srcCol,
+    const std::vector<reco::PFCandidatePtr>& matchCol ) const {
+  std::map<reco::PFCandidatePtr, reco::PFCandidatePtr>
       result{};  // dSA --> particleFlow
 
   /// copy and sort input collection by pT from high to low
-  std::vector<reco::PFCandidateRef> sortedSrcCol{};
+  std::vector<reco::PFCandidatePtr> sortedSrcCol{};
   for ( const auto& cand : srcCol )
     sortedSrcCol.push_back( cand );
   std::sort( sortedSrcCol.begin(), sortedSrcCol.end(),
@@ -71,7 +71,7 @@ ff::MatcherByExtrapolatingTracks::match(
         *srcTk, tkExtrp_->getMagneticField() );
 
     float                minMatchingMetric( 999. );
-    reco::PFCandidateRef bestMatchedCand;
+    reco::PFCandidatePtr bestMatchedCand;
 
     for ( const auto& matCand : matchCol ) {
       if ( matCand.isNull() )

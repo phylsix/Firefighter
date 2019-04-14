@@ -27,13 +27,18 @@ selectedDsaMuons = selectedTracks.clone(
     )
 )
 dsaMuPFCand = PFCandsFromTracks.clone(src=cms.InputTag("selectedDsaMuons"))
+dsaMuPFCandFwdPtr = cms.EDProducer(
+    "PFCandidateFwdPtrProducer",
+    src=cms.InputTag("dsaMuPFCand")
+)
 
 # dsaMuPFCandFork = forkCandAgainstDsaMuon.clone(
 #     src     = cms.InputTag("selectedPFCands"),
 #     matched = cms.InputTag("dsaMuPFCand")
 # )
 dsaMuPFCandFork = splitPFCandByMatchingDsaMuon.clone(
-    src=cms.InputTag("filteredPFCands"), matched=cms.InputTag("dsaMuPFCand")
+    src=cms.InputTag("filteredPFCandsFwdPtr"),
+    matched=cms.InputTag("dsaMuPFCandFwdPtr")
 )
 
 filteringDsaMuAsPFCand = cms.Sequence(
@@ -41,5 +46,6 @@ filteringDsaMuAsPFCand = cms.Sequence(
     + mcKinematicFilter
     + selectedDsaMuons
     + dsaMuPFCand
+    + dsaMuPFCandFwdPtr
     + dsaMuPFCandFork
 )

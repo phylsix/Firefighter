@@ -26,9 +26,16 @@ filteredPFCands = cms.EDProducer(
 )
 
 
+# if switches["usingCHS"] == False:
+#     filteringPFCands = cms.Sequence(filteredPFCandsFwdPtr + filteredPFCands)
+# else:
+#     filteringPFCands = cms.Sequence(
+#         pfNoPileUpJMESeq + filteredPFCandsFwdPtr + filteredPFCands
+#     )
+
 if switches["usingCHS"] == False:
-    filteringPFCands = cms.Sequence(filteredPFCandsFwdPtr + filteredPFCands)
+    filteringPFCands = cms.Sequence(filteredPFCandsFwdPtr)
 else:
     filteringPFCands = cms.Sequence(
-        pfNoPileUpJMESeq + filteredPFCandsFwdPtr + filteredPFCands
+        pfNoPileUpJMESeq + filteredPFCandsFwdPtr
     )

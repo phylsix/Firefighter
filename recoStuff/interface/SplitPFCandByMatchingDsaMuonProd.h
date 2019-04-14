@@ -29,15 +29,15 @@ class SplitPFCandByMatchingDsaMuonProd : public edm::stream::EDProducer<> {
  private:
   void beginRun( const edm::Run&, const edm::EventSetup& ) override;
   void produce( edm::Event&, edm::EventSetup const& ) override;
-  const edm::EDGetTokenT<reco::PFCandidateCollection> srcToken_;
-  const edm::EDGetTokenT<reco::PFCandidateCollection> matchedToken_;
+  const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> srcToken_;
+  const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> matchedToken_;
 
   StringCutObjectSelector<reco::PFCandidate, true> srcCut_;
   ff::MatcherByExtrapolatingTracks                 matcherByTk_;
   ff::MatcherByAssociatingRecoMuons                matcherByMu_;
 
-  edm::Handle<reco::PFCandidateCollection> srcHdl_;
-  edm::Handle<reco::PFCandidateCollection> matchedHdl_;
+  edm::Handle<reco::PFCandidateFwdPtrVector> srcHdl_;
+  edm::Handle<reco::PFCandidateFwdPtrVector> matchedHdl_;
 };
 
 #endif
