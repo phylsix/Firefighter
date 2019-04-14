@@ -36,7 +36,7 @@ for i, event in enumerate(t, 1):
         print(
             "genp4",
             *[
-                "({:8.3f}, {:8.3f}, {:8.3f}, {:8.3f})".format(
+                "\t({:8.3f}, {:8.3f}, {:8.3f}, {:8.3f})".format(
                     p.pt(), p.eta(), p.phi(), p.energy()
                 )
                 for p in event.gen_p4
@@ -49,7 +49,7 @@ for i, event in enumerate(t, 1):
         print(
             "gen2p4",
             *[
-                "({:8.3f}, {:8.3f}, {:8.3f}, {:8.3f})".format(
+                "\t({:8.3f}, {:8.3f}, {:8.3f}, {:8.3f})".format(
                     p.pt(), p.eta(), p.phi(), p.energy()
                 )
                 for p in event.gen2_p4
@@ -57,15 +57,33 @@ for i, event in enumerate(t, 1):
             sep="\n"
         )
 
-    print("[pfcands] <type>", *[list(j) for j in event.pfjet_pfcand_type], sep="\n")
+    print(
+        "[pfcands] <type>",
+        *["\t" + str(list(j)) for j in event.pfjet_pfcand_type],
+        sep="\n"
+    )
     print(
         "[pfcands] <pt>",
-        *[map(lambda v: round(v, 3), list(j)) for j in event.pfjet_pfcand_pt],
+        *[
+            "\t" + str(map(lambda v: round(v, 3), list(j)))
+            for j in event.pfjet_pfcand_pt
+        ],
+        sep="\n"
+    )
+    print(
+        "[pfcands] <energy>",
+        *[
+            "\t" + str(map(lambda v: round(v, 3), list(j)))
+            for j in event.pfjet_pfcand_energy
+        ],
         sep="\n"
     )
     print(
         "[pfcands] <tkD0Sig>",
-        *[map(lambda v: round(v, 3), list(j)) for j in event.pfjet_pfcand_tkD0Sig],
+        *[
+            "\t" + str(map(lambda v: round(v, 3), list(j)))
+            for j in event.pfjet_pfcand_tkD0Sig
+        ],
         sep="\n"
     )
 
@@ -81,7 +99,6 @@ for i, event in enumerate(t, 1):
             len(filter(lambda x: x > 0.7527, event.hftagscore_DeepCSV_b)),
             len(event.hftagscore_DeepCSV_b),
         ),
-        sep="\n",
     )
 
     print("[pfjet] <tkiso05>", *[round(v, 3) for v in event.pfjet_tkIsolation05])

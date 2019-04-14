@@ -7,7 +7,7 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cf
 
 splitPFCandByMatchingDsaMuon = cms.EDProducer(
     "SplitPFCandByMatchingDsaMuonProd",
-    src=cms.InputTag("particleFlow"),
+    src=cms.InputTag("particleFlowTmpPtrs"),
     matched=cms.InputTag("dSAmuPFCand"),
     srcPreselection=cms.string("pt>2 && abs(eta)<2.4 && charge!=0"),
     matcherByTkParams=cms.PSet(

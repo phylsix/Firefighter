@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Firefighter.recoStuff.PFCandidateSelections_cff import *
 from Firefighter.recoStuff.DsaMuonSelections_cff import *
 from Firefighter.recoStuff.ffLeptonJetSubjet_cff import *
-from Firefighter.recoStuff.PFCandMerger_cfi import pfcandmerger as _pfcandmerger
+from Firefighter.recoStuff.PFCandMerger_cfi import pfcandfwdptrmerger as _pfcandmerger
 from Firefighter.recoStuff.JetConstituentSubtractor_cfi import (
     jetconstituentsubtractor as _jetconstituentsubtractor,
 )
@@ -14,13 +14,16 @@ from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 
 particleFlowIncDSA = _pfcandmerger.clone(
     src=cms.VInputTag(
-        cms.InputTag("filteredPFCands"), cms.InputTag("dsaMuPFCandFork", "nonMatched")
+        cms.InputTag("filteredPFCandsFwdPtr"),
+        cms.InputTag("dsaMuPFCandFork", "nonMatched"),
     )
 )
 
 ffLeptonJetCHS = ak4PFJets.clone(
     src=cms.InputTag("particleFlowIncDSA"),
     rParam=cms.double(0.4),
+    jetAlgorithm=cms.string("AntiKt"),
+    # radiusPU=cms.double(0.4),
     # useFiltering=cms.bool(True),
     # nFilt=cms.int32(3),
     # rFilt=cms.double(0.3),

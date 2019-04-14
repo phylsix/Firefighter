@@ -6,3 +6,11 @@ pfcandmerger = cms.EDProducer(
         cms.InputTag("particleFlow"), cms.InputTag("dSAmuPFCandFork", "nonMatched")
     ),
 )
+
+pfcandfwdptrmerger = cms.EDProducer(
+    "PFCandFwdPtrMerger",
+    src=cms.VInputTag(
+        cms.InputTag("particleFlowTmpPtrs"),
+        cms.InputTag("dSAmuPFCandFork", "nonMatched"),
+    )
+)

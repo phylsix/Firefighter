@@ -39,15 +39,15 @@ ff::MatcherByAssociatingRecoMuons::reset() {
   recoMuonTrackLink_.clear();
 }
 
-std::map<reco::PFCandidateRef, reco::PFCandidateRef>
+std::map<reco::PFCandidatePtr, reco::PFCandidatePtr>
 ff::MatcherByAssociatingRecoMuons::match(
-    const std::vector<reco::PFCandidateRef>& srcCol,
-    const std::vector<reco::PFCandidateRef>& matchCol ) const {
-  std::map<reco::PFCandidateRef, reco::PFCandidateRef>
+    const std::vector<reco::PFCandidatePtr>& srcCol,
+    const std::vector<reco::PFCandidatePtr>& matchCol ) const {
+  std::map<reco::PFCandidatePtr, reco::PFCandidatePtr>
       result{};  // dSA --> particleFlow
 
   /// copy and sort input collection by pT from high to low
-  std::vector<reco::PFCandidateRef> sortedSrcCol{};
+  std::vector<reco::PFCandidatePtr> sortedSrcCol{};
   for ( const auto& cand : srcCol )
     sortedSrcCol.push_back( cand );
   std::sort( sortedSrcCol.begin(), sortedSrcCol.end(),
@@ -68,7 +68,7 @@ ff::MatcherByAssociatingRecoMuons::match(
     const reco::TrackRef& associatedOuterTk = recoMuonTrackLink_.at( srcTk );
 
     float                minMatchingMetric( 999. );
-    reco::PFCandidateRef bestMatchedCand;
+    reco::PFCandidatePtr bestMatchedCand;
 
     for ( const auto& matCand : matchCol ) {
       if ( matCand.isNull() )
