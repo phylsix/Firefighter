@@ -192,8 +192,10 @@ def main():
         )
 
     print("Trying to resubmit {} task(s) ...".format(len(task_failed+task_others)))
+    crabResubmitResult = []
     p = ThreadPool()
-    crabResubmitResult = p.map(resubmitSingleTask, task_failed + task_others)
+    r = p.map_async(resubmitSingleTask, task_failed + task_others, callback=crabResubmitResult.extend)
+    r.wait()
     p.close()
 
     resubmittedTasks = [t for t in crabResubmitResult if t]

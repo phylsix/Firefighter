@@ -25,12 +25,17 @@ plt.rcParams["font.family"] = ["Ubuntu", "sans-serif"]
 
 dataType = sys.argv[1]
 drawISV = False
-excludeHadType = True
+drawCosmic = True
+excludeHadType = False
 skimmed = "skim" in sys.argv
 if skimmed:
     samples = skimmedSamples
     drawISV = False
     excludeHadType = False
+    drawCosmic = False
+if drawCosmic:
+    pType.append("cosmic")
+    colors.append("#7fcdbb")
 
 try:
     fn = samples[dataType]
@@ -50,8 +55,10 @@ def main():
     trigHdl = Handle("edm::TriggerResults")
     trigLbl = ("TriggerResults", "", "HLT")
 
-    candsHdl = Handle("std::vector<reco::PFCandidate>")
-    candsLbl = ("particleFlow", "", "RECO")
+    # candsHdl = Handle("std::vector<reco::PFCandidate>")
+    # candsLbl = ("particleFlow", "", "RECO")
+    candsHdl = Handle("std::vector<edm::FwdPtr<reco::PFCandidate>>")
+    candsLbl = ("particleFlowPtrs", "", "RECO")
 
     if skimmed:
         candsHdl = Handle("std::vector<edm::FwdPtr<reco::PFCandidate> >")
@@ -65,6 +72,9 @@ def main():
 
     isvHdl = Handle("std::vector<reco::Vertex>")
     isvLbl = ("inclusiveSecondaryVertices", "", "RECO")
+
+    cosmicHdl = Handle("std::vector<reco::Track>")
+    cosmicLbl = ("cosmicMuons", "", "RECO")
 
     trigpaths = [
         "HLT_DoubleL2Mu23NoVtx_2Cha",
@@ -103,8 +113,10 @@ def main():
             continue
         if drawISV:
             event.getByLabel(isvLbl, isvHdl)
-            if not isvHdl.isValid():
-                continue
+            assert isvHdl.isValid()
+        if drawCosmic:
+            event.getByLabel(cosmicLbl, cosmicHdl)
+            assert cosmicHdl.isValid()
 
         _run = event.object().id().run()
         _lumi = event.object().luminosityBlock()
@@ -169,6 +181,11 @@ def main():
             isvResults = [formatEtaPhi(v.position()) for v in isv if v.isValid()]
             if isvResults:
                 print("InclusiveSecondaryVertices: ", isvResults)
+        if drawCosmic:
+            cosmicTks = cosmicHdl.product()
+            cosmicTkResults = [formatEtaPhi(ctk) for ctk in cosmicTks]
+            if cosmicTkResults:
+                print("CosmicTracks: ", cosmicTkResults)
 
         fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -224,9 +241,18 @@ def main():
                 marker="+",
                 s=80,
             )
+        if drawCosmic and cosmicTks:
+            ax.scatter(
+                [d.eta() for d in cosmicTks],
+                [d.phi() for d in cosmicTks],
+                c=colors[-1],
+                marker="h",  # hexagon1 marker
+                s=[math.hypot(d.p(), 0.1056584) * 50 for d in cosmicTks],
+                alpha=0.5,
+            )
         ax.grid()
 
-        for ic, color in enumerate(colors[:9]):
+        for ic, color in enumerate(colors):
             ax.scatter([], [], s=100, c=color, label=pType[ic])
         ax.legend(
             scatterpoints=1, title="type", fontsize=9, framealpha=0.75, labelspacing=0.2
