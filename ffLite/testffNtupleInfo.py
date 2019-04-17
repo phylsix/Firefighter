@@ -101,6 +101,7 @@ for i, event in enumerate(t, 1):
         ),
     )
 
+    print("[pfjet] <nDsa>", *event.pfjet_pfcands_nDsaMu)
     print("[pfjet] <tkiso05>", *[round(v, 3) for v in event.pfjet_tkIsolation05])
     print("[pfjet] <pfiso06>", *[round(v, 3) for v in event.pfjet_pfIsolation06])
     print("[pfjet] <neuiso07>", *[round(v, 3) for v in event.pfjet_neuIsolation07])
