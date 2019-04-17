@@ -69,9 +69,9 @@ class ffNtuplePfJet : public ffNtupleBase {
   reco::PFCandidatePtr getCandWithMaxPt(
       const std::vector<reco::PFCandidatePtr>& ) const;
   float chargedMass( const reco::PFJet& ) const;
-  bool  hasDisplacedStandAloneMuon(
-       const reco::PFJet&,
-       const edm::Handle<reco::TrackCollection>& ) const;
+  int   getNumberOfDisplacedStandAloneMuons(
+        const reco::PFJet&,
+        const edm::Handle<reco::TrackCollection>& ) const;
 
   /**
    * @brief genralTracks Isolation
@@ -219,7 +219,7 @@ class ffNtuplePfJet : public ffNtupleBase {
 
   std::vector<int>   pfjet_pfcands_n_;
   std::vector<float> pfjet_pfcands_chargedMass_;
-  std::vector<bool>  pfjet_pfcands_hasDsaMu_;
+  std::vector<int>   pfjet_pfcands_nDsaMu_;
   std::vector<int>   pfjet_pfcands_maxPtType_;
 
   std::vector<std::vector<int>>   pfjet_pfcand_type_;
@@ -346,7 +346,7 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_ptDistribution", &pfjet_ptDistribution_ );
   tree.Branch( "pfjet_dRSpread", &pfjet_dRSpread_ );
   tree.Branch( "pfjet_pfcands_chargedMass", &pfjet_pfcands_chargedMass_ );
-  tree.Branch( "pfjet_pfcands_hasDsaMu", &pfjet_pfcands_hasDsaMu_ );
+  tree.Branch( "pfjet_pfcands_nDsaMu", &pfjet_pfcands_nDsaMu_ );
   tree.Branch( "pfjet_pfcands_maxPtType", &pfjet_pfcands_maxPtType_ );
 
   tree.Branch( "pfjet_pfcand_type", &pfjet_pfcand_type_ );
@@ -492,8 +492,8 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_ptDistribution_.emplace_back( pfjet.constituentPtDistribution() );
     pfjet_dRSpread_.emplace_back( pfjet.constituentEtaPhiSpread() );
     pfjet_pfcands_chargedMass_.emplace_back( chargedMass( pfjet ) );
-    pfjet_pfcands_hasDsaMu_.emplace_back(
-        hasDisplacedStandAloneMuon( pfjet, generalTk_h ) );
+    pfjet_pfcands_nDsaMu_.emplace_back(
+        getNumberOfDisplacedStandAloneMuons( pfjet, generalTk_h ) );
     pfjet_pfcands_maxPtType_.emplace_back(
         getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
 
@@ -754,7 +754,7 @@ ffNtuplePfJet::clear() {
   pfjet_ptDistribution_.clear();
   pfjet_dRSpread_.clear();
   pfjet_pfcands_chargedMass_.clear();
-  pfjet_pfcands_hasDsaMu_.clear();
+  pfjet_pfcands_nDsaMu_.clear();
   pfjet_pfcands_maxPtType_.clear();
 
   pfjet_pfcand_type_.clear();
@@ -874,19 +874,16 @@ ffNtuplePfJet::chargedMass( const reco::PFJet& jet ) const {
   return sumP4( getChargedPFCands( jet ) ).M();
 }
 
-bool
-ffNtuplePfJet::hasDisplacedStandAloneMuon(
+int
+ffNtuplePfJet::getNumberOfDisplacedStandAloneMuons(
     const reco::PFJet&                        jet,
     const edm::Handle<reco::TrackCollection>& generalTkH ) const {
   std::vector<reco::PFCandidatePtr> candsWithTk = getTrackEmbededPFCands( jet );
-
-  for ( const auto& cand : candsWithTk ) {
-    if ( cand->trackRef().isNonnull() and
-         ( cand->trackRef().id() != generalTkH.id() ) )
-      return true;
-  }
-
-  return false;
+  return std::count_if( candsWithTk.begin(), candsWithTk.end(),
+                        [&generalTkH]( auto cand ) {
+                          return cand->trackRef().isNonnull() and
+                                 cand->trackRef().id() != generalTkH.id();
+                        } );
 }
 
 float
