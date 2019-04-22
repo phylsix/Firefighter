@@ -278,8 +278,8 @@ DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
 
 ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
     : ffNtupleBase( ps ),
-      pfjet_selector_( ps.getParameter<std::string>( "PFJetSelection" ) ),
-      track_selector_( ps.getParameter<std::string>( "TrackSelection" ) ),
+      pfjet_selector_( ps.getParameter<std::string>( "PFJetSelection" ), true ),
+      track_selector_( ps.getParameter<std::string>( "TrackSelection" ), true ),
       kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
       isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ),
       minChargedMass_( ps.getParameter<double>( "MinChargedMass" ) ) {}

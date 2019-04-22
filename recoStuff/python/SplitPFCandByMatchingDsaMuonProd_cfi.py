@@ -14,6 +14,7 @@ splitPFCandByMatchingDsaMuon = cms.EDProducer(
         maxDeltaR=cms.double(0.5),
         maxDeltaLocalPos=cms.double(10),  # cm
         maxDeltaPtRel=cms.double(10),
+        requireSameCharge=cms.bool(False),
         sortBy=cms.string("deltaLocalPos"),  # deltaLocalPos, deltaPtRel, deltaR
     ),
     matcherByMuParams=cms.PSet(
