@@ -6,46 +6,37 @@ from Firefighter.recoStuff.MCGeometryFilter_cfi import (
 from Firefighter.recoStuff.MCKinematicFilter_cfi import (
     mckinematicfilter as _mckinematicfilter,
 )
-from Firefighter.recoStuff.TrackSelections_cfi import selectedTracks
-from Firefighter.recoStuff.TrackToPFCandProd_cfi import PFCandsFromTracks
+
+from Firefighter.recoStuff.DsaToPFCandidate_cff import *
 
 # from Firefighter.recoStuff.ForkCandAgainstDsaMuon_cfi import forkCandAgainstDsaMuon
-from Firefighter.recoStuff.SplitPFCandByMatchingDsaMuonProd_cfi import *
+
 
 mcGeometryFilter = _mcgeometryfilter.clone()
 mcKinematicFilter = _mckinematicfilter.clone()
-selectedDsaMuons = selectedTracks.clone(
+
+filteredPFCanddSAPtrs = cms.EDFilter(
+    "PFCandidateFwdPtrCollectionStringFilter",
+    src=cms.InputTag("pfcandsFromMuondSAPtr"),
     cut=cms.string(
         " && ".join(
             [
                 "pt>5.",
                 "abs(eta)<2.4",
-                "hitPattern.muonStationsWithValidHits>1",
-                "normalizedChi2<10.",
+                "trackRef.hitPattern.muonStationsWithValidHits>1",
+                "trackRef.normalizedChi2<10.",
             ]
         )
-    )
+    ),
+    makeClones=cms.bool(True),
 )
-dsaMuPFCand = PFCandsFromTracks.clone(src=cms.InputTag("selectedDsaMuons"))
-dsaMuPFCandFwdPtr = cms.EDProducer(
-    "PFCandidateFwdPtrProducer",
-    src=cms.InputTag("dsaMuPFCand")
-)
+
 
 # dsaMuPFCandFork = forkCandAgainstDsaMuon.clone(
 #     src     = cms.InputTag("selectedPFCands"),
 #     matched = cms.InputTag("dsaMuPFCand")
 # )
-dsaMuPFCandFork = splitPFCandByMatchingDsaMuon.clone(
-    src=cms.InputTag("filteredPFCandsFwdPtr"),
-    matched=cms.InputTag("dsaMuPFCandFwdPtr")
-)
 
 filteringDsaMuAsPFCand = cms.Sequence(
-    mcGeometryFilter
-    + mcKinematicFilter
-    + selectedDsaMuons
-    + dsaMuPFCand
-    + dsaMuPFCandFwdPtr
-    + dsaMuPFCandFork
+    mcGeometryFilter + mcKinematicFilter + dSAToPFCandSeq + filteredPFCanddSAPtrs
 )

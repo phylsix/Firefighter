@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Firefighter.recoStuff.PFCandidateSelections_cff import *
 from Firefighter.recoStuff.DsaMuonSelections_cff import *
+from Firefighter.recoStuff.SplitPFCandByMatchingDsaMuonProd_cfi import *
 from Firefighter.recoStuff.ffLeptonJetSubjet_cff import *
 from Firefighter.recoStuff.PFCandMerger_cfi import pfcandfwdptrmerger as _pfcandmerger
 from Firefighter.recoStuff.JetConstituentSubtractor_cfi import (
@@ -12,12 +13,21 @@ from Firefighter.recoStuff.ffRecoSwitcher import switches
 
 from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 
+dsaMuPFCandFork = splitPFCandByMatchingDsaMuon.clone(
+    src=cms.InputTag("filteredPFCandsFwdPtr"),
+    matched=cms.InputTag("filteredPFCanddSAPtrs"),
+)
+
 particleFlowIncDSA = _pfcandmerger.clone(
     src=cms.VInputTag(
         cms.InputTag("filteredPFCandsFwdPtr"),
         cms.InputTag("dsaMuPFCandFork", "nonMatched"),
     )
 )
+
+ffPFCandsMatchAndMergeSeq = cms.Sequence(dsaMuPFCandFork + particleFlowIncDSA)
+
+###########################################################
 
 ffLeptonJetCHS = ak4PFJets.clone(
     src=cms.InputTag("particleFlowIncDSA"),
@@ -36,13 +46,17 @@ ffLeptonJetCHS = ak4PFJets.clone(
 
 ffLeptonJet = _jetconstituentsubtractor.clone()
 
-ffLeptonJetProd = cms.Sequence(particleFlowIncDSA + ffLeptonJetCHS + ffLeptonJet)
+ffLeptonJetProd = cms.Sequence(ffLeptonJetCHS + ffLeptonJet)
 
 if switches["usingCHS"] == False:
     ffLeptonJet = ffLeptonJetCHS.clone()
-    ffLeptonJetProd = cms.Sequence(particleFlowIncDSA + ffLeptonJet)
+    ffLeptonJetProd = cms.Sequence(ffLeptonJet)
 
+###########################################################
 
 ffLeptonJetSeq = cms.Sequence(
-    (filteringPFCands + filteringDsaMuAsPFCand) * ffLeptonJetProd * ffLeptonJetSubjetSeq
+    (filteringPFCands + filteringDsaMuAsPFCand)
+    * ffPFCandsMatchAndMergeSeq
+    * ffLeptonJetProd
+    * ffLeptonJetSubjetSeq
 )

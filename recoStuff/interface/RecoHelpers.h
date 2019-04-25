@@ -10,6 +10,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include <algorithm>
+#include <iterator>
 #include <map>
 #include <numeric>
 #include <set>
@@ -101,28 +102,40 @@ getMergedMapKeys( const T& A, const T& B ) {
 template <typename T>
 float
 calcOverlap( const std::vector<T>& src, const std::vector<T>& comp ) {
-  if ( src.empty() )
+  // if ( src.empty() )
+  //   return 0.;
+
+  // std::vector<bool> maskbits( src.size(), false );
+
+  // for ( const auto& c : comp ) {
+  //   auto srcIt( src.begin() );
+  //   auto maskIt( maskbits.begin() );
+
+  //   for ( ; srcIt != src.end(); ++srcIt, ++maskIt ) {
+  //     if ( *maskIt )
+  //       continue;
+
+  //     if ( *srcIt == c ) {
+  //       *maskIt = true;
+  //       break;
+  //     }
+  //   }
+  // }
+
+  // return (float)std::count( maskbits.begin(), maskbits.end(), true ) /
+  //        maskbits.size();
+  if ( src.size() + comp.size() == 0 )
     return 0.;
 
-  std::vector<bool> maskbits( src.size(), false );
-
-  for ( const auto& c : comp ) {
-    auto srcIt( src.begin() );
-    auto maskIt( maskbits.begin() );
-
-    for ( ; srcIt != src.end(); ++srcIt, ++maskIt ) {
-      if ( *maskIt )
-        continue;
-
-      if ( *srcIt == c ) {
-        *maskIt = true;
-        break;
-      }
-    }
-  }
-
-  return (float)std::count( maskbits.begin(), maskbits.end(), true ) /
-         maskbits.size();
+  std::vector<T> srcCopy( src );
+  std::vector<T> compCopy( comp );
+  std::sort( srcCopy.begin(), srcCopy.end() );
+  std::sort( compCopy.begin(), compCopy.end() );
+  std::vector<T> v_intersection;
+  std::set_intersection( srcCopy.begin(), srcCopy.end(), compCopy.begin(),
+                         compCopy.end(), std::back_inserter( v_intersection ) );
+  return (float)v_intersection.size() /
+         ( src.size() + comp.size() - v_intersection.size() );
 }
 
 }  // namespace ff

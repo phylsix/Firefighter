@@ -9,7 +9,7 @@ skimOutput = cms.OutputModule(
         "keep *_TriggerResults_*_HLT",
         "keep *GenParticle*_genParticles_*_HLT",
         "keep *Track*_displacedStandAloneMuons_*_RECO",
-        "keep *_generalTracks_*_RECO",
+        "keep *_generalTracks__RECO",
         "drop *TrackingRecHit*_*_*_*",
         "drop *TrackExtra*_*_*_*",
         "keep *PFCandidate*_particleFlow__RECO",
