@@ -31,6 +31,24 @@ def formatEtaPhi(p, precision=3):
     return (round(p.eta(), precision), round(p.phi(), precision))
 
 
+def formatP4(p4, precisioin=3):
+    res = "<{}, {}, {}, {}>".format(
+        round(p4.px(), precisioin),
+        round(p4.py(), precisioin),
+        round(p4.pz(), precisioin),
+        round(p4.energy(), precisioin),
+    )
+    return res
+
+def formatP3(p3, precisioin=3):
+    res = "<{}, {}, {}>".format(
+        round(p3.px(), precisioin),
+        round(p3.py(), precisioin),
+        round(p3.pz(), precisioin),
+    )
+    return res
+
+
 def getMomId(par):
     if par.numberOfMothers() > 0:
         return par.mother(0).pdgId()

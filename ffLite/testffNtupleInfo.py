@@ -66,9 +66,9 @@ for i, event in enumerate(t, 1):
     print(
         "[pfcands] <mutype>",
         "\t"
-        + ", ".join(
+        + str(
             [
-                str(len(list(filter(lambda p: abs(p) == 3, j))))
+                len(list(filter(lambda p: abs(p) == 3, j)))
                 for j in event.pfjet_pfcand_type
             ]
         ),
@@ -77,9 +77,9 @@ for i, event in enumerate(t, 1):
     print(
         "[pfcands] <eltype>",
         "\t"
-        + ", ".join(
+        + str(
             [
-                str(len(list(filter(lambda p: abs(p) == 2, j))))
+                len(list(filter(lambda p: abs(p) == 2, j)))
                 for j in event.pfjet_pfcand_type
             ]
         ),
