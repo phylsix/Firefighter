@@ -99,6 +99,4 @@ if KEEP_SKIM:
         process.ntuple_step, process.endjob_step, process.output_step
     )
 else:
-    process.schedule = cms.Schedule(
-        process.ntuple_step, process.endjob_step
-    )
+    process.schedule = cms.Schedule(process.ntuple_step, process.endjob_step)

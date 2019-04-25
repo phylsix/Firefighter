@@ -56,5 +56,7 @@ process.TFileService = cms.Service(
     closeFileFast=cms.untracked.bool(True),
 )
 
-process.fftest = cms.EDAnalyzer("ffTester")
+process.fftest = cms.EDAnalyzer("ffTesterNonSkim")
+if len(sys.argv) > 3 and "skim" in sys.argv:
+    process.fftest = cms.EDAnalyzer("ffTesterForSkim")
 process.p = cms.Path(process.fftest)
