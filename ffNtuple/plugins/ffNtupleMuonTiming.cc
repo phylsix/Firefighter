@@ -21,20 +21,23 @@ class ffNtupleMuonTiming : public ffNtupleBase {
  private:
   void clear() final;
 
-  edm::EDGetToken fMuonToken;
-  edm::EDGetToken fMuonTimeExtraToken;
+  std::vector<std::string> fTimeInstances;
 
-  std::vector<float> fTimeAtIpInOut;
-  std::vector<float> fTimeAtIpInOutErr;
-  std::vector<float> fTimeAtIpOutIn;
-  std::vector<float> fTimeAtIpOutInErr;
-  std::vector<float> fInverseBeta;
-  std::vector<float> fInverseBetaErr;
-  std::vector<float> fFreeInverseBeta;
-  std::vector<float> fFreeInverseBetaErr;
-  std::vector<int>   fNdof;
-  std::vector<int>   fDirection;
-  std::vector<int>   fHemisphere;
+  edm::EDGetToken                        fMuonToken;
+  std::map<std::string, edm::EDGetToken> fMuonTimeExtraTokenMap;
+
+  std::vector<int> fHemisphere;
+
+  std::map<std::string, std::vector<float>> fTimeAtIpInOut;
+  std::map<std::string, std::vector<float>> fTimeAtIpInOutErr;
+  std::map<std::string, std::vector<float>> fTimeAtIpOutIn;
+  std::map<std::string, std::vector<float>> fTimeAtIpOutInErr;
+  std::map<std::string, std::vector<float>> fInverseBeta;
+  std::map<std::string, std::vector<float>> fInverseBetaErr;
+  std::map<std::string, std::vector<float>> fFreeInverseBeta;
+  std::map<std::string, std::vector<float>> fFreeInverseBetaErr;
+  std::map<std::string, std::vector<int>>   fNdof;
+  std::map<std::string, std::vector<int>>   fDirection;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleMuonTiming, "ffNtupleMuonTiming" );
@@ -46,21 +49,33 @@ void
 ffNtupleMuonTiming::initialize( TTree&                   tree,
                                 const edm::ParameterSet& ps,
                                 edm::ConsumesCollector&& cc ) {
-  fMuonToken = cc.consumes<reco::MuonCollection>(
+  fTimeInstances = ps.getParameter<std::vector<std::string>>( "instances" );
+  fMuonToken     = cc.consumes<reco::MuonCollection>(
       ps.getParameter<edm::InputTag>( "src" ) );
-  fMuonTimeExtraToken = cc.consumes<reco::MuonTimeExtraMap>( edm::InputTag(
-      ps.getParameter<edm::InputTag>( "src" ).label(), "combined" ) );
 
-  tree.Branch( "muon_timeAtIpInOut", &fTimeAtIpInOut );
-  tree.Branch( "muon_timeAtIpInOutErr", &fTimeAtIpInOutErr );
-  tree.Branch( "muon_timeAtIpOutIn", &fTimeAtIpOutIn );
-  tree.Branch( "muon_timeAtIpOutInErr", &fTimeAtIpOutInErr );
-  tree.Branch( "muon_inverseBeta", &fInverseBeta );
-  tree.Branch( "muon_inverseBetaErr", &fInverseBetaErr );
-  tree.Branch( "muon_freeBetaInverse", &fFreeInverseBeta );
-  tree.Branch( "muon_freeBetaInverseErr", &fFreeInverseBetaErr );
-  tree.Branch( "muon_timeNdof", &fNdof );
-  tree.Branch( "muon_estimatedDirection", &fDirection );
+  for ( const auto& ins : fTimeInstances ) {
+    fMuonTimeExtraTokenMap[ ins ] = cc.consumes<reco::MuonTimeExtraMap>(
+        edm::InputTag( ps.getParameter<edm::InputTag>( "src" ).label(), ins ) );
+
+    tree.Branch( ( "muon_timeAtIpInOut_" + ins ).c_str(),
+                 &fTimeAtIpInOut[ ins ] );
+    tree.Branch( ( "muon_timeAtIpInOutErr_" + ins ).c_str(),
+                 &fTimeAtIpInOutErr[ ins ] );
+    tree.Branch( ( "muon_timeAtIpOutIn_" + ins ).c_str(),
+                 &fTimeAtIpOutIn[ ins ] );
+    tree.Branch( ( "muon_timeAtIpOutInErr_" + ins ).c_str(),
+                 &fTimeAtIpOutInErr[ ins ] );
+    tree.Branch( ( "muon_inverseBeta_" + ins ).c_str(), &fInverseBeta[ ins ] );
+    tree.Branch( ( "muon_inverseBetaErr_" + ins ).c_str(),
+                 &fInverseBetaErr[ ins ] );
+    tree.Branch( ( "muon_freeBetaInverse_" + ins ).c_str(),
+                 &fFreeInverseBeta[ ins ] );
+    tree.Branch( ( "muon_freeBetaInverseErr_" + ins ).c_str(),
+                 &fFreeInverseBetaErr[ ins ] );
+    tree.Branch( ( "muon_timeNdof_" + ins ).c_str(), &fNdof[ ins ] );
+    tree.Branch( ( "muon_estimatedDirection_" + ins ).c_str(),
+                 &fDirection[ ins ] );
+  }
   tree.Branch( "muon_hemisphere", &fHemisphere );
 }
 
@@ -74,27 +89,16 @@ ffNtupleMuonTiming::fill( const edm::Event& e, const edm::EventSetup& es ) {
   assert( fMuonHdl.isValid() );
   const auto& muons = *fMuonHdl;
 
-  Handle<reco::MuonTimeExtraMap> fMuonTimeExtraHdl;
-  e.getByToken( fMuonTimeExtraToken, fMuonTimeExtraHdl );
-  assert( fMuonTimeExtraHdl.isValid() );
-  const auto& muonTimeExtras = *fMuonTimeExtraHdl;
+  map<string, Handle<reco::MuonTimeExtraMap>> fMuonTimeExtraHdlMap;
+  for ( const auto& ins : fTimeInstances ) {
+    e.getByToken( fMuonTimeExtraTokenMap[ ins ], fMuonTimeExtraHdlMap[ ins ] );
+    assert( fMuonTimeExtraHdlMap[ ins ].isValid() );
+  }
 
   clear();
 
   for ( size_t i( 0 ); i != muons.size(); ++i ) {
-    reco::MuonRef              muref( fMuonHdl, i );
-    const reco::MuonTimeExtra& timecomb = muonTimeExtras[ muref ];
-
-    fTimeAtIpInOut.push_back( timecomb.timeAtIpInOut() );
-    fTimeAtIpInOutErr.push_back( timecomb.timeAtIpInOutErr() );
-    fTimeAtIpOutIn.push_back( timecomb.timeAtIpOutIn() );
-    fTimeAtIpOutInErr.push_back( timecomb.timeAtIpOutInErr() );
-    fInverseBeta.push_back( timecomb.inverseBeta() );
-    fInverseBetaErr.push_back( timecomb.inverseBetaErr() );
-    fFreeInverseBeta.push_back( timecomb.freeInverseBeta() );
-    fFreeInverseBetaErr.push_back( timecomb.freeInverseBetaErr() );
-    fNdof.push_back( timecomb.nDof() );
-    fDirection.push_back( timecomb.direction() );
+    reco::MuonRef muref( fMuonHdl, i );
     if ( muref->outerTrack().isNull() or
          muref->outerTrack()->extra().isNull() or
          muref->outerTrack()->outerY() == 0. )
@@ -103,20 +107,38 @@ ffNtupleMuonTiming::fill( const edm::Event& e, const edm::EventSetup& es ) {
       fHemisphere.push_back( 1 );
     else
       fHemisphere.push_back( -1 );
+
+    for ( const auto& ins : fTimeInstances ) {
+      const reco::MuonTimeExtra& timeInfo =
+          ( *fMuonTimeExtraHdlMap[ ins ] )[ muref ];
+
+      fTimeAtIpInOut[ ins ].push_back( timeInfo.timeAtIpInOut() );
+      fTimeAtIpInOutErr[ ins ].push_back( timeInfo.timeAtIpInOutErr() );
+      fTimeAtIpOutIn[ ins ].push_back( timeInfo.timeAtIpOutIn() );
+      fTimeAtIpOutInErr[ ins ].push_back( timeInfo.timeAtIpOutInErr() );
+      fInverseBeta[ ins ].push_back( timeInfo.inverseBeta() );
+      fInverseBetaErr[ ins ].push_back( timeInfo.inverseBetaErr() );
+      fFreeInverseBeta[ ins ].push_back( timeInfo.freeInverseBeta() );
+      fFreeInverseBetaErr[ ins ].push_back( timeInfo.freeInverseBetaErr() );
+      fNdof[ ins ].push_back( timeInfo.nDof() );
+      fDirection[ ins ].push_back( timeInfo.direction() );
+    }
   }
 }
 
 void
 ffNtupleMuonTiming::clear() {
-  fTimeAtIpInOut.clear();
-  fTimeAtIpInOutErr.clear();
-  fTimeAtIpOutIn.clear();
-  fTimeAtIpOutInErr.clear();
-  fInverseBeta.clear();
-  fInverseBetaErr.clear();
-  fFreeInverseBeta.clear();
-  fFreeInverseBetaErr.clear();
-  fNdof.clear();
-  fDirection.clear();
+  for ( const auto& ins : fTimeInstances ) {
+    fTimeAtIpInOut[ ins ].clear();
+    fTimeAtIpInOutErr[ ins ].clear();
+    fTimeAtIpOutIn[ ins ].clear();
+    fTimeAtIpOutInErr[ ins ].clear();
+    fInverseBeta[ ins ].clear();
+    fInverseBetaErr[ ins ].clear();
+    fFreeInverseBeta[ ins ].clear();
+    fFreeInverseBetaErr[ ins ].clear();
+    fNdof[ ins ].clear();
+    fDirection[ ins ].clear();
+  }
   fHemisphere.clear();
 }
