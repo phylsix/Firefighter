@@ -31,6 +31,7 @@ ffSamples = {
     "ZZ": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ffNtuple_ZZ.root",
     "QCD_Pt-300to470": CMSSW_BASE
     + "/src/Firefighter/ffNtuple/test/ffNtuple_QCD_Pt-300to470.root",
+    "Cosmics": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ffNtuple_Cosmics.root",
 }
 
 skimmedSamples = {
