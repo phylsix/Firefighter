@@ -2,7 +2,8 @@
 
 CosmicMuonFilter::CosmicMuonFilter( const edm::ParameterSet& ps )
     : fMuonToken( consumes<reco::MuonCollection>(
-          ps.getParameter<edm::InputTag>( "muons" ) ) ) {}
+          ps.getParameter<edm::InputTag>( "muons" ) ) ),
+      fMuonSelector( ps.getParameter<std::string>( "cut" ) ) {}
 
 bool
 CosmicMuonFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
@@ -28,6 +29,9 @@ CosmicMuonFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
     if ( mu.outerTrack().isNull() )
       continue;
     if ( mu.outerTrack()->extra().isNull() )
+      continue;
+
+    if ( !fMuonSelector( mu ) )
       continue;
 
     if ( mu.outerTrack()->outerY() > 0 )

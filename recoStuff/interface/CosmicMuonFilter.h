@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -19,6 +20,7 @@ class CosmicMuonFilter : public edm::one::EDFilter<> {
 
   edm::EDGetTokenT<reco::MuonCollection> fMuonToken;
   edm::Handle<reco::MuonCollection>      fMuonHdl;
+  StringCutObjectSelector<reco::Muon>    fMuonSelector;
 };
 
 #endif
