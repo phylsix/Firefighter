@@ -1,14 +1,11 @@
 #include "Firefighter/recoStuff/interface/HLTFilter.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
 HLTFilter::HLTFilter( const edm::ParameterSet& ps )
-    : hlt_eventToken_( consumes<trigger::TriggerEvent>(
-          ps.getParameter<edm::InputTag>( "TriggerEvent" ) ) ),
-      hlt_resultToken_( consumes<edm::TriggerResults>(
+    : hlt_resultToken_( consumes<edm::TriggerResults>(
           ps.getParameter<edm::InputTag>( "TriggerResults" ) ) ),
       hlt_pathsNoVer_(
           ps.getParameter<std::vector<std::string>>( "TriggerPaths" ) ),
@@ -28,13 +25,10 @@ bool
 HLTFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
   using namespace std;
 
-  edm::Handle<trigger::TriggerEvent> hlt_eventH;
-  e.getByToken( hlt_eventToken_, hlt_eventH );
-
   edm::Handle<edm::TriggerResults> hlt_resultH;
   e.getByToken( hlt_resultToken_, hlt_resultH );
 
-  assert( hlt_eventH.isValid() && hlt_resultH.isValid() );
+  assert( hlt_resultH.isValid() );
 
   const vector<string>& allTriggerPaths = hltConfig_.triggerNames();
 

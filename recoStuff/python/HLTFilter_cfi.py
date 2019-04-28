@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 hltfilter = cms.EDFilter(
     "HLTFilter",
-    TriggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     TriggerResults=cms.InputTag("TriggerResults", "", "HLT"),
     TriggerPaths=cms.vstring(
         "HLT_DoubleL2Mu23NoVtx_2Cha",
