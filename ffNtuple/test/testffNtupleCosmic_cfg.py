@@ -9,7 +9,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
-dataType = sys.argv[2]
+dataType = 'Cosmics' #sys.argv[2]
 TEST_FAST = True
 if len(sys.argv) > 3 and "full" in sys.argv:
     TEST_FAST = False
