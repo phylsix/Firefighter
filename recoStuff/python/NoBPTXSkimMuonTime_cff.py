@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from RecoMuon.MuonIdentification.muons1stStep_cfi import *
 from Firefighter.recoStuff.HLTFilter_cfi import hltfilter as _hltfilter
