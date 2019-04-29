@@ -134,5 +134,12 @@ for i, event in enumerate(t, 1):
     print("[pfjet] <ecf2>", *[round(v, 3) for v in event.pfjet_subjet_ecf2])
     print("[pfjet] <ecf3>", *[round(v, 3) for v in event.pfjet_subjet_ecf3])
 
+    print(
+        "[beamhalo]",
+        event.beamhalo_CSCTightHaloId2015,
+        event.beamhalo_GlobalTightHaloId2016,
+        event.beamhalo_GlobalSuperTightHaloId2016,
+    )
+
     if i > 50:
         break

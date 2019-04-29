@@ -9,6 +9,7 @@ from Firefighter.ffConfig.dataSample import samples
 
 ROOT.gROOT.SetBatch()
 
+###############################################################################
 dataType = sys.argv[1]
 try:
     fn = samples[dataType]
@@ -17,6 +18,7 @@ except KeyError:
         dataType, list(samples.keys())
     )
     sys.exit(msg)
+###############################################################################
 
 
 def pfCandStuff(event, hl):
@@ -29,6 +31,9 @@ def pfCandStuff(event, hl):
     print("[PFCand] <pdgId>", [c.pdgId() for c in pfcand])
 
 
+###############################################################################
+
+
 def cosmicInAODStuff(event, hl):
 
     event.getByLabel(hl["cosmicOneLegInAOD"][1], hl["cosmicOneLegInAOD"][0])
@@ -38,6 +43,9 @@ def cosmicInAODStuff(event, hl):
     print("[cosmicOneLegInAOD]")
     for c in cosmicMuonOneLeg:
         c.bestTrackRef().hitPattern().print(0)
+
+
+###############################################################################
 
 
 def cosmicStuff(event, hl):
@@ -83,6 +91,27 @@ def cosmicStuff(event, hl):
     )
 
 
+###############################################################################
+
+
+def beamhaloStuff(e, hl):
+
+    e.getByLabel(hl["beamhalo"][1], hl["beamhalo"][0])
+    if not hl["beamhalo"][0].isValid():
+        return
+
+    beamhalo = hl["beamhalo"][0].product()
+
+    print("[beamhalo] <CSCTightHaloId2015>", beamhalo.CSCTightHaloId2015())
+    print("[beamhalo] <GlobalTightHaloId2016>", beamhalo.GlobalTightHaloId2016())
+    print(
+        "[beamhalo] <GlobalSuperTightHaloId2016>", beamhalo.GlobalSuperTightHaloId2016()
+    )
+
+
+###############################################################################
+
+
 def main():
 
     handlesAndLabels = {
@@ -98,6 +127,10 @@ def main():
             Handle("std::vector<reco::Muon>"),
             ("muonsFromCosmics1Leg", "", "RECO"),
         ),
+        "beamhalo": (Handle("reco::BeamHaloSummary"), ("BeamHaloSummary", "", "RECO")),
+    }
+
+    handlesAndLabels_cosmicsPD = {
         # only in Cosmics
         "cosmicMuons": (Handle("std::vector<reco::Muon>"), ("muons", "", "RECO")),
         "cosmicMuonsOneLeg": (
@@ -122,8 +155,9 @@ def main():
         _event = event.object().id().event()
 
         # pfCandStuff(event, handlesAndLabels)
-        # cosmicStuff(event, handlesAndLabels)
-        cosmicInAODStuff(event, handlesAndLabels)
+        # cosmicStuff(event, handlesAndLabels_cosmicsPD)
+        # cosmicInAODStuff(event, handlesAndLabels)
+        beamhaloStuff(event, handlesAndLabels)
 
         wentThroughEvents.append((_run, _lumi, _event))
 
