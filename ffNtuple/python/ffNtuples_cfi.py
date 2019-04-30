@@ -96,9 +96,14 @@ ntuple_hftagscore = cms.PSet(
     csvv2_b=cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 )
 
+ntuple_muontiming = cms.PSet(
+    NtupleName=cms.string("ffNtupleMuonTiming"),
+    src=cms.InputTag("muonsFromdSA"),
+    instances=cms.vstring("combined", "csc", "dt"),
+)
+
 ntuple_beamhalo = cms.PSet(
-    NtupleName=cms.string("ffNtupleBeamHalo"),
-    src=cms.InputTag("BeamHaloSummary"),
+    NtupleName=cms.string("ffNtupleBeamHalo"), src=cms.InputTag("BeamHaloSummary")
 )
 
 ffNtuplizer = cms.EDAnalyzer(
@@ -114,6 +119,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_dsamuon,
         ntuple_pfjet,
         ntuple_hftagscore,
+        ntuple_muontiming,
         ntuple_beamhalo,
     ),
 )
