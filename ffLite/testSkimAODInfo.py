@@ -9,6 +9,8 @@ from Firefighter.ffConfig.dataSample import skimmedSamples
 
 ROOT.gROOT.SetBatch()
 
+###############################################################################
+
 dataType = sys.argv[1]
 try:
     fn = skimmedSamples[dataType]
@@ -17,6 +19,8 @@ except KeyError:
         dataType, list(skimmedSamples.keys())
     )
     sys.exit(msg)
+
+###############################################################################
 
 
 def debugPFCand(event, hl):
@@ -28,13 +32,16 @@ def debugPFCand(event, hl):
     print("[PFCand] <pdgId>", [c.pdgId() for c in pfcand])
 
 
+###############################################################################
+
+
 def debugDsaAsMuon(e, hl):
     e.getByLabel(hl["muonsFromdSA"][1], hl["muonsFromdSA"][0])
     if not hl["muonsFromdSA"][0].isValid():
         return
     data = hl["muonsFromdSA"][0].product()
 
-    print("[muonsFromdSA] - <pfP4 | p4 | time | trackValid>")
+    print("[muonsFromdSA] - <pfP4 | p4 | time | trackValid | rpcbxave>")
     for mu in data:
         pfp4Info = fu.formatP4(mu.pfP4())
         p4Info = fu.formatP4(mu)
@@ -47,13 +54,23 @@ def debugDsaAsMuon(e, hl):
         else:
             tkValInfo = None
         muMatches = mu.matches()
-        matchInfo = str(
-            [
-                "({}/{}/{})".format(mm.detector(), mm.station(), round(mm.dist(),3))
-                for mm in muMatches
-            ]
-        )
-        print("\t", pfp4Info, p4Info, tInfo, tkValInfo, matchInfo)
+        rpcbxs = []
+        for mm in muMatches:
+            if mm.detector() != 3:
+                continue  # RPC
+            for rpchit in mm.rpcMatches:
+                rpcbxs.append(rpchit.bx)
+        rpcbxave = float(sum(rpcbxs)) / len(rpcbxs) if rpcbxs else None
+        # matchInfo = str(
+        #     [
+        #         "({}/{}/{})".format(mm.detector(), mm.station(), round(mm.dist(),3))
+        #         for mm in muMatches
+        #     ]
+        # )
+        print("\t", pfp4Info, p4Info, tInfo, tkValInfo, rpcbxave)
+
+
+###############################################################################
 
 
 def debugDsaAsPFCand(e, hl):
@@ -70,6 +87,9 @@ def debugDsaAsPFCand(e, hl):
         )
         tkInfo = fu.formatP3(mu.trackRef()) if mu.trackRef() else "<None, None, None>"
         print("\t", p4Info, mrInfo, tkInfo)
+
+
+###############################################################################
 
 
 def main():

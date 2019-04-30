@@ -28,7 +28,8 @@ for i, event in enumerate(t, 1):
     print("\n", "-" * 75, [i])
 
     print("[muonTime] <hemisphere>", *event.muon_hemisphere)
-    print("[muonTime] <nDof>", *event.muon_timeNdof)
-    print(
-        "[muonTime] <timeAtIpInOut>", *[round(v, 3) for v in event.muon_timeAtIpInOut]
-    )
+    # print("[muonTime] <nDof>", *event.muon_timeNdof)
+    # print(
+    #     "[muonTime] <timeAtIpInOut>", *[round(v, 3) for v in event.muon_timeAtIpInOut]
+    # )
+    print("[muonTime] <rpcbxave>", *event.muon_rpcBxAve)

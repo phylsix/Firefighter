@@ -1,10 +1,13 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraFwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include <numeric>
 
 class ffNtupleMuonTiming : public ffNtupleBase {
  public:
@@ -26,7 +29,8 @@ class ffNtupleMuonTiming : public ffNtupleBase {
   edm::EDGetToken                        fMuonToken;
   std::map<std::string, edm::EDGetToken> fMuonTimeExtraTokenMap;
 
-  std::vector<int> fHemisphere;
+  std::vector<int>   fHemisphere;
+  std::vector<float> fRpcBxAve;
 
   std::map<std::string, std::vector<float>> fTimeAtIpInOut;
   std::map<std::string, std::vector<float>> fTimeAtIpInOutErr;
@@ -53,30 +57,33 @@ ffNtupleMuonTiming::initialize( TTree&                   tree,
   fMuonToken     = cc.consumes<reco::MuonCollection>(
       ps.getParameter<edm::InputTag>( "src" ) );
 
+  const std::string srclabel = ps.getParameter<edm::InputTag>( "src" ).label();
   for ( const auto& ins : fTimeInstances ) {
-    fMuonTimeExtraTokenMap[ ins ] = cc.consumes<reco::MuonTimeExtraMap>(
-        edm::InputTag( ps.getParameter<edm::InputTag>( "src" ).label(), ins ) );
+    fMuonTimeExtraTokenMap[ ins ] =
+        cc.consumes<reco::MuonTimeExtraMap>( edm::InputTag( srclabel, ins ) );
 
-    tree.Branch( ( "muon_timeAtIpInOut_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_timeAtIpInOut_" + ins ).c_str(),
                  &fTimeAtIpInOut[ ins ] );
-    tree.Branch( ( "muon_timeAtIpInOutErr_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_timeAtIpInOutErr_" + ins ).c_str(),
                  &fTimeAtIpInOutErr[ ins ] );
-    tree.Branch( ( "muon_timeAtIpOutIn_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_timeAtIpOutIn_" + ins ).c_str(),
                  &fTimeAtIpOutIn[ ins ] );
-    tree.Branch( ( "muon_timeAtIpOutInErr_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_timeAtIpOutInErr_" + ins ).c_str(),
                  &fTimeAtIpOutInErr[ ins ] );
-    tree.Branch( ( "muon_inverseBeta_" + ins ).c_str(), &fInverseBeta[ ins ] );
-    tree.Branch( ( "muon_inverseBetaErr_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_inverseBeta_" + ins ).c_str(),
+                 &fInverseBeta[ ins ] );
+    tree.Branch( ( srclabel + "_inverseBetaErr_" + ins ).c_str(),
                  &fInverseBetaErr[ ins ] );
-    tree.Branch( ( "muon_freeBetaInverse_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_freeBetaInverse_" + ins ).c_str(),
                  &fFreeInverseBeta[ ins ] );
-    tree.Branch( ( "muon_freeBetaInverseErr_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_freeBetaInverseErr_" + ins ).c_str(),
                  &fFreeInverseBetaErr[ ins ] );
-    tree.Branch( ( "muon_timeNdof_" + ins ).c_str(), &fNdof[ ins ] );
-    tree.Branch( ( "muon_estimatedDirection_" + ins ).c_str(),
+    tree.Branch( ( srclabel + "_timeNdof_" + ins ).c_str(), &fNdof[ ins ] );
+    tree.Branch( ( srclabel + "_estimatedDirection_" + ins ).c_str(),
                  &fDirection[ ins ] );
   }
-  tree.Branch( "muon_hemisphere", &fHemisphere );
+  tree.Branch( ( srclabel + "_hemisphere" ).c_str(), &fHemisphere );
+  tree.Branch( ( srclabel + "_rpcBxAve" ).c_str(), &fRpcBxAve );
 }
 
 void
@@ -107,6 +114,19 @@ ffNtupleMuonTiming::fill( const edm::Event& e, const edm::EventSetup& es ) {
       fHemisphere.push_back( 1 );
     else
       fHemisphere.push_back( -1 );
+
+    vector<int> rpcBxs{};
+    for ( const auto& mm : muref->matches() ) {
+      if ( mm.detector() != MuonSubdetId::RPC )
+        continue;
+      for ( const auto& rpcHit : mm.rpcMatches ) {
+        rpcBxs.push_back( rpcHit.bx );
+      }
+    }
+    fRpcBxAve.emplace_back(
+        rpcBxs.empty() ? NAN
+                       : (float)accumulate( rpcBxs.begin(), rpcBxs.end(), 0 ) /
+                             rpcBxs.size() );
 
     for ( const auto& ins : fTimeInstances ) {
       const reco::MuonTimeExtra& timeInfo =
@@ -141,4 +161,5 @@ ffNtupleMuonTiming::clear() {
     fDirection[ ins ].clear();
   }
   fHemisphere.clear();
+  fRpcBxAve.clear();
 }
