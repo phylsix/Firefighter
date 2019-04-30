@@ -12,7 +12,7 @@ filteredPFCandsFwdPtr = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src=cms.InputTag("pfNoPileUpJME"),
     cut=cms.string("abs(eta)<2.5"),
-    makeClones=cms.bool(True),
+    makeClones=cms.bool(False),
 )
 
 if switches["usingCHS"] == False:
@@ -36,6 +36,4 @@ filteredPFCands = cms.EDProducer(
 if switches["usingCHS"] == False:
     filteringPFCands = cms.Sequence(filteredPFCandsFwdPtr)
 else:
-    filteringPFCands = cms.Sequence(
-        pfNoPileUpJMESeq + filteredPFCandsFwdPtr
-    )
+    filteringPFCands = cms.Sequence(pfNoPileUpJMESeq + filteredPFCandsFwdPtr)
