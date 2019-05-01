@@ -12,7 +12,7 @@ noBPTXHLTFilter = _hltfilter.clone(
     TriggerPaths=cms.vstring("HLT_L2Mu10_NoVertex_NoBPTX3BX")
 )
 
-#####################################################################
+###############################################################################
 
 muonsFromdSA = muons1stStep.clone()
 
@@ -31,7 +31,7 @@ muonsFromdSA.arbitrateTrackerMuons = False
 muonsFromdSA.fillTrackerKink = False
 muonsFromdSA.runArbitrationCleaner = False
 
-#####################################################################
+###############################################################################
 
 cosmicFilter = _cosmicfilter.clone(muons=cms.InputTag("muonsFromdSA"))
 

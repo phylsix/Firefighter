@@ -1,5 +1,6 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
+#include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -29,8 +30,9 @@ class ffNtupleMuonTiming : public ffNtupleBase {
   edm::EDGetToken                        fMuonToken;
   std::map<std::string, edm::EDGetToken> fMuonTimeExtraTokenMap;
 
-  std::vector<int>   fHemisphere;
-  std::vector<float> fRpcBxAve;
+  std::vector<int>                   fHemisphere;
+  std::vector<float>                 fRpcBxAve;
+  math::XYZTLorentzVectorFCollection fP4;
 
   std::map<std::string, std::vector<float>> fTimeAtIpInOut;
   std::map<std::string, std::vector<float>> fTimeAtIpInOutErr;
@@ -84,6 +86,7 @@ ffNtupleMuonTiming::initialize( TTree&                   tree,
   }
   tree.Branch( ( srclabel + "_hemisphere" ).c_str(), &fHemisphere );
   tree.Branch( ( srclabel + "_rpcBxAve" ).c_str(), &fRpcBxAve );
+  tree.Branch( ( srclabel + "_p4" ).c_str(), &fP4 );
 }
 
 void
@@ -128,6 +131,8 @@ ffNtupleMuonTiming::fill( const edm::Event& e, const edm::EventSetup& es ) {
                        : (float)accumulate( rpcBxs.begin(), rpcBxs.end(), 0 ) /
                              rpcBxs.size() );
 
+    fP4.emplace_back( muref->px(), muref->py(), muref->pz(), muref->energy() );
+
     for ( const auto& ins : fTimeInstances ) {
       const reco::MuonTimeExtra& timeInfo =
           ( *fMuonTimeExtraHdlMap[ ins ] )[ muref ];
@@ -162,4 +167,5 @@ ffNtupleMuonTiming::clear() {
   }
   fHemisphere.clear();
   fRpcBxAve.clear();
+  fP4.clear();
 }
