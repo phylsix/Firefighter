@@ -516,7 +516,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     vector<float> cPFCandMuonTime{}, cPFCandMuonTimeErr{};
 
     for ( const auto& cand : pfCands ) {
-      cPFCandType.emplace_back( cand->particleId() );
+      cPFCandType.emplace_back( getCandType( cand, generalTk_h ) );
       cPFCandCharge.emplace_back( cand->charge() );
       cPFCandPt.emplace_back( cand->pt() );
       cPFCandEta.emplace_back( cand->eta() );

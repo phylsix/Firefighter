@@ -70,7 +70,7 @@ for i, event in enumerate(t, 1):
         "\t"
         + str(
             [
-                len(list(filter(lambda p: abs(p) == 3, j)))
+                len(list(filter(lambda p: abs(p) in [3,8], j)))
                 for j in event.pfjet_pfcand_type
             ]
         ),
