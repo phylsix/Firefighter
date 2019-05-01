@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
 import os
 import sys
+
+import Firefighter.ffLite.utils as fu
 import ROOT
 from DataFormats.FWLite import Events, Handle
-import Firefighter.ffLite.utils as fu
 from Firefighter.ffConfig.dataSample import skimmedSamples
 
 ROOT.gROOT.SetBatch()
@@ -41,7 +43,9 @@ def debugDsaAsMuon(e, hl):
         return
     data = hl["muonsFromdSA"][0].product()
 
-    print("[muonsFromdSA] - <pfP4 | p4 | time | trackValid | rpcbxave>")
+    print(
+        "[muonsFromdSA] - <pfP4 | p4 | time | trackValid | rpcbxave | #CSCSeg | #DTSeg>"
+    )
     for mu in data:
         pfp4Info = fu.formatP4(mu.pfP4())
         p4Info = fu.formatP4(mu)
@@ -53,13 +57,23 @@ def debugDsaAsMuon(e, hl):
             tkValInfo = mu.track().id()
         else:
             tkValInfo = None
+
+        # muonChamberMatches
         muMatches = mu.matches()
-        rpcbxs = []
+
+        rpcbxs = []  ## rpcbxave
+        nCSCSeg = 0  ## number of CSC segments
+        nDTSeg = 0  ## number of DT segments
+
         for mm in muMatches:
-            if mm.detector() != 3:
-                continue  # RPC
-            for rpchit in mm.rpcMatches:
-                rpcbxs.append(rpchit.bx)
+            if mm.detector() == 3:  # RPC
+                for rpchit in mm.rpcMatches:
+                    rpcbxs.append(rpchit.bx)
+            for seg in mm.segmentMatches:
+                if seg.cscSegmentRef.isNonnull():
+                    nCSCSeg += 1
+                if seg.dtSegmentRef.isNonnull():
+                    nDTSeg += 1
         rpcbxave = float(sum(rpcbxs)) / len(rpcbxs) if rpcbxs else None
         # matchInfo = str(
         #     [
@@ -67,7 +81,12 @@ def debugDsaAsMuon(e, hl):
         #         for mm in muMatches
         #     ]
         # )
-        print("\t", pfp4Info, p4Info, tInfo, tkValInfo, rpcbxave)
+        print(
+            "\t",
+            "{:30}{:40}{:15}{:10}{:4}{:4}{:4}".format(
+                pfp4Info, p4Info, tInfo, tkValInfo, rpcbxave, nCSCSeg, nDTSeg
+            ),
+        )
 
 
 ###############################################################################

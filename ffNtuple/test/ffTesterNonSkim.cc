@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 // dataformats
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
@@ -54,6 +56,7 @@ class ffTesterNonSkim : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
   void dSARecoMuonMatching( const edm::Event& e );
 
+  // *************************************************************************
   using trackRefMap = std::map<reco::TrackRef, reco::TrackRef>;
   trackRefMap buildTrackLinkByDeltaR( const std::vector<reco::TrackRef>& src,
                                       const std::vector<reco::TrackRef>& dest,
@@ -67,12 +70,18 @@ class ffTesterNonSkim : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
   void dSARecoMuonOuterTrackSize( const edm::Event& e );
 
+  // *************************************************************************
   edm::EDGetTokenT<reco::MuonCollection> fCosmicMuonToken;
   edm::EDGetTokenT<reco::MuonCollection> fCosmicMuonOneLegToken;
   edm::Handle<reco::MuonCollection>      fCosmicMuonHdl;
   edm::Handle<reco::MuonCollection>      fCosmicMuonOneLegHdl;
 
   void cosmicMuonTiming( const edm::Event& e );
+
+  // *************************************************************************
+  edm::EDGetTokenT<reco::MuonCollection> fMuonsFromdSAToken;
+  edm::Handle<reco::MuonCollection>      fMuonsFromdSAHdl;
+  void debugdSASegmentsMatching( const edm::Event& e );
 };
 
 ffTesterNonSkim::ffTesterNonSkim( const edm::ParameterSet& iC ) {
@@ -91,6 +100,9 @@ ffTesterNonSkim::ffTesterNonSkim( const edm::ParameterSet& iC ) {
       consumes<reco::MuonCollection>( edm::InputTag( "muonsFromCosmics" ) );
   fCosmicMuonOneLegToken =
       consumes<reco::MuonCollection>( edm::InputTag( "muonsFromCosmics1Leg" ) );
+
+  fMuonsFromdSAToken =
+      consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) );
 }
 
 void
@@ -102,8 +114,9 @@ ffTesterNonSkim::analyze( const edm::Event& e, const edm::EventSetup& es ) {
   // testParticleFlowRef( e );
   // testDSAHitpattern( e );
   // dSARecoMuonMatching( e );
-  dSARecoMuonOuterTrackSize( e );
+  // dSARecoMuonOuterTrackSize( e );
   // cosmicMuonTiming( e );
+  debugdSASegmentsMatching( e );
 
   cout << "++++++++++++++++++++++++++++++++++" << endl;
 }
@@ -397,6 +410,68 @@ ffTesterNonSkim::cosmicMuonTiming( const edm::Event& e ) {
          << ", ";
   }
   cout << endl;
+}
+
+void
+ffTesterNonSkim::debugdSASegmentsMatching( const edm::Event& e ) {
+  using namespace std;
+
+  e.getByToken( fMuonToken, fMuonHdl );
+  assert( fMuonHdl.isValid() );
+  e.getByToken( fMuonsFromdSAToken, fMuonsFromdSAHdl );
+  assert( fMuonsFromdSAHdl.isValid() );
+
+  for ( const auto& recomu : *fMuonHdl ) {
+    vector<CSCSegmentRef>     CSCSegsReco{};
+    vector<DTRecSegment4DRef> DTSegsReco{};
+
+    cout << "## reco::Muon ##" << endl;
+    for ( const auto& mm : recomu.matches() ) {
+      for ( const auto& seg : mm.segmentMatches ) {
+        if ( seg.cscSegmentRef.isNonnull() )
+          CSCSegsReco.push_back( seg.cscSegmentRef );
+        if ( seg.dtSegmentRef.isNonnull() )
+          DTSegsReco.push_back( seg.dtSegmentRef );
+      }
+    }
+
+    stringstream ss;
+    ss << "[CSC] <";
+    for ( const auto& cscseg : CSCSegsReco )
+      ss << cscseg.key() << ", ";
+    ss << "> [DT] <";
+    for ( const auto& dtseg : DTSegsReco )
+      ss << dtseg.key() << ", ";
+    ss << ">";
+
+    cout << ss.str() << endl;
+  }
+
+  for ( const auto& dsamu : *fMuonsFromdSAHdl ) {
+    vector<CSCSegmentRef>     CSCSegsDsa{};
+    vector<DTRecSegment4DRef> DTSegsDsa{};
+
+    cout << "## dSA muon ##" << endl;
+    for ( const auto& mm : dsamu.matches() ) {
+      for ( const auto& seg : mm.segmentMatches ) {
+        if ( seg.cscSegmentRef.isNonnull() )
+          CSCSegsDsa.push_back( seg.cscSegmentRef );
+        if ( seg.dtSegmentRef.isNonnull() )
+          DTSegsDsa.push_back( seg.dtSegmentRef );
+      }
+    }
+
+    stringstream ss;
+    ss << "[CSC] <";
+    for ( const auto& cscseg : CSCSegsDsa )
+      ss << cscseg.key() << ", ";
+    ss << "> [DT] <";
+    for ( const auto& dtseg : DTSegsDsa )
+      ss << dtseg.key() << ", ";
+    ss << ">";
+
+    cout << ss.str() << endl;
+  }
 }
 
 void
