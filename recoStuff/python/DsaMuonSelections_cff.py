@@ -28,7 +28,7 @@ filteredPFCanddSAPtrs = cms.EDFilter(
             ]
         )
     ),
-    makeClones=cms.bool(True),
+    makeClones=cms.bool(False),
 )
 
 

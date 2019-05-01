@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.PythonUtilities.LumiList as LumiList
 import sys
+import os
 
 process = cms.Process("FFTEST")
 
@@ -31,7 +33,7 @@ except KeyError:
     )
 
 if TEST_FAST:
-    _event_runover = 10
+    _event_runover = 100
     _report_every = 10
     _data_runover = [_data_runover[0]]
 
@@ -60,3 +62,21 @@ process.fftest = cms.EDAnalyzer("ffTesterNonSkim")
 if len(sys.argv) > 3 and "skim" in sys.argv:
     process.fftest = cms.EDAnalyzer("ffTesterForSkim")
 process.p = cms.Path(process.fftest)
+
+if "NoBPTX" in dataType:
+    process.load("Configuration.StandardSequences.Services_cff")
+    process.load("Configuration.EventContent.EventContent_cff")
+    process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+    process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+    process.load(
+        "Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff"
+    )
+    process.GlobalTag.globaltag = "102X_dataRun2_Sep2018Rereco_v1"
+    jsonfilepath = os.path.join(
+        os.environ["CMSSW_BASE"], "src/Firefighter/ffConfig/data/NoBPTX2018_json.txt"
+    )
+    process.source.lumisToProcess = LumiList.LumiList(
+        filename=jsonfilepath
+    ).getVLuminosityBlockRange()
+    process.load("Firefighter.recoStuff.NoBPTXSkimMuonTime_cff")
+    process.p = cms.Path(process.noBPTXSkimMuonTimeSeq + process.fftest)

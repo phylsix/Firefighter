@@ -18,7 +18,6 @@ class HLTFilter : public edm::one::EDFilter<edm::one::WatchRuns> {
   bool filter( edm::Event&, const edm::EventSetup& ) override;
   void endRun( const edm::Run&, const edm::EventSetup& ) override {}
 
-  edm::EDGetToken hlt_eventToken_;
   edm::EDGetToken hlt_resultToken_;
 
   std::vector<std::string> hlt_pathsNoVer_;

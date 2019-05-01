@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
 import os
 import sys
+
+import Firefighter.ffLite.utils as fu
 import ROOT
 from DataFormats.FWLite import Events, Handle
-import Firefighter.ffLite.utils as fu
 from Firefighter.ffConfig.dataSample import skimmedSamples
 
 ROOT.gROOT.SetBatch()
+
+###############################################################################
 
 dataType = sys.argv[1]
 try:
@@ -17,6 +21,8 @@ except KeyError:
         dataType, list(skimmedSamples.keys())
     )
     sys.exit(msg)
+
+###############################################################################
 
 
 def debugPFCand(event, hl):
@@ -28,13 +34,18 @@ def debugPFCand(event, hl):
     print("[PFCand] <pdgId>", [c.pdgId() for c in pfcand])
 
 
+###############################################################################
+
+
 def debugDsaAsMuon(e, hl):
     e.getByLabel(hl["muonsFromdSA"][1], hl["muonsFromdSA"][0])
     if not hl["muonsFromdSA"][0].isValid():
         return
     data = hl["muonsFromdSA"][0].product()
 
-    print("[muonsFromdSA] - <pfP4 | p4 | time | trackValid>")
+    print(
+        "[muonsFromdSA] - <pfP4 | p4 | time | trackValid | rpcbxave | #CSCSeg | #DTSeg>"
+    )
     for mu in data:
         pfp4Info = fu.formatP4(mu.pfP4())
         p4Info = fu.formatP4(mu)
@@ -46,14 +57,39 @@ def debugDsaAsMuon(e, hl):
             tkValInfo = mu.track().id()
         else:
             tkValInfo = None
+
+        # muonChamberMatches
         muMatches = mu.matches()
-        matchInfo = str(
-            [
-                "({}/{}/{})".format(mm.detector(), mm.station(), round(mm.dist(),3))
-                for mm in muMatches
-            ]
+
+        rpcbxs = []  ## rpcbxave
+        nCSCSeg = 0  ## number of CSC segments
+        nDTSeg = 0  ## number of DT segments
+
+        for mm in muMatches:
+            if mm.detector() == 3:  # RPC
+                for rpchit in mm.rpcMatches:
+                    rpcbxs.append(rpchit.bx)
+            for seg in mm.segmentMatches:
+                if seg.cscSegmentRef.isNonnull():
+                    nCSCSeg += 1
+                if seg.dtSegmentRef.isNonnull():
+                    nDTSeg += 1
+        rpcbxave = float(sum(rpcbxs)) / len(rpcbxs) if rpcbxs else None
+        # matchInfo = str(
+        #     [
+        #         "({}/{}/{})".format(mm.detector(), mm.station(), round(mm.dist(),3))
+        #         for mm in muMatches
+        #     ]
+        # )
+        print(
+            "\t",
+            "{:30}{:40}{:15}{:10}{:4}{:4}{:4}".format(
+                pfp4Info, p4Info, tInfo, tkValInfo, rpcbxave, nCSCSeg, nDTSeg
+            ),
         )
-        print("\t", pfp4Info, p4Info, tInfo, tkValInfo, matchInfo)
+
+
+###############################################################################
 
 
 def debugDsaAsPFCand(e, hl):
@@ -70,6 +106,9 @@ def debugDsaAsPFCand(e, hl):
         )
         tkInfo = fu.formatP3(mu.trackRef()) if mu.trackRef() else "<None, None, None>"
         print("\t", p4Info, mrInfo, tkInfo)
+
+
+###############################################################################
 
 
 def main():

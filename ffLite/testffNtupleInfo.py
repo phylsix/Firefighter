@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
+import math
 import os
 import sys
-import math
+
 import ROOT
 from Firefighter.ffConfig.dataSample import ffSamples
 
@@ -68,7 +70,7 @@ for i, event in enumerate(t, 1):
         "\t"
         + str(
             [
-                len(list(filter(lambda p: abs(p) == 3, j)))
+                len(list(filter(lambda p: abs(p) in [3,8], j)))
                 for j in event.pfjet_pfcand_type
             ]
         ),
@@ -109,6 +111,14 @@ for i, event in enumerate(t, 1):
         ],
         sep="\n"
     )
+    print(
+        "[pfcands] <muonTime>",
+        *[
+            "\t" + str(map(lambda v: round(v, 3), list(j)))
+            for j in event.pfjet_pfcand_muonTime
+        ],
+        sep="\n"
+    )
 
     print("[Event] <pu> - ", event.puInteractionNum)
     print("[Event] <trueInter> - ", event.trueInteractionNum)
@@ -133,6 +143,14 @@ for i, event in enumerate(t, 1):
     print("[pfjet] <ecf1>", *[round(v, 3) for v in event.pfjet_subjet_ecf1])
     print("[pfjet] <ecf2>", *[round(v, 3) for v in event.pfjet_subjet_ecf2])
     print("[pfjet] <ecf3>", *[round(v, 3) for v in event.pfjet_subjet_ecf3])
+    print("[pfjet] <muonTimeStd>", *[round(v, 3) for v in event.pfjet_pfcand_muonTimeStd])
+
+    print(
+        "[beamhalo]",
+        event.beamhalo_CSCTightHaloId2015,
+        event.beamhalo_GlobalTightHaloId2016,
+        event.beamhalo_GlobalSuperTightHaloId2016,
+    )
 
     if i > 50:
         break

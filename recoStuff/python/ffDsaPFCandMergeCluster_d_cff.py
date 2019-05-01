@@ -28,6 +28,15 @@ if year == 2017:
         "HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx",
         "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx",
     )
+if year == 2018:
+    hltfilter.TriggerPaths = cms.vstring(
+        "HLT_DoubleL2Mu23NoVtx_2Cha",
+        "HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched",
+        "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed",
+        "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched",
+        "HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4",
+        "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4",
+    )
 
 ffLeptonJetSeq._seq._collection.insert(0, hltfilter)
 
