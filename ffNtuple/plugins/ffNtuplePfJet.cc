@@ -234,6 +234,10 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::vector<std::vector<float>> pfjet_pfcand_tkDzSig_;
   std::vector<std::vector<float>> pfjet_pfcand_tkNormChi2_;
 
+  std::vector<std::vector<float>> pfjet_pfcand_muonTime_;
+  std::vector<std::vector<float>> pfjet_pfcand_muonTimeErr_;
+  std::vector<float>              pfjet_pfcand_muonTimeStd_;
+
   std::vector<Point> pfjet_medianvtx_;
   std::vector<Point> pfjet_averagevtx_;
 
@@ -360,6 +364,10 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcand_tkDz", &pfjet_pfcand_tkDz_ );
   tree.Branch( "pfjet_pfcand_tkDzSig", &pfjet_pfcand_tkDzSig_ );
   tree.Branch( "pfjet_pfcand_tkNormChi2", &pfjet_pfcand_tkNormChi2_ );
+
+  tree.Branch( "pfjet_pfcand_muonTime", &pfjet_pfcand_muonTime_ );
+  tree.Branch( "pfjet_pfcand_muonTimeErr", &pfjet_pfcand_muonTimeErr_ );
+  tree.Branch( "pfjet_pfcand_muonTimeStd", &pfjet_pfcand_muonTimeStd_ );
 
   tree.Branch( "pfjet_medianvtx", &pfjet_medianvtx_ );
   tree.Branch( "pfjet_averagevtx", &pfjet_averagevtx_ );
@@ -505,6 +513,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     vector<float> cPFCandTkD0{}, cPFCandTkD0Sig{};
     vector<float> cPFCandTkDz{}, cPFCandTkDzSig{};
     vector<float> cPFCandTkNormChi2{};
+    vector<float> cPFCandMuonTime{}, cPFCandMuonTimeErr{};
 
     for ( const auto& cand : pfCands ) {
       cPFCandType.emplace_back( cand->particleId() );
@@ -536,6 +545,15 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
                                               candEmbedTrack->ndof() != 0
                                           ? candEmbedTrack->normalizedChi2()
                                           : NAN );
+
+      const reco::MuonRef cmuref = cand->muonRef();
+      cPFCandMuonTime.emplace_back( cmuref.isNonnull() and cmuref->isTimeValid()
+                                        ? cmuref->time().timeAtIpInOut
+                                        : NAN );
+      cPFCandMuonTimeErr.emplace_back( cmuref.isNonnull() and
+                                               cmuref->isTimeValid()
+                                           ? cmuref->time().timeAtIpInOutErr
+                                           : NAN );
     }
 
     pfjet_pfcand_type_.push_back( cPFCandType );
@@ -549,6 +567,11 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcand_tkDz_.push_back( cPFCandTkDz );
     pfjet_pfcand_tkDzSig_.push_back( cPFCandTkDzSig );
     pfjet_pfcand_tkNormChi2_.push_back( cPFCandTkNormChi2 );
+
+    pfjet_pfcand_muonTime_.push_back( cPFCandMuonTime );
+    pfjet_pfcand_muonTimeErr_.push_back( cPFCandMuonTimeErr );
+    pfjet_pfcand_muonTimeStd_.push_back(
+        ff::calculateStandardDeviation<float>( cPFCandMuonTime ) );
     // --------------------------------------------------------------------
 
     // vertices -----------------------------------------------------------
@@ -768,6 +791,10 @@ ffNtuplePfJet::clear() {
   pfjet_pfcand_tkDz_.clear();
   pfjet_pfcand_tkDzSig_.clear();
   pfjet_pfcand_tkNormChi2_.clear();
+
+  pfjet_pfcand_muonTime_.clear();
+  pfjet_pfcand_muonTimeErr_.clear();
+  pfjet_pfcand_muonTimeStd_.clear();
 
   pfjet_medianvtx_.clear();
   pfjet_averagevtx_.clear();

@@ -10,6 +10,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 #include <map>
 #include <numeric>
@@ -135,6 +136,27 @@ calcOverlap( const std::vector<T>& src, const std::vector<T>& comp ) {
   std::set_intersection( srcCopy.begin(), srcCopy.end(), compCopy.begin(),
                          compCopy.end(), std::back_inserter( v_intersection ) );
   return (float)v_intersection.size() / std::min( src.size(), comp.size() );
+}
+
+template <typename T>
+double
+calculateStandardDeviation( const std::vector<T>& v ) {
+  using namespace std;
+  vector<T> vcopy{};
+  copy_if( v.begin(), v.end(), back_inserter( vcopy ),
+           []( const auto& n ) { return !isnan( n ); } );
+  if ( vcopy.empty() )
+    return NAN;
+
+  double sum  = (double)accumulate( vcopy.begin(), vcopy.end(), 0.0 );
+  double mean = (double)sum / vcopy.size();
+
+  vector<double> diff( vcopy.size() );
+  transform( vcopy.begin(), vcopy.end(), diff.begin(),
+             [mean]( double x ) { return x - mean; } );
+  double sq_sum = inner_product( diff.begin(), diff.end(), diff.begin(), 0.0 );
+
+  return sqrt( sq_sum / vcopy.size() );
 }
 
 }  // namespace ff
