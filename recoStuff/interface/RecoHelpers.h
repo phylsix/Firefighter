@@ -134,8 +134,7 @@ calcOverlap( const std::vector<T>& src, const std::vector<T>& comp ) {
   std::vector<T> v_intersection;
   std::set_intersection( srcCopy.begin(), srcCopy.end(), compCopy.begin(),
                          compCopy.end(), std::back_inserter( v_intersection ) );
-  return (float)v_intersection.size() /
-         ( src.size() + comp.size() - v_intersection.size() );
+  return (float)v_intersection.size() / std::min( src.size(), comp.size() );
 }
 
 }  // namespace ff
