@@ -112,6 +112,34 @@ def beamhaloStuff(e, hl):
 ###############################################################################
 
 
+def debugRecoMuon(e, hl):
+
+    e.getByLabel(hl["recomuon"][1], hl["recomuon"][0])
+    if not hl["recomuon"][0].isValid():
+        return
+
+    recomuon = hl["recomuon"][0].product()
+    print("[recoMuon] <charge>", *[m.charge() for m in recomuon])
+    print("[recoMuon] <p3>", *[fu.formatP3(m) for m in recomuon])
+
+
+###############################################################################
+
+
+def debugDsaMuon(e, hl):
+
+    e.getByLabel(hl["dsa"][1], hl["dsa"][0])
+    if not hl["dsa"][0].isValid():
+        return
+
+    dsamuon = hl["dsa"][0].product()
+    print("[dSAMuon] <charge>", *[m.charge() for m in dsamuon])
+    print("[dSAMuon] <p3>", *[fu.formatP3(m) for m in dsamuon])
+
+
+###############################################################################
+
+
 def main():
 
     handlesAndLabels = {
@@ -128,6 +156,11 @@ def main():
             ("muonsFromCosmics1Leg", "", "RECO"),
         ),
         "beamhalo": (Handle("reco::BeamHaloSummary"), ("BeamHaloSummary", "", "RECO")),
+        "recomuon": (Handle("std::vector<reco::Muon>"), ("muons", "", "RECO")),
+        "dsa": (
+            Handle("std::vector<reco::Track>"),
+            ("displacedStandAloneMuons", "", "RECO"),
+        ),
     }
 
     handlesAndLabels_cosmicsPD = {
@@ -157,7 +190,9 @@ def main():
         # pfCandStuff(event, handlesAndLabels)
         # cosmicStuff(event, handlesAndLabels_cosmicsPD)
         # cosmicInAODStuff(event, handlesAndLabels)
-        beamhaloStuff(event, handlesAndLabels)
+        # beamhaloStuff(event, handlesAndLabels)
+        debugRecoMuon(event, handlesAndLabels)
+        debugDsaMuon(event, handlesAndLabels)
 
         wentThroughEvents.append((_run, _lumi, _event))
 

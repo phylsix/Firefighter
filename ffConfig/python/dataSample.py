@@ -40,6 +40,8 @@ samples = {
     + "/store/data/Run2018A/NoBPTX/AOD/17Sep2018-v1/120000/6BB7B1EE-6C61-074F-823B-CFF5830BEEBF.root",
     "NoBPTXSkim": GLOBAL_DIRECTOR
     + "/store/data/Run2018A/NoBPTX/USER/EXONoBPTXSkim-17Sep2018-v1/120000/AB1F983B-E2F2-EB4B-AE96-A4A837B612F5.root",
+    "muplus1000": GLOBAL_DIRECTOR
+    + "/store/mc/RunIIAutumn18DRPremix/Muplus_Pt1000-gun/AODSIM/102X_upgrade2018_realistic_v15_ext1-v1/100000/0170D3AA-919B-DC4C-846A-F75808EB682E.root",
 }
 
 ffSamples = {
@@ -53,6 +55,8 @@ ffSamples = {
     "Cosmics": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ffNtuple_Cosmics.root",
     "NoBPTXSkim": CMSSW_BASE
     + "/src/Firefighter/ffNtuple/test/ffNtuple_NoBPTXSkim.root",
+    "muplus1000": CMSSW_BASE
+    + "/src/Firefighter/leptonJetGun/test/ffNtuple_muplus1000.root",
 }
 
 skimmedSamples = {
