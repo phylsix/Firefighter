@@ -46,6 +46,12 @@ for i, event in enumerate(t, 1):
     print("[#DT]", list(event.singlemu_nDTSegs))
     print("[#sharedCSC]", event.singlemu_nCSCSegsShared)
     print("[#sharedDT]", event.singlemu_nDTSegsShared)
+    print(
+        "[Flags dR|ratio|comb]",
+        event.singlemu_flag_dr,
+        event.singlemu_flag_weightedOverlapRatio,
+        event.singlemu_flag_weightedOverlapRatioPlusdR,
+    )
 
     if i > 50:
         break

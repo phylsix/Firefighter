@@ -1,6 +1,7 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -32,6 +33,9 @@ class ffNtupleSingleMu : public ffNtupleBase {
   edm::EDGetToken fRecoMuonToken;
   edm::EDGetToken fMuonsFromdSAToken;
 
+  float fDeltaRMax;
+  float fOverlapRatioMin;
+
   math::XYZTLorentzVectorFCollection fP4;
   std::vector<int>                   fCharge;
   std::vector<float>                 fTimeAtIpInOut;
@@ -39,12 +43,18 @@ class ffNtupleSingleMu : public ffNtupleBase {
   std::vector<int>                   fNumDTSegs;
   int                                fNumCSCSegsShared;
   int                                fNumDTSegsShared;
+
+  bool fFlagdR;
+  bool fFlagWeightedOverlapRatio;
+  bool fFlagWeightedOverlapRatioPlusdR;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleSingleMu, "ffNtupleSingleMu" );
 
 ffNtupleSingleMu::ffNtupleSingleMu( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBase( ps ),
+      fDeltaRMax( ps.getParameter<double>( "deltaR" ) ),
+      fOverlapRatioMin( ps.getParameter<double>( "overlapRatio" ) ) {}
 
 void
 ffNtupleSingleMu::initialize( TTree&                   tree,
@@ -64,6 +74,12 @@ ffNtupleSingleMu::initialize( TTree&                   tree,
                "singlemu_nCSCSegsShared/I" );
   tree.Branch( "singlemu_nDTSegsShared", &fNumDTSegsShared,
                "singlemu_nDTSegsShared/I" );
+  tree.Branch( "singlemu_flag_dr", &fFlagdR, "singlemu_flag_dr/O" );
+  tree.Branch( "singlemu_flag_weightedOverlapRatio", &fFlagWeightedOverlapRatio,
+               "singlemu_flag_weightedOverlapRatio/O" );
+  tree.Branch( "singlemu_flag_weightedOverlapRatioPlusdR",
+               &fFlagWeightedOverlapRatioPlusdR,
+               "singlemu_flag_weightedOverlapRatioPlusdR/O" );
 }
 
 void
@@ -81,14 +97,14 @@ ffNtupleSingleMu::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
-  if ( !( fRecoMuonHdl->size() > 0 and fMuonsFromdSAHdl->size() > 0 ) )
-    return;
-
   vector<reco::MuonRef> recoMuonRef{}, muonsFromdSARef{};
   for ( size_t i( 0 ); i != fRecoMuonHdl->size(); ++i )
     recoMuonRef.emplace_back( fRecoMuonHdl, i );
   for ( size_t i( 0 ); i != fMuonsFromdSAHdl->size(); ++i )
     muonsFromdSARef.emplace_back( fMuonsFromdSAHdl, i );
+
+  if ( !( recoMuonRef.size() > 0 and muonsFromdSARef.size() > 0 ) )
+    return;
 
   sort( recoMuonRef.begin(), recoMuonRef.end(),
         []( const auto& lhs, const auto& rhs ) {
@@ -126,6 +142,9 @@ ffNtupleSingleMu::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fNumDTSegs.emplace_back( dtSegs.size() );
   }
 
+  fFlagdR =
+      deltaR( *recodSApair[ 0 ].get(), *recodSApair[ 1 ].get() ) < fDeltaRMax;
+
   vector<int> inter_CSC{}, inter_DT{};
   set_intersection( recodsa_CSC[ 0 ].begin(), recodsa_CSC[ 0 ].end(),
                     recodsa_CSC[ 1 ].begin(), recodsa_CSC[ 1 ].end(),
@@ -135,6 +154,26 @@ ffNtupleSingleMu::fill( const edm::Event& e, const edm::EventSetup& es ) {
                     back_inserter( inter_DT ) );
   fNumCSCSegsShared = inter_CSC.size();
   fNumDTSegsShared  = inter_DT.size();
+
+  float cscRatio = recodsa_CSC[ 0 ].empty()
+                       ? 0.
+                       : fNumCSCSegsShared / recodsa_CSC[ 0 ].size();
+  float dtRatio =
+      recodsa_DT[ 0 ].empty() ? 0. : fNumDTSegsShared / recodsa_DT[ 0 ].size();
+
+  float weightedOverlapRatio =
+      ( recodsa_CSC[ 0 ].size() + recodsa_DT[ 0 ].size() )
+          ? cscRatio *
+                    ( recodsa_CSC[ 0 ].size() /
+                      ( recodsa_CSC[ 0 ].size() + recodsa_DT[ 0 ].size() ) ) +
+                dtRatio *
+                    ( recodsa_DT[ 0 ].size() /
+                      ( recodsa_CSC[ 0 ].size() + recodsa_DT[ 0 ].size() ) )
+          : 0.;
+
+  fFlagWeightedOverlapRatio = weightedOverlapRatio >= fOverlapRatioMin;
+
+  fFlagWeightedOverlapRatioPlusdR = fFlagWeightedOverlapRatio or fFlagdR;
 
   // debug
   // stringstream ss;
@@ -167,6 +206,9 @@ ffNtupleSingleMu::clear() {
   fTimeAtIpInOut.clear();
   fNumCSCSegs.clear();
   fNumDTSegs.clear();
-  fNumCSCSegsShared = 0;
-  fNumDTSegsShared  = 0;
+  fNumCSCSegsShared               = 0;
+  fNumDTSegsShared                = 0;
+  fFlagdR                         = false;
+  fFlagWeightedOverlapRatio       = false;
+  fFlagWeightedOverlapRatioPlusdR = false;
 }
