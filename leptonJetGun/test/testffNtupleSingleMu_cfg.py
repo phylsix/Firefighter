@@ -14,7 +14,7 @@ process.load(
 )
 process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v15"
 
-dataType = "muplus1000"  # sys.argv[2]
+dataType = sys.argv[2]
 TEST_FAST = True
 if "full" in sys.argv:
     TEST_FAST = False
@@ -63,9 +63,12 @@ process.TFileService = cms.Service(
 )
 
 process.load("Firefighter.leptonJetGun.DsaToRecoMuon_cff")
+process.load("Firefighter.leptonJetGun.muonFiltering_cff")
 process.load("Firefighter.leptonJetGun.ffNtuples_singlemugun_cff")
 
-process.ntuple_step = cms.Path(process.dSAToRecoMuonSeq + process.ffNtuplesSeq)
+process.ntuple_step = cms.Path(
+    process.dSAToRecoMuonSeq + process.singlemuFilterSeq + process.ffNtuplesSeq
+)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
 process.schedule = cms.Schedule(process.ntuple_step, process.endjob_step)
