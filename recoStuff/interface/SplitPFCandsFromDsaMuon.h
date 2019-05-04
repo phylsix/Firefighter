@@ -1,5 +1,5 @@
-#ifndef recoStuff_SplitPFCandByMatchingDsaMuonProd
-#define recoStuff_SplitPFCandByMatchingDsaMuonProd
+#ifndef recoStuff_SplitPFCandsFromDsaMuon_h
+#define recoStuff_SplitPFCandsFromDsaMuon_h
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -10,21 +10,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "Firefighter/recoStuff/interface/MatcherByAssociatingRecoMuons.h"
-#include "Firefighter/recoStuff/interface/MatcherByExtrapolatingTracks.h"
-#include "Firefighter/recoStuff/interface/RecoHelpers.h"
+#include "Firefighter/recoStuff/interface/ffCandMatcher.h"
 
-namespace ff {
-
-template <typename T>
-std::set<typename T::key_type>
-getMergedMapKeys( const T& A, const T& B );
-}
-
-class SplitPFCandByMatchingDsaMuonProd : public edm::stream::EDProducer<> {
+class SplitPFCandsFromDsaMuon : public edm::stream::EDProducer<> {
  public:
-  explicit SplitPFCandByMatchingDsaMuonProd( const edm::ParameterSet& );
-  ~SplitPFCandByMatchingDsaMuonProd() override;
+  explicit SplitPFCandsFromDsaMuon( const edm::ParameterSet& );
+  ~SplitPFCandsFromDsaMuon() override;
 
  private:
   void beginRun( const edm::Run&, const edm::EventSetup& ) override;
@@ -33,8 +24,7 @@ class SplitPFCandByMatchingDsaMuonProd : public edm::stream::EDProducer<> {
   const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> matchedToken_;
 
   StringCutObjectSelector<reco::PFCandidate, true> srcCut_;
-  ff::MatcherByExtrapolatingTracks                 matcherByTk_;
-  ff::MatcherByAssociatingRecoMuons                matcherByMu_;
+  std::vector<std::shared_ptr<ff::ffCandMatcher>>  fMatchers;
 
   edm::Handle<reco::PFCandidateFwdPtrVector> srcHdl_;
   edm::Handle<reco::PFCandidateFwdPtrVector> matchedHdl_;

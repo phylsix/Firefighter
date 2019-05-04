@@ -1,4 +1,4 @@
-#include "Firefighter/recoStuff/interface/MatcherByExtrapolatingTracks.h"
+#include "Firefighter/recoStuff/interface/MatcherByExtrapolateTracks.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-ff::MatcherByExtrapolatingTracks::MatcherByExtrapolatingTracks(
+ff::MatcherByExtrapolateTracks::MatcherByExtrapolateTracks(
     const edm::ParameterSet& ps ) {
   maxLocalPosDiff_      = ps.getParameter<double>( "maxDeltaLocalPos" );
   maxGlobalMomDeltaR_   = ps.getParameter<double>( "maxDeltaR" );
@@ -37,51 +37,69 @@ ff::MatcherByExtrapolatingTracks::MatcherByExtrapolatingTracks(
         << "Parameter 'sortBy' must be one of: deltaLocalPos, deltaPtRel, "
            "deltaR.\n";
   }
+
+  setInitBy( ff::ffCandMatcher::InitBy::run );
 }
 
 void
-ff::MatcherByExtrapolatingTracks::init( const edm::EventSetup& es ) {
+ff::MatcherByExtrapolateTracks::init( const edm::Run&        r,
+                                      const edm::EventSetup& es ) {
   tkExtrp_ = std::make_unique<ff::TrackExtrapolator>( es );
 }
 
-std::map<reco::PFCandidatePtr, reco::PFCandidatePtr>
-ff::MatcherByExtrapolatingTracks::match(
+ff::MapLink
+ff::MatcherByExtrapolateTracks::match(
     const std::vector<reco::PFCandidatePtr>& srcCol,
     const std::vector<reco::PFCandidatePtr>& matchCol ) const {
-  std::map<reco::PFCandidatePtr, reco::PFCandidatePtr>
-      result{};  // dSA --> particleFlow
+  using namespace std;
+  ff::MapLink result{};  // dSA --> particleFlow
 
-  /// copy and sort input collection by pT from high to low
-  std::vector<reco::PFCandidatePtr> sortedSrcCol{};
-  for ( const auto& cand : srcCol )
+  // copy and sort src collection by pT from high to low
+  vector<reco::PFCandidatePtr> sortedSrcCol{};
+  for ( const auto& cand : srcCol ) {
+    if ( cand.isNull() or
+         ( cand->particleId() != reco::PFCandidate::ParticleType::mu ) or
+         cand->muonRef().isNull() or cand->trackRef().isNull() )
+      continue;
     sortedSrcCol.push_back( cand );
-  std::sort( sortedSrcCol.begin(), sortedSrcCol.end(),
-             []( const auto& lhs, const auto& rhs ) {
-               return lhs->pt() > rhs->pt();
-             } );
+  }
+  sort( sortedSrcCol.begin(), sortedSrcCol.end(),
+        []( const auto& lhs, const auto& rhs ) {
+          return lhs->pt() > rhs->pt();
+        } );
 
+  // copy and sort match collection by pT from high to low
+  vector<reco::PFCandidatePtr> sortedMatchCol{};
+  for ( const auto& cand : matchCol ) {
+    if ( cand.isNull() or
+         ( cand->particleId() != reco::PFCandidate::ParticleType::mu ) or
+         cand->muonRef().isNull() or cand->muonRef()->outerTrack().isNull() )
+      continue;
+    sortedMatchCol.push_back( cand );
+  }
+  sort( sortedMatchCol.begin(), sortedMatchCol.end(),
+        []( const auto& lhs, const auto& rhs ) {
+          return lhs->pt() > rhs->pt();
+        } );
+
+  // Loop src first, since we trust it more
   for ( const auto& srcCand : sortedSrcCol ) {
-    if ( srcCand.isNull() )
-      continue;
     const reco::TrackRef srcTk = srcCand->trackRef();
-    if ( srcTk.isNull() )
-      continue;
 
     FreeTrajectoryState startFTS = trajectoryStateTransform::initialFreeState(
         *srcTk, tkExtrp_->getMagneticField() );
 
+    // metric used to select the best matches
     float                minMatchingMetric( 999. );
     reco::PFCandidatePtr bestMatchedCand;
 
-    for ( const auto& matCand : matchCol ) {
-      if ( matCand.isNull() )
-        continue;
-      const reco::TrackRef matTk = matCand->trackRef();
-      if ( matTk.isNull() )
-        continue;
-
+    // loop match collection inside
+    for ( const auto& matCand : sortedMatchCol ) {
+      // skip if already matched
       if ( result.find( matCand ) != result.end() )
         continue;
+
+      const reco::TrackRef matTk = matCand->muonRef()->outerTrack();
 
       if ( requireSameCharge_ and srcCand->charge() != matCand->charge() )
         continue;
@@ -162,16 +180,15 @@ ff::MatcherByExtrapolatingTracks::match(
           break;
       }
 
+      // assign the best matches with metric
       if ( matchingMetric < minMatchingMetric ) {
         minMatchingMetric = matchingMetric;
         bestMatchedCand   = matCand;
       }
     }
 
-    if ( bestMatchedCand.isNull() )
-      continue;
-
-    result.emplace( bestMatchedCand, srcCand );
+    if ( bestMatchedCand.isNonnull() )
+      result.emplace( bestMatchedCand, srcCand );
   }
 
   return result;
