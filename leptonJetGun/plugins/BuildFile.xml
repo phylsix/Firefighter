@@ -10,6 +10,7 @@
 <use name="clhep"/>
 <use name="root"/>
 <use name="Firefighter/recoStuff"/>
+<use name="Firefighter/ffNtuple"/>
 
 <library name="FirefighterleptonJetGun_plugins" file="*.cc">
 </library>

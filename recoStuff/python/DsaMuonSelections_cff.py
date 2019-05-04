@@ -21,7 +21,7 @@ filteredPFCanddSAPtrs = cms.EDFilter(
     cut=cms.string(
         " && ".join(
             [
-                "pt>5.",
+                "pt>20.",
                 "abs(eta)<2.4",
                 "trackRef.hitPattern.muonStationsWithValidHits>1",
                 "trackRef.normalizedChi2<10.",
