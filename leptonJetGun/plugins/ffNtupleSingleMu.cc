@@ -47,6 +47,7 @@ class ffNtupleSingleMu : public ffNtupleBase {
   bool fFlagdR;
   bool fFlagWeightedOverlapRatio;
   bool fFlagWeightedOverlapRatioPlusdR;
+  bool fFlagWeightedOverlapRatioPlusdRBX;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleSingleMu, "ffNtupleSingleMu" );
@@ -80,6 +81,9 @@ ffNtupleSingleMu::initialize( TTree&                   tree,
   tree.Branch( "singlemu_flag_weightedOverlapRatioPlusdR",
                &fFlagWeightedOverlapRatioPlusdR,
                "singlemu_flag_weightedOverlapRatioPlusdR/O" );
+  tree.Branch( "singlemu_flat_weightedOverlapRatioPlusdRBX",
+               &fFlagWeightedOverlapRatioPlusdRBX,
+               "singlemu_flat_weightedOverlapRatioPlusdRBX/O" );
 }
 
 void
@@ -175,6 +179,10 @@ ffNtupleSingleMu::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   fFlagWeightedOverlapRatioPlusdR = fFlagWeightedOverlapRatio or fFlagdR;
 
+  fFlagWeightedOverlapRatioPlusdRBX =
+      fFlagWeightedOverlapRatioPlusdR and
+      fabs( fTimeAtIpInOut[ 0 ] - fTimeAtIpInOut[ 1 ] ) < 20.;
+
   // debug
   // stringstream ss;
   // ss << "<CSC> [";
@@ -206,9 +214,10 @@ ffNtupleSingleMu::clear() {
   fTimeAtIpInOut.clear();
   fNumCSCSegs.clear();
   fNumDTSegs.clear();
-  fNumCSCSegsShared               = 0;
-  fNumDTSegsShared                = 0;
-  fFlagdR                         = false;
-  fFlagWeightedOverlapRatio       = false;
-  fFlagWeightedOverlapRatioPlusdR = false;
+  fNumCSCSegsShared                 = 0;
+  fNumDTSegsShared                  = 0;
+  fFlagdR                           = false;
+  fFlagWeightedOverlapRatio         = false;
+  fFlagWeightedOverlapRatioPlusdR   = false;
+  fFlagWeightedOverlapRatioPlusdRBX = false;
 }
