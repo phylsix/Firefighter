@@ -6,8 +6,9 @@ cosmicmuonfilter = cms.EDFilter(
     cut=cms.string(
         " && ".join(
             [
-                "pt>5.",
+                "pt>20.",
                 "abs(eta)<2.4",
+                "outerTrack.isNonnull()",
                 "outerTrack.hitPattern.muonStationsWithValidHits>1",
                 "outerTrack.normalizedChi2<10.",
             ]
