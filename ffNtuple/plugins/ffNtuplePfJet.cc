@@ -69,6 +69,7 @@ class ffNtuplePfJet : public ffNtupleBase {
   reco::PFCandidatePtr getCandWithMaxPt(
       const std::vector<reco::PFCandidatePtr>& ) const;
   float chargedMass( const reco::PFJet& ) const;
+  bool  muonInTime( const reco::PFJet&, float& ) const;
   int   getNumberOfDisplacedStandAloneMuons(
         const reco::PFJet&,
         const edm::Handle<reco::TrackCollection>& ) const;
@@ -189,6 +190,7 @@ class ffNtuplePfJet : public ffNtupleBase {
   edm::ParameterSet                    kvfParam_;
   std::vector<double>                  isoRadius_;
   float                                minChargedMass_;
+  float                                maxTimeLimit_;
 
   int                                 pfjet_n_;
   std::vector<LorentzVector>          pfjet_p4_;
@@ -286,7 +288,8 @@ ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
       track_selector_( ps.getParameter<std::string>( "TrackSelection" ), true ),
       kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
       isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ),
-      minChargedMass_( ps.getParameter<double>( "MinChargedMass" ) ) {}
+      minChargedMass_( ps.getParameter<double>( "MinChargedMass" ) ),
+      maxTimeLimit_( ps.getParameter<double>( "MaxTimeLimit" ) ) {}
 
 void
 ffNtuplePfJet::initialize( TTree&                   tree,
@@ -456,9 +459,12 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   pfjet_n_ = pfjets.size();
   for ( const auto& pfjet : pfjets ) {
+    // cutting away unhealthy leptonJets here
     if ( !pfjet_selector_( pfjet ) )
       continue;
     if ( chargedMass( pfjet ) < minChargedMass_ )
+      continue;
+    if ( !muonInTime( pfjet, maxTimeLimit_ ) )
       continue;
 
     const vector<const reco::Track*> tracksSelected =
@@ -899,6 +905,36 @@ ffNtuplePfJet::sumP4( const std::vector<reco::PFCandidatePtr>& cands ) const {
 float
 ffNtuplePfJet::chargedMass( const reco::PFJet& jet ) const {
   return sumP4( getChargedPFCands( jet ) ).M();
+}
+
+bool
+ffNtuplePfJet::muonInTime( const reco::PFJet& jet, float& timeLimit ) const {
+  // collect muon timing
+  std::vector<float> muontimes{};
+  for ( const auto& cand : getPFCands( jet ) ) {
+    if ( cand->muonRef().isNonnull() and cand->muonRef()->isTimeValid() ) {
+      muontimes.push_back( cand->muonRef()->time().timeAtIpInOut );
+    }
+  }
+
+  // no muons in cands => muonInTime!
+  if ( muontimes.empty() )
+    return true;
+
+  float muontimeMean =
+      std::accumulate( muontimes.begin(), muontimes.end(), 0. ) /
+      muontimes.size();
+  bool result( true );
+
+  // any time diff larger than limit => break loop
+  for ( const auto& t : muontimes ) {
+    if ( fabs( t - muontimeMean ) > timeLimit ) {
+      result = false;
+      break;
+    }
+  }
+
+  return result;
 }
 
 int
