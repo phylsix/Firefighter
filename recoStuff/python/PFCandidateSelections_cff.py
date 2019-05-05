@@ -18,7 +18,7 @@ filteredPFCandsFwdPtr = cms.EDFilter(
 if switches["usingCHS"] == False:
     filteredPFCandsFwdPtr.src = cms.InputTag("particleFlowPtrs")
     filteredPFCandsFwdPtr.cut = cms.string(
-        " && ".join(["abs(eta)<2.5", "particleId!=1", "particleId!=5"])
+        " && ".join(["abs(eta)<2.5", "particleId!=1", "particleId!=5", "particleId!=6"])
     )
 
 filteredPFCands = cms.EDProducer(
