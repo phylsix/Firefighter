@@ -13,3 +13,4 @@ crabWorkArea
 
 !/ffConfig/crab/multicrabConfig_bkgMC.yml
 !/ffConfig/crab/multicrabConfig_sigMC.yml
+!.gitlab-ci.yml
