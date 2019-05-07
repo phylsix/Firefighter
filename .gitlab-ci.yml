@@ -1,0 +1,65 @@
+stages:
+  - compile
+  - test_ff
+
+before_script:
+  - source /cvmfs/grid.cern.ch/etc/profile.d/setup-cvmfs-ui.sh
+  - source /cvmfs/cms.cern.ch/cmsset_default.sh
+  - export CI_HOME="$( pwd )"
+  - git config --global user.name 'Homer Simpson' ## dummy name
+  - git config --global user.email 'fake@mail.yes' ## does not
+  - git config --global user.gitlab 'homerJay' ## matter
+  - export CMSSW_GIT_REFERENCE="/cvmfs/cms.cern.ch/cmssw.git.daily"
+  - export SCRAM_ARCH="slc6_amd64_gcc700"
+  - export CMSSW_VERSION="CMSSW_10_2_14"
+  - export CMS_PATH=/cvmfs/cms-ib.cern.ch/week0 #https://gitlab.cern.ch/cms-nanoAOD/nanoAOD-integration/blob/master/scripts/restore_cmssw.sh#L14
+  - cd $CI_HOME
+  - ls -al
+
+compile:
+  tags: [cvmfs]
+  stage: compile
+  script:
+    - cd $CI_HOME/..
+    - rm -Rf $CMSSW_VERSION
+    - scramv1 project CMSSW $CMSSW_VERSION
+    - ls -al
+    - cp -r $CI_HOME/../Firefighter $CMSSW_VERSION/src
+    - cd $CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd Firefighter
+    - scram b -j12
+    - cd $CMSSW_BASE/..
+    - tar -czf cmssw.tgz $CMSSW_VERSION
+    - du -csh cmssw.tgz
+    - mv $CI_HOME/../cmssw.tgz $CI_HOME
+  artifacts:
+    paths:
+      - cmssw.tgz
+    name: "${CI_BUILD_NAME}_${CI_BUILD_REF_NAME}"
+
+test_sigMC:
+  tags: [cvmfs]
+  stage: test_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd Firefighter/ffNtuple/test
+    - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_4mu.root
+    - cmsRun testffNtuple_cfg.py ci-signal-4mu
+    - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_2mu2e.root
+    - cmsRun testffNtuple_cfg.py ci-signal-2mu2e
+
+test_bkgMC:
+  tags: [cvmfs]
+  stage: test_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd Firefighter/ffNtuple/test
+    - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
+    - cmsRun testffNtuple_cfg.py ci-ZZ

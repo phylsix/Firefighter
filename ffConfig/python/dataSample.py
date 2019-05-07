@@ -110,6 +110,18 @@ samples.update(
     }
 )
 
+
+###############################################################################
+## for gitlab ci
+###############################################################################
+
+samples.update({
+    "ci-signal-4mu": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/SIDM_4mu.root",
+    "ci-signal-2mu2e": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/SIDM_2mu2e.root",
+    "ci-ZZ": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ZZ_numEvent300.root",
+})
+
+
 ###############################################################################
 ## ffNtuple samples
 ###############################################################################
