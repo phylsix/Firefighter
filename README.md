@@ -1,5 +1,6 @@
-Firefighter -- ntuplizer for SIDM
----------------------------------
+# Firefighter -- ntuplizer for SIDM 
+
+[![pipeline status](https://gitlab.cern.ch/wsi/Firefighter/badges/master/pipeline.svg)](https://gitlab.cern.ch/wsi/Firefighter/commits/master)
 
 ## Setup
 
