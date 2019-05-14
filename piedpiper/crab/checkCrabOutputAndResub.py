@@ -149,6 +149,7 @@ def main():
     task_completed = []
     task_failed = []
     task_submitfailed = []
+    task_tapecall = []
     task_others = []
     task_exception = []
 
@@ -163,6 +164,8 @@ def main():
                 task_failed.append(d)
             elif _status == "submitfailed":
                 task_submitfailed.append(d)
+            elif _status == "tapecall":
+                task_tapecall.append(d)
             else:
                 task_others.append(d)
 
@@ -177,7 +180,8 @@ def main():
             "INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_complete
         )
         set_noncomplete = [
-            (t["directory"], "failed", "") for t in task_failed + task_others
+            (t["directory"], "failed", "")
+            for t in task_failed + task_tapecall + task_others
         ]
         exceptedTasks = [
             (t["directory"], "failed", "")
@@ -186,15 +190,20 @@ def main():
         ]
         if exceptedTasks:
             print("Number of tasks excepted when querying: ", len(exceptedTasks))
+            print(*[t[0] for t in exceptedTasks], sep="\n")
         set_noncomplete.extend(exceptedTasks)
         c.executemany(
             "INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_noncomplete
         )
 
-    print("Trying to resubmit {} task(s) ...".format(len(task_failed+task_others)))
+    print("Trying to resubmit {} task(s) ...".format(len(task_failed)))
     crabResubmitResult = []
     p = ThreadPool()
-    r = p.map_async(resubmitSingleTask, task_failed + task_others, callback=crabResubmitResult.extend)
+    r = p.map_async(
+        resubmitSingleTask,
+        task_failed + task_others,
+        callback=crabResubmitResult.extend,
+    )
     r.wait()
     p.close()
 
@@ -263,6 +272,15 @@ def main():
                 towrite = "directory: {}\n".format(t["directory"])
                 of.write(towrite)
                 print("crab resubmit -d {}".format(t["directory"]))
+            of.write("-" * 79 + "\n\n")
+
+        if task_tapecall:
+            of.write(("tasks in tapecall state: [{}]\n".format(len(task_tapecall))))
+            of.write("===============================\n")
+            print("Follwoing tasks are in tapecall:\n")
+            for t in task_tapecall:
+                towrite = "directory: {}\n".format(t["directory"])
+                of.write((towrite))
             of.write("-" * 79 + "\n\n")
 
         if task_exception:

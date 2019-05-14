@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 from __future__ import print_function
+import ROOT
+
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+
 import os
 import sys
 import math
+import argparse
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
@@ -11,8 +16,6 @@ import numpy as np
 from DataFormats.FWLite import Events, Handle
 from Firefighter.ffConfig.dataSample import samples, skimmedSamples
 from Firefighter.ffLite.utils import colors, pType, formatEtaPhi
-
-import ROOT
 
 ROOT.gROOT.SetBatch()
 
@@ -23,11 +26,51 @@ plt.rcParams["savefig.bbox"] = "tight"
 plt.rcParams["axes.titleweight"] = "semibold"
 plt.rcParams["font.family"] = ["Ubuntu", "sans-serif"]
 
-dataType = sys.argv[1]
-drawISV = False
-drawCosmic = True
-excludeHadType = False
-skimmed = "skim" in sys.argv
+parser = argparse.ArgumentParser(description="make energy scatter plot from AOD")
+parser.add_argument("--type", default="signal-4mu")
+parser.add_argument(
+    "--drawisv", action="store_true", help="draw InclusiveSecondaryVertices? default: False"
+)
+parser.add_argument("--drawcosmic", action="store_true", help="draw cosmic muons? default: False")
+parser.add_argument(
+    "--drawleponly", action="store_true", help="draw lepton-type candidates only? default: False"
+)
+parser.add_argument("--useskim", action="store_true", help="use skimmed file? default: False")
+parser.add_argument("--nevents", type=int, default=10, help="number of events to plot")
+parser.add_argument(
+    "--eventlist",
+    type=str,
+    default="",
+    help="path to a text file which stores the list of events to plot",
+)
+parser.add_argument(
+    "--writeeventlist",
+    action="store_false",
+    help="print processed events into a text file? default: True",
+)
+args = parser.parse_args()
+
+dataType = args.type
+drawISV = args.drawisv
+drawCosmic = args.drawcosmic
+excludeHadType = args.drawleponly
+skimmed = args.useskim
+nevents = args.nevents
+if args.eventlist:
+    eventlistFile = args.eventlist
+    try:
+        print("++ Processing events from {}".format(eventlistFile))
+        eventsallowed = open(eventlistFile).read().split()
+        eventsallowed = [
+            tuple(map(lambda s: int(s), x.split(":"))) for x in eventsallowed
+        ]
+    except Exception as e:
+        print("Exception occured while trying to read {}".format(eventlistFile))
+        print("It may not exist, or content is broken. Exiting..")
+        print("Msg:", str(e))
+        sys.exit(1)
+else:
+    print("++ Going to process {} events".format(nevents))
 if skimmed:
     samples = skimmedSamples
     drawISV = False
@@ -99,7 +142,14 @@ def main():
     wentThroughEvents = []
     for i, event in enumerate(events, 1):
 
-        if len(wentThroughEvents) > 10:
+        _run = event.object().id().run()
+        _lumi = event.object().luminosityBlock()
+        _event = event.object().id().event()
+
+        if args.eventlist and (_run, _lumi, _event) not in eventsallowed:
+            continue
+
+        if not args.eventlist and len(wentThroughEvents) > nevents:
             break
 
         event.getByLabel(trigLbl, trigHdl)
@@ -117,10 +167,6 @@ def main():
         if drawCosmic:
             event.getByLabel(cosmicLbl, cosmicHdl)
             assert cosmicHdl.isValid()
-
-        _run = event.object().id().run()
-        _lumi = event.object().luminosityBlock()
-        _event = event.object().id().event()
 
         triggerResults = trigHdl.product()
         names = event.object().triggerNames(triggerResults)
@@ -269,8 +315,12 @@ def main():
         wentThroughEvents.append("{}:{}:{}".format(_run, _lumi, _event))
 
     print("*" * 30, " processed events ", "*" * 30)
-    for e in wentThroughEvents:
-        print(e)
+    processed_str = "\n".join(wentThroughEvents)
+    print(processed_str)
+    if args.writeeventlist:
+        with open("events_AOD.log", "w") as f:
+            f.write(processed_str)
+        print(">> events_AOD.log")
 
 
 if __name__ == "__main__":
