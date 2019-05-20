@@ -3,6 +3,15 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -21,6 +30,8 @@
  */
 
 namespace ff {
+
+using Point = math::XYZPointF;
 
 bool
 genAccept( reco::GenParticle const& );
@@ -42,6 +53,73 @@ absoluteImpactParameter3D( const reco::TransientTrack&, const VertexState& );
 std::pair<bool, Measurement1D>
 absoluteTransverseImpactParameter( const reco::TransientTrack&,
                                    const VertexState& );
+
+reco::PFCandidatePtr
+getCandWithMaxPt( const std::vector<reco::PFCandidatePtr>& );
+
+int
+getCandType( const reco::PFCandidatePtr&,
+             const edm::Handle<reco::TrackCollection>& );
+
+/**
+ * @brief Estimate vertex as the median value of reference points of tracks of
+ * the jet.
+ *
+ * @param pTks vector of tracks.
+ * @return Point
+ */
+Point
+estimatedVertexFromMedianReferencePoints(
+    const std::vector<const reco::Track*>& pTks );
+
+/**
+ * @brief Estimate vertex as the average value of reference points of tracks
+ * of the jet.
+ *
+ * @param pTks vector of tracks.
+ * @return Point
+ */
+Point
+estimatedVertexFromAverageReferencePoints(
+    const std::vector<const reco::Track*>& pTks );
+
+std::pair<TransientVertex, float>
+kalmanVertexFromTransientTracks( const std::vector<reco::TransientTrack>&,
+                                 const edm::ParameterSet& );
+
+std::pair<KinematicVertex, float>
+kinematicVertexFromTransientTracks( const std::vector<reco::TransientTrack>& );
+
+Measurement1D
+signedDistanceXY( const reco::Vertex&,
+                  const VertexState&,
+                  const GlobalVector& );
+Measurement1D
+signedDistance3D( const reco::Vertex&,
+                  const VertexState&,
+                  const GlobalVector& );
+
+float
+cosThetaOfJetPvXY( const reco::Vertex&,
+                   const VertexState&,
+                   const GlobalVector& );
+
+float
+cosThetaOfJetPv3D( const reco::Vertex&,
+                   const VertexState&,
+                   const GlobalVector& );
+
+float
+impactDistanceXY( const reco::Vertex&,
+                  const VertexState&,
+                  const GlobalVector& );
+
+float
+impactDistance3D( const reco::Vertex&,
+                  const VertexState&,
+                  const GlobalVector& );
+
+//-----------------------------------------------------------------------------
 
 template <typename T>
 T
