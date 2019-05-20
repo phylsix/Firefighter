@@ -34,7 +34,7 @@ float
 chargedMass( const reco::PFJet& );
 
 bool
-muonInTime( const reco::PFJet&, float& );
+muonInTime( const reco::PFJet&, float );
 
 int
 getNumberOfDisplacedStandAloneMuons(

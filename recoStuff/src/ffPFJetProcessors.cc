@@ -85,7 +85,7 @@ ff::chargedMass( const reco::PFJet& jet ) {
 //-----------------------------------------------------------------------------
 
 bool
-ff::muonInTime( const reco::PFJet& jet, float& timeLimit ) {
+ff::muonInTime( const reco::PFJet& jet, float timeLimit ) {
   // collect muon timing
   std::vector<float> muontimes{};
   for ( const auto& cand : getPFCands( jet ) ) {

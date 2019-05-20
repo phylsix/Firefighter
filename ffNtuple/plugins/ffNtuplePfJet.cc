@@ -54,12 +54,9 @@ class ffNtuplePfJet : public ffNtupleBase {
   edm::EDGetToken subjet_ecf2_token_;
   edm::EDGetToken subjet_ecf3_token_;
 
-  StringCutObjectSelector<reco::PFJet> pfjet_selector_;
   StringCutObjectSelector<reco::Track> track_selector_;
   edm::ParameterSet                    kvfParam_;
   std::vector<double>                  isoRadius_;
-  float                                minChargedMass_;
-  float                                maxTimeLimit_;
 
   int                                 pfjet_n_;
   std::vector<LorentzVector>          pfjet_p4_;
@@ -153,12 +150,9 @@ DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
 
 ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
     : ffNtupleBase( ps ),
-      pfjet_selector_( ps.getParameter<std::string>( "PFJetSelection" ), true ),
       track_selector_( ps.getParameter<std::string>( "TrackSelection" ), true ),
       kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
-      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ),
-      minChargedMass_( ps.getParameter<double>( "MinChargedMass" ) ),
-      maxTimeLimit_( ps.getParameter<double>( "MaxTimeLimit" ) ) {}
+      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ) {}
 
 void
 ffNtuplePfJet::initialize( TTree&                   tree,
@@ -329,14 +323,6 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   pfjet_n_ = pfjets.size();
   for ( const auto& pfjet : pfjets ) {
-    // cutting away unhealthy leptonJets here
-    if ( !pfjet_selector_( pfjet ) )
-      continue;
-    if ( chargedMass( pfjet ) < minChargedMass_ )
-      continue;
-    if ( !muonInTime( pfjet, maxTimeLimit_ ) )
-      continue;
-
     const vector<const reco::Track*> tracksSelected =
         getSelectedTracks( pfjet, track_selector_ );
     const vector<reco::PFCandidatePtr> pfCands = getPFCands( pfjet );

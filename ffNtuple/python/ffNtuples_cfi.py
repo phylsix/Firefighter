@@ -54,21 +54,10 @@ ntuple_dsamuon = cms.PSet(
 
 ntuple_pfjet = cms.PSet(
     NtupleName=cms.string("ffNtuplePfJet"),
-    src=cms.InputTag("ffLeptonJet"),
+    src=cms.InputTag("filteredLeptonJet"),
     PrimaryVertices=cms.InputTag("offlinePrimaryVertices"),
     GeneralTracks=cms.InputTag("generalTracks"),
     ParticleFlowCands=cms.InputTag("particleFlow"),
-    PFJetSelection=cms.string(
-        " && ".join(
-            [
-                "pt>20.",
-                "abs(eta)<2.4",
-                "numberOfDaughters>1",
-                "!test_bit(muonMultiplicity(), 0)",  # even multiplicity
-                "!test_bit(electronMultiplicity(), 0)",  # even multiplicity
-            ]
-        )
-    ),
     TrackSelection=cms.string(" && ".join(["pt>0.5", "normalizedChi2<5."])),
     kvfParam=cms.PSet(
         maxDistance=cms.double(0.01),  # It is said this is mm.
@@ -76,8 +65,6 @@ ntuple_pfjet = cms.PSet(
         doSmoothing=cms.bool(True),
     ),
     IsolationRadius=cms.vdouble(0.5, 0.6, 0.7),
-    MinChargedMass=cms.double(0.0),
-    MaxTimeLimit=cms.double(10.0),
     SubjetEnergyDistributioin=cms.InputTag("ffLeptonJetSubjetEMD", "energy"),
     SubjetMomentumDistribution=cms.InputTag("ffLeptonJetSubjetEMD", "momentum"),
     SubjetEcf1=cms.InputTag("ffLeptonJetSubjetECF", "ecf1"),

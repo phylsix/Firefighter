@@ -10,7 +10,7 @@ from Firefighter.recoStuff.JetEMDAdder_cfi import jetemdadder as _jetemdadder
 
 ffLeptonJetConstituents = cms.EDProducer(
     "PFJetConstituentSelector",
-    src=cms.InputTag("ffLeptonJet"),
+    src=cms.InputTag("filteredLeptonJet"),
     cut=cms.string("abs(eta)<2.5"),
 )
 
@@ -21,14 +21,16 @@ ffLeptonJetSubjets = ak4PFJets.clone(
     jetCollInstanceName=cms.string("SubJets"),
 )
 
-ffLeptonJetSLeptonJetMap = _jetpfjetmatcherdrlessbyr.clone()
+ffLeptonJetSLeptonJetMap = _jetpfjetmatcherdrlessbyr.clone(
+    matched=cms.InputTag("filteredLeptonJet", "", "FF")
+)
 
-ffLeptonJetSubjetEMD = _jetemdadder.clone()
+ffLeptonJetSubjetEMD = _jetemdadder.clone(src=cms.InputTag("filteredLeptonJet"))
 
 maxECF = 3
 ecfBeta = 1.0
 ffLeptonJetSubjetECF = ECFAdder.clone(
-    src=cms.InputTag("ffLeptonJet"),
+    src=cms.InputTag("filteredLeptonJet"),
     Njets=cms.vuint32(range(1, maxECF + 1)),
     beta=cms.double(ecfBeta),
 )
