@@ -1,0 +1,6 @@
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+
+<library name="FirefighterffEvtFilters_plugins" file="*.cc"></library>

@@ -1,14 +1,10 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-#include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
-#include "Firefighter/recoStuff/interface/KinematicParticleVertexFitter.h"
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
+#include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/GeometrySurface/interface/Line.h"
-#include "DataFormats/GeometryVector/interface/GlobalTag.h"
-#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
@@ -20,29 +16,18 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicStateBuilder.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include <algorithm>
 #include <map>
 #include <numeric>
 #include <sstream>
 
-using Point          = math::XYZPointF;
-using LorentzVector  = math::XYZTLorentzVectorF;
-using Global2DVector = Vector2DBase<float, GlobalTag>;
+using Point         = math::XYZPointF;
+using LorentzVector = math::XYZTLorentzVectorF;
 
 class ffNtuplePfJet : public ffNtupleBase {
  public:
@@ -55,122 +40,6 @@ class ffNtuplePfJet : public ffNtupleBase {
   void fill( const edm::Event&,
              const edm::EventSetup&,
              HLTConfigProvider& ) override {}
-
-  std::vector<reco::PFCandidatePtr> getPFCands( const reco::PFJet& ) const;
-  std::vector<reco::PFCandidatePtr> getChargedPFCands(
-      const reco::PFJet& ) const;
-  std::vector<reco::PFCandidatePtr> getTrackEmbededPFCands(
-      const reco::PFJet& ) const;
-  std::vector<const reco::Track*> getSelectedTracks(
-      const reco::PFJet&,
-      const StringCutObjectSelector<reco::Track>& ) const;
-
-  LorentzVector        sumP4( const std::vector<reco::PFCandidatePtr>& ) const;
-  reco::PFCandidatePtr getCandWithMaxPt(
-      const std::vector<reco::PFCandidatePtr>& ) const;
-  float chargedMass( const reco::PFJet& ) const;
-  bool  muonInTime( const reco::PFJet&, float& ) const;
-  int   getNumberOfDisplacedStandAloneMuons(
-        const reco::PFJet&,
-        const edm::Handle<reco::TrackCollection>& ) const;
-
-  /**
-   * @brief genralTracks Isolation
-   *
-   * pT of tracks in cone that NOT associated with the jet
-   * ---------------------- over ----------------------
-   * pT of tracks in cone that associated with the jet + above
-   * --> The lower the value, the more isolated
-   *
-   * @return float
-   */
-  float getTkIsolation( const reco::PFJet&,
-                        const edm::Handle<reco::TrackCollection>&,
-                        const float& ) const;
-
-  /**
-   * @brief PFCandidate Isolation
-   *
-   * energy of candidates in cone that NOT associated with the jet
-   * ---------------------- over ----------------------
-   * energy of candidates in cone that associated with the jet + above
-   * --> The lower the value, the more isolated
-   *
-   * @return float
-   */
-  float getPfIsolation( const reco::PFJet&,
-                        const edm::Handle<reco::PFCandidateCollection>&,
-                        const float& ) const;
-
-  /**
-   * @brief Neutral isolation
-   *
-   * energy of neutral candidates in clone (NOT associated with the jet)
-   * ---------------------- over ----------------------
-   * energy of candidates in cone associated with the jet + above
-   * --> The lower value, the more isolated
-   *
-   * @return float
-   */
-  float getNeutralIsolation( const reco::PFJet&,
-                             const edm::Handle<reco::PFCandidateCollection>&,
-                             const float& ) const;
-
-  int getCandType( const reco::PFCandidatePtr&,
-                   const edm::Handle<reco::TrackCollection>& ) const;
-
-  std::vector<reco::TransientTrack> transientTracksFromPFJet(
-      const reco::PFJet&,
-      const StringCutObjectSelector<reco::Track>&,
-      const edm::EventSetup& ) const;
-
-  /**
-   * @brief Estimate vertex as the median value of reference points of tracks of
-   * the jet.
-   *
-   * @param pTks vector of tracks.
-   * @return Point
-   */
-  Point estimatedVertexFromMedianReferencePoints(
-      const std::vector<const reco::Track*>& pTks ) const;
-
-  /**
-   * @brief Estimate vertex as the average value of reference points of tracks
-   * of the jet.
-   *
-   * @param pTks vector of tracks.
-   * @return Point
-   */
-  Point estimatedVertexFromAverageReferencePoints(
-      const std::vector<const reco::Track*>& pTks ) const;
-
-  std::pair<TransientVertex, float> kalmanVertexFromTransientTracks(
-      const std::vector<reco::TransientTrack>& ) const;
-  std::pair<KinematicVertex, float> kinematicVertexFromTransientTracks(
-      const std::vector<reco::TransientTrack>& ) const;
-
-  Measurement1D signedDistanceXY( const reco::Vertex&,
-                                  const VertexState&,
-                                  const GlobalVector& ) const;
-  Measurement1D signedDistance3D( const reco::Vertex&,
-                                  const VertexState&,
-                                  const GlobalVector& ) const;
-
-  float cosThetaOfJetPvXY( const reco::Vertex&,
-                           const VertexState&,
-                           const GlobalVector& ) const;
-
-  float cosThetaOfJetPv3D( const reco::Vertex&,
-                           const VertexState&,
-                           const GlobalVector& ) const;
-
-  float impactDistanceXY( const reco::Vertex&,
-                          const VertexState&,
-                          const GlobalVector& ) const;
-
-  float impactDistance3D( const reco::Vertex&,
-                          const VertexState&,
-                          const GlobalVector& ) const;
 
  private:
   void clear() final;
@@ -185,12 +54,9 @@ class ffNtuplePfJet : public ffNtupleBase {
   edm::EDGetToken subjet_ecf2_token_;
   edm::EDGetToken subjet_ecf3_token_;
 
-  StringCutObjectSelector<reco::PFJet> pfjet_selector_;
   StringCutObjectSelector<reco::Track> track_selector_;
   edm::ParameterSet                    kvfParam_;
   std::vector<double>                  isoRadius_;
-  float                                minChargedMass_;
-  float                                maxTimeLimit_;
 
   int                                 pfjet_n_;
   std::vector<LorentzVector>          pfjet_p4_;
@@ -284,12 +150,9 @@ DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
 
 ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
     : ffNtupleBase( ps ),
-      pfjet_selector_( ps.getParameter<std::string>( "PFJetSelection" ), true ),
       track_selector_( ps.getParameter<std::string>( "TrackSelection" ), true ),
       kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
-      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ),
-      minChargedMass_( ps.getParameter<double>( "MinChargedMass" ) ),
-      maxTimeLimit_( ps.getParameter<double>( "MaxTimeLimit" ) ) {}
+      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ) {}
 
 void
 ffNtuplePfJet::initialize( TTree&                   tree,
@@ -416,6 +279,7 @@ void
 ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   using namespace std;
   using namespace edm;
+  using namespace ff;
 
   Handle<reco::PFJetCollection> pfjet_h;
   e.getByToken( pfjet_token_, pfjet_h );
@@ -459,14 +323,6 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   pfjet_n_ = pfjets.size();
   for ( const auto& pfjet : pfjets ) {
-    // cutting away unhealthy leptonJets here
-    if ( !pfjet_selector_( pfjet ) )
-      continue;
-    if ( chargedMass( pfjet ) < minChargedMass_ )
-      continue;
-    if ( !muonInTime( pfjet, maxTimeLimit_ ) )
-      continue;
-
     const vector<const reco::Track*> tracksSelected =
         getSelectedTracks( pfjet, track_selector_ );
     const vector<reco::PFCandidatePtr> pfCands = getPFCands( pfjet );
@@ -593,7 +449,8 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
     GlobalVector pfjetMomentum( pfjet.px(), pfjet.py(), pfjet.pz() );
 
-    const auto klmVtxInfo = kalmanVertexFromTransientTracks( transientTks );
+    const auto klmVtxInfo =
+        kalmanVertexFromTransientTracks( transientTks, kvfParam_ );
     const TransientVertex& klmVtx      = klmVtxInfo.first;
     const float&           klmVtxMass  = klmVtxInfo.second;
     bool                   klmVtxValid = klmVtx.isValid();
@@ -840,484 +697,6 @@ ffNtuplePfJet::clear() {
   pfjet_subjet_ecf1_.clear();
   pfjet_subjet_ecf2_.clear();
   pfjet_subjet_ecf3_.clear();
-}
-
-std::vector<reco::PFCandidatePtr>
-ffNtuplePfJet::getPFCands( const reco::PFJet& jet ) const {
-  std::vector<reco::PFCandidatePtr> result = jet.getPFConstituents();
-  result.erase(
-      std::remove_if( result.begin(), result.end(),
-                      []( const auto& cand ) { return cand.isNull(); } ),
-      result.end() );
-
-  return result;
-}
-
-std::vector<reco::PFCandidatePtr>
-ffNtuplePfJet::getChargedPFCands( const reco::PFJet& jet ) const {
-  std::vector<reco::PFCandidatePtr> result = getPFCands( jet );
-  result.erase(
-      std::remove_if( result.begin(), result.end(),
-                      []( const auto& cand ) { return cand->charge() == 0; } ),
-      result.end() );
-
-  return result;
-}
-
-std::vector<reco::PFCandidatePtr>
-ffNtuplePfJet::getTrackEmbededPFCands( const reco::PFJet& jet ) const {
-  std::vector<reco::PFCandidatePtr> result = getChargedPFCands( jet );
-  result.erase( std::remove_if( result.begin(), result.end(),
-                                []( const auto& cand ) {
-                                  return cand->bestTrack() == nullptr;
-                                } ),
-                result.end() );
-
-  return result;
-}
-
-std::vector<const reco::Track*>
-ffNtuplePfJet::getSelectedTracks(
-    const reco::PFJet&                          jet,
-    const StringCutObjectSelector<reco::Track>& tkSelector ) const {
-  std::vector<const reco::Track*> result{};
-  result.reserve( jet.chargedMultiplicity() );
-  for ( const auto& cand : getTrackEmbededPFCands( jet ) ) {
-    const reco::Track* tk = cand->bestTrack();
-    if ( tkSelector( *tk ) ) {
-      result.push_back( tk );
-    }
-  }
-
-  return result;
-}
-
-LorentzVector
-ffNtuplePfJet::sumP4( const std::vector<reco::PFCandidatePtr>& cands ) const {
-  LorentzVector result = LorentzVector();
-  for ( const auto& cand : cands )
-    result +=
-        LorentzVector( cand->px(), cand->py(), cand->pz(), cand->energy() );
-
-  return result;
-}
-
-float
-ffNtuplePfJet::chargedMass( const reco::PFJet& jet ) const {
-  return sumP4( getChargedPFCands( jet ) ).M();
-}
-
-bool
-ffNtuplePfJet::muonInTime( const reco::PFJet& jet, float& timeLimit ) const {
-  // collect muon timing
-  std::vector<float> muontimes{};
-  for ( const auto& cand : getPFCands( jet ) ) {
-    if ( cand->muonRef().isNonnull() and cand->muonRef()->isTimeValid() ) {
-      muontimes.push_back( cand->muonRef()->time().timeAtIpInOut );
-    }
-  }
-
-  // no muons in cands => muonInTime!
-  if ( muontimes.empty() )
-    return true;
-
-  float muontimeMean =
-      std::accumulate( muontimes.begin(), muontimes.end(), 0. ) /
-      muontimes.size();
-  bool result( true );
-
-  // any time diff larger than limit => break loop
-  for ( const auto& t : muontimes ) {
-    if ( fabs( t - muontimeMean ) > timeLimit ) {
-      result = false;
-      break;
-    }
-  }
-
-  return result;
-}
-
-int
-ffNtuplePfJet::getNumberOfDisplacedStandAloneMuons(
-    const reco::PFJet&                        jet,
-    const edm::Handle<reco::TrackCollection>& generalTkH ) const {
-  std::vector<reco::PFCandidatePtr> candsWithTk = getTrackEmbededPFCands( jet );
-  return std::count_if( candsWithTk.begin(), candsWithTk.end(),
-                        [&generalTkH]( auto cand ) {
-                          return cand->trackRef().isNonnull() and
-                                 cand->trackRef().id() != generalTkH.id();
-                        } );
-}
-
-float
-ffNtuplePfJet::getTkIsolation( const reco::PFJet&                        jet,
-                               const edm::Handle<reco::TrackCollection>& tkH,
-                               const float& isoRadius ) const {
-  std::vector<reco::TrackRef> generalTkRefs{};
-  for ( size_t i( 0 ); i != tkH->size(); ++i )
-    generalTkRefs.emplace_back( tkH, i );
-
-  std::vector<reco::PFCandidatePtr> cands = getTrackEmbededPFCands( jet );
-
-  float notOfCands( 0. );
-  for ( const auto& tkRef : generalTkRefs ) {
-    if ( deltaR( jet, *tkRef ) > isoRadius )
-      continue;  // outside radius
-
-    if ( std::find_if( cands.begin(), cands.end(), [&tkRef]( const auto& c ) {
-           return c->trackRef() == tkRef;
-         } ) != cands.end() )
-      continue;  // associated with the jet
-
-    notOfCands += tkRef->pt();
-  }
-
-  float ofCands =
-      std::accumulate( cands.begin(), cands.end(), 0.,
-                       []( float ptsum, const reco::PFCandidatePtr& jc ) {
-                         return ptsum + jc->bestTrack()->pt();
-                       } );
-
-  return ( ofCands + notOfCands ) == 0 ? NAN
-                                       : notOfCands / ( ofCands + notOfCands );
-}
-
-float
-ffNtuplePfJet::getPfIsolation(
-    const reco::PFJet&                              jet,
-    const edm::Handle<reco::PFCandidateCollection>& pfH,
-    const float&                                    isoRadius ) const {
-  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
-  for ( size_t i( 0 ); i != pfH->size(); ++i )
-    pfCandPtrs.emplace_back( pfH, i );
-
-  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
-
-  float notOfCands( 0. );
-  for ( const auto& cand : pfCandPtrs ) {
-    if ( deltaR( jet, *cand ) > isoRadius )
-      continue;  // outside radius
-
-    if ( std::find_if( jetcands.begin(), jetcands.end(),
-                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
-         jetcands.end() )
-      continue;  // associated with the jet
-
-    notOfCands += cand->energy();
-  }
-
-  float ofCands =
-      std::accumulate( jetcands.begin(), jetcands.end(), 0.,
-                       []( float esum, const reco::PFCandidatePtr& jc ) {
-                         return esum + jc->energy();
-                       } );
-
-  return ( ofCands + notOfCands ) == 0 ? NAN
-                                       : notOfCands / ( ofCands + notOfCands );
-}
-
-float
-ffNtuplePfJet::getNeutralIsolation(
-    const reco::PFJet&                              jet,
-    const edm::Handle<reco::PFCandidateCollection>& pfH,
-    const float&                                    isoRadius ) const {
-  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
-  for ( size_t i( 0 ); i != pfH->size(); ++i )
-    pfCandPtrs.emplace_back( pfH, i );
-
-  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
-
-  float notOfCands( 0. );
-  for ( const auto& cand : pfCandPtrs ) {
-    if ( cand->charge() != 0 )
-      continue;  // charged
-    if ( deltaR( jet, *cand ) > isoRadius )
-      continue;  // outside radius
-
-    if ( std::find_if( jetcands.begin(), jetcands.end(),
-                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
-         jetcands.end() )
-      continue;  // associated with the jet
-
-    notOfCands += cand->energy();
-  }
-
-  float ofCands =
-      std::accumulate( jetcands.begin(), jetcands.end(), 0.,
-                       []( float esum, const reco::PFCandidatePtr& jc ) {
-                         return esum + jc->energy();
-                       } );
-
-  return ( ofCands + notOfCands ) == 0 ? NAN
-                                       : notOfCands / ( ofCands + notOfCands );
-}
-
-reco::PFCandidatePtr
-ffNtuplePfJet::getCandWithMaxPt(
-    const std::vector<reco::PFCandidatePtr>& cands ) const {
-  if ( cands.size() == 0 )
-    return reco::PFCandidatePtr();
-
-  float  _ptmax( 0. );
-  size_t _idxmax( cands.size() );
-  for ( size_t id( 0 ); id != cands.size(); ++id ) {
-    if ( cands[ id ]->pt() > _ptmax ) {
-      _ptmax  = cands[ id ]->pt();
-      _idxmax = id;
-    }
-  }
-
-  return _idxmax == cands.size() ? reco::PFCandidatePtr() : cands[ _idxmax ];
-}
-
-int
-ffNtuplePfJet::getCandType(
-    const reco::PFCandidatePtr&               cand,
-    const edm::Handle<reco::TrackCollection>& generalTkH ) const {
-  if ( cand.isNull() )
-    return 0;
-
-  if ( cand->trackRef().isNonnull() &&
-       cand->trackRef().id() != generalTkH.id() )
-    return 8;  // This is coming from a displacedStandAloneMuon
-
-  return cand->particleId();
-}
-
-std::vector<reco::TransientTrack>
-ffNtuplePfJet::transientTracksFromPFJet(
-    const reco::PFJet&                          jet,
-    const StringCutObjectSelector<reco::Track>& tkSelector,
-    const edm::EventSetup&                      es ) const {
-  std::vector<reco::PFCandidatePtr> cands = getTrackEmbededPFCands( jet );
-
-  edm::ESHandle<TransientTrackBuilder> theB;
-  es.get<TransientTrackRecord>().get( "TransientTrackBuilder", theB );
-
-  std::vector<reco::TransientTrack> t_tks{};
-  for ( const auto& c : cands ) {
-    if ( !tkSelector( *( c->bestTrack() ) ) )
-      continue;
-    reco::TransientTrack tt = theB->build( c );
-    if ( !tt.isValid() )
-      continue;
-    t_tks.push_back( tt );
-  }
-
-  return t_tks;
-}
-
-Point
-ffNtuplePfJet::estimatedVertexFromMedianReferencePoints(
-    const std::vector<const reco::Track*>& pTks ) const {
-  std::vector<float> cXinnerPos, cYinnerPos, cZinnerPos;
-  for ( const auto& cTk : pTks ) {
-    cXinnerPos.push_back( cTk->referencePoint().X() );
-    cYinnerPos.push_back( cTk->referencePoint().Y() );
-    cZinnerPos.push_back( cTk->referencePoint().Z() );
-  }
-
-  return Point( ff::medianValue<float>( cXinnerPos ),
-                ff::medianValue<float>( cYinnerPos ),
-                ff::medianValue<float>( cZinnerPos ) );
-}
-
-Point
-ffNtuplePfJet::estimatedVertexFromAverageReferencePoints(
-    const std::vector<const reco::Track*>& pTks ) const {
-  std::vector<float> cXinnerPos, cYinnerPos, cZinnerPos;
-  for ( const auto& cTk : pTks ) {
-    cXinnerPos.push_back( cTk->referencePoint().X() );
-    cYinnerPos.push_back( cTk->referencePoint().Y() );
-    cZinnerPos.push_back( cTk->referencePoint().Z() );
-  }
-
-  return Point( ff::averageValue<float>( cXinnerPos ),
-                ff::averageValue<float>( cYinnerPos ),
-                ff::averageValue<float>( cZinnerPos ) );
-}
-
-std::pair<TransientVertex, float>
-ffNtuplePfJet::kalmanVertexFromTransientTracks(
-    const std::vector<reco::TransientTrack>& t_tks ) const {
-  /// vertexing
-  if ( t_tks.size() < 2 )
-    return std::make_pair( TransientVertex(), NAN );
-
-  std::unique_ptr<ff::KalmanVertexFitter> kvf( new ff::KalmanVertexFitter(
-      kvfParam_, kvfParam_.getParameter<bool>( "doSmoothing" ) ) );
-
-  TransientVertex tv;
-  try {
-    tv = kvf->vertex( t_tks );
-  } catch ( ... ) {
-    std::cout
-        << "Exception from ffNtuplePfJet::kalmanVertexFromTransientTracks !"
-        << std::endl;
-    return std::make_pair( TransientVertex(), NAN );
-  }
-
-  if ( !tv.isValid() )
-    return std::make_pair( TransientVertex(), NAN );
-
-  /// mass
-  LorentzVector vtxp4;
-  for ( const auto& refitTks : tv.refittedTracks() ) {
-    const reco::Track& tk   = refitTks.track();
-    reco::CandidatePtr cand = refitTks.basicTransientTrack()->candidate();
-    float              mass = cand.isNonnull() ? cand->mass() : 0.;
-
-    vtxp4 +=
-        LorentzVector( tk.px(), tk.py(), tk.pz(), std::hypot( tk.p(), mass ) );
-  }
-
-  return std::make_pair( tv, vtxp4.M() );
-}
-
-std::pair<KinematicVertex, float>
-ffNtuplePfJet::kinematicVertexFromTransientTracks(
-    const std::vector<reco::TransientTrack>& t_tks ) const {
-  /// vertexing
-  if ( t_tks.size() < 2 )
-    return std::make_pair( KinematicVertex(), NAN );
-
-  KinematicParticleFactoryFromTransientTrack pFactory;
-
-  std::vector<RefCountedKinematicParticle> allParticles;
-  TransientTrackKinematicStateBuilder      ttkStateBuilder;
-  // sigma to avoid singularities in the covariance matrix.
-  float pSigma = 0.0000001;
-  // initial chi2 and ndf before kinematic fits.
-  // The chi2 of the reconstruction is not considered
-  float chi = 0.;
-  float ndf = 0.;
-
-  for ( const auto& ttk : t_tks ) {
-    reco::CandidatePtr cand  = ttk.basicTransientTrack()->candidate();
-    double             pMass = cand.isNonnull() ? cand->mass() : 0.;
-    allParticles.push_back( pFactory.particle( ttk, pMass, chi, ndf, pSigma ) );
-  }
-
-  std::unique_ptr<ff::KinematicParticleVertexFitter> kinFitter(
-      new ff::KinematicParticleVertexFitter() );
-  RefCountedKinematicTree kinTree;
-  try {
-    kinTree = kinFitter->fit( allParticles );
-  } catch ( ... ) {
-    std::cout
-        << "Exception from ffNtuplePfJet::kinematicVertexFromTransientTracks !"
-        << std::endl;
-    return std::make_pair( KinematicVertex(), NAN );
-  }
-
-  if ( !kinTree->isValid() )
-    return std::make_pair( KinematicVertex(), NAN );
-
-  kinTree->movePointerToTheTop();
-  RefCountedKinematicVertex kinV = kinTree->currentDecayVertex();
-
-  if ( !kinV->vertexIsValid() or kinV->correspondingTree() == nullptr )
-    return std::make_pair( KinematicVertex(), NAN );
-
-  /// mass
-  LorentzVector vtxp4;
-  for ( const auto& dau : kinTree->daughterParticles() ) {
-    const TransientTrackKinematicParticle* ttkp =
-        dynamic_cast<const TransientTrackKinematicParticle*>( dau.get() );
-    if ( ttkp == nullptr ) {
-      continue;
-    }
-
-    reco::Track dauTk   = ttkp->refittedTransientTrack().track();
-    double      dauMass = dau->initialState().mass();
-
-    vtxp4 += LorentzVector( dauTk.px(), dauTk.py(), dauTk.pz(),
-                            std::hypot( dauTk.p(), dauMass ) );
-  }
-
-  return std::make_pair( *kinV, vtxp4.M() );
-}
-
-Measurement1D
-ffNtuplePfJet::signedDistance3D( const reco::Vertex& vtx1,
-                                 const VertexState&  vs2,
-                                 const GlobalVector& ref ) const {
-  VertexDistance3D vdist3D;
-
-  Measurement1D unsignedDistance = vdist3D.distance( vtx1, vs2 );
-  GlobalVector  diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
-
-  if ( ( ref.x() * diff.x() + ref.y() * diff.y() + ref.z() * diff.z() ) < 0 )
-    return Measurement1D( -1.0 * unsignedDistance.value(),
-                          unsignedDistance.error() );
-
-  return unsignedDistance;
-}
-
-Measurement1D
-ffNtuplePfJet::signedDistanceXY( const reco::Vertex& vtx1,
-                                 const VertexState&  vs2,
-                                 const GlobalVector& ref ) const {
-  VertexDistanceXY vdistXY;
-
-  Measurement1D unsignedDistance = vdistXY.distance( vtx1, vs2 );
-  GlobalVector  diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
-
-  if ( ( ref.x() * diff.x() + ref.y() * diff.y() ) < 0 )
-    return Measurement1D( -1.0 * unsignedDistance.value(),
-                          unsignedDistance.error() );
-
-  return unsignedDistance;
-}
-
-float
-ffNtuplePfJet::cosThetaOfJetPvXY( const reco::Vertex& vtx1,
-                                  const VertexState&  vs2,
-                                  const GlobalVector& ref ) const {
-  GlobalVector diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
-  Global2DVector diff2D = Global2DVector( diff.x(), diff.y() );
-  Global2DVector ref2D  = Global2DVector( ref.x(), ref.y() );
-  return diff2D.unit().dot( ref2D.unit() );
-}
-
-float
-ffNtuplePfJet::cosThetaOfJetPv3D( const reco::Vertex& vtx1,
-                                  const VertexState&  vs2,
-                                  const GlobalVector& ref ) const {
-  GlobalVector diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
-  return diff.unit().dot( ref.unit() );
-}
-
-float
-ffNtuplePfJet::impactDistanceXY( const reco::Vertex& vtx1,
-                                 const VertexState&  vs2,
-                                 const GlobalVector& ref ) const {
-  Line::PositionType pos(
-      GlobalPoint( vs2.position().x(), vs2.position().y(), 0 ) );
-  Line::DirectionType dir( GlobalVector( ref.x(), ref.y(), 0 ).unit() );
-  Line                jetDirectionLineXY( pos, dir );
-
-  GlobalPoint pv( vtx1.position().x(), vtx1.position().y(), 0 );
-
-  return jetDirectionLineXY.distance( pv ).mag();
-}
-
-float
-ffNtuplePfJet::impactDistance3D( const reco::Vertex& vtx1,
-                                 const VertexState&  vs2,
-                                 const GlobalVector& ref ) const {
-  Line::PositionType  pos( vs2.position() );
-  Line::DirectionType dir( ref.unit() );
-  Line                jetDirectionLine( pos, dir );
-
-  GlobalPoint pv( vtx1.position().x(), vtx1.position().y(),
-                  vtx1.position().z() );
-
-  return jetDirectionLine.distance( pv ).mag();
 }
 
 ///**************************************
