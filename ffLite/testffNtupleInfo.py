@@ -144,6 +144,7 @@ for i, event in enumerate(t, 1):
     print("[pfjet] <ecf2>", *[round(v, 3) for v in event.pfjet_subjet_ecf2])
     print("[pfjet] <ecf3>", *[round(v, 3) for v in event.pfjet_subjet_ecf3])
     print("[pfjet] <muonTimeStd>", *[round(v, 3) for v in event.pfjet_pfcand_muonTimeStd])
+    print("[pfjet] <mva>", *[round(v, 3) for v in event.pfjet_mva])
 
     print(
         "[beamhalo]",
