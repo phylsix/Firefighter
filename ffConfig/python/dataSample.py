@@ -35,7 +35,8 @@ samples = {
     "/uscms/home/wsi/nobackup/lpcdm/CMSSW_10_2_8/src/Firefighter/ffLite/PFEnergy/ZZTo4L/pickevents.root",
     "Cosmics": GLOBAL_DIRECTOR
     + "/store/data/Run2018A/Cosmics/AOD/06Jun2018-v1/80000/FEBEAF7F-FD71-E811-86DA-782BCB3BCA77.root",
-    "QCD_Pt-300to470": "/store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/90000/F522418C-3CA0-5949-A14E-33576ECB15D4.root",
+    "QCD_Pt-300to470": GLOBAL_DIRECTOR
+    + "/store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/90000/F522418C-3CA0-5949-A14E-33576ECB15D4.root",
 }
 
 
@@ -115,11 +116,14 @@ samples.update(
 ## for gitlab ci
 ###############################################################################
 
-samples.update({
-    "ci-signal-4mu": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/SIDM_4mu.root",
-    "ci-signal-2mu2e": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/SIDM_2mu2e.root",
-    "ci-ZZ": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ZZ_numEvent300.root",
-})
+samples.update(
+    {
+        "ci-signal-4mu": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/SIDM_4mu.root",
+        "ci-signal-2mu2e": CMSSW_BASE
+        + "/src/Firefighter/ffNtuple/test/SIDM_2mu2e.root",
+        "ci-ZZ": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ZZ_numEvent300.root",
+    }
+)
 
 
 ###############################################################################

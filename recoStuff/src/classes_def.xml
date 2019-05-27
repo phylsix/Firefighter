@@ -2,4 +2,5 @@
     <class name="edm::Association<edm::View<reco::Jet>>" />
     <class name="edm::Wrapper<edm::Association<edm::View<reco::Jet>>>" />
     <class name="edm::RefProd<edm::View<reco::Jet>>" />
+    <class name="ffLeptonJetMVAEstimator" transient="true"/>
 </lcgdict>

@@ -20,6 +20,7 @@
 <use name="TrackingTools/PatternTools"/>
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/RecoAlgos"/>
+<use name="CommonTools/MVAUtils"/>
 
 <flags LCG_DICT_HEADER="classes_def.h"/>
 <flags LCG_DICT_XML="classes_def.xml"/>

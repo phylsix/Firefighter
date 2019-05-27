@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "Firefighter/recoStuff/interface/ffLeptonJetMVAEstimator.h"
 
 namespace Firefighter_recoStuff {
 struct dictionary {

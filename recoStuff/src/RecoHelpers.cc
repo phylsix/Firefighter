@@ -157,9 +157,8 @@ ff::kalmanVertexFromTransientTracks(
   try {
     tv = kvf->vertex( t_tks );
   } catch ( ... ) {
-    std::cout
-        << "Exception from ffNtuplePfJet::kalmanVertexFromTransientTracks !"
-        << std::endl;
+    std::cout << "+++ Exception from ff::kalmanVertexFromTransientTracks !"
+              << std::endl;
     return std::make_pair( TransientVertex(), NAN );
   }
 
@@ -212,9 +211,8 @@ ff::kinematicVertexFromTransientTracks(
   try {
     kinTree = kinFitter->fit( allParticles );
   } catch ( ... ) {
-    std::cout
-        << "Exception from ffNtuplePfJet::kinematicVertexFromTransientTracks !"
-        << std::endl;
+    std::cout << "+++ Exception from ff::kinematicVertexFromTransientTracks !"
+              << std::endl;
     return std::make_pair( KinematicVertex(), NAN );
   }
 

@@ -1,4 +1,4 @@
-#include "Firefighter/recoStuff/src/PFCandidateConverter.h"
+#include "Firefighter/recoStuff/interface/PFCandidateConverter.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
