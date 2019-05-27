@@ -1,5 +1,6 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
+#include "Firefighter/recoStuff/interface/ffLeptonJetMVAEstimator.h"
 #include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -57,6 +58,7 @@ class ffNtuplePfJet : public ffNtupleBase {
   StringCutObjectSelector<reco::Track> track_selector_;
   edm::ParameterSet                    kvfParam_;
   std::vector<double>                  isoRadius_;
+  ffLeptonJetMVAEstimator              mvaEstimator_;
 
   int                                 pfjet_n_;
   std::vector<LorentzVector>          pfjet_p4_;
@@ -144,6 +146,8 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::vector<float> pfjet_subjet_ecf1_;
   std::vector<float> pfjet_subjet_ecf2_;
   std::vector<float> pfjet_subjet_ecf3_;
+
+  std::vector<float> pfjet_mva_;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
@@ -152,7 +156,8 @@ ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
     : ffNtupleBase( ps ),
       track_selector_( ps.getParameter<std::string>( "TrackSelection" ), true ),
       kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
-      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ) {}
+      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ),
+      mvaEstimator_( ps.getParameter<edm::ParameterSet>( "mvaParam" ) ) {}
 
 void
 ffNtuplePfJet::initialize( TTree&                   tree,
@@ -273,6 +278,8 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_subjet_ecf1", &pfjet_subjet_ecf1_ );
   tree.Branch( "pfjet_subjet_ecf2", &pfjet_subjet_ecf2_ );
   tree.Branch( "pfjet_subjet_ecf3", &pfjet_subjet_ecf3_ );
+
+  tree.Branch( "pfjet_mva", &pfjet_mva_ );
 }
 
 void
@@ -367,7 +374,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcands_maxPtType_.emplace_back(
         getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
 
-    // pfcand -------------------------------------------------------------
+    // pfcand ------------------------------------------------------------------
     vector<int>   cPFCandType{};
     vector<int>   cPFCandCharge{};
     vector<float> cPFCandPt{}, cPFCandEnergy{};
@@ -434,9 +441,9 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcand_muonTimeErr_.push_back( cPFCandMuonTimeErr );
     pfjet_pfcand_muonTimeStd_.push_back(
         ff::calculateStandardDeviation<float>( cPFCandMuonTime ) );
-    // --------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
-    // vertices -----------------------------------------------------------
+    // vertices ----------------------------------------------------------------
     pfjet_medianvtx_.push_back(
         estimatedVertexFromMedianReferencePoints( tracksSelected ) );
     pfjet_averagevtx_.push_back(
@@ -590,9 +597,9 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     }
     pfjet_kinvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKinVtx );
     pfjet_kinvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKinVtx );
-    // --------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
-    // subjet -----------------------------------------------------------
+    // subjet ------------------------------------------------------------------
     size_t           idx( &pfjet - &*pfjets.begin() );
     Ptr<reco::PFJet> pfjetptr( pfjet_h, idx );
 
@@ -604,7 +611,49 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
         subjetecf2VM[ pfjetptr ] > 0 ? subjetecf2VM[ pfjetptr ] : NAN );
     pfjet_subjet_ecf3_.emplace_back(
         subjetecf3VM[ pfjetptr ] > 0 ? subjetecf3VM[ pfjetptr ] : NAN );
-    // --------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+
+    // mva ---------------------------------------------------------------------
+    map<string, float> mvaVariablesMap{};
+    mvaVariablesMap.emplace( "pt", pfjet.pt() );
+    mvaVariablesMap.emplace( "eta", pfjet.eta() );
+    mvaVariablesMap.emplace(
+        "neufrac", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) /
+                       pfjet.energy() );
+    vector<float> cPFCandTkAbsD0;
+    transform( cPFCandTkD0.begin(), cPFCandTkD0.end(),
+               back_inserter( cPFCandTkAbsD0 ),
+               []( const float& n ) { return fabs( n ); } );
+    float maxd0 = cPFCandTkD0.empty() ? NAN
+                                      : *max_element( cPFCandTkAbsD0.cbegin(),
+                                                      cPFCandTkAbsD0.cend() );
+    maxd0       = isnan( maxd0 ) ? 0. : maxd0;
+    float mind0 = cPFCandTkD0.empty() ? NAN
+                                      : *min_element( cPFCandTkAbsD0.cbegin(),
+                                                      cPFCandTkAbsD0.cend() );
+    mind0 = isnan( mind0 ) ? 0. : mind0;
+    mvaVariablesMap.emplace( "maxd0", maxd0 );
+    mvaVariablesMap.emplace( "mind0", mind0 );
+    mvaVariablesMap.emplace( "tkiso", isnan( pfjet_tkIsolation_[ 0.5 ].back() )
+                                          ? 0.
+                                          : pfjet_tkIsolation_[ 0.5 ].back() );
+    mvaVariablesMap.emplace( "pfiso", pfjet_pfIsolation_[ 0.5 ].back() );
+    mvaVariablesMap.emplace( "spreadpt", pfjet_ptDistribution_.back() );
+    mvaVariablesMap.emplace( "spreaddr", pfjet_dRSpread_.back() );
+    mvaVariablesMap.emplace( "lambda", pfjet_subjet_lambda_.back() );
+    mvaVariablesMap.emplace( "epsilon", pfjet_subjet_epsilon_.back() );
+    mvaVariablesMap.emplace( "ecf1", pfjet_subjet_ecf1_.back() );
+    mvaVariablesMap.emplace( "ecf2", isnan( pfjet_subjet_ecf2_.back() )
+                                         ? 0.
+                                         : pfjet_subjet_ecf2_.back() );
+    mvaVariablesMap.emplace( "ecf3", isnan( pfjet_subjet_ecf3_.back() )
+                                         ? 0.
+                                         : pfjet_subjet_ecf3_.back() );
+
+    pfjet_mva_.emplace_back(
+        mvaEstimator_.mvaValue( &pfjet, mvaVariablesMap ) );
+
+    // -------------------------------------------------------------------------
   }
 }
 
@@ -697,6 +746,8 @@ ffNtuplePfJet::clear() {
   pfjet_subjet_ecf1_.clear();
   pfjet_subjet_ecf2_.clear();
   pfjet_subjet_ecf3_.clear();
+
+  pfjet_mva_.clear();
 }
 
 ///**************************************

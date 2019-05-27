@@ -5,6 +5,8 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi imp
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 
+from Firefighter.recoStuff.ffLeptonJetMVAEstimator_cfi import *
+
 ntuple_event = cms.PSet(
     NtupleName=cms.string("ffNtupleEvent"),
     PileUp=cms.InputTag("addPileupInfo"),
@@ -70,6 +72,7 @@ ntuple_pfjet = cms.PSet(
     SubjetEcf1=cms.InputTag("ffLeptonJetSubjetECF", "ecf1"),
     SubjetEcf2=cms.InputTag("ffLeptonJetSubjetECF", "ecf2"),
     SubjetEcf3=cms.InputTag("ffLeptonJetSubjetECF", "ecf3"),
+    mvaParam=ffLeptonJetMVAEstimatorParam,
 )
 
 ntuple_hftagscore = cms.PSet(
