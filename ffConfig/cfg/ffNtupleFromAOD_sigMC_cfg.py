@@ -50,11 +50,12 @@ process.TFileService = cms.Service(
 )
 
 process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+process.load("Firefighter.recoStuff.ffMetFilters_cff")
 process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
 process.load("Firefighter.ffNtuple.ffNtuples_cff")
 
 process.recofilterSeq = cms.Sequence(
-    process.ffLeptonJetSeq + process.ffEventFilteringSeq
+    process.ffLeptonJetSeq + process.ffMetFilterSeq + process.ffEventFilteringSeq
 )
 
 process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)

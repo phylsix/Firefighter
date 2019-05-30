@@ -83,6 +83,7 @@ if dataType.lower().startswith("signal"):
 else:
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_d_cff")
+process.load("Firefighter.recoStuff.ffMetFilters_cff")
 process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
 
 from Firefighter.recoStuff.skimOutput_cfi import skimOutput as _skimoutput
@@ -92,7 +93,7 @@ process.skimOutput = _skimoutput.clone(
 )
 
 process.recofilterSeq = cms.Sequence(
-    process.ffLeptonJetSeq + process.ffEventFilteringSeq
+    process.ffLeptonJetSeq + process.ffMetFilterSeq + process.ffEventFilteringSeq
 )
 
 process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
