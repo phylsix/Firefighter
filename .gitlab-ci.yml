@@ -10,7 +10,7 @@ before_script:
   - git config --global user.email 'fake@mail.yes' ## does not
   - git config --global user.gitlab 'homerJay' ## matter
   - export CMSSW_GIT_REFERENCE="/cvmfs/cms.cern.ch/cmssw.git.daily"
-  - export SCRAM_ARCH="slc6_amd64_gcc700"
+  - export SCRAM_ARCH="slc7_amd64_gcc700"
   - export CMSSW_VERSION="CMSSW_10_2_14"
   - export CMS_PATH=/cvmfs/cms-ib.cern.ch/week0 #https://gitlab.cern.ch/cms-nanoAOD/nanoAOD-integration/blob/master/scripts/restore_cmssw.sh#L14
   - cd $CI_HOME
@@ -28,7 +28,7 @@ compile:
     - cd $CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd Firefighter
-    - scram b -j12
+    - scram b -j4
     - cd $CMSSW_BASE/..
     - tar -czf cmssw.tgz $CMSSW_VERSION
     - du -csh cmssw.tgz

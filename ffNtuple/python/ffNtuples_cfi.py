@@ -95,6 +95,8 @@ ntuple_beamhalo = cms.PSet(
     NtupleName=cms.string("ffNtupleBeamHalo"), src=cms.InputTag("BeamHaloSummary")
 )
 
+ntuple_metfilters = cms.PSet(NtupleName=cms.string("ffNtupleMetFilters"))
+
 ffNtuplizer = cms.EDAnalyzer(
     "ffNtupleManager",
     HltProcName=cms.string("HLT"),
@@ -109,6 +111,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_pfjet,
         ntuple_hftagscore,
         ntuple_muontiming,
-        ntuple_beamhalo,
+        # ntuple_beamhalo,
+        ntuple_metfilters,
     ),
 )
