@@ -28,7 +28,7 @@ compile:
     - cd $CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd Firefighter
-    - scram b -j12
+    - scram b -j2
     - cd $CMSSW_BASE/..
     - tar -czf cmssw.tgz $CMSSW_VERSION
     - du -csh cmssw.tgz
