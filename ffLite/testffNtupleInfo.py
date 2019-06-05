@@ -157,6 +157,7 @@ for i, event in enumerate(t, 1):
 
     print(
         "[MetFilters]",
+        event.metfilters_PrimaryVertexFilter,
         event.metfilters_BadMuonFilter,
         event.metfilters_CSCTightHalo2015Filter,
         event.metfilters_GlobalTightHalo2016Filter,
