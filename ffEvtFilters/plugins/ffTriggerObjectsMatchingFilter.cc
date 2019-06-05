@@ -1,4 +1,4 @@
-#include "Firefighter/recoStuff/interface/ffTriggerObjectsMatchingFilter.h"
+#include "Firefighter/ffEvtFilters/interface/ffTriggerObjectsMatchingFilter.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"

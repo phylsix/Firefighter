@@ -1,5 +1,5 @@
-#ifndef recoStuff_ffTriggerObjectsMatchingFilter_H
-#define recoStuff_ffTriggerObjectsMatchingFilter_H
+#ifndef ffEvtFilters_ffTriggerObjectsMatchingFilter_H
+#define ffEvtFilters_ffTriggerObjectsMatchingFilter_H
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
