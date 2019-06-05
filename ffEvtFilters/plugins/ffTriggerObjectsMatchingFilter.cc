@@ -50,9 +50,11 @@ ffTriggerObjectsMatchingFilter::filter( edm::Event&            e,
   const HLTConfigProvider& hltConfig = fHLTPrescaleProvider.hltConfigProvider();
   assert( fTriggerResultsHandle->size() == hltConfig.size() );
 
-  const auto& tracks = *fTracksHandle;
-
   bool result( false );
+
+  const auto& tracks = *fTracksHandle;
+  if ( tracks.size() < fMinCounts )
+    return result;
 
   for ( const auto& p : fTriggerNames ) {
     math::XYZTLorentzVectorFCollection triggerObjects =
