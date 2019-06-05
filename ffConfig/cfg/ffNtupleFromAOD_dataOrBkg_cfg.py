@@ -55,7 +55,10 @@ process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
 process.load("Firefighter.ffNtuple.ffNtuples_d_cff")
 
 process.recofilterSeq = cms.Sequence(
-    process.ffLeptonJetSeq + process.ffMetFilterSeq + process.ffEventFilteringSeq
+    process.ffBeginEventFilteringSeq
+    + process.ffLeptonJetSeq
+    + process.ffMetFilterSeq
+    + process.ffEndEventFilteringSeq
 )
 
 process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)

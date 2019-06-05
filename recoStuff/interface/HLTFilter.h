@@ -8,6 +8,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+namespace ff {
 class HLTFilter : public edm::one::EDFilter<edm::one::WatchRuns> {
  public:
   explicit HLTFilter( const edm::ParameterSet& );
@@ -24,5 +25,6 @@ class HLTFilter : public edm::one::EDFilter<edm::one::WatchRuns> {
   HLTConfigProvider        hltConfig_;
   std::string              hltProcessName_;
 };
+}  // namespace ff
 
 #endif

@@ -4,7 +4,7 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-HLTFilter::HLTFilter( const edm::ParameterSet& ps )
+ff::HLTFilter::HLTFilter( const edm::ParameterSet& ps )
     : hlt_resultToken_( consumes<edm::TriggerResults>(
           ps.getParameter<edm::InputTag>( "TriggerResults" ) ) ),
       hlt_pathsNoVer_(
@@ -12,7 +12,7 @@ HLTFilter::HLTFilter( const edm::ParameterSet& ps )
       hltProcessName_( ps.getParameter<std::string>( "HltProcName" ) ) {}
 
 void
-HLTFilter::beginRun( const edm::Run& r, const edm::EventSetup& es ) {
+ff::HLTFilter::beginRun( const edm::Run& r, const edm::EventSetup& es ) {
   bool changed( true );
   if ( hltConfig_.init( r, es, hltProcessName_, changed ) ) {
   } else {
@@ -22,7 +22,7 @@ HLTFilter::beginRun( const edm::Run& r, const edm::EventSetup& es ) {
 }
 
 bool
-HLTFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
+ff::HLTFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
   using namespace std;
 
   edm::Handle<edm::TriggerResults> hlt_resultH;
@@ -62,4 +62,4 @@ HLTFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-DEFINE_FWK_MODULE( HLTFilter );
+DEFINE_FWK_MODULE( ff::HLTFilter );
