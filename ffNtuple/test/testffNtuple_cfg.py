@@ -93,7 +93,10 @@ process.skimOutput = _skimoutput.clone(
 )
 
 process.recofilterSeq = cms.Sequence(
-    process.ffLeptonJetSeq + process.ffMetFilterSeq + process.ffEventFilteringSeq
+    process.ffBeginEventFilteringSeq
+    + process.ffLeptonJetSeq
+    + process.ffMetFilterSeq
+    + process.ffEndEventFilteringSeq
 )
 
 process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
