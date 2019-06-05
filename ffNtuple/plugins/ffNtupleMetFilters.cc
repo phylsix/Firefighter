@@ -14,6 +14,7 @@ class ffNtupleMetFilters : public ffNtupleBase {
  private:
   void clear() final;
 
+  edm::EDGetToken fPrimaryVertexFilterToken;
   edm::EDGetToken fBadMuonFilterToken;
   edm::EDGetToken fCSCTightHalo2015FilterToken;
   edm::EDGetToken fGlobalTightHalo2016FilterToken;
@@ -23,6 +24,7 @@ class ffNtupleMetFilters : public ffNtupleBase {
   edm::EDGetToken fHBHENoiseFilterResultToken;
   edm::EDGetToken fHBHEIsoNoiseFilterResultToken;
 
+  bool fPrimaryVertexFilter;
   bool fBadMuonFilter;
   bool fCSCTightHalo2015Filter;
   bool fGlobalTightHalo2016Filter;
@@ -42,6 +44,8 @@ void
 ffNtupleMetFilters::initialize( TTree&                   tree,
                                 const edm::ParameterSet& ps,
                                 edm::ConsumesCollector&& cc ) {
+  fPrimaryVertexFilterToken =
+      cc.consumes<bool>( edm::InputTag( "primaryVertexFilter" ) );
   fBadMuonFilterToken = cc.consumes<bool>( edm::InputTag( "BadPFMuonFilter" ) );
   fCSCTightHalo2015FilterToken =
       cc.consumes<bool>( edm::InputTag( "CSCTightHalo2015Filter" ) );
@@ -58,6 +62,8 @@ ffNtupleMetFilters::initialize( TTree&                   tree,
   fHBHEIsoNoiseFilterResultToken = cc.consumes<bool>( edm::InputTag(
       "HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult" ) );
 
+  tree.Branch( "metfilters_PrimaryVertexFilter", &fPrimaryVertexFilter,
+               "metfilters_PrimaryVertexFilter/O" );
   tree.Branch( "metfilters_BadMuonFilter", &fBadMuonFilter,
                "metfilters_BadMuonFilter/O" );
   tree.Branch( "metfilters_CSCTightHalo2015Filter", &fCSCTightHalo2015Filter,
@@ -81,6 +87,7 @@ ffNtupleMetFilters::initialize( TTree&                   tree,
 
 void
 ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
+  edm::Handle<bool> PrimaryVertexFilterHandle;
   edm::Handle<bool> BadMuonFilterHandle;
   edm::Handle<bool> CSCTightHalo2015FilterHandle;
   edm::Handle<bool> GlobalTightHalo2016FilterHandle;
@@ -90,6 +97,7 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   edm::Handle<bool> HBHEIsoNoiseFilterResultHandle;
 
+  e.getByToken( fPrimaryVertexFilterToken, PrimaryVertexFilterHandle );
   e.getByToken( fBadMuonFilterToken, BadMuonFilterHandle );
   e.getByToken( fCSCTightHalo2015FilterToken, CSCTightHalo2015FilterHandle );
   e.getByToken( fGlobalTightHalo2016FilterToken,
@@ -103,6 +111,7 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( fHBHEIsoNoiseFilterResultToken,
                 HBHEIsoNoiseFilterResultHandle );
 
+  assert( PrimaryVertexFilterHandle.isValid() );
   assert( BadMuonFilterHandle.isValid() );
   assert( CSCTightHalo2015FilterHandle.isValid() );
   assert( GlobalTightHalo2016FilterHandle.isValid() );
@@ -114,6 +123,7 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
+  fPrimaryVertexFilter            = *PrimaryVertexFilterHandle;
   fBadMuonFilter                  = *BadMuonFilterHandle;
   fCSCTightHalo2015Filter         = *CSCTightHalo2015FilterHandle;
   fGlobalTightHalo2016Filter      = *GlobalTightHalo2016FilterHandle;
@@ -127,6 +137,7 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleMetFilters::clear() {
+  fPrimaryVertexFilter                = false;
   fBadMuonFilter                      = false;
   fCSCTightHalo2015Filter             = false;
   fGlobalTightHalo2016Filter          = false;
