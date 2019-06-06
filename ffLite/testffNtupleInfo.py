@@ -166,6 +166,7 @@ for i, event in enumerate(t, 1):
         event.metfilters_EcalBadCalibFilter,
         event.metfilters_HBHENoiseFilter,
         event.metfilters_HBHEIsoNoiseFilter,
+        event.metfilters_TriggerObjectMatchingFilter,
     )
 
     if i > 50:

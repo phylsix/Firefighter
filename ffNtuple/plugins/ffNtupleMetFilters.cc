@@ -23,6 +23,7 @@ class ffNtupleMetFilters : public ffNtupleBase {
   edm::EDGetToken fEcalBadCalibFilterToken;
   edm::EDGetToken fHBHENoiseFilterResultToken;
   edm::EDGetToken fHBHEIsoNoiseFilterResultToken;
+  edm::EDGetToken fTriggerObjectMatchingFilterToken;
 
   bool fPrimaryVertexFilter;
   bool fBadMuonFilter;
@@ -33,6 +34,7 @@ class ffNtupleMetFilters : public ffNtupleBase {
   bool fEcalBadCalibFilter;
   bool fHBHENoiseFilterResult;
   bool fHBHEIsoNoiseFilterResult;
+  bool fTriggerObjectMatchingFilter;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleMetFilters, "ffNtupleMetFilters" );
@@ -61,6 +63,8 @@ ffNtupleMetFilters::initialize( TTree&                   tree,
       "HBHENoiseFilterResultProducer", "HBHENoiseFilterResult" ) );
   fHBHEIsoNoiseFilterResultToken = cc.consumes<bool>( edm::InputTag(
       "HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult" ) );
+  fTriggerObjectMatchingFilterToken =
+      cc.consumes<bool>( edm::InputTag( "triggerObjectMatchingFilter" ) );
 
   tree.Branch( "metfilters_PrimaryVertexFilter", &fPrimaryVertexFilter,
                "metfilters_PrimaryVertexFilter/O" );
@@ -83,6 +87,9 @@ ffNtupleMetFilters::initialize( TTree&                   tree,
                "metfilters_HBHENoiseFilter/O" );
   tree.Branch( "metfilters_HBHEIsoNoiseFilter", &fHBHEIsoNoiseFilterResult,
                "metfilters_HBHEIsoNoiseFilter/O" );
+  tree.Branch( "metfilters_TriggerObjectMatchingFilter",
+               &fTriggerObjectMatchingFilter,
+               "metfilters_TriggerObjectMatchingFilter/O" );
 }
 
 void
@@ -96,6 +103,7 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
   edm::Handle<bool> EcalBadCalibFilterHandle;
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   edm::Handle<bool> HBHEIsoNoiseFilterResultHandle;
+  edm::Handle<bool> TriggerObjectMatchingFilterHandle;
 
   e.getByToken( fPrimaryVertexFilterToken, PrimaryVertexFilterHandle );
   e.getByToken( fBadMuonFilterToken, BadMuonFilterHandle );
@@ -110,6 +118,8 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( fHBHENoiseFilterResultToken, HBHENoiseFilterResultHandle );
   e.getByToken( fHBHEIsoNoiseFilterResultToken,
                 HBHEIsoNoiseFilterResultHandle );
+  e.getByToken( fTriggerObjectMatchingFilterToken,
+                TriggerObjectMatchingFilterHandle );
 
   assert( PrimaryVertexFilterHandle.isValid() );
   assert( BadMuonFilterHandle.isValid() );
@@ -120,6 +130,7 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
   assert( EcalBadCalibFilterHandle.isValid() );
   assert( HBHENoiseFilterResultHandle.isValid() );
   assert( HBHEIsoNoiseFilterResultHandle.isValid() );
+  assert( TriggerObjectMatchingFilterHandle.isValid() );
 
   clear();
 
@@ -130,9 +141,10 @@ ffNtupleMetFilters::fill( const edm::Event& e, const edm::EventSetup& es ) {
   fGlobalSuperTightHalo2016Filter = *GlobalSuperTightHalo2016FilterHandle;
   fEcalDeadCellTriggerPrimitiveFilter =
       *EcalDeadCellTriggerPrimitiveFilterHandle;
-  fEcalBadCalibFilter       = *EcalBadCalibFilterHandle;
-  fHBHENoiseFilterResult    = *HBHENoiseFilterResultHandle;
-  fHBHEIsoNoiseFilterResult = *HBHEIsoNoiseFilterResultHandle;
+  fEcalBadCalibFilter          = *EcalBadCalibFilterHandle;
+  fHBHENoiseFilterResult       = *HBHENoiseFilterResultHandle;
+  fHBHEIsoNoiseFilterResult    = *HBHEIsoNoiseFilterResultHandle;
+  fTriggerObjectMatchingFilter = *TriggerObjectMatchingFilterHandle;
 }
 
 void
@@ -146,4 +158,5 @@ ffNtupleMetFilters::clear() {
   fEcalBadCalibFilter                 = false;
   fHBHENoiseFilterResult              = false;
   fHBHEIsoNoiseFilterResult           = false;
+  fTriggerObjectMatchingFilter        = false;
 }
