@@ -16,4 +16,5 @@ triggerObjectMatchingFilter = cms.EDFilter(
     tracks=cms.InputTag("displacedStandAloneMuons"),
     minDr=cms.double(0.3),
     minCounts=cms.uint32(2),
+    taggingMode=cms.bool(True),
 )

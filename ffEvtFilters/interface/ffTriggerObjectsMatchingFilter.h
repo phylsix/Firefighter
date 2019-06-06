@@ -40,6 +40,7 @@ class ffTriggerObjectsMatchingFilter
 
   double       fMinDr;
   unsigned int fMinCounts;
+  bool         fTaggingMode;
 };
 
 #endif

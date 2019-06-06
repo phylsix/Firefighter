@@ -20,7 +20,10 @@ ffTriggerObjectsMatchingFilter::ffTriggerObjectsMatchingFilter(
           ps.getParameter<edm::InputTag>( "tracks" ) ) ),
       fHLTPrescaleProvider( ps, consumesCollector(), *this ),
       fMinDr( ps.getParameter<double>( "minDr" ) ),
-      fMinCounts( ps.getParameter<unsigned int>( "minCounts" ) ) {}
+      fMinCounts( ps.getParameter<unsigned int>( "minCounts" ) ),
+      fTaggingMode( ps.getParameter<bool>( "taggingMode" ) ) {
+  produces<bool>();
+}
 
 ffTriggerObjectsMatchingFilter::~ffTriggerObjectsMatchingFilter() = default;
 
@@ -53,33 +56,34 @@ ffTriggerObjectsMatchingFilter::filter( edm::Event&            e,
   bool result( false );
 
   const auto& tracks = *fTracksHandle;
-  if ( tracks.size() < fMinCounts )
-    return result;
+  if ( tracks.size() >= fMinCounts ) {
+    for ( const auto& p : fTriggerNames ) {
+      math::XYZTLorentzVectorFCollection triggerObjects =
+          triggerObjectsFromPath( p, hltConfig );
+      if ( triggerObjects.size() < fMinCounts )
+        continue;
 
-  for ( const auto& p : fTriggerNames ) {
-    math::XYZTLorentzVectorFCollection triggerObjects =
-        triggerObjectsFromPath( p, hltConfig );
-    if ( triggerObjects.size() < fMinCounts )
-      continue;
-
-    unsigned int nmatched( 0 );
-    for ( const auto& to : triggerObjects ) {
-      for ( const auto& tk : tracks ) {
-        if ( deltaR( to, tk ) > fMinDr )
-          continue;
-        nmatched += 1;
-        break;
+      unsigned int nmatched( 0 );
+      for ( const auto& to : triggerObjects ) {
+        for ( const auto& tk : tracks ) {
+          if ( deltaR( to, tk ) > fMinDr )
+            continue;
+          nmatched += 1;
+          break;
+        }
       }
+
+      if ( nmatched < fMinCounts )
+        continue;
+
+      result = true;
+      break;
     }
-
-    if ( nmatched < fMinCounts )
-      continue;
-
-    result = true;
-    break;
   }
 
-  return result;
+  e.put( make_unique<bool>( result ) );
+
+  return fTaggingMode || result;
 }
 
 void
