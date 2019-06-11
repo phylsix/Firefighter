@@ -25,6 +25,8 @@ class ffDataset:
             )
 
         self._isSignalMC = ds.endswith("USER")
+        self._isBackgroundMC = ds.endswith("AODSIM")
+        self._isData = ds.endswith("AOD")
         self._primaryDataset = ds.split("/")[1]
         self._dataset = ds
         self._nameTag = self.get_nametag_from_dataset(ds)
@@ -35,6 +37,14 @@ class ffDataset:
     @property
     def isSignalMC(self):
         return self._isSignalMC
+
+    @property
+    def isBackgroundMC(self):
+        return self._isBackgroundMC
+
+    @property
+    def isData(self):
+        return self._isData
 
     @property
     def dataset(self):
@@ -60,6 +70,9 @@ class ffDataset:
 
         e.g. /DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v2/AODSIM
         returns RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v2
+
+        e.g. /DoubleMuon/Run2018A-17Sep2018-v2/AOD
+        returns Run2018A-17Sep2018-v2
         """
 
         if dataset.endswith("USER"):
@@ -199,10 +212,10 @@ def adapt_config_with_dataset(config, dataset):
             crabconfig.JobType.psetName, "ffNtupleFromAOD_sigMC_cfg.py"
         )
 
-    else:
-        print("--------------------------")
-        print("===== DATA or BKG MC =====")
-        print("--------------------------")
+    if dataset.isBackgroundMC:
+        print("-------------------------")
+        print("===== BACKGROUND MC =====")
+        print("-------------------------")
         nameTagVersionSuffix = requestNameComponents[2].rsplit("_")[-1]
         requestNameComponents[2] = (
             nameTagVersionSuffix
@@ -219,6 +232,27 @@ def adapt_config_with_dataset(config, dataset):
             crabconfig.Site.whitelist = siteT23
         else:
             crabconfig.Data.ignoreLocality = False
+
+    if dataset.isData:
+        print("****************")
+        print("===== DATA =====")
+        print("****************")
+        siteT23 = dataset.sites_for_submission()
+
+        crabconfig.Data.inputDBS = "global"
+        crabconfig.JobType.psetName = os.path.join(
+            crabconfig.JobType.psetName, "ffNtupleFromAOD_dataOrBkg_cfg.py"
+        )
+        if siteT23:
+            crabconfig.Site.whitelist = siteT23
+        else:
+            crabconfig.Data.ignoreLocality = False
+
+        crabconfig.Data.splitting = 'LumiBased'
+        crabconfig.Data.unitsPerJob = 100
+        crabconfig.Data.lumiMask = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON_MuonPhys.txt"
+
+
 
     print("dataset: ", str(dataset))
     print("nametag: ", dataset.nameTag)

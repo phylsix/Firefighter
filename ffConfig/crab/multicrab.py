@@ -25,7 +25,7 @@ def main():
     # load config
     multiconf = yaml.load(open(CONFIG_NAME).read())
 
-    datasets = multiconf["aodsimdatasets"]
+    datasets = multiconf["datasets"]
 
     donelist = list()
     for ds in datasets:
@@ -36,20 +36,22 @@ def main():
             if doCmd:
                 crabCommand("submit", config=_config)
                 donelist.append(ds)
+            else:
+                print(_config)
         except Exception as e:
             print("Dataset: ", ds)
             print("Msg: ", str(e))
 
-    print("\n\n", "+" * 79)
+    print("\n\n" + "+" * 79)
     print("submitted: {}".format(len(donelist)), *donelist, sep="\n")
     print("+" * 79, "\n\n")
 
     undonelist = [x for x in datasets if x not in donelist]
     print("unsubmitted: {}".format(len(undonelist)), *undonelist, sep="\n")
 
-    if undonelist:
+    if undonelist and doCmd:
         with open("unsubmitted.yml.log", "w") as outf:
-            yaml.dump({"aodsimdatasets": undonelist}, outf, default_flow_style=False)
+            yaml.dump({"datasets": undonelist}, outf, default_flow_style=False)
 
 
 if __name__ == "__main__":
