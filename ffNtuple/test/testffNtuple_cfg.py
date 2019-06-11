@@ -3,6 +3,7 @@ import os
 import sys
 
 cmsrel = os.environ["CMSSW_VERSION"]
+dataType = sys.argv[2]
 
 process = cms.Process("FF")
 
@@ -21,13 +22,16 @@ else:
     )
 
 if cmsrel.startswith("CMSSW_10"):
-    process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v15"
+    process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v18"
+    if "data_abc" in dataType.lower():
+        process.GlobalTag.globaltag = "102X_dataRun2_Sep2018ABC_v2"
+    if "data_d" in dataType.lower():
+        process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v13"
 if cmsrel.startswith("CMSSW_9"):
     process.GlobalTag.globaltag = "94X_mc2017_realistic_v17"
 if cmsrel.startswith("CMSSW_8"):
     process.GlobalTag.globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v8"
 
-dataType = sys.argv[2]
 TEST_FAST = True
 KEEP_SKIM = False
 if len(sys.argv) > 3 and "full" in sys.argv:
@@ -77,7 +81,7 @@ process.TFileService = cms.Service(
     fileName=cms.string(_output_fname),
     closeFileFast=cms.untracked.bool(True),
 )
-if dataType.lower().startswith("signal"):
+if "signal" in dataType.lower():
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_cff")
 else:

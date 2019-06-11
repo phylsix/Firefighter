@@ -63,3 +63,15 @@ test_bkgMC:
     - cd Firefighter/ffNtuple/test
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
     - cmsRun testffNtuple_cfg.py ci-ZZ
+
+test_data:
+  tags: [cvmfs]
+  stage: test_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd Firefighter/ffNtuple/test
+    - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/DoubleMuon2018C_numEvent300.root
+    - cmsRun testffNtuple_cfg.py ci-data_abc

@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import os
+from Firefighter.ffConfig.ffConfigSwitch import switches
 
 cmsrel = os.environ["CMSSW_VERSION"]
+jobtype = switches["jobtype"]
 
 process = cms.Process("FF")
 
@@ -21,7 +23,13 @@ else:
 
 
 if cmsrel.startswith("CMSSW_10"):
-    process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v15"
+    if jobtype.endswith("mc"):
+        process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v18"
+    else:
+        if jobtype == "data_abc":
+            process.GlobalTag.globaltag = "102X_dataRun2_Sep2018ABC_v2"
+        if jobtype == "data_d":
+            process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v13"
 if cmsrel.startswith("CMSSW_9"):
     process.GlobalTag.globaltag = "94X_mc2017_realistic_v17"
 if cmsrel.startswith("CMSSW_8"):
@@ -49,10 +57,14 @@ process.TFileService = cms.Service(
     closeFileFast=cms.untracked.bool(True),
 )
 
-process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+if jobtype == "sigmc":
+    process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+    process.load("Firefighter.ffNtuple.ffNtuples_cff")
+else:
+    process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_d_cff")
+    process.load("Firefighter.ffNtuple.ffNtuples_d_cff")
 process.load("Firefighter.recoStuff.ffMetFilters_cff")
 process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
-process.load("Firefighter.ffNtuple.ffNtuples_cff")
 
 process.recofilterSeq = cms.Sequence(
     process.ffBeginEventFilteringSeq

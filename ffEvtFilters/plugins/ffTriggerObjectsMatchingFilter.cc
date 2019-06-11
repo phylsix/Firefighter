@@ -101,11 +101,8 @@ ffTriggerObjectsMatchingFilter::triggerObjectsFromPath(
 
   const vector<string> matchedpaths =
       hltConfig.restoreVersion( hltConfig.triggerNames(), triggerPath );
-  if ( matchedpaths.empty() ) {
-    throw cms::Exception(
-        "HLTConfigProvider cannot find matched full trigger path with - " +
-        triggerPath );
-  }
+  if ( matchedpaths.empty() )
+    return triggerObjs;
 
   const string triggerPathFullName = matchedpaths[ 0 ];
   const auto   triggerPathIndex = hltConfig.triggerIndex( triggerPathFullName );

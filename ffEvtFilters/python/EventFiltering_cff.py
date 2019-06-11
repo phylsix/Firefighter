@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Firefighter.ffEvtFilters.LeptonJetPairFilter_cfi import *
 from Firefighter.ffEvtFilters.ffTriggerObjectsMatchingFilter_cfi import *
-from Firefighter.ffEvtFilters.ffEventSwitcher import switches
-
-assert switches["region"] in ["all", "signal", "control"]
+from Firefighter.ffConfig.ffConfigSwitch import switches
 
 
 ###############################################################################

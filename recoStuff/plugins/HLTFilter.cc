@@ -37,10 +37,9 @@ ff::HLTFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
   for ( const auto& p : hlt_pathsNoVer_ ) {
     const vector<string> matchedPaths(
         hltConfig_.restoreVersion( allTriggerPaths, p ) );
-    if ( matchedPaths.size() == 0 ) {
-      throw cms::Exception( "Could not find matched full trigger path -> " +
-                            p );
-    }
+    if ( matchedPaths.size() == 0 )
+      continue;
+
     const string trigPath         = matchedPaths[ 0 ];
     const auto   triggerPathIndex = hltConfig_.triggerIndex( trigPath );
     if ( triggerPathIndex >= hltConfig_.size() ) {

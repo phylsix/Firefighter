@@ -7,12 +7,13 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cf
 
 from Firefighter.recoStuff.ffLeptonJetMVAEstimator_cfi import *
 
-ntuple_event = cms.PSet(
-    NtupleName=cms.string("ffNtupleEvent"),
+ntuple_event = cms.PSet(NtupleName=cms.string("ffNtupleEvent"))
+
+ntuple_genevent = cms.PSet(
+    NtupleName=cms.string("ffNtupleGenEvent"),
     PileUp=cms.InputTag("addPileupInfo"),
     GenProd=cms.InputTag("generator"),
 )
-
 
 ntuple_gen = cms.PSet(
     NtupleName=cms.string("ffNtupleGen"),
@@ -102,6 +103,7 @@ ffNtuplizer = cms.EDAnalyzer(
     HltProcName=cms.string("HLT"),
     Ntuples=cms.VPSet(
         ntuple_event,
+        ntuple_genevent,
         ntuple_gen,
         ntuple_genjet,
         ntuple_hlt,

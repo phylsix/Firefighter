@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff import *
-from Firefighter.recoStuff.ffRecoSwitcher import switches
+from Firefighter.ffConfig.ffConfigSwitch import switches
 
 # src for ak4pfCHS
 pfNoPileUpJMESeq = cms.Sequence(
@@ -15,7 +15,7 @@ filteredPFCandsFwdPtr = cms.EDFilter(
     makeClones=cms.bool(False),
 )
 
-if switches["usingCHS"] == False:
+if switches["recoStuff"]["usingCHS"] == False:
     filteredPFCandsFwdPtr.src = cms.InputTag("particleFlowPtrs")
     filteredPFCandsFwdPtr.cut = cms.string(
         " && ".join(["abs(eta)<2.5", "particleId!=1", "particleId!=5", "particleId!=6"])
@@ -26,14 +26,14 @@ filteredPFCands = cms.EDProducer(
 )
 
 
-# if switches["usingCHS"] == False:
+# if switches["recoStuff"]["usingCHS"] == False:
 #     filteringPFCands = cms.Sequence(filteredPFCandsFwdPtr + filteredPFCands)
 # else:
 #     filteringPFCands = cms.Sequence(
 #         pfNoPileUpJMESeq + filteredPFCandsFwdPtr + filteredPFCands
 #     )
 
-if switches["usingCHS"] == False:
+if switches["recoStuff"]["usingCHS"] == False:
     filteringPFCands = cms.Sequence(filteredPFCandsFwdPtr)
 else:
     filteringPFCands = cms.Sequence(pfNoPileUpJMESeq + filteredPFCandsFwdPtr)

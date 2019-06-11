@@ -208,9 +208,6 @@ def adapt_config_with_dataset(config, dataset):
         print("+++++++++++++++++++++")
         print("===== SIGNAL MC =====")
         print("+++++++++++++++++++++")
-        crabconfig.JobType.psetName = os.path.join(
-            crabconfig.JobType.psetName, "ffNtupleFromAOD_sigMC_cfg.py"
-        )
 
     if dataset.isBackgroundMC:
         print("-------------------------")
@@ -225,9 +222,6 @@ def adapt_config_with_dataset(config, dataset):
         siteT23 = dataset.sites_for_submission()
 
         crabconfig.Data.inputDBS = "global"
-        crabconfig.JobType.psetName = os.path.join(
-            crabconfig.JobType.psetName, "ffNtupleFromAOD_dataOrBkg_cfg.py"
-        )
         if siteT23:
             crabconfig.Site.whitelist = siteT23
         else:
@@ -240,9 +234,6 @@ def adapt_config_with_dataset(config, dataset):
         siteT23 = dataset.sites_for_submission()
 
         crabconfig.Data.inputDBS = "global"
-        crabconfig.JobType.psetName = os.path.join(
-            crabconfig.JobType.psetName, "ffNtupleFromAOD_dataOrBkg_cfg.py"
-        )
         if siteT23:
             crabconfig.Site.whitelist = siteT23
         else:

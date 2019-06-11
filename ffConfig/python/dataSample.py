@@ -39,6 +39,18 @@ samples = {
     + "/store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/90000/F522418C-3CA0-5949-A14E-33576ECB15D4.root",
 }
 
+###############################################################################
+## DoubleMuon Run2018 data samples
+###############################################################################
+
+samples.update(
+    {
+        "data_abc": GLOBAL_DIRECTOR
+        + "/store/data/Run2018C/DoubleMuon/AOD/17Sep2018-v1/60000/594FF9F2-9547-F84E-A730-EC5587267D36.root",
+        "data_d": GLOBAL_DIRECTOR
+        + "/store/data/Run2018D/DoubleMuon/AOD/PromptReco-v2/000/325/022/00000/E8C70B3B-F319-8642-BBC1-E39535EFBDA9.root",
+    }
+)
 
 ###############################################################################
 ## NoBPTX data samples
@@ -122,6 +134,7 @@ samples.update(
         "ci-signal-2mu2e": CMSSW_BASE
         + "/src/Firefighter/ffNtuple/test/SIDM_2mu2e.root",
         "ci-ZZ": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ZZ_numEvent300.root",
+        "ci-data_abc": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/DoubleMuon2018C_numEvent300.root",
     }
 )
 

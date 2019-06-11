@@ -82,10 +82,9 @@ ffNtupleHLT::fill( const edm::Event&      e,
   for ( const auto& p : hlt_pathsNoVer_ ) {
     const vector<string> matchedPaths(
         hcp.restoreVersion( allTriggerPaths, p ) );
-    if ( matchedPaths.size() == 0 ) {
-      throw cms::Exception(
-          "Could not find matched full trigger path with -> " + p );
-    }
+    if ( matchedPaths.size() == 0 )
+      continue;
+
     const std::string trigPath         = matchedPaths[ 0 ];
     const auto        triggerPathIndex = hcp.triggerIndex( trigPath );
     if ( triggerPathIndex >= hcp.size() ) {
