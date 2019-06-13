@@ -48,7 +48,7 @@ test_sigMC:
     - eval `scramv1 runtime -sh`
     - cd Firefighter/ffNtuple/test
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_4mu.root
-    - cmsRun testffNtuple_cfg.py ci-signal-4mu
+    - cmsRun testffNtuple_cfg.py dataType=ci-signal-4mu
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_2mu2e.root
     - cmsRun testffNtuple_cfg.py dataType=ci-signal-2mu2e
 
