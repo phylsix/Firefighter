@@ -1,9 +1,34 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
+from Firefighter.ffConfig.dataSample import samples
+
+options = VarParsing.VarParsing("analysis")
+options.register(
+    "dataType",
+    "signal-4mu",
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.string,
+    "Type of sample to process. Default is 'signal-4mu'",
+)
+options.register(
+    "fast",
+    1,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.int,
+    "testing fast. aka. only 50 events. Default is True.",
+)
+options.register(
+    "keepSkim",
+    0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.int,
+    "whether to keep intermediate skimmed file. Default is False.",
+)
 
 cmsrel = os.environ["CMSSW_VERSION"]
-dataType = sys.argv[2]
+options.parseArguments()
 
 process = cms.Process("FF")
 
@@ -23,40 +48,36 @@ else:
 
 if cmsrel.startswith("CMSSW_10"):
     process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v18"
-    if "data_abc" in dataType.lower():
+    if "data_abc" in options.dataType.lower():
         process.GlobalTag.globaltag = "102X_dataRun2_Sep2018ABC_v2"
-    if "data_d" in dataType.lower():
+    if "data_d" in options.dataType.lower():
         process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v13"
 if cmsrel.startswith("CMSSW_9"):
     process.GlobalTag.globaltag = "94X_mc2017_realistic_v17"
 if cmsrel.startswith("CMSSW_8"):
     process.GlobalTag.globaltag = "80X_mcRun2_asymptotic_2016_TrancheIV_v8"
 
-TEST_FAST = True
-KEEP_SKIM = False
-if len(sys.argv) > 3 and "full" in sys.argv:
-    TEST_FAST = False
-if len(sys.argv) > 3 and "skim" in sys.argv:
-    KEEP_SKIM = True
-
-from Firefighter.ffConfig.dataSample import samples
 
 _event_runover = -1
 _report_every = 1000
 try:
     _data_runover = (
-        [samples[dataType]] if isinstance(samples[dataType], str) else samples[dataType]
+        [samples[options.dataType]]
+        if isinstance(samples[options.dataType], str)
+        else samples[options.dataType]
     )
     _data_runover = map(
         lambda f: f if f.startswith("root://") else "file:" + f, _data_runover
     )
-    _output_fname = "ffNtuple_{}.root".format(dataType)
+    _output_fname = "ffNtuple_{}.root".format(options.dataType)
 except KeyError:
     sys.exit(
-        "Sample '{}' not available! choose from {}".format(dataType, samples.keys())
+        "Sample '{}' not available! choose from {}".format(
+            options.dataType, samples.keys()
+        )
     )
 
-if TEST_FAST:
+if options.fast:
     _event_runover = 50
     _report_every = 1
     _data_runover = [_data_runover[0]]
@@ -81,7 +102,7 @@ process.TFileService = cms.Service(
     fileName=cms.string(_output_fname),
     closeFileFast=cms.untracked.bool(True),
 )
-if "signal" in dataType.lower():
+if "signal" in options.dataType.lower():
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_cff")
 else:
@@ -107,7 +128,7 @@ process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.skimOutput)
 
-if KEEP_SKIM:
+if options.keepSkim:
     process.schedule = cms.Schedule(
         process.ntuple_step, process.endjob_step, process.output_step
     )

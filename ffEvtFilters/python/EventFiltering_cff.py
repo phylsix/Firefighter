@@ -11,9 +11,21 @@ ffBeginEventFilteringSeq = cms.Sequence(triggerObjectMatchingFilter)
 ###############################################################################
 ffEndEventFilteringSeq = cms.Sequence()
 
+ffLeptonJetPairCountFilter = cms.EDFilter(
+    "CandViewCountFilter",
+    src=cms.InputTag("filteredLeptonJet"),
+    minNumber=cms.uint32(2),
+)
+
 if switches["region"] != "all":
-    ffEventFilteringSeq = cms.Sequence(leptonjetpairfilter)
-    if switches["region"] == "signal":
-        leptonjetpairfilter.logic = cms.string("min")
-    if switches["region"] == "control":
-        leptonjetpairfilter.logic = cms.string("max")
+    if switches["region"] == "single":
+        ffEndEventFilteringSeq = cms.Sequence(~ffLeptonJetPairCountFilter)
+    else:
+        if switches["region"] == "signal":
+            ffEndEventFilteringSeq = cms.Sequence(
+                ffLeptonJetPairCountFilter + leptonjetpairfilter
+            )
+        if switches["region"] == "control":
+            ffEndEventFilteringSeq = cms.Sequence(
+                ffLeptonJetPairCountFilter + ~leptonjetpairfilter
+            )

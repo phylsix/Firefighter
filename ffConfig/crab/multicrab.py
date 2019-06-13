@@ -10,7 +10,7 @@ from CRABAPI.RawCommand import crabCommand
 from Firefighter.piedpiper.utils import ffDataset, adapt_config_with_dataset
 from crabConfig import config, year
 
-doCmd = False
+doCmd = True
 CONFIG_NAME = sys.argv[1]
 
 

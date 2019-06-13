@@ -9,6 +9,7 @@ import ROOT
 from DataFormats.FWLite import Events, Handle
 from Firefighter.ffConfig.dataSample import skimmedSamples
 
+DUMP_EVENTLIST = False
 ROOT.gROOT.SetBatch()
 
 ###############################################################################
@@ -111,6 +112,36 @@ def debugDsaAsPFCand(e, hl):
 ###############################################################################
 
 
+def debugPFJet(e, hl):
+    e.getByLabel(hl["pfjets"][1], hl["pfjets"][0])
+    if not hl["pfjets"][0].isValid():
+        return
+    data = hl["pfjets"][0].product()
+
+    if len(data):
+        print("[pfjets] pt:", [round(j.pt(), 3) for j in data])
+
+
+###############################################################################
+
+
+def debugPFJetLeadingPair(e, hl):
+    e.getByLabel(hl["pfjetLeadingPair"][1], hl["pfjetLeadingPair"][0])
+    if not hl["pfjetLeadingPair"][0].isValid():
+        return
+    data = hl["pfjetLeadingPair"][0].product()
+    if not len(data):
+        return
+    print("[pfjetLeadingPair] counts:", len(data))
+    print("[pfjetLeadingPair] pt:", [round(j.pt(), 3) for j in data])
+    if len(data) >= 2:
+        dphi = fu.delta_phi(data[0], data[1])
+        print("[pfjetLeadingPair] deltaPhi(0,1):", abs(round(dphi, 3)))
+
+
+###############################################################################
+
+
 def main():
 
     handlesAndLabels = {
@@ -126,6 +157,14 @@ def main():
             Handle("std::vector<reco::PFCandidate>"),
             ("pfcandsFromMuondSA", "", "FF"),
         ),
+        "pfjets": (
+            Handle("std::vector<edm::FwdPtr<reco::PFJet>>"),
+            ("filteredLeptonJet", "", "FF"),
+        ),
+        "pfjetLeadingPair": (
+            Handle("std::vector<reco::PFJet>"),
+            ("ffLeptonJetLargestPtPair", "", "FF"),
+        ),
     }
 
     events = Events(fn)
@@ -134,7 +173,7 @@ def main():
     wentThroughEvents = []
     for i, event in enumerate(events, 1):
 
-        if i > 20:
+        if i > 50:
             break
 
         print("\n", "-" * 75, [i])
@@ -144,13 +183,16 @@ def main():
         _event = event.object().id().event()
 
         # debugPFCand(event, handlesAndLabels)
-        debugDsaAsMuon(event, handlesAndLabels)
+        # debugDsaAsMuon(event, handlesAndLabels)
         # debugDsaAsPFCand(event, handlesAndLabels)
+        debugPFJet(event, handlesAndLabels)
+        # debugPFJetLeadingPair(event, handlesAndLabels)
 
         wentThroughEvents.append((_run, _lumi, _event))
 
     print("+" * 79)
-    print("Processed run|lumi|event", *wentThroughEvents, sep="\n")
+    if DUMP_EVENTLIST:
+        print("Processed run|lumi|event", *wentThroughEvents, sep="\n")
 
 
 if __name__ == "__main__":

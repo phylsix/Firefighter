@@ -134,7 +134,8 @@ samples.update(
         "ci-signal-2mu2e": CMSSW_BASE
         + "/src/Firefighter/ffNtuple/test/SIDM_2mu2e.root",
         "ci-ZZ": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/ZZ_numEvent300.root",
-        "ci-data_abc": CMSSW_BASE + "/src/Firefighter/ffNtuple/test/DoubleMuon2018C_numEvent300.root",
+        "ci-data_abc": CMSSW_BASE
+        + "/src/Firefighter/ffNtuple/test/DoubleMuon2018C_numEvent300.root",
     }
 )
 
@@ -167,5 +168,7 @@ ffSamples = {
 
 skimmedSamples = {
     "signal-4mu": CMSSW_BASE
-    + "/src/Firefighter/ffNtuple/test/skimffNtuple_signal-4mu.root"
+    + "/src/Firefighter/ffNtuple/test/skimffNtuple_signal-4mu.root",
+    "signal-2mu2e": CMSSW_BASE
+    + "/src/Firefighter/ffNtuple/test/skimffNtuple_signal-2mu2e.root",
 }

@@ -20,8 +20,7 @@ class LeptonJetPairFilter : public edm::one::EDFilter<> {
   edm::EDGetTokenT<reco::PFJetCollection> fJetToken;
   edm::Handle<reco::PFJetCollection>      fJetHdl;
 
-  std::string fLogic;
-  double      fDPhiThreshold;
+  double fDPhiMin;
 };
 
 #endif

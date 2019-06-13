@@ -7,10 +7,8 @@
 LeptonJetPairFilter::LeptonJetPairFilter( const edm::ParameterSet& ps )
     : fJetToken( consumes<reco::PFJetCollection>(
           ps.getParameter<edm::InputTag>( "src" ) ) ),
-      fLogic( ps.getParameter<std::string>( "logic" ) ),
-      fDPhiThreshold( ps.getParameter<double>( "dphi" ) ) {
-  assert( fLogic == "min" or fLogic == "max" );
-  assert( fDPhiThreshold >= 0 and fDPhiThreshold <= M_PI );
+      fDPhiMin( ps.getParameter<double>( "minDPhi" ) ) {
+  assert( fDPhiMin >= 0 and fDPhiMin < M_PI );
 }
 
 bool
@@ -32,14 +30,8 @@ LeptonJetPairFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
     return lhs->pt() > rhs->pt();
   } );
 
-  double absdphi = fabs( deltaPhi( jetptrs[ 0 ]->phi(), jetptrs[ 1 ]->phi() ) );
+  return fabs( deltaPhi( jetptrs[ 0 ]->phi(), jetptrs[ 1 ]->phi() ) ) > fDPhiMin;
 
-  if ( fLogic == "min" )
-    return absdphi > fDPhiThreshold;
-  if ( fLogic == "max" )
-    return absdphi < fDPhiThreshold;
-
-  return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

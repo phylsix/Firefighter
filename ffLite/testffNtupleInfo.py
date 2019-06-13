@@ -7,6 +7,7 @@ import sys
 
 import ROOT
 from Firefighter.ffConfig.dataSample import ffSamples
+import Firefighter.ffLite.utils as fu
 
 ROOT.gROOT.SetBatch()
 
@@ -147,6 +148,11 @@ for i, event in enumerate(t, 1):
         "[pfjet] <muonTimeStd>", *[round(v, 3) for v in event.pfjet_pfcand_muonTimeStd]
     )
     print("[pfjet] <mva>", *[round(v, 3) for v in event.pfjet_mva])
+    pfjets = [j for j in event.pfjet_p4]
+    if len(pfjets) >= 2:
+        sorted(pfjets, key=lambda j: j.pt(), reverse=True)
+        dphi = abs(fu.delta_phi(pfjets[0], pfjets[1]))
+        print("[pfjetPair] <deltaPhi>", round(dphi, 3))
 
     # print(
     #     "[beamhalo]",
