@@ -50,7 +50,7 @@ test_sigMC:
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_4mu.root
     - cmsRun testffNtuple_cfg.py ci-signal-4mu
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_2mu2e.root
-    - cmsRun testffNtuple_cfg.py ci-signal-2mu2e
+    - cmsRun testffNtuple_cfg.py dataType=ci-signal-2mu2e
 
 test_bkgMC:
   tags: [cvmfs]
@@ -62,7 +62,7 @@ test_bkgMC:
     - eval `scramv1 runtime -sh`
     - cd Firefighter/ffNtuple/test
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
-    - cmsRun testffNtuple_cfg.py ci-ZZ
+    - cmsRun testffNtuple_cfg.py dataType=ci-ZZ
 
 test_data:
   tags: [cvmfs]
@@ -74,4 +74,4 @@ test_data:
     - eval `scramv1 runtime -sh`
     - cd Firefighter/ffNtuple/test
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/DoubleMuon2018C_numEvent300.root
-    - cmsRun testffNtuple_cfg.py ci-data_abc
+    - cmsRun testffNtuple_cfg.py dataType=ci-data_abc
