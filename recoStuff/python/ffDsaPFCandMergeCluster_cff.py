@@ -14,6 +14,12 @@ from Firefighter.ffConfig.ffConfigSwitch import switches
 
 from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
 
+###############################################################################
+
+mcSignalParamProd = cms.EDProducer("MCSignalParamProducer")
+
+###############################################################################
+
 dsaMuPFCandFork = splitPFCandsFromDsaMuon.clone(
     src=cms.InputTag("filteredPFCandsFwdPtr"),
     matched=cms.InputTag("filteredPFCanddSAPtrs"),
@@ -59,7 +65,8 @@ if switches["recoStuff"]["usingCHS"] == False:
 ###############################################################################
 
 ffLeptonJetSeq = cms.Sequence(
-    (filteringPFCands + filteringDsaMuAsPFCand)
+    mcSignalParamProd
+    + (filteringPFCands + filteringDsaMuAsPFCand)
     * ffPFCandsMatchAndMergeSeq
     * ffLeptonJetProd
     * ffLeptonJetFilter
