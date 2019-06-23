@@ -40,7 +40,7 @@ def main():
                 print(_config)
         except Exception as e:
             print("Dataset: ", ds)
-            print("Msg: ", str(e))
+            print("<exception> Msg: ", str(e))
 
     print("\n\n" + "+" * 79)
     print("submitted: {}".format(len(donelist)), *donelist, sep="\n")

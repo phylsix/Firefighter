@@ -8,6 +8,7 @@ LOCAL_DIRECTOR = "root://cmseos.fnal.gov/"
 samples = {
     "signal-4mu": LOCAL_DIRECTOR
     + "/store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_1.root",
+    # "/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/piedpiper/cfg/SIDM_AODSIM.root",
     "signal-2mu2e": LOCAL_DIRECTOR
     + "/store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo2Mu2e_MBs-150_MDp-5_ctau-250/181228_061110/0000/SIDM_AODSIM_1.root",
     "DYTo2L_M10To50": GLOBAL_DIRECTOR

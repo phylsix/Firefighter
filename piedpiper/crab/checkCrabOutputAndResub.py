@@ -109,12 +109,16 @@ def main():
         dataset TEXT
     );"""
     conn = sqlite3.connect(JOB_STATUS_DB)
-    crabTaskListCompleted = []
+    crabTaskListByPass = []
     with conn:
         c = conn.cursor()
         c.execute(sql_table_creation)
         for row in c.execute("SELECT * FROM crabJobStatuses WHERE status='completed'"):
-            crabTaskListCompleted.append(row[0])
+            crabTaskListByPass.append(row[0])
+        for row in c.execute(
+            "SELECT * FROM crabJobStatuses WHERE status='failed-emptycache'"
+        ):
+            crabTaskListByPass.append(row[0])
 
     crabTaskList = [
         os.path.join(CRAB_WORK_DIR, d)
@@ -125,7 +129,7 @@ def main():
         ).days
         < MOST_RECENT_DAYS
     ]
-    crabTaskListToCheck = [t for t in crabTaskList if t not in crabTaskListCompleted]
+    crabTaskListToCheck = [t for t in crabTaskList if t not in crabTaskListByPass]
     print(
         "Checking tasks submmited for most recent {} day(s), total tasks to check: {}. Checking...".format(
             MOST_RECENT_DAYS, len(crabTaskListToCheck)
@@ -133,7 +137,7 @@ def main():
     )
 
     setConsoleLogLevel(LOGLEVEL_MUTE)
-    crabLoggers = getLoggers()
+    # crabLoggers = getLoggers()
 
     crabTaskStatuses = []
     if ASYNC_CHECK:
@@ -184,9 +188,9 @@ def main():
             for t in task_failed + task_tapecall + task_others
         ]
         exceptedTasks = [
-            (t["directory"], "failed", "")
+            (t["directory"], "failed-emptycache", "")
             for t in task_exception
-            if ".requestcache" not in t["msg"]
+            if ".requestcache" in t["msg"]
         ]
         if exceptedTasks:
             print("Number of tasks excepted when querying: ", len(exceptedTasks))
@@ -196,7 +200,7 @@ def main():
             "INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_noncomplete
         )
 
-    print("Trying to resubmit {} task(s) ...".format(len(task_failed)))
+    print("Trying to resubmit {} task(s) ...".format(len(task_failed + task_others)))
     crabResubmitResult = []
     p = ThreadPool()
     r = p.map_async(

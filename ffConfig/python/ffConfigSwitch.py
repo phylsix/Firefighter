@@ -1,10 +1,12 @@
 #!/usr/bin/env python
+from __future__ import print_function
+import json
 
 # controls all switches
 
 switches = {
-    "jobtype": "data_abc",  # {'data_abc', 'data_d', 'sigmc', 'bkgmc'}
-    "region": "control",  # {'all', 'signal', 'control', 'single'}
+    "jobtype": "bkgmc",  # {'data_abc', 'data_d', 'sigmc', 'bkgmc'}
+    "region": "all",  # {'all', 'signal', 'control', 'single'}
     "recoStuff": {"leptonCandOnly": True, "usingCHS": False},
 }
 
@@ -15,3 +17,11 @@ assert (
     switches["recoStuff"]["leptonCandOnly"]
     and switches["recoStuff"]["usingCHS"] is False
 )
+
+print("######################################################################")
+print("############     Firefighter.ffConfig.ffConfigSwitch      ############")
+print("######################################################################")
+print()
+print(json.dumps(switches, indent=4))
+print()
+print("######################################################################")
