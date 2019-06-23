@@ -102,23 +102,27 @@ class ffDataset:
     def sites_for_submission(self):
         """
         keep only T2&T3 sites' countries that actually hold the dataset
-
         """
-        T23 = []
+        disksites = []
         storageSites = self.get_storage_sites()
         for s in storageSites:
             if s.startswith("T2"):
-                T23.append(s)
+                s = str(s)
+                disksites.append(s)
             elif s.startswith("T3"):
-                T23.append(s)
+                disksites.append(s)
+            elif s.startswith("T1") and s.endswith("Disk"):
+                disksites.append(s)
             else:
                 pass
-        res = ["_".join(s.split("_")[:2]) for s in T23]
+        res = ["_".join(s.split("_")[:2]) for s in disksites if not s.startswith("T1")]
         res = [str(s + "_*") for s in set(res)]
+        res.extend([str(s) for s in disksites if s.startswith("T1")])
         if res:
             res.extend(["T2_CH_CERN"])
             if 'T2_US_*' not in res:
                 res.append('T2_US_*')
+            res = [s for s in res if not s.startswith("T1")]
 
         return res
 
@@ -290,20 +294,21 @@ def get_gentemplate(year):
         return genTemplate
 
 
-def get_command(step, year):
+def get_command(step, year, rand=True):
 
     if step.upper() not in ["GEN-SIM", "PREMIX-RAW-HLT", "AODSIM"] or str(year) not in [
         "2016",
         "2017",
         "2018",
     ]:
-        print("Unsupported parameter for get_command(step, year):")
+        print("Unsupported parameter for get_command(step, year, rand=True):")
         print("-- step: {0}".format(step))
         print("-- year: {0}".format(year))
         sys.exit()
 
     step = step.upper()
     year = str(year)
+    randomized = rand
 
     cmd = ""
     cfgOutput = os.path.join(
@@ -338,25 +343,49 @@ def get_command(step, year):
 
         else:
 
-            cmd = " ".join(
-                [
-                    "cmsDriver.py",
-                    "Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py",
-                    "--fileout file:SIDM_GENSIM.root",
-                    "--mc",
-                    "-s LHE,GEN,SIM",
-                    "--era Run2_{0}",
-                    "--nThreads 4",
-                    "--conditions auto:phase1_{0}_realistic",
-                    "--beamspot Realistic25ns13TeVEarly{0}Collision",
-                    "--datatier GEN-SIM",
-                    "--eventcontent RAWSIM",
-                    "-n 10",
-                    "--no_exec",
-                    "--python_filename {1}",
-                    "--customise Configuration/DataProcessing/Utils.addMonitoring",
-                ]
-            ).format(year, cfgOutput)
+            if randomized:
+                cfgOutput = os.path.join(cfgOutput, "SIDM_GENSIM_r_cfg.py")
+                cmd = " ".join(
+                    [
+                        "cmsDriver.py",
+                        "Firefighter/piedpiper/python/randomized_superfragment_cff.py",
+                        "--fileout file:SIDM_GENSIM.root",
+                        "--mc",
+                        "-s GEN,SIM",
+                        "--era Run2_{0}",
+                        "--nThreads 4",
+                        "--conditions auto:phase1_{0}_realistic",
+                        "--beamspot Realistic25ns13TeVEarly{0}Collision",
+                        "--datatier GEN-SIM",
+                        "--eventcontent RAWSIM",
+                        "-n 10",
+                        "--no_exec",
+                        "--python_filename {1}",
+                        "--customise Configuration/DataProcessing/Utils.addMonitoring",
+                        '--customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"'
+                    ]
+                ).format(year, cfgOutput)
+
+            else:
+                cmd = " ".join(
+                    [
+                        "cmsDriver.py",
+                        "Firefighter/piedpiper/python/externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py",
+                        "--fileout file:SIDM_GENSIM.root",
+                        "--mc",
+                        "-s LHE,GEN,SIM",
+                        "--era Run2_{0}",
+                        "--nThreads 4",
+                        "--conditions auto:phase1_{0}_realistic",
+                        "--beamspot Realistic25ns13TeVEarly{0}Collision",
+                        "--datatier GEN-SIM",
+                        "--eventcontent RAWSIM",
+                        "-n 10",
+                        "--no_exec",
+                        "--python_filename {1}",
+                        "--customise Configuration/DataProcessing/Utils.addMonitoring",
+                    ]
+                ).format(year, cfgOutput)
 
     if step == "PREMIX-RAW-HLT":
 
@@ -431,7 +460,8 @@ def get_command(step, year):
                     "--geometry DB:Extended",
                     "--datamix PreMix",
                     "-n -1",
-                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUFull18_102X_upgrade2018_realistic_v11-v1/GEN-SIM-DIGI-RAW"',
+                    # '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUFull18_102X_upgrade2018_realistic_v11-v1/GEN-SIM-DIGI-RAW"',
+                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUAutumn18_102X_upgrade2018_realistic_v15-v1/GEN-SIM-DIGI-RAW"'
                     "--no_exec",
                     "--python_filename {1}",
                     "--customise Configuration/DataProcessing/Utils.addMonitoring",
