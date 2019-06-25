@@ -117,3 +117,5 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_metfilters,
     ),
 )
+
+ffNtupleStat = cms.EDAnalyzer("ffNtupleProcessStats")

@@ -40,3 +40,4 @@ if year == 2016:
     ]
 
 ffNtuplesSeq = cms.Sequence(ffNtuplizer)
+ffNtuplesStatSeq = cms.Sequence(ffNtupleStat)

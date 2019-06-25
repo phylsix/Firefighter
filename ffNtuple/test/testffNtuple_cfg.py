@@ -125,12 +125,20 @@ process.recofilterSeq = cms.Sequence(
 )
 
 process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
+process.stathistory = cms.Path(process.ffNtuplesStatSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.skimOutput)
 
 if options.keepSkim:
     process.schedule = cms.Schedule(
-        process.ntuple_step, process.endjob_step, process.output_step
+        process.stathistory,
+        process.ntuple_step,
+        process.endjob_step,
+        process.output_step,
     )
 else:
-    process.schedule = cms.Schedule(process.ntuple_step, process.endjob_step)
+    process.schedule = cms.Schedule(
+        process.stathistory,
+        process.ntuple_step,
+        process.endjob_step
+    )
