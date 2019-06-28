@@ -5,8 +5,8 @@ import json
 # controls all switches
 
 switches = {
-    "jobtype": "bkgmc",  # {'data_abc', 'data_d', 'sigmc', 'bkgmc'}
-    "region": "all",  # {'all', 'signal', 'control', 'single'}
+    "jobtype": "data_abc",  # {'data_abc', 'data_d', 'sigmc', 'bkgmc'}
+    "region": "control",  # {'all', 'signal', 'control', 'single'}
     "recoStuff": {"leptonCandOnly": True, "usingCHS": False},
 }
 

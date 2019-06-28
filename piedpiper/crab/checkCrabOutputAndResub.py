@@ -136,8 +136,9 @@ def main():
         )
     )
 
-    setConsoleLogLevel(LOGLEVEL_MUTE)
     # crabLoggers = getLoggers()
+    setConsoleLogLevel(LOGLEVEL_MUTE)
+
 
     crabTaskStatuses = []
     if ASYNC_CHECK:
@@ -164,7 +165,7 @@ def main():
             _status = d.get("status", None)
             if _status == "completed":
                 task_completed.append(d)
-            elif _status == "failed":
+            elif _status == "failed" or d['jobsperstatus'].get('failed', None):
                 task_failed.append(d)
             elif _status == "submitfailed":
                 task_submitfailed.append(d)
@@ -200,12 +201,12 @@ def main():
             "INSERT OR REPLACE INTO crabJobStatuses VALUES (?,?,?)", set_noncomplete
         )
 
-    print("Trying to resubmit {} task(s) ...".format(len(task_failed + task_others)))
+    print("Trying to resubmit {} task(s) ...".format(len(task_failed)))
     crabResubmitResult = []
     p = ThreadPool()
     r = p.map_async(
         resubmitSingleTask,
-        task_failed + task_others,
+        task_failed,
         callback=crabResubmitResult.extend,
     )
     r.wait()
@@ -271,7 +272,7 @@ def main():
         if task_submitfailed:
             of.write("Submitfailed tasks: [{}]\n".format(len(task_submitfailed)))
             of.write("===========================\n")
-            print("Follwoing tasks are failed to submit:\n")
+            print("Following tasks are failed to submit:\n")
             for t in task_submitfailed:
                 towrite = "directory: {}\n".format(t["directory"])
                 of.write(towrite)
@@ -312,9 +313,11 @@ def main():
         if resubTaskFail:
             of.write("Failed resubmitted tasks: [{}]\n".format(len(resubTaskFail)))
             of.write("==============================\n")
+            print("Following tasks are failed to resubmit:\n")
             for d in resubTaskFail:
                 of.write(d["directory"] + "\n")
                 of.write(d["exceptionMsg"] + "\n\n")
+                print("crab resubmit -d {}".format(d["directory"]))
             of.write("-" * 79 + "\n\n")
 
 

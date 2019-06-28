@@ -10,6 +10,9 @@ from CRABAPI.RawCommand import crabCommand
 from Firefighter.piedpiper.utils import ffDataset, adapt_config_with_dataset
 from crabConfig import config, year
 
+# make sure you see the switch options
+from Firefighter.ffConfig.ffConfigSwitch import switches
+
 doCmd = True
 CONFIG_NAME = sys.argv[1]
 
@@ -31,6 +34,21 @@ def main():
     for ds in datasets:
         try:
             thisData = ffDataset(ds, year)
+            if thisData.isSignalMC and switches["jobtype"] is not "sigmc":
+                sys.exit(
+                    "!! job type does NOT match: dataset is signalMC while config is for",
+                    switches["jobtype"],
+                )
+            if thisData.isBackgroundMC and switches["jobtype"] is not "bkgmc":
+                sys.exit(
+                    "!! job type does NOT match: dataset is backgroundMC while config is for",
+                    switches["jobtype"],
+                )
+            if thisData.isData and not switches["jobtype"].startswith("data"):
+                sys.exit(
+                    "!! job type does NOT match: dataset is data while config is for",
+                    switches["jobtype"],
+                )
             _config = adapt_config_with_dataset(config, thisData)
 
             if doCmd:

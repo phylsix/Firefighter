@@ -29,7 +29,7 @@ config.General.transferLogs = False
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = os.path.join(BASEDIR, "cfg/ffNtupleFromAOD_cfg.py")
 config.JobType.numCores = 2
-config.JobType.maxMemoryMB = 2500
+config.JobType.maxMemoryMB = 2000
 config.JobType.disableAutomaticOutputCollection = False
 
 config.Data.inputDataset = ""

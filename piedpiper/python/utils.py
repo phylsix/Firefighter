@@ -106,8 +106,8 @@ class ffDataset:
         disksites = []
         storageSites = self.get_storage_sites()
         for s in storageSites:
+            s = str(s)
             if s.startswith("T2"):
-                s = str(s)
                 disksites.append(s)
             elif s.startswith("T3"):
                 disksites.append(s)
@@ -119,9 +119,11 @@ class ffDataset:
         res = [str(s + "_*") for s in set(res)]
         res.extend([str(s) for s in disksites if s.startswith("T1")])
         if res:
-            res.extend(["T2_CH_CERN"])
+            # res.extend(["T2_CH_CERN"])
             if 'T2_US_*' not in res:
                 res.append('T2_US_*')
+            if 'T3_US_FNALLPC' not in res:
+                res.append('T3_US_FNALLPC')
             res = [s for s in res if not s.startswith("T1")]
 
         return res
