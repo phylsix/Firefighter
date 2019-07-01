@@ -10,8 +10,3 @@ alias fftestqcd='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_QCDpT300To47
 alias fftestdy='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_DYJetsM50.yml'
 alias fftestdatac='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018C.yml'
 alias fftestdatad='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018D.yml'
-
-alias fftestgitlabcisig4mu='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_GitLabCI_signal-4mu.yml'
-alias fftestgitlabcisig2mu2e='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_GitLabCI_signal-2mu2e.yml'
-alias fftestgitlabcizz='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_GitLabCI_ZZ.yml'
-alias fftestgitlabcidatac='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_GitLabCI_DoubleMuon2018C.yml'
