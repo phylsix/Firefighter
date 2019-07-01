@@ -41,7 +41,7 @@ def submit(dkind):
         get_voms_certificate()
 
         for ds in ffds_sigmc:
-            cb = configBuilder(ds)
+            cb = configBuilder(ds, eventRegion="all")
             for c in cb.build():
                 configBuilder.submit(c)
 
@@ -66,12 +66,12 @@ def submit(dkind):
             if any(
                 map(lambda d: get_storageSites(d), ds["datasetNames"])
             ):  # condor, this way
-                cb = CondorCB(ds)
+                cb = CondorCB(ds, eventRegion="all")
                 for c in cb.build():
                     CondorCB.submit(c)
             else:  # crab, this way
                 diskGhosts.append(BKGMC_L[i])
-                cb = CrabCB(ds)
+                cb = CrabCB(ds, eventRegion="all")
                 for c in cb.build():
                     CrabCB.submit(c)
 
@@ -103,7 +103,7 @@ def submit(dkind):
         get_voms_certificate()
 
         for ds in ffds_data:
-            cb = configBuilder(ds)
+            cb = configBuilder(ds, eventRegion="control")
             for c in cb.build():
                 configBuilder.submit(c)
 
