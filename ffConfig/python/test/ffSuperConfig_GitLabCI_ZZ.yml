@@ -1,0 +1,19 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 1
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_upgrade2018_realistic_v18"
+
+data-spec:
+  inputFileList: ["file:ZZ_numEvent300.root"]
+  maxEvents: -1
+  outputFileName: "ffNtuple_ZZ.root"
+  lumiMask: ""
+  dataType: "bkgmc"
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"

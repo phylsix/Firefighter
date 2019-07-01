@@ -2,14 +2,20 @@
 *.log
 *.root
 *.tar.xz
-*.yml
+*.tar.gz
 .vscode
 *.sqlite
 *.png
 messages.txt
 nohup.out
 crabWorkArea
+condorGarage
+crabGarage
 .fuse*
+docker_stderror
+
+/ffConfig/crab/*.yml
+/piedpiper/crab/*.yml
 
 !/ffConfig/crab/multicrabConfig_bkgMC.yml
 !/ffConfig/crab/multicrabConfig_sigMC.yml

@@ -9,7 +9,8 @@ from Firefighter.recoStuff.PFCandMerger_cfi import pfcandfwdptrmerger as _pfcand
 from Firefighter.recoStuff.JetConstituentSubtractor_cfi import (
     jetconstituentsubtractor as _jetconstituentsubtractor,
 )
-from Firefighter.ffConfig.ffConfigSwitch import switches
+
+# from Firefighter.ffConfig.ffConfigSwitch import switches
 
 
 from RecoJets.Configuration.RecoPFJets_cff import ak4PFJets
@@ -58,9 +59,12 @@ ffLeptonJetFilter = cms.Sequence(
     ffLeptonJetFwdPtrs + filteredLeptonJet + ffLeptonJetCountFilter
 )
 
-if switches["recoStuff"]["usingCHS"] == False:
-    ffLeptonJet = ffLeptonJetCHS.clone()
-    ffLeptonJetProd = cms.Sequence(ffLeptonJet)
+# if switches["recoStuff"]["usingCHS"] == False:
+#     ffLeptonJet = ffLeptonJetCHS.clone()
+#     ffLeptonJetProd = cms.Sequence(ffLeptonJet)
+
+ffLeptonJetHadFree = ffLeptonJetCHS.clone()
+ffLeptonJetProd_hadFree = cms.Sequence(ffLeptonJetHadFree)
 
 ###############################################################################
 

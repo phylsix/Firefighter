@@ -1,0 +1,22 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 8
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_upgrade2018_realistic_v18"
+
+data-spec:
+  inputFileList:
+    [
+      "root://xrootd.unl.edu//store/mc/RunIIAutumn18DRPremix/ZZ_TuneCP5_13TeV-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v2/110000/1BE38E5F-9F8A-3C47-9AEE-0CFD8D5E2EF1.root",
+    ]
+  maxEvents: 50
+  outputFileName: "ffNtuple_ZZ.root"
+  lumiMask: ""
+  dataType: "bkgmc"
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"

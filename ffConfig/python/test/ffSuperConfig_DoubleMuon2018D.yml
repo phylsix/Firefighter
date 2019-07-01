@@ -1,0 +1,22 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 8
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_dataRun2_Prompt_v13"
+
+data-spec:
+  inputFileList:
+    [
+      "root://xrootd.unl.edu//store/data/Run2018D/DoubleMuon/AOD/PromptReco-v2/000/325/022/00000/E8C70B3B-F319-8642-BBC1-E39535EFBDA9.root",
+    ]
+  maxEvents: 50
+  outputFileName: "ffNtuple_DoubleMuon2018D.root"
+  lumiMask: ""
+  dataType: "data"
+
+reco-spec:
+  eventRegion: "control"
+  leptonJetCandStrategy: "hadronFree"

@@ -1,0 +1,19 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 1
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_upgrade2018_realistic_v18"
+
+data-spec:
+  inputFileList: ["file:SIDM_2mu2e.root"]
+  maxEvents: -1
+  outputFileName: "ffNtuple_signal-2mu2e.root"
+  lumiMask: ""
+  dataType: "sigmc"
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"

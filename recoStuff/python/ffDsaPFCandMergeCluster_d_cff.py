@@ -38,7 +38,8 @@ if year == 2018:
         "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4",
     )
 
-ffLeptonJetSeq._seq._collection.insert(0, hltfilter)
+# ffLeptonJetSeq._seq._collection.insert(0, hltfilter)
+ffLeptonJetSeq.insert(0, hltfilter)
 
 
 def _isModule(m):
@@ -54,9 +55,11 @@ def removeModuleFromSeq(seq, cond):
         if _isModule(_m) and cond(_m):
             seq.remove(_m)
         elif _isSequence(_m):
-            removeModuleFromSeq(_m, cond)
+            if _m._seq:
+                removeModuleFromSeq(_m, cond)
 
 
 removeMCMods = lambda m: m.type_().startswith("MC")
 
+# print ffLeptonJetSeq.dumpSequencePython()
 removeModuleFromSeq(ffLeptonJetSeq, removeMCMods)
