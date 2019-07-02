@@ -3,7 +3,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 import os
 import yaml
-from os.path import join, abspath, dirname
+from os.path import join
 from Firefighter.ffConfig.ffChainConstruction import decorateProcessFF
 
 options = VarParsing.VarParsing("analysis")

@@ -6,15 +6,14 @@ spawn ready-to-submit crab job configs per dataset.
 import os
 import time
 from os.path import join
+
 import yaml
-from CRABClient.UserUtilities import getUsernameFromSiteDB
-from CRABClient.UserUtilities import config as Config
 from CRABAPI.RawCommand import crabCommand
-from Firefighter.ffConfig.datasetUtils import (
-    get_primaryDatasetName,
-    get_nametag,
-    get_submissionSites,
-)
+from CRABClient.UserUtilities import config as Config
+from CRABClient.UserUtilities import getUsernameFromSiteDB
+from Firefighter.ffConfig.datasetUtils import (get_nametag,
+                                               get_primaryDatasetName,
+                                               get_submissionSites)
 
 
 class configBuilder:
