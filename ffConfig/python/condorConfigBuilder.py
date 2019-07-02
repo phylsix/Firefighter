@@ -3,12 +3,15 @@
 spawn ready-to-submit condor job configs per ffDataSet.
 """
 from __future__ import print_function
+
 import os
 import time
 from os.path import join
-import yaml
-from Firefighter.ffConfig.datasetUtils import get_primaryDatasetName, get_nametag, get_submissionSites, get_datasetType
 
+import yaml
+from Firefighter.ffConfig.datasetUtils import (get_datasetType, get_nametag,
+                                               get_primaryDatasetName,
+                                               get_submissionSites)
 
 # replaced vars: FFSUPERCONFIGDIR, CMSSWVER
 CONDORJDL = """\

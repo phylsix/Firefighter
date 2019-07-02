@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
+import importlib
+import json
 import os
 import sys
-from os.path import join
 import time
-import json
-import importlib
+from os.path import join
 
 PRODUCTIONBASE = join(
     os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/"
@@ -113,5 +114,5 @@ def submit(dkind):
 
 
 if __name__ == "__main__":
-    print("ffJobSubmitter is working..")
+    print(">>> I am Mr. ffBatchJobSubmitter <<<")
     submit(sys.argv[1])
