@@ -112,7 +112,7 @@ class configBuilder:
             ),
             "data-spec": dict(
                 maxEvents=self.ffdataset_['maxEvents'],
-                lumiMask=self.ffdataset_['lumiMask'],
+                lumiMask=self.ffdataset_.get('lumiMask', None),
             ),
             "reco-spec": dict(
                 eventRegion=self.specs_['eventRegion'],
