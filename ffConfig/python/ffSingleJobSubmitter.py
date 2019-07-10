@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+"""submit job for a single dataset
+"""
 from __future__ import print_function
 
 import importlib
@@ -9,7 +11,8 @@ PRODUCTIONBASE = join(
     os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/"
 )
 
-tosubd_ = "Firefighter.ffConfig.production.Autumn18.data.DoubleMuon_Run2018A"
+# tosubd_ = "Firefighter.ffConfig.production.Autumn18.data.DoubleMuon_Run2018A"
+tosubd_ = "Firefighter.ffConfig.production.Autumn18.bkgmc.TTJets_TuneCP5_13TeV-madgraphMLM-pythia8"
 print(tosubd_)
 
 
@@ -24,10 +27,11 @@ def main():
     )
     get_voms_certificate()
 
-    cb = configBuilder(tosubdff, eventRegion="control")
+    cb = configBuilder(tosubdff, eventRegion="all")
     for c in cb.build():
         configBuilder.submit(c)
 
 
 if __name__ == "__main__":
+    print(">>> I am Mr. ffSingleJobSubmitter <<<")
     main()

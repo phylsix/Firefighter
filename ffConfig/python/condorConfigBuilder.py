@@ -13,7 +13,7 @@ from Firefighter.ffConfig.datasetUtils import (get_datasetType, get_nametag,
                                                get_primaryDatasetName,
                                                get_submissionSites)
 
-# replaced vars: FFSUPERCONFIGDIR, CMSSWVER
+# replaced vars: FFSUPERCONFIGDIR, CMSSWVER, JOBIDLIST
 CONDORJDL = """\
 universe = vanilla
 +REQUIRED_OS = "rhel6"
@@ -21,13 +21,17 @@ universe = vanilla
 Executable = FFSUPERCONFIGDIR/ffCondor.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = FFSUPERCONFIGDIR/ffCondor.sh, $(ffsuperconfig), CMSSWVER.tar.gz
-Output = FFSUPERCONFIGDIR/ffCondor_$(Process).stdout
-Error = FFSUPERCONFIGDIR/ffCondor_$(Process).stderr
-Log = FFSUPERCONFIGDIR/ffCondor_$(Process).log
+Transfer_Input_Files = FFSUPERCONFIGDIR/ffCondor.sh, FFSUPERCONFIGDIR/ffSuperConfig_$(jobid).yml, CMSSWVER.tar.gz
+Output = FFSUPERCONFIGDIR/ffCondor_$(jobid).stdout
+Error = FFSUPERCONFIGDIR/ffCondor_$(jobid).stderr
+Log = FFSUPERCONFIGDIR/ffCondor_$(jobid).log
 x509userproxy = $ENV(X509_USER_PROXY)
-Arguments = $(ffsuperconfig)
-queue ffsuperconfig matching files FFSUPERCONFIGDIR/*.yml"""
+Arguments = FFSUPERCONFIGDIR/ffSuperConfig_$(jobid).yml
+want_graceful_removal = true
+on_exit_remove = (ExitBySignal == False) && (ExitCode == 0)
+on_exit_hold = ( (ExitBySignal == True) || (ExitCode != 0) )
+on_exit_hold_reason = strcat("Job held by ON_EXIT_HOLD due to ", ifThenElse((ExitBySignal == True), "exit by signal", strcat("exit code ",ExitCode)), ".")
+queue 1 jobid in JOBIDLIST"""
 
 
 # replaced vars; CMSSWVER, OUTPUTBASE
@@ -50,7 +54,15 @@ eval `scramv1 runtime -sh`
 echo "CMSSW: "$CMSSW_BASE
 YMLCFG=`basename $1`
 echo "Argument ffSuperConfig is: $YMLCFG"
-cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CWD/$YMLCFG
+cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CWD/$YMLCFG 2>&1
+
+CMSEXIT=$?
+if [[ $CMSEXIT -ne 0 ]]; then
+	rm *.root
+	echo "exit code $CMSEXIT, skipping xrdcp"
+	exit $CMSEXIT
+fi
+
 echo "List all root files = "
 ls -alrth *.root
 echo "List all files"
@@ -142,7 +154,8 @@ class configBuilder:
             ## set up condor jdl ##
             condorjdlFn = join(jobdir, 'condor.jdl')
             condorjdl = CONDORJDL.replace('FFSUPERCONFIGDIR', jobdir)\
-                                 .replace('CMSSWVER', os.getenv('CMSSW_VERSION'))
+                                 .replace('CMSSWVER', os.getenv('CMSSW_VERSION'))\
+                                 .replace('JOBIDLIST', str(tuple(range(len(splittedjobs)))) )
             with open(condorjdlFn, 'w') as outf: outf.write(condorjdl)
 
             ## set up executable script ##
@@ -154,9 +167,9 @@ class configBuilder:
 
             for i, jf in enumerate(splittedjobs):
                 ## finalize ffSuperConfig for each jobs ##
-                ffscFn = join(jobdir, 'ffSuperConfig_{0:05d}.yml'.format(i))
+                ffscFn = join(jobdir, 'ffSuperConfig_{0}.yml'.format(i))
                 ffsc['data-spec']['inputFileList'] = [self.specs_['redirector'] + f for f in jf]
-                ffsc['data-spec']['outputFileName'] = self.specs_['outputFileName'].split('.')[0] + '_{0:05d}.root'.format(i)
+                ffsc['data-spec']['outputFileName'] = self.specs_['outputFileName'].split('.')[0] + '_{0}.root'.format(i)
                 with open(ffscFn, 'w') as outf:
                     outf.write(yaml.dump(ffsc, default_flow_style=False))
 
