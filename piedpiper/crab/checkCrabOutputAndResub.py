@@ -91,7 +91,7 @@ def resubmitSingleTask(checkdict):
         and checkdict.get("jobsperstatus", {}).get("killed", 0) == 0
     ):
         try:
-            crabCommand("resubmit", dir=_dir, numcores='1', maxmemory='2000', sitewhitelist='T3_US_FNALLPC')
+            crabCommand("resubmit", dir=_dir, numcores='1', maxmemory='2000', sitewhitelist='T2_US_*,T3_US_FNALLPC')
         except Exception as e:
             res["exceptionMsg"] = str(e)
             res["success"] = False

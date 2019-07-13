@@ -13,7 +13,11 @@
     "Firefighter.ffConfig.production.Autumn18.bkgmc.QCD_Pt-600to800_MuEnrichedPt5_TuneCP5_13TeV_pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.QCD_Pt-800to1000_MuEnrichedPt5_TuneCP5_13TeV_pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.QCD_Pt-80to120_MuEnrichedPt5_TuneCP5_13TeV_pythia8", 
-    "Firefighter.ffConfig.production.Autumn18.bkgmc.TTJets_TuneCP5_13TeV-madgraphMLM-pythia8", 
+    "Firefighter.ffConfig.production.Autumn18.bkgmc.ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8", 
+    "Firefighter.ffConfig.production.Autumn18.bkgmc.ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8", 
+    "Firefighter.ffConfig.production.Autumn18.bkgmc.TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8", 
+    "Firefighter.ffConfig.production.Autumn18.bkgmc.TTToHadronic_TuneCP5_13TeV-powheg-pythia8", 
+    "Firefighter.ffConfig.production.Autumn18.bkgmc.TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.WGG_5f_TuneCP5_13TeV-amcatnlo-pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8", 
@@ -32,5 +36,4 @@
     "Firefighter.ffConfig.production.Autumn18.bkgmc.WZ_TuneCP5_13TeV-pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.ZZZ_TuneCP5_13TeV-amcatnlo-pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.ZZ_TuneCP5_13TeV-pythia8", 
-    "Firefighter.ffConfig.production.Autumn18.bkgmc.ttWJets_TuneCP5_13TeV_madgraphMLM_pythia8"
 ]
