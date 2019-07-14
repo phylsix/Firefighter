@@ -11,3 +11,4 @@ PointerAlignment: Left
 SpacesInParentheses: 'true'
 SpacesInSquareBrackets: 'true'
 Standard: Cpp11
+ColumnLimit: 0
