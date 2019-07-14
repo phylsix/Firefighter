@@ -84,6 +84,12 @@ ntuple_hftagscore = cms.PSet(
     deepcsv_c=cms.InputTag("pfDeepCSVJetTags", "probc"),
     deepcsv_udsg=cms.InputTag("pfDeepCSVJetTags", "probudsg"),
     csvv2_b=cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+    deepflavour_b=cms.InputTag('pfDeepFlavourJetTags', 'probb'),
+    deepflavour_bb=cms.InputTag('pfDeepFlavourJetTags', 'probbb'),
+    deepflavour_lepb=cms.InputTag('pfDeepFlavourJetTags', 'problepb'),
+    deepflavour_uds=cms.InputTag('pfDeepFlavourJetTags', 'probuds'),
+    deepflavour_c=cms.InputTag('pfDeepFlavourJetTags', 'probc'),
+    deepflavour_g=cms.InputTag('pfDeepFlavourJetTags', 'probg')
 )
 
 ntuple_muontiming = cms.PSet(
@@ -97,6 +103,8 @@ ntuple_beamhalo = cms.PSet(
 )
 
 ntuple_metfilters = cms.PSet(NtupleName=cms.string("ffNtupleMetFilters"))
+
+
 
 ffNtuplizer = cms.EDAnalyzer(
     "ffNtupleManager",

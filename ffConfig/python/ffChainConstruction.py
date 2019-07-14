@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 
-def decorateProcessFF(process, ffConfig):
+def decorateProcessFF(process, ffConfig, keepskim=False):
     """Attach Firefighter RECO, ntuple -specific to the `process`, configure
     them with `ffConfig`
     """
@@ -11,12 +11,14 @@ def decorateProcessFF(process, ffConfig):
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
+    process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
 
     process.recofilterSeq = cms.Sequence(
         process.ffBeginEventFilteringSeq
         + process.ffLeptonJetSeq
         + process.ffMetFilterSeq
+        + process.ffDeepFlavourSeq
         + process.ffEndEventFilteringSeq
     )
 
@@ -25,8 +27,20 @@ def decorateProcessFF(process, ffConfig):
     process.endjob_step = cms.EndPath(process.endOfProcess)
 
     process.schedule = cms.Schedule(
-        process.stathistory, process.ntuple_step, process.endjob_step
+        process.stathistory,
+        process.ntuple_step,
+        process.endjob_step,
     )
+
+    if keepskim:
+        process.load("Firefighter.recoStuff.skimOutput_cfi")
+        process.output_step = cms.EndPath(process.skimOutput)
+        process.schedule = cms.Schedule(
+            process.stathistory,
+            process.ntuple_step,
+            process.endjob_step,
+            process.output_step,
+        )
 
     ###########################################################################
     ##                             non signal-mc                             ##
