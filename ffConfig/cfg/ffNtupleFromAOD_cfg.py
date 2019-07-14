@@ -17,6 +17,13 @@ options.register(
     VarParsing.VarParsing.varType.string,
     "Path to ffSuperConfig.yml",
 )
+options.register(
+    "keepskim",
+    0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.int,
+    "Wheter to keep skim output.",
+)
 options.parseArguments()
 ffConfig = yaml.safe_load(open(options.config))
 
@@ -67,4 +74,4 @@ process.TFileService = cms.Service(
 )
 
 
-process = decorateProcessFF(process, ffConfig)
+process = decorateProcessFF(process, ffConfig, keepskim=options.keepskim)
