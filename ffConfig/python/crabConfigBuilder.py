@@ -110,7 +110,6 @@ class configBuilder:
 
             if ds.endswith("USER"):  # sigmc/private
                 ffsc["data-spec"]["dataType"] = "sigmc"
-                config.Data.ignoreLocality = False
                 config.Site.whitelist = ["T3_US_FNALLPC", "T3_US_*", "T2_US_*"]
             elif ds.endswith("AODSIM"):  # bkgmc
                 ffsc["data-spec"]["dataType"] = "bkgmc"
