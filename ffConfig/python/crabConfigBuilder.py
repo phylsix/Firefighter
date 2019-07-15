@@ -1,19 +1,21 @@
 #!/usr/bin/env python
 """crabConfigBuilder takes an ffDataSet config and addtional kwargs. It will
-spawn ready-to-submit crab job configs per dataset.
+spawn path to ready-to-submit crab job configs per dataset.
 """
+from __future__ import print_function
 
 import os
 import time
 from os.path import join
 
 import yaml
-from CRABAPI.RawCommand import crabCommand
 from CRABClient.UserUtilities import config as Config
 from CRABClient.UserUtilities import getUsernameFromSiteDB
-from Firefighter.ffConfig.datasetUtils import (get_nametag,
-                                               get_primaryDatasetName,
-                                               get_submissionSites)
+from Firefighter.ffConfig.datasetUtils import (
+    get_nametag,
+    get_primaryDatasetName,
+    get_submissionSites,
+)
 
 
 class configBuilder:
@@ -135,12 +137,17 @@ class configBuilder:
             with open(ffscFn, "w") as outf:
                 outf.write(yaml.dump(ffsc, default_flow_style=False))
             config.JobType.pyCfgParams = ["config={0}".format(ffscFn)]
-            # config.JobType.inputFiles = [ffscFn]
 
-            res.append(config)
+            ## dump crab config file ##
+            ffCrabCfgFn = ffscFn.split(".")[0].replace("ffSuperConfig", "crab") + ".py"
+            with open(ffCrabCfgFn, "w") as outf:
+                outf.write(str(config))
+
+            res.append(ffCrabCfgFn)
 
         return res
 
     @classmethod
     def submit(cls, crabconfig):
-        crabCommand("submit", config=crabconfig)
+        print("$crab submit -c", crabconfig)
+        os.system("crab submit -c {0}".format(crabconfig))
