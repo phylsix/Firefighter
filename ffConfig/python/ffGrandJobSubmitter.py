@@ -18,14 +18,10 @@ import time
 from os.path import join
 
 
-PRODUCTIONBASE = join(
-    os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/"
-)
+PRODUCTIONBASE = join(os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/")
 DATA_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/data/description.json")))
 BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/bkgmc/description.json")))
-SIGMC_L = json.load(
-    open(join(PRODUCTIONBASE, "Autumn18/sigmc/private/description.json"))
-)
+SIGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/sigmc/private/description.json")))
 
 ## all datasets
 ffds = {
@@ -36,16 +32,11 @@ ffds = {
 
 ## parser
 parser = argparse.ArgumentParser(description="Submit jobs in a GRAND way.")
-parser.add_argument(
-    "datasettype",
-    type=str,
-    nargs="*",
-    choices=["sigmc", "bkgmc", "data"],
-    help="Type of dataset",
-)
-parser.add_argument(
-    "--submitter", "-s", default="condor", type=str, choices=["condor", "crab"]
-)
+parser.add_argument("datasettype", type=str, nargs="*",
+                    choices=["sigmc", "bkgmc", "data"],
+                    help="Type of dataset",)
+parser.add_argument("--submitter", "-s", default="condor", type=str,
+                    choices=["condor", "crab"])
 args = parser.parse_args()
 
 # ------------------------------------------------------------------------------
@@ -102,18 +93,14 @@ def submit(dkind, submitter="condor"):
         if dkind == "data":
             _eventregion = "control"  # only control for data now.
 
-        os.system(
-            "tar -X EXCLUDEPATTERNS --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION}"
-        )
+        os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION}")
         get_voms_certificate()
 
         if dkind == "bkgmc":  # only background mc has dataset not on disk
             diskGhosts = []
             for i, ds in enumerate(ffds[dkind]):
                 print("----> submitting {0}/{1}".format(i, len(ffds[dkind]) - 1))
-                if any(
-                    map(lambda d: get_storageSites(d), ds["datasetNames"])
-                ):  # condor, this way
+                if any(map(lambda d: get_storageSites(d), ds["datasetNames"])):  # condor, this way
                     cb = CondorCB(ds, eventRegion=_eventregion)
                     for c in cb.build():
                         CondorCB.submit(c)
@@ -123,11 +110,7 @@ def submit(dkind, submitter="condor"):
                     for c in cb.build():
                         CrabCB.submit(c)
             if diskGhosts:
-                print(
-                    "@@@ {0} bkgmc ffDataSets not available on disk, thus submitted to CRAB.".format(
-                        len(diskGhosts)
-                    )
-                )
+                print("@@@ {0} bkgmc ffDataSets not available on disk, thus submitted to CRAB.".format(len(diskGhosts)))
                 for ffd in diskGhosts:
                     print("@", ffd)
                 logfn = "diskGhosts_{}.log".format(time.strftime("%y%m%d"))
