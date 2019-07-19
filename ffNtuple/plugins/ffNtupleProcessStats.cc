@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "TH1.h"
 #include "TTree.h"
@@ -30,6 +31,8 @@ class ffNtupleProcessStats
   virtual void endRun( const edm::Run&, const edm::EventSetup& ) override {}
   virtual void endJob() override {}
 
+  edm::EDGetToken fGenProductToken;
+
   edm::Service<TFileService> fs;
   TH1I*                      fHisto;
   TTree*                     fTree;
@@ -40,15 +43,15 @@ class ffNtupleProcessStats
 
 ffNtupleProcessStats::ffNtupleProcessStats( const edm::ParameterSet& ps ) {
   usesResource( "TFileService" );
+  fGenProductToken = consumes<GenEventInfoProduct>( edm::InputTag( "generator" ) );
 }
 
 ffNtupleProcessStats::~ffNtupleProcessStats() {}
 
 void
 ffNtupleProcessStats::beginJob() {
-  fHisto = fs->make<TH1I>(
-      "history", "processed statistics;run:lumi:event;counts", 3, 0, 3 );
-  fTree = fs->make<TTree>( "runlumi", "" );
+  fHisto = fs->make<TH1I>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
+  fTree  = fs->make<TTree>( "runlumi", "" );
   fTree->Branch( "run", &fRun );
   fTree->Branch( "lumi", &fLumi );
 }
@@ -70,6 +73,11 @@ void
 ffNtupleProcessStats::analyze( const edm::Event&      e,
                                const edm::EventSetup& es ) {
   fHisto->Fill( 2 );
+
+  edm::Handle<GenEventInfoProduct> genProductHdl;
+  e.getByToken( fGenProductToken, genProductHdl );
+  auto weight = genProductHdl.isValid() ? genProductHdl->weight() : 0;
+  fHisto->Fill( 3, weight );  // this is filling sum of genwgt
 }
 
 void

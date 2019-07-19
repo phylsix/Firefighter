@@ -64,9 +64,18 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
             [
                 x
                 for x in process.ffNtuplizer.Ntuples
-                if "gen" not in x.NtupleName.value().lower()
+                if x.NtupleName.value()!="ffNtupleGen"
             ]
         )
+
+        if ffConfig["data-spec"]["dataType"] == "data":
+            process.ffNtuplizer.Ntuples = cms.VPSet(
+                [
+                    x
+                    for x in process.ffNtuplizer.Ntuples
+                    if 'gen' not in x.NtupleName.value().lower()
+                ]
+            )
 
     ###########################################################################
     ##                              event region                             ##

@@ -72,7 +72,7 @@ def displaystatus(submissiondir, queryresult):
         print("** {} **".format(stat))
         for d in queryresult:
             if queryresult[d]['status'] != stat: continue
-            print("{:40}    {}".format(d, str(queryresult[d]['jobsPerStatus'])))
+            print("{:120}    {}".format(d, str(queryresult[d]['jobsPerStatus'])))
         print()
 
 
