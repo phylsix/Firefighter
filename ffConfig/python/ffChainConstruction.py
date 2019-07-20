@@ -60,6 +60,7 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
             process.ffLeptonJetSeq.remove(m)
 
         ## exclude gen branches from ffNtupling ##
+        ## background MC will exclude gen particle part
         process.ffNtuplizer.Ntuples = cms.VPSet(
             [
                 x
@@ -68,6 +69,7 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
             ]
         )
 
+        ## data will exclude any gen- related branches
         if ffConfig["data-spec"]["dataType"] == "data":
             process.ffNtuplizer.Ntuples = cms.VPSet(
                 [
