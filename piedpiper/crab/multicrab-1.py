@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
 import os
-import yaml
+import sys
 import time
 
+import yaml
 from CRABAPI.RawCommand import crabCommand
-from Firefighter.piedpiper.utils import *
 from crabConfig_1 import *
+from Firefighter.piedpiper.utils import *
 
 doCmd = True
-CONFIG_NAME = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "multicrabConfig-1.yml"
-)
+CONFIG_NAME = sys.argv[1]
+assert(os.path.isfile(CONFIG_NAME))
 
 
 def main():
@@ -27,10 +28,7 @@ def main():
 
     inputdatasets = multiconf["gensimdatasets"]
     year = multiconf["year"]
-    # config.Data.outLFNDirBase += '/{0}'.format(year)
-    config.Data.outLFNDirBase = "/store/group/lpcmetx/MCSIDM/PREMIXRAWHLT/{0}".format(
-        year
-    )
+    config.Data.outLFNDirBase = "/store/group/lpcmetx/MCSIDM/PREMIXRAWHLT/{0}".format(year)
 
     memreq = 15100 if year == 2018 else 6000
     config.JobType.maxMemoryMB = memreq
@@ -39,21 +37,22 @@ def main():
     donelist = list()
     for ds in inputdatasets:
 
-        mxx, ma, ctau = get_param_from_dataset(ds)
-        nametag = "mXX-{0}_mA-{1}_ctau-{2}_PREMIXRAWHLT_{3}".format(
-            floatpfy(mxx), floatpfy(ma), floatpfy(ctau), year
-        )
-        # this is fix for previous non-careful naming convention
-        if "CRAB_PrivateMC" in ds:
-            pd = ds.split("/")[-2].split("_")[1].replace("Bs", "XX").replace("Dp", "A")
-            nametag = pd + "_" + nametag
         print("dataset: ", ds)
-        print("nametag: ", nametag)
         config.Data.inputDataset = ds
+
+        ## outputDatasetTag: mXX-1000_mA-0p25_lxy-0p3_ctau-0p001875_PREMIXRAWHLT_2018
+        nametag = '-'.join(ds.split('/')[2].split('-')[1:-1])
+        nametag = nametag.replace('GENSIM', 'PREMIXRAWHLT')
+        print("nametag: ", nametag)
         config.Data.outputDatasetTag = nametag
-        config.General.requestName = "_".join(
-            ["PREMIXRAWHLT", str(year), nametag, time.strftime("%y%m%d-%H%M%S")]
-        )
+
+        ## requestName
+        primaryDatasetTag = ds.split('/')[1]
+        config.General.requestName = "_".join([
+            primaryDatasetTag,
+            config.Data.outputDatasetTag,
+            time.strftime("%y%m%d-%H%M%S")
+        ])
 
         if doCmd:
             crabCommand("submit", config=config)

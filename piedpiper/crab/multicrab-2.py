@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
 import os
-import yaml
+import sys
 import time
 
+import yaml
 from CRABAPI.RawCommand import crabCommand
-from Firefighter.piedpiper.utils import *
 from crabConfig_2 import *
+from Firefighter.piedpiper.utils import *
 
 doCmd = True
-CONFIG_NAME = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "multicrabConfig-2.yml"
-)
+CONFIG_NAME = sys.argv[1]
+assert os.path.isfile(CONFIG_NAME)
 
 
 def main():
@@ -27,8 +28,6 @@ def main():
 
     inputdatasets = multiconf["premixdigihltdatasets"]
     year = multiconf["year"]
-    # manualdatasets = multiconf['manual']
-    # config.Data.outLFNDirBase += '/{0}'.format(year)
     config.Data.outLFNDirBase = "/store/group/lpcmetx/MCSIDM/AODSIM/{0}".format(year)
 
     memreq = 15100 if year == 2018 else 6000
@@ -38,25 +37,18 @@ def main():
     donelist = list()
     for ds in inputdatasets:
 
-        nametag = (
-            ds.split("/")[-2]
-            .split("-", 1)[-1]
-            .rsplit("-", 1)[0]
-            .replace("PREMIXRAWHLT", "AODSIM")
-        )
-        pd = ds.split("/")[1]
-        # this is fix for previous non-careful naming convention
-        if "CRAB_PrivateMC" in ds:
-            nametag = (
-                ds.split("/")[-2].rsplit("-", 1)[0].replace("PREMIXRAWHLT", "AODSIM")
-            )
         print("dataset: ", ds)
-        print("nametag: ", nametag)
-        print("primarydataset: ", pd)
         config.Data.inputDataset = ds
+
+        ## outputDatasetTag: mXX-100_mA-5_lxy-0p3_ctau-0p375_AODSIM_2018
+        nametag = "-".join(ds.split("/")[2].split("-")[1:-1])
+        nametag = nametag.replace("PREMIXRAWHLT", "AODSIM")
         config.Data.outputDatasetTag = nametag
+
+        ## requestName
+        primaryDatasetTag = ds.split("/")[1]
         config.General.requestName = "_".join(
-            ["AODSIM", str(year), pd, nametag, time.strftime("%y%m%d-%H%M%S")]
+            [primaryDatasetTag, config.Data.outputDatasetTag, time.strftime("%y%m%d-%H%M%S")]
         )
 
         if doCmd:
@@ -75,9 +67,7 @@ def main():
     if undonelist:
         with open("unsubmitted-2.yml.log", "w") as outf:
             yaml.dump(
-                {"premixdigihltdatasets": undonelist, "year": year},
-                outf,
-                default_flow_style=False,
+                {"premixdigihltdatasets": undonelist, "year": year}, outf, default_flow_style=False
             )
 
 

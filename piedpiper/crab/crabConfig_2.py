@@ -11,7 +11,7 @@ config.General.requestName = "{0}MCSIDM_AODSIM_{1}".format(
 )
 config.General.workArea = "crabWorkArea"
 config.General.transferOutputs = True
-config.General.transferLogs = True
+config.General.transferLogs = False
 
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "../cfg/SIDM_AODSIM_cfg.py"

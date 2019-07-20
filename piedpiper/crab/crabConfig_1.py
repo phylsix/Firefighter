@@ -11,7 +11,7 @@ config.General.requestName = "{0}MCSIDM_PREMIXRAWHLT_{1}".format(
 )
 config.General.workArea = "crabWorkArea"
 config.General.transferOutputs = True
-config.General.transferLogs = True
+config.General.transferLogs = False
 
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "../cfg/SIDM_PREMIXRAWHLT_cfg.py"
@@ -30,7 +30,7 @@ config.Data.publication = True
 config.Data.outputDatasetTag = ""
 config.Data.ignoreLocality = True
 
-config.Site.whitelist = ["T3_US_FNALLPC", "T2_CH_CERN", "T2_US_Purdue"]
+config.Site.whitelist = ["T3_US_FNALLPC", "T2_CH_CERN",]
 config.Site.ignoreGlobalBlacklist = True
 config.Site.storageSite = "T3_US_FNALLPC"
 
