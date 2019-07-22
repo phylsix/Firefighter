@@ -7,7 +7,10 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cf
 
 from Firefighter.recoStuff.ffLeptonJetMVAEstimator_cfi import *
 
-ntuple_event = cms.PSet(NtupleName=cms.string("ffNtupleEvent"))
+ntuple_event = cms.PSet(
+    NtupleName=cms.string("ffNtupleEvent"),
+    PrimaryVertices=cms.InputTag("offlinePrimaryVertices"),
+)
 
 ntuple_genevent = cms.PSet(
     NtupleName=cms.string("ffNtupleGenEvent"),
