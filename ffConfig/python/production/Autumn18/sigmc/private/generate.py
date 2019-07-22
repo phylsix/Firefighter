@@ -76,12 +76,36 @@ datasources = """\
 /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo2Mu2e_MBs-1000_MDp-2p5_ctau-18p75-7c74ac161ee1f5c5534fed7a9685e204/USER
 /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo2Mu2e_MBs-1000_MDp-5_ctau-37p5-7c74ac161ee1f5c5534fed7a9685e204/USER"""
 
+datasources2 = """\
+/SIDM_XXTo2ATo2Mu2E/wsi-mXX-1000_mA-0p25_lxy-0p3_ctau-0p001875_AODSIM_2018-889dc1528a7a51924818b24d55ffac27/USER
+/SIDM_XXTo2ATo4Mu/wsi-mXX-1000_mA-0p25_lxy-0p3_ctau-0p001875_AODSIM_2018-889dc1528a7a51924818b24d55ffac27/USER
+/SIDM_XXTo2ATo4Mu/wsi-mXX-100_mA-5_lxy-0p3_ctau-0p375_AODSIM_2018-889dc1528a7a51924818b24d55ffac27/USER
+/SIDM_XXTo2ATo2Mu2E/wsi-mXX-100_mA-5_lxy-0p3_ctau-0p375_AODSIM_2018-889dc1528a7a51924818b24d55ffac27/USER"""
 
 datasets = {}
 
 for d in datasources.split():
     dtag = d.split("/")[2]
-    dtag = dtag.rsplit('-',1)[0].split('_',1)[-1].replace('MBs', 'mXX').replace('MDp', 'mA').replace('Bs', 'XX').replace('Dp', 'A').replace('e', 'E')
+    dtag = dtag.rsplit('-', 1)[0].split('_', 1)[-1]\
+        .replace('MBs', 'mXX')\
+        .replace('MDp', 'mA')\
+        .replace('Bs', 'XX')\
+        .replace('Dp', 'A')\
+        .replace('e', 'E')  # XXTo2ATo2Mu2E_mXX-100_mA-0p8_ctau-60
+    dtag = dtag.rsplit("_", 1)
+    dtag = "_".join([dtag[0], "lxy-300", dtag[-1]]) # XXTo2ATo2Mu2E_mXX-100_mA-0p8_lxy-300_ctau-60
+    if dtag in datasets:
+        datasets[dtag].append(d)
+    else:
+        datasets[dtag] = [d]
+
+for d in datasources2.split():
+    pd = d.split("/")[1]
+    taginfo = d.split("/")[2]
+    proc = pd.split('_')[-1]  # XXTo2ATo2Mu2E
+    taginfo = taginfo.rsplit('-', 1)[0].split('-', 1)[-1]  # mXX-1000_mA-0p25_lxy-0p3_ctau-0p001875_AODSIM_2018
+    taginfo = "_".join(taginfo.split("_")[:-2])  # mXX-1000_mA-0p25_lxy-0p3_ctau-0p001875
+    dtag = "_".join([proc, taginfo])
     if dtag in datasets:
         datasets[dtag].append(d)
     else:
@@ -102,4 +126,7 @@ for dtag in datasets:
 
 # summary
 with open('description.json', 'w') as f:
-    f.write(json.dumps(['Firefighter.ffConfig.production.Autumn18.sigmc.private.{0}'.format(dtag) for dtag in datasets]))
+    f.write(json.dumps([
+        'Firefighter.ffConfig.production.Autumn18.sigmc.private.{0}'.format(dtag)
+        for dtag in datasets
+    ], indent=4))
