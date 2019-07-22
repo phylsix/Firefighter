@@ -23,6 +23,7 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
 #include <algorithm>
+#include <functional>
 #include <map>
 #include <numeric>
 #include <sstream>
@@ -108,6 +109,13 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::vector<std::vector<float>> pfjet_pfcand_muonTimeErr_;
   std::vector<float>              pfjet_pfcand_muonTimeStd_;
 
+  std::vector<float> pfjet_pfcand_tkD0Max_;
+  std::vector<float> pfjet_pfcand_tkD0Sub_;
+  std::vector<float> pfjet_pfcand_tkD0Min_;
+  std::vector<float> pfjet_pfcand_tkD0SigMax_;
+  std::vector<float> pfjet_pfcand_tkD0SigSub_;
+  std::vector<float> pfjet_pfcand_tkD0SigMin_;
+
   std::vector<Point> pfjet_medianvtx_;
   std::vector<Point> pfjet_averagevtx_;
 
@@ -163,24 +171,15 @@ void
 ffNtuplePfJet::initialize( TTree&                   tree,
                            const edm::ParameterSet& ps,
                            edm::ConsumesCollector&& cc ) {
-  pfjet_token_ = cc.consumes<reco::PFJetCollection>(
-      ps.getParameter<edm::InputTag>( "src" ) );
-  pvs_token_ = cc.consumes<reco::VertexCollection>(
-      ps.getParameter<edm::InputTag>( "PrimaryVertices" ) );
-  generaltk_token_ = cc.consumes<reco::TrackCollection>(
-      ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
-  pfcand_token_ = cc.consumes<reco::PFCandidateCollection>(
-      ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
-  subjet_lambda_token_ = cc.consumes<edm::ValueMap<float>>(
-      ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
-  subjet_epsilon_token_ = cc.consumes<edm::ValueMap<float>>(
-      ps.getParameter<edm::InputTag>( "SubjetEnergyDistributioin" ) );
-  subjet_ecf1_token_ = cc.consumes<edm::ValueMap<float>>(
-      ps.getParameter<edm::InputTag>( "SubjetEcf1" ) );
-  subjet_ecf2_token_ = cc.consumes<edm::ValueMap<float>>(
-      ps.getParameter<edm::InputTag>( "SubjetEcf2" ) );
-  subjet_ecf3_token_ = cc.consumes<edm::ValueMap<float>>(
-      ps.getParameter<edm::InputTag>( "SubjetEcf3" ) );
+  pfjet_token_          = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  pvs_token_            = cc.consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>( "PrimaryVertices" ) );
+  generaltk_token_      = cc.consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
+  pfcand_token_         = cc.consumes<reco::PFCandidateCollection>( ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
+  subjet_lambda_token_  = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
+  subjet_epsilon_token_ = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEnergyDistributioin" ) );
+  subjet_ecf1_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf1" ) );
+  subjet_ecf2_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf2" ) );
+  subjet_ecf3_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf3" ) );
 
   tree.Branch( "pfjet_n", &pfjet_n_, "pfjet_n/I" );
   tree.Branch( "pfjet_p4", &pfjet_p4_ );
@@ -209,12 +208,9 @@ ffNtuplePfJet::initialize( TTree&                   tree,
     std::stringstream ss;
     ss << isor;
     std::string suffix = ss.str().replace( 1, 1, "" );
-    tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(),
-                 &pfjet_tkIsolation_[ isor ] );
-    tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(),
-                 &pfjet_pfIsolation_[ isor ] );
-    tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(),
-                 &pfjet_neuIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(), &pfjet_tkIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(), &pfjet_pfIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(), &pfjet_neuIsolation_[ isor ] );
   }
   tree.Branch( "pfjet_pfcands_n", &pfjet_pfcands_n_ );
   tree.Branch( "pfjet_tracks_n", &pfjet_tracks_n_ );
@@ -239,6 +235,13 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcand_muonTime", &pfjet_pfcand_muonTime_ );
   tree.Branch( "pfjet_pfcand_muonTimeErr", &pfjet_pfcand_muonTimeErr_ );
   tree.Branch( "pfjet_pfcand_muonTimeStd", &pfjet_pfcand_muonTimeStd_ );
+
+  tree.Branch( "pfjet_pfcand_tkD0Max", &pfjet_pfcand_tkD0Max_ );
+  tree.Branch( "pfjet_pfcand_tkD0Sub", &pfjet_pfcand_tkD0Sub_ );
+  tree.Branch( "pfjet_pfcand_tkD0Min", &pfjet_pfcand_tkD0Min_ );
+  tree.Branch( "pfjet_pfcand_tkD0SigMax", &pfjet_pfcand_tkD0SigMax_ );
+  tree.Branch( "pfjet_pfcand_tkD0SigSub", &pfjet_pfcand_tkD0SigSub_ );
+  tree.Branch( "pfjet_pfcand_tkD0SigMin", &pfjet_pfcand_tkD0SigMin_ );
 
   tree.Branch( "pfjet_medianvtx", &pfjet_medianvtx_ );
   tree.Branch( "pfjet_averagevtx", &pfjet_averagevtx_ );
@@ -439,48 +442,50 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
     pfjet_pfcand_muonTime_.push_back( cPFCandMuonTime );
     pfjet_pfcand_muonTimeErr_.push_back( cPFCandMuonTimeErr );
-    pfjet_pfcand_muonTimeStd_.push_back(
-        ff::calculateStandardDeviation<float>( cPFCandMuonTime ) );
+    pfjet_pfcand_muonTimeStd_.push_back( ff::calculateStandardDeviation<float>( cPFCandMuonTime ) );
+
+    vector<float> cPFCandTkD0Cleaned{}, cPFCandTkD0SigCleaned{};
+    vector<float> cPFCandTkAbsD0;
+    transform( cPFCandTkD0.begin(), cPFCandTkD0.end(), back_inserter( cPFCandTkAbsD0 ), []( const float& n ) { return fabs( n ); } );
+    copy_if( cPFCandTkAbsD0.begin(), cPFCandTkAbsD0.end(), back_inserter( cPFCandTkD0Cleaned ), []( const float& val ) { return !isnan( val ); } );
+    copy_if( cPFCandTkD0Sig.begin(), cPFCandTkD0Sig.end(), back_inserter( cPFCandTkD0SigCleaned ), []( const float& val ) { return !isnan( val ); } );
+    sort( cPFCandTkD0Cleaned.begin(), cPFCandTkD0Cleaned.end(), greater<float>() );
+    sort( cPFCandTkD0SigCleaned.begin(), cPFCandTkD0SigCleaned.end(), greater<float>() );
+
+    pfjet_pfcand_tkD0Max_.emplace_back( cPFCandTkD0Cleaned.size() > 0 ? cPFCandTkD0Cleaned[ 0 ] : NAN );
+    pfjet_pfcand_tkD0Sub_.emplace_back( cPFCandTkD0Cleaned.size() > 1 ? cPFCandTkD0Cleaned[ 1 ] : NAN );
+    pfjet_pfcand_tkD0Min_.emplace_back( cPFCandTkD0Cleaned.size() > 0 ? cPFCandTkD0Cleaned[ cPFCandTkD0Cleaned.size() - 1 ] : NAN );
+    pfjet_pfcand_tkD0SigMax_.emplace_back( cPFCandTkD0SigCleaned.size() > 0 ? cPFCandTkD0SigCleaned[ 0 ] : NAN );
+    pfjet_pfcand_tkD0SigSub_.emplace_back( cPFCandTkD0SigCleaned.size() > 1 ? cPFCandTkD0SigCleaned[ 1 ] : NAN );
+    pfjet_pfcand_tkD0SigMin_.emplace_back( cPFCandTkD0SigCleaned.size() > 0 ? cPFCandTkD0SigCleaned[ cPFCandTkD0SigCleaned.size() - 1 ] : NAN );
     // -------------------------------------------------------------------------
 
     // vertices ----------------------------------------------------------------
-    pfjet_medianvtx_.push_back(
-        estimatedVertexFromMedianReferencePoints( tracksSelected ) );
-    pfjet_averagevtx_.push_back(
-        estimatedVertexFromAverageReferencePoints( tracksSelected ) );
+    pfjet_medianvtx_.push_back( estimatedVertexFromMedianReferencePoints( tracksSelected ) );
+    pfjet_averagevtx_.push_back( estimatedVertexFromAverageReferencePoints( tracksSelected ) );
 
-    vector<reco::TransientTrack> transientTks =
-        transientTracksFromPFJet( pfjet, track_selector_, es );
-    Measurement1D distXY;
-    Measurement1D dist3D;
+    vector<reco::TransientTrack> transientTks = transientTracksFromPFJet( pfjet, track_selector_, es );
+    Measurement1D                distXY;
+    Measurement1D                dist3D;
 
     GlobalVector pfjetMomentum( pfjet.px(), pfjet.py(), pfjet.pz() );
 
-    const auto klmVtxInfo =
-        kalmanVertexFromTransientTracks( transientTks, kvfParam_ );
+    const auto             klmVtxInfo  = kalmanVertexFromTransientTracks( transientTks, kvfParam_ );
     const TransientVertex& klmVtx      = klmVtxInfo.first;
     const float&           klmVtxMass  = klmVtxInfo.second;
     bool                   klmVtxValid = klmVtx.isValid();
 
-    distXY = klmVtxValid
-                 ? signedDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum )
-                 : Measurement1D();
-    dist3D = klmVtxValid
-                 ? signedDistance3D( pv, klmVtx.vertexState(), pfjetMomentum )
-                 : Measurement1D();
+    distXY = klmVtxValid ? signedDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum ) : Measurement1D();
+    dist3D = klmVtxValid ? signedDistance3D( pv, klmVtx.vertexState(), pfjetMomentum ) : Measurement1D();
 
     pfjet_klmvtx_.emplace_back( klmVtxValid ? Point( klmVtx.position().x(),
                                                      klmVtx.position().y(),
                                                      klmVtx.position().z() )
                                             : Point( NAN, NAN, NAN ) );
-    pfjet_klmvtx_lxy_.emplace_back( distXY.significance() ? distXY.value()
-                                                          : NAN );
-    pfjet_klmvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value()
-                                                          : NAN );
-    pfjet_klmvtx_lxySig_.emplace_back(
-        distXY.significance() ? distXY.value() / distXY.error() : NAN );
-    pfjet_klmvtx_l3dSig_.emplace_back(
-        dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
+    pfjet_klmvtx_lxy_.emplace_back( distXY.significance() ? distXY.value() : NAN );
+    pfjet_klmvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value() : NAN );
+    pfjet_klmvtx_lxySig_.emplace_back( distXY.significance() ? distXY.value() / distXY.error() : NAN );
+    pfjet_klmvtx_l3dSig_.emplace_back( dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
     pfjet_klmvtx_normChi2_.emplace_back(
         klmVtxValid && klmVtx.degreesOfFreedom() ? klmVtx.normalisedChiSquared()
                                                  : NAN );
@@ -527,7 +532,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_klmvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKlmVtx );
     pfjet_klmvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKlmVtx );
 
-    const auto kinVtxInfo = kinematicVertexFromTransientTracks( transientTks );
+    const auto             kinVtxInfo  = kinematicVertexFromTransientTracks( transientTks );
     const KinematicVertex& kinVtx      = kinVtxInfo.first;
     const float&           kinVtxMass  = kinVtxInfo.second;
     bool                   kinVtxValid = kinVtx.vertexIsValid();
@@ -617,41 +622,21 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     map<string, float> mvaVariablesMap{};
     mvaVariablesMap.emplace( "pt", pfjet.pt() );
     mvaVariablesMap.emplace( "eta", pfjet.eta() );
-    mvaVariablesMap.emplace(
-        "neufrac", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) /
-                       pfjet.energy() );
-    vector<float> cPFCandTkAbsD0;
-    transform( cPFCandTkD0.begin(), cPFCandTkD0.end(),
-               back_inserter( cPFCandTkAbsD0 ),
-               []( const float& n ) { return fabs( n ); } );
-    float maxd0 = cPFCandTkD0.empty() ? NAN
-                                      : *max_element( cPFCandTkAbsD0.cbegin(),
-                                                      cPFCandTkAbsD0.cend() );
-    maxd0       = isnan( maxd0 ) ? 0. : maxd0;
-    float mind0 = cPFCandTkD0.empty() ? NAN
-                                      : *min_element( cPFCandTkAbsD0.cbegin(),
-                                                      cPFCandTkAbsD0.cend() );
-    mind0 = isnan( mind0 ) ? 0. : mind0;
-    mvaVariablesMap.emplace( "maxd0", maxd0 );
-    mvaVariablesMap.emplace( "mind0", mind0 );
-    mvaVariablesMap.emplace( "tkiso", isnan( pfjet_tkIsolation_[ 0.5 ].back() )
-                                          ? 0.
-                                          : pfjet_tkIsolation_[ 0.5 ].back() );
+    mvaVariablesMap.emplace( "neufrac", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) / pfjet.energy() );
+
+    mvaVariablesMap.emplace( "maxd0", isnan( pfjet_pfcand_tkD0Max_.back() ) ? 0. : pfjet_pfcand_tkD0Max_.back() );
+    mvaVariablesMap.emplace( "mind0", isnan( pfjet_pfcand_tkD0Min_.back() ) ? 0. : pfjet_pfcand_tkD0Min_.back() );
+    mvaVariablesMap.emplace( "tkiso", isnan( pfjet_tkIsolation_[ 0.5 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.5 ].back() );
     mvaVariablesMap.emplace( "pfiso", pfjet_pfIsolation_[ 0.5 ].back() );
     mvaVariablesMap.emplace( "spreadpt", pfjet_ptDistribution_.back() );
     mvaVariablesMap.emplace( "spreaddr", pfjet_dRSpread_.back() );
     mvaVariablesMap.emplace( "lambda", pfjet_subjet_lambda_.back() );
     mvaVariablesMap.emplace( "epsilon", pfjet_subjet_epsilon_.back() );
     mvaVariablesMap.emplace( "ecf1", pfjet_subjet_ecf1_.back() );
-    mvaVariablesMap.emplace( "ecf2", isnan( pfjet_subjet_ecf2_.back() )
-                                         ? 0.
-                                         : pfjet_subjet_ecf2_.back() );
-    mvaVariablesMap.emplace( "ecf3", isnan( pfjet_subjet_ecf3_.back() )
-                                         ? 0.
-                                         : pfjet_subjet_ecf3_.back() );
+    mvaVariablesMap.emplace( "ecf2", isnan( pfjet_subjet_ecf2_.back() ) ? 0. : pfjet_subjet_ecf2_.back() );
+    mvaVariablesMap.emplace( "ecf3", isnan( pfjet_subjet_ecf3_.back() ) ? 0. : pfjet_subjet_ecf3_.back() );
 
-    pfjet_mva_.emplace_back(
-        mvaEstimator_.mvaValue( &pfjet, mvaVariablesMap ) );
+    pfjet_mva_.emplace_back( mvaEstimator_.mvaValue( &pfjet, mvaVariablesMap ) );
 
     // -------------------------------------------------------------------------
   }
@@ -707,6 +692,13 @@ ffNtuplePfJet::clear() {
   pfjet_pfcand_muonTime_.clear();
   pfjet_pfcand_muonTimeErr_.clear();
   pfjet_pfcand_muonTimeStd_.clear();
+
+  pfjet_pfcand_tkD0Max_.clear();
+  pfjet_pfcand_tkD0Sub_.clear();
+  pfjet_pfcand_tkD0Min_.clear();
+  pfjet_pfcand_tkD0SigMax_.clear();
+  pfjet_pfcand_tkD0SigSub_.clear();
+  pfjet_pfcand_tkD0SigMin_.clear();
 
   pfjet_medianvtx_.clear();
   pfjet_averagevtx_.clear();
