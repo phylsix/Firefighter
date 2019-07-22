@@ -23,6 +23,8 @@ def get_nametag(dataset):
     **sigmc/private**
     e.g.: /CRAB_PrivateMC/wsi-SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48-354cda32a6a404e25b0eb21bb1bef952/USER
     returns SIDM_BsTo2DpTo4Mu_MBs-200_MDp-1p2_ctau-0p48
+        /SIDM_XXTo2ATo2Mu2E/wsi-mXX-1000_mA-0p25_lxy-0p3_ctau-0p001875_AODSIM_2018-889dc1528a7a51924818b24d55ffac27/USER
+    returns mXX-1000_mA-0p25_lxy-0p3_ctau-0p001875
 
     **bkgmc**
     e.g. /DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v2/AODSIM
@@ -34,7 +36,11 @@ def get_nametag(dataset):
     """
 
     if dataset.endswith("USER"):
-        return dataset.split("/")[-2].split("-", 1)[-1].rsplit("-", 1)[0]
+        taginfo = dataset.split("/")[-2].split("-", 1)[-1].rsplit("-", 1)[0]
+        if dataset.startswith("/CRAB_PrivateMC"): ## old dataset name
+            return taginfo
+        if dataset.startswith("/SIDM"):
+            return "_".join(taginfo.split("_")[:-2])
     else:
         return dataset.split("/")[-2]
 
