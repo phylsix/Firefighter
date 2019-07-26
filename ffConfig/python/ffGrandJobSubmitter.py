@@ -85,6 +85,7 @@ def submit(dkind, submitter="condor"):
         from Firefighter.ffConfig.condorConfigBuilder import configBuilder as CondorCB
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder as CrabCB
         from Firefighter.ffConfig.datasetUtils import get_storageSites
+        from Firefighter.piedpiper.utils import get_voms_certificate
 
         coremsg = "submit {} jobs to condor(crab)".format(dkind)
         print(buildbanner(coremsg))
