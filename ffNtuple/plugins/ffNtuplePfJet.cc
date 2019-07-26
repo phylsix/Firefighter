@@ -622,19 +622,18 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     map<string, float> mvaVariablesMap{};
     mvaVariablesMap.emplace( "pt", pfjet.pt() );
     mvaVariablesMap.emplace( "eta", pfjet.eta() );
-    mvaVariablesMap.emplace( "neufrac", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) / pfjet.energy() );
-
+    mvaVariablesMap.emplace( "nef", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) / pfjet.energy() );
     mvaVariablesMap.emplace( "maxd0", isnan( pfjet_pfcand_tkD0Max_.back() ) ? 0. : pfjet_pfcand_tkD0Max_.back() );
     mvaVariablesMap.emplace( "mind0", isnan( pfjet_pfcand_tkD0Min_.back() ) ? 0. : pfjet_pfcand_tkD0Min_.back() );
     mvaVariablesMap.emplace( "tkiso", isnan( pfjet_tkIsolation_[ 0.5 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.5 ].back() );
     mvaVariablesMap.emplace( "pfiso", pfjet_pfIsolation_[ 0.5 ].back() );
     mvaVariablesMap.emplace( "spreadpt", pfjet_ptDistribution_.back() );
     mvaVariablesMap.emplace( "spreaddr", pfjet_dRSpread_.back() );
-    mvaVariablesMap.emplace( "lambda", pfjet_subjet_lambda_.back() );
-    mvaVariablesMap.emplace( "epsilon", pfjet_subjet_epsilon_.back() );
-    mvaVariablesMap.emplace( "ecf1", pfjet_subjet_ecf1_.back() );
-    mvaVariablesMap.emplace( "ecf2", isnan( pfjet_subjet_ecf2_.back() ) ? 0. : pfjet_subjet_ecf2_.back() );
-    mvaVariablesMap.emplace( "ecf3", isnan( pfjet_subjet_ecf3_.back() ) ? 0. : pfjet_subjet_ecf3_.back() );
+    mvaVariablesMap.emplace( "lamb", pfjet_subjet_lambda_.back() );
+    mvaVariablesMap.emplace( "epsi", pfjet_subjet_epsilon_.back() );
+    mvaVariablesMap.emplace( "ecfe1", pfjet_subjet_ecf1_.back() );
+    mvaVariablesMap.emplace( "ecfe2", isnan( pfjet_subjet_ecf2_.back() ) ? 0. : pfjet_subjet_ecf2_.back() );
+    mvaVariablesMap.emplace( "ecfe3", isnan( pfjet_subjet_ecf3_.back() ) ? 0. : pfjet_subjet_ecf3_.back() );
 
     pfjet_mva_.emplace_back( mvaEstimator_.mvaValue( &pfjet, mvaVariablesMap ) );
 

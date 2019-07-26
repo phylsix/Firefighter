@@ -50,7 +50,17 @@ ffLeptonJetMVAEstimator::mvaValue(
 
   std::vector<float> variableValues{};
   for ( const auto& varName : fCategorizedVariableNames[ iCategory ] ) {
-    variableValues.emplace_back( variableMap.at( varName ) );
+    try {
+      variableValues.emplace_back( variableMap.at( varName ) );
+    } catch ( const std::out_of_range& e ) {
+      std::cout << "[ffLeptonJetMVAEstimator::mvaValue]\t";
+      std::cout << "Fail to find MVA variable <" << varName << "> from provided map ";
+      std::cout << "{";
+      for ( const auto& m : variableMap )
+        std::cout << m.first << ", ";
+      std::cout << "}" << std::endl;
+      throw;
+    }
   }
 
   return fGbrForests[ iCategory ]->GetResponse( variableValues.data() );
