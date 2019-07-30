@@ -19,6 +19,7 @@ universe = vanilla
 +REQUIRED_OS = "rhel6"
 +DesiredOS = REQUIRED_OS
 Executable = FFSUPERCONFIGDIR/ffCondor.sh
+request_memory = 4 GB
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 Transfer_Input_Files = FFSUPERCONFIGDIR/ffCondor.sh, FFSUPERCONFIGDIR/ffSuperConfig_$(jobid).yml, CMSSWVER.tar.gz
@@ -97,7 +98,7 @@ class configBuilder:
             workArea=join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/condorGarage/', time.strftime("%y%m%d")),
             unitsPerJob=10,
             year=2018,
-            redirector='root://xrootd.unl.edu/',
+            redirector='',
             outbase='/store/group/lpcmetx/SIDM/ffNtuple/'
         )
         self.specs_.update(kwargs)

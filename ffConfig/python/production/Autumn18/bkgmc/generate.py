@@ -70,9 +70,7 @@ for dtag in datasets:
     pyfragName = dtag + ".py"
     flist = []
     for ds in datasets[dtag]:
-        subflist = subprocess.check_output(
-            shlex.split('dasgoclient -query="file dataset={0} instance=prod/phys03"'.format(ds))
-        ).split()
+        subflist = subprocess.check_output(shlex.split('dasgoclient -query="file dataset={0}"'.format(ds))).split()
         subflist = [f for f in subflist if f]
         flist.append(subflist)
 
