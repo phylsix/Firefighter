@@ -625,8 +625,14 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     mvaVariablesMap.emplace( "nef", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) / pfjet.energy() );
     mvaVariablesMap.emplace( "maxd0", isnan( pfjet_pfcand_tkD0Max_.back() ) ? 0. : pfjet_pfcand_tkD0Max_.back() );
     mvaVariablesMap.emplace( "mind0", isnan( pfjet_pfcand_tkD0Min_.back() ) ? 0. : pfjet_pfcand_tkD0Min_.back() );
-    mvaVariablesMap.emplace( "tkiso", isnan( pfjet_tkIsolation_[ 0.5 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.5 ].back() );
-    mvaVariablesMap.emplace( "pfiso", pfjet_pfIsolation_[ 0.5 ].back() );
+    mvaVariablesMap.emplace( "maxd0sig", isnan( pfjet_pfcand_tkD0SigMax_.back() ) ? 0. : pfjet_pfcand_tkD0SigMax_.back() );
+    mvaVariablesMap.emplace( "mind0sig", isnan( pfjet_pfcand_tkD0SigMin_.back() ) ? 0. : pfjet_pfcand_tkD0SigMin_.back() );
+    mvaVariablesMap.emplace( "tkiso05", isnan( pfjet_tkIsolation_[ 0.5 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.5 ].back() );
+    mvaVariablesMap.emplace( "pfiso05", pfjet_pfIsolation_[ 0.5 ].back() );
+    mvaVariablesMap.emplace( "tkiso06", isnan( pfjet_tkIsolation_[ 0.6 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.6 ].back() );
+    mvaVariablesMap.emplace( "pfiso06", pfjet_pfIsolation_[ 0.6 ].back() );
+    mvaVariablesMap.emplace( "tkiso07", isnan( pfjet_tkIsolation_[ 0.7 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.7 ].back() );
+    mvaVariablesMap.emplace( "pfiso07", pfjet_pfIsolation_[ 0.7 ].back() );
     mvaVariablesMap.emplace( "spreadpt", pfjet_ptDistribution_.back() );
     mvaVariablesMap.emplace( "spreaddr", pfjet_dRSpread_.back() );
     mvaVariablesMap.emplace( "lamb", pfjet_subjet_lambda_.back() );
