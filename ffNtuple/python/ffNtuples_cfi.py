@@ -31,6 +31,11 @@ ntuple_gen = cms.PSet(
     ),
 )
 
+ntuple_genbkg = cms.PSet(
+    NtupleName=cms.string("ffNtupleGenBkg"),
+    src=cms.InputTag("genParticles"),
+    AllowedPids=cms.vint32([6, 22, 23, 24, 25]), # top, gamma, Z, W, Higgs
+)
 
 ntuple_genjet = cms.PSet(
     NtupleName=cms.string("ffNtupleGenJet"), GenJets=cms.InputTag("ak4GenJetsNoNu")
@@ -116,6 +121,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_event,
         ntuple_genevent,
         ntuple_gen,
+        ntuple_genbkg,
         ntuple_genjet,
         ntuple_hlt,
         ntuple_muon,

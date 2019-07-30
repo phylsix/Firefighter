@@ -46,7 +46,18 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
     ##                             non signal-mc                             ##
     ###########################################################################
 
-    if ffConfig["data-spec"]["dataType"] != "sigmc":
+    if ffConfig["data-spec"]["dataType"] == "sigmc":
+
+        ## exclude genbkg branches from ffNtupling ##
+        process.ffNtuplizer.Ntuples = cms.VPSet(
+            [
+                x
+                for x in process.ffNtuplizer.Ntuples
+                if x.NtupleName.value()!="ffNtupleGenBkg"
+            ]
+        )
+
+    else: # bkgmc | data
 
         ## keep triggered events only ##
         process.hltfilter = hltfilter
