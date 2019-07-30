@@ -265,17 +265,10 @@ def adapt_config_with_dataset(config, dataset):
 
 def check_voms_valid():
     """
-    check if certificate is expired
+    check if certificate is expired.
+    if valid, `voms-proxy-info -exists` will return 0, 1 otherwise
     """
-
-    cmd = "voms-proxy-info -file /tmp/x509up_u{0} -timeleft".format(os.getuid())
-    p = subprocess.Popen(
-        cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    ).communicate()
-    if p[0] and not p[1]:
-        return True
-    else:
-        return False
+    return subprocess.call(shlex.split('voms-proxy-info -exists')) == 0
 
 
 def get_voms_certificate():

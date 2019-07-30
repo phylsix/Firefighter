@@ -10,7 +10,7 @@ condition-spec:
 data-spec:
   inputFileList:
     [
-      "root://xrootd.unl.edu//store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00001/6B626859-4FE0-3143-8CEA-5A4A836214E4.root",
+      "/store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00001/6B626859-4FE0-3143-8CEA-5A4A836214E4.root",
     ]
   maxEvents: 50
   outputFileName: "ffNtuple_DYJetsM50.root"
