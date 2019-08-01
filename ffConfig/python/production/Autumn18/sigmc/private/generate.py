@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+"""GlobalTag from: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+"""
+
+import json
 import shlex
 import subprocess
-import json
 
 pyfrag = """\
 #!/usr/bin/env python
@@ -9,7 +12,7 @@ pyfrag = """\
 ffDataSet = {
     'datasetNames': %s,
     'maxEvents': -1,
-    'globalTag': '102X_upgrade2018_realistic_v18',
+    'globalTag': '102X_upgrade2018_realistic_v19',
     'fileList': %s,
 }
 """

@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+"""GlobalTag from: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+"""
+
+import json
 import shlex
 import subprocess
-import json
 
 pyfrag = """\
 #!/usr/bin/env python
@@ -33,7 +36,7 @@ for d in datasources_abc.split():
             shlex.split('dasgoclient -query="file dataset={0}"'.format(d))
         ).split()
     with open(dtag + '.py', 'w') as f:
-        f.write(pyfrag % (str([d]), '102X_dataRun2_Sep2018ABC_v2', str([flist])))
+        f.write(pyfrag % (str([d]), '102X_dataRun2_v11', str([flist])))
 
 # d
 d = datasources_d
@@ -43,7 +46,7 @@ flist = subprocess.check_output(
         shlex.split('dasgoclient -query="file dataset={0}"'.format(d))
     ).split()
 with open(dtag + '.py', 'w') as f:
-    f.write(pyfrag % (str([d]), '102X_dataRun2_Prompt_v13', str([flist])))
+    f.write(pyfrag % (str([d]), '102X_dataRun2_Prompt_v14', str([flist])))
 
 # description
 with open('description.json', 'w') as f:
