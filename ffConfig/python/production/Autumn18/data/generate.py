@@ -36,7 +36,7 @@ for d in datasources_abc.split():
             shlex.split('dasgoclient -query="file dataset={0}"'.format(d))
         ).split()
     with open(dtag + '.py', 'w') as f:
-        f.write(pyfrag % (str([d]), '102X_dataRun2_v11', str([flist])))
+        f.write(pyfrag % (str([d]), '102X_dataRun2_v11', str([sorted(flist)])))
 
 # d
 d = datasources_d
@@ -46,7 +46,7 @@ flist = subprocess.check_output(
         shlex.split('dasgoclient -query="file dataset={0}"'.format(d))
     ).split()
 with open(dtag + '.py', 'w') as f:
-    f.write(pyfrag % (str([d]), '102X_dataRun2_Prompt_v14', str([flist])))
+    f.write(pyfrag % (str([d]), '102X_dataRun2_Prompt_v14', str([sorted(flist)])))
 
 # description
 with open('description.json', 'w') as f:

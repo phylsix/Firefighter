@@ -79,7 +79,7 @@ for dtag in datasets:
 
 
     with open(pyfragName, "w") as f:
-        f.write(pyfrag % (str(datasets[dtag]), str(flist)) )
+        f.write(pyfrag % (str(datasets[dtag]), str(sorted(flist))) )
 
 # summary
 with open('description.json', 'w') as f:

@@ -122,7 +122,7 @@ for dtag in datasets:
             shlex.split('dasgoclient -query="file dataset={0} instance=prod/phys03"'.format(ds))
         ).split()
         subflist = [f for f in subflist if f]
-        flist.append(subflist)
+        flist.append(sorted(subflist))
 
     with open(pyfragName, "w") as f:
         f.write(pyfrag % (str(datasets[dtag]), str(flist)))
