@@ -34,11 +34,14 @@ class ffNtupleProcessStats
   edm::EDGetToken fGenProductToken;
 
   edm::Service<TFileService> fs;
-  TH1I*                      fHisto;
-  TTree*                     fTree;
+
+  TH1I*  fHisto;
+  TTree* fTree;
+  TTree* fTree2;
 
   unsigned int fRun;
   unsigned int fLumi;
+  float        fWeight;
 };
 
 ffNtupleProcessStats::ffNtupleProcessStats( const edm::ParameterSet& ps ) {
@@ -51,9 +54,13 @@ ffNtupleProcessStats::~ffNtupleProcessStats() {}
 void
 ffNtupleProcessStats::beginJob() {
   fHisto = fs->make<TH1I>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
-  fTree  = fs->make<TTree>( "runlumi", "" );
+
+  fTree = fs->make<TTree>( "runlumi", "" );
   fTree->Branch( "run", &fRun );
   fTree->Branch( "lumi", &fLumi );
+
+  fTree2 = fs->make<TTree>( "weight", "" );
+  fTree2->Branch( "weight", &fWeight );
 }
 
 void
@@ -76,8 +83,9 @@ ffNtupleProcessStats::analyze( const edm::Event&      e,
 
   edm::Handle<GenEventInfoProduct> genProductHdl;
   e.getByToken( fGenProductToken, genProductHdl );
-  auto weight = genProductHdl.isValid() ? genProductHdl->weight() : 0;
-  fHisto->Fill( 3, weight );  // this is filling sum of genwgt
+  fWeight = genProductHdl.isValid() ? genProductHdl->weight() : 0;
+  fHisto->Fill( 3, fWeight );  // this is filling sum of genwgt
+  fTree2->Fill();
 }
 
 void
