@@ -35,7 +35,7 @@ class ffNtupleProcessStats
 
   edm::Service<TFileService> fs;
 
-  TH1I*  fHisto;
+  TH1F*  fHisto;
   TTree* fTree;
   TTree* fTree2;
 
@@ -53,7 +53,7 @@ ffNtupleProcessStats::~ffNtupleProcessStats() {}
 
 void
 ffNtupleProcessStats::beginJob() {
-  fHisto = fs->make<TH1I>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
+  fHisto = fs->make<TH1F>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
 
   fTree = fs->make<TTree>( "runlumi", "" );
   fTree->Branch( "run", &fRun );
