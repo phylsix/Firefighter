@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 """Run GenXSecAnalyzer through condor
 
-$ python condorXSecSubmitter.py <description.json>
+$ python condorXSecSubmitter.py <description.yml>
 """
 from __future__ import print_function
 
 import importlib
-import json
 import os
 import sys
 import time
 from os.path import join
 
+import yaml
 from Firefighter.piedpiper.utils import get_voms_certificate
 
 # replaced vars: FFSUPERCONFIGDIR, CMSSWVER, JOBIDLIST
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     datasetdescription = sys.argv[1]
     assert os.path.exists(datasetdescription)
-    datasetdescription = json.load(open(datasetdescription))
+    datasetdescription = yaml.load(open(datasetdescription), Loader=yaml.Loader)
 
     jobdir = join(
         os.getenv("CMSSW_BASE"),
