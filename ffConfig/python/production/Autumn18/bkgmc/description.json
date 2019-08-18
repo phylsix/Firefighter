@@ -1,5 +1,6 @@
 [
     "Firefighter.ffConfig.production.Autumn18.bkgmc.DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8", 
+    "Firefighter.ffConfig.production.Autumn18.bkgmc.DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.QCD_Pt-1000toInf_MuEnrichedPt5_TuneCP5_13TeV_pythia8", 
     "Firefighter.ffConfig.production.Autumn18.bkgmc.QCD_Pt-120to170_MuEnrichedPt5_TuneCP5_13TeV_pythia8", 

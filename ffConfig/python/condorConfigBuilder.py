@@ -178,7 +178,7 @@ class configBuilder:
 
         return res
 
-    @classmethod
-    def submit(cls, condorjdl):
+    @staticmethod
+    def submit(condorjdl):
         print("$condor_submit", condorjdl)
         os.system("condor_submit {0}".format(condorjdl))

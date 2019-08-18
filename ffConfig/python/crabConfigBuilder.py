@@ -146,7 +146,7 @@ class configBuilder:
 
         return res
 
-    @classmethod
-    def submit(cls, crabconfig):
+    @staticmethod
+    def submit(crabconfig):
         print("$crab submit -c", crabconfig)
         os.system("crab submit -c {0}".format(crabconfig))
