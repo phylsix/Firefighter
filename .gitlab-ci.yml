@@ -62,6 +62,17 @@ test_bkgMC:
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_ZZ.yml
 
+test_bkgMC4Trg:
+  tags: [cvmfs]
+  stage: test_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
+    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_trigger_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_trigger_GitLabCI_ZZ.yml
+
 test_data:
   tags: [cvmfs]
   stage: test_ff

@@ -74,7 +74,7 @@ process.TFileService = cms.Service(
 )
 
 if ffConfig["data-spec"].get('denomTriggerPaths', None):
-    assert(isinstance(ffConfig["data-spec"]['denomPaths'], list))
+    assert(isinstance(ffConfig["data-spec"]['denomTriggerPaths'], list))
     process = decorateProcessFF_forTriggerStudy(process, ffConfig,
                                                 keepskim=options.keepskim,
                                                 denompaths=ffConfig["data-spec"]['denomTriggerPaths'])
