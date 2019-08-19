@@ -5,12 +5,11 @@ $cmd: python ffBatchJobSubmitter.py batchdatasets.yml -s crab
 from __future__ import print_function
 
 import argparse
-import importlib
 import os
 from os.path import join
+
 import yaml
 
-PRODUCTIONBASE = join(os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/")
 
 ## parser
 parser = argparse.ArgumentParser(description="Submit many datasets in a BATCH.")
@@ -37,7 +36,7 @@ def main():
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder
 
     for ds in tosubd_:
-        tosubdff = importlib.import_module(ds).ffDataSet
+        tosubdff = yaml.load(open(join(os.getenv('CMSSW_BASE'), ds)), Loader=yaml.Loader)
 
         cb = configBuilder(tosubdff, eventRegion="all")
         for c in cb.build():

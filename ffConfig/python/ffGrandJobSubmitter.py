@@ -10,13 +10,13 @@ usage: python ffGrandJobSubmitter.py sigmc -s crab
 from __future__ import print_function
 
 import argparse
-import importlib
 import json
 import os
 import sys
 import time
 from os.path import join
 
+import yaml
 
 PRODUCTIONBASE = join(os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/")
 DATA_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/data/description.json")))
@@ -25,9 +25,9 @@ SIGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/sigmc/private/descriptio
 
 ## all datasets
 ffds = {
-    "data": [importlib.import_module(m).ffDataSet for m in DATA_L],
-    "bkgmc": [importlib.import_module(m).ffDataSet for m in BKGMC_L],
-    "sigmc": [importlib.import_module(m).ffDataSet for m in SIGMC_L],
+    "data":  [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in DATA_L],
+    "bkgmc": [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in BKGMC_L],
+    "sigmc": [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in SIGMC_L],
 }
 
 ## parser

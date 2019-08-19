@@ -3,7 +3,94 @@
 """
 import shlex
 import subprocess
+import yaml
 
+
+class ffdatassetbase(object):
+    def __init__(self):
+        self.datasetNames_ = []
+        self.maxEvents_ = -1
+        self.globalTag_ = '102X_upgrade2018_realistic_v19'
+        self.fileList_ = []
+
+    @property
+    def datasetNames(self):
+        return self.datasetNames_
+
+    @datasetNames.setter
+    def datasetNames(self, dsnames):
+        self.datasetNames_ = dsnames
+
+    @property
+    def maxEvents(self):
+        return self.maxEvents_
+
+    @maxEvents.setter
+    def maxEvents(self, maxevts):
+        self.maxEvents_ = maxevts
+
+    @property
+    def globalTag(self):
+        return self.globalTag_
+
+    @globalTag.setter
+    def globalTag(self, globaltag):
+        self.globalTag_ = globaltag
+
+    @property
+    def fileList(self):
+        return self.fileList_
+
+    @fileList.setter
+    def fileList(self, filels):
+        self.fileList_ = filels
+
+    def dump(self):
+        data = {
+            'datasetNames': self.datasetNames,
+            'maxEvents': self.maxEvents,
+            'globalTag': self.globalTag,
+            'fileList': self.fileList,
+        }
+
+        return yaml.dump(data, default_flow_style=False)
+
+
+class ffdatasetsignal(ffdatassetbase):
+    def __init__(self):
+        ffdatassetbase.__init__(self)
+        self.globalTag_ = '102X_upgrade2018_realistic_v19'
+
+
+class ffdatasetbackground(ffdatassetbase):
+    def __init__(self):
+        ffdatassetbase.__init__(self)
+        self.globalTag_ = '102X_upgrade2018_realistic_v19'
+
+class ffdatasetdata(ffdatassetbase):
+    def __init__(self):
+        ffdatassetbase.__init__(self)
+        self.globalTag_ = '102X_dataRun2_v11'
+        self.lumiMask_ = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON_MuonPhys.txt'
+
+    @property
+    def lumiMask(self):
+        return self.lumiMask_
+
+    @lumiMask.setter
+    def lumiMask(self, lm):
+        self.lumiMask_ = lm
+
+    def dump(self):
+        data = {
+            'datasetNames': self.datasetNames,
+            'maxEvents': self.maxEvents,
+            'globalTag': self.globalTag,
+            'fileList': self.fileList,
+            'lumiMask': self.lumiMask,
+        }
+
+        return yaml.dump(data, default_flow_style=False)
 
 ###############################################################################
 

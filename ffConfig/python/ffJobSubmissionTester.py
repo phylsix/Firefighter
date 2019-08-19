@@ -3,21 +3,18 @@ from __future__ import print_function
 import os
 from os.path import join
 import json
-import importlib
 
-PRODUCTIONBASE = join(
-    os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/"
-)
+import yaml
+
+PRODUCTIONBASE = join(os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/")
 
 DATA_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/data/description.json")))
 BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/bkgmc/description.json")))
-SIGMC_L = json.load(
-    open(join(PRODUCTIONBASE, "Autumn18/sigmc/private/description.json"))
-)
+SIGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/sigmc/private/description.json")))
 
-ffds_data = [importlib.import_module(m).ffDataSet for m in DATA_L]
-ffds_bkgmc = [importlib.import_module(m).ffDataSet for m in BKGMC_L]
-ffds_sigmc = [importlib.import_module(m).ffDataSet for m in SIGMC_L]
+ffds_data  = [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in DATA_L],
+ffds_bkgmc = [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in BKGMC_L],
+ffds_sigmc = [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in SIGMC_L],
 
 # print(ffds_data[0].keys())
 # print(ffds_bkgmc[0].keys())

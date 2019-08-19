@@ -35,7 +35,7 @@ on_exit_hold_reason = strcat("Job held by ON_EXIT_HOLD due to ", ifThenElse((Exi
 queue 1 jobid in JOBIDLIST"""
 
 
-# replaced vars; CMSSWVER, OUTPUTBASE
+# replaced vars; CMSSWVER, FFCONFIGNAME, OUTPUTBASE
 EXECSHELL = r"""#!/bin/bash
 set -x
 echo "Starting Firefighter job on " `date`
@@ -55,7 +55,7 @@ eval `scramv1 runtime -sh`
 echo "CMSSW: "$CMSSW_BASE
 YMLCFG=`basename $1`
 echo "Argument ffSuperConfig is: $YMLCFG"
-cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CWD/$YMLCFG 2>&1
+cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/FFCONFIGNAME config=$CWD/$YMLCFG 2>&1
 
 CMSEXIT=$?
 if [[ $CMSEXIT -ne 0 ]]; then
@@ -99,6 +99,7 @@ class configBuilder:
             unitsPerJob=10,
             year=2018,
             redirector='',
+            ffConfigName='ffNtupleFromAOD_cfg.py',
             outbase='/store/group/lpcmetx/SIDM/ffNtuple/'
         )
         self.specs_.update(kwargs)
@@ -133,6 +134,9 @@ class configBuilder:
             )
         }
 
+        if 'denomTriggerPaths' in self.specs_:
+            ffsc['data-spec']['denomPaths'] = self.specs_['denomTriggerPaths']
+
         for ds, filelist in zip(self.ffdataset_['datasetNames'], self.ffdataset_['fileList']):
             ## set up job work dir ##
             primarydatasetname = get_primaryDatasetName(ds)
@@ -162,7 +166,9 @@ class configBuilder:
             ## set up executable script ##
             execshellFn = join(jobdir, 'ffCondor.sh')
             outputdir = join(self.specs_['outLFNDirBase'], primarydatasetname, nametag, time.strftime("%y%m%d_%H%M%S"))
-            execshell = EXECSHELL.replace('CMSSWVER', os.getenv('CMSSW_VERSION')).replace('OUTPUTBASE', outputdir)
+            execshell = EXECSHELL.replace('CMSSWVER', os.getenv('CMSSW_VERSION'))\
+                                 .replace('FFCONFIGNAME', self.specs_.get('ffConfigName', 'ffNtupleFromAOD_cfg.py'))\
+                                 .replace('OUTPUTBASE', outputdir)
             with open(execshellFn, 'w') as outf: outf.write(execshell)
             os.chmod(execshellFn, os.stat(execshellFn).st_mode | 0111)
 

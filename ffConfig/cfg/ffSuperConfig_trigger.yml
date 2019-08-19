@@ -1,0 +1,22 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 1
+  reportEvery: 100
+
+condition-spec:
+  globalTag: "102X_upgrade2018_realistic_v19"
+
+data-spec:
+  inputFileList: []
+  maxEvents: -1
+  outputFileName: "ffNtuple.root"
+  lumiMask: ""
+  dataType: "bkgmc"
+  denomTriggerPaths:
+    - HLT_Mu17
+    - HLT_IsoMu24
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"

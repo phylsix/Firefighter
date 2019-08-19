@@ -35,17 +35,15 @@ class configBuilder:
             ),
             splittingMode="FileBased",
             unitsPerJob=10,
-            psetName=join(
-                os.getenv("CMSSW_BASE"),
-                "src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py",
-            ),
+            ffConfigName = 'ffNtupleFromAOD_cfg.py',
             outbase="/store/group/lpcmetx/SIDM/ffNtuple/",
             year=2018,
         )
         self.specs_.update(kwargs)
-        self.specs_["outLFNDirBase"] = join(
-            self.specs_["outbase"], str(self.specs_["year"])
-        )
+        self.specs_["outLFNDirBase"] = join(self.specs_["outbase"], str(self.specs_["year"]))
+        self.specs_['psetName'] = join(os.getenv("CMSSW_BASE"),
+                                       "src/Firefighter/ffConfig/cfg/",
+                                       self.specs_['ffConfigName'])
 
     def build(self):
 
@@ -72,6 +70,9 @@ class configBuilder:
                 leptonJetCandStrategy=self.specs_["leptonJetCandStrategy"],
             ),
         }
+
+        if 'denomTriggerPaths' in self.specs_:
+            ffsc['data-spec']['denomTriggerPaths'] = self.specs_['denomTriggerPaths']
 
         ## crab ##
         res = []

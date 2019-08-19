@@ -7,18 +7,19 @@ import importlib
 import os
 from os.path import join
 
-PRODUCTIONBASE = join(
-    os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/"
-)
+import yaml
+
 
 # tosubd_ = "Firefighter.ffConfig.production.Autumn18.data.DoubleMuon_Run2018A"
 # tosubd_ = "Firefighter.ffConfig.production.Autumn18.bkgmc.TTJets_TuneCP5_13TeV-madgraphMLM-pythia8"
-tosubd_ = "Firefighter.ffConfig.production.Autumn18.sigmc.private.XXTo2ATo4Mu_mXX-500_mA-1p2_ctau-18"
+tosubd_ = join(os.getenv('CMSSW_BASE'),
+               "src/Firefighter/ffConfig/python/production/Autumn18/sigmc/private/",
+               "XXTo2ATo4Mu_mXX-500_mA-1p2_ctau-18.yml")
 print(tosubd_)
 
 
 def main():
-    tosubdff = importlib.import_module(tosubd_).ffDataSet
+    tosubdff = yaml.load(open(tosubd_), Loader=yaml.Loader)
 
     from Firefighter.ffConfig.crabConfigBuilder import configBuilder
 
