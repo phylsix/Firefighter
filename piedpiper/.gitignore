@@ -1,2 +1,2 @@
 externalLHEProducer_and_PYTHIA8_Hadronizer_cff.py
-**/*_cfg.py
+cfg/*_cfg.py
