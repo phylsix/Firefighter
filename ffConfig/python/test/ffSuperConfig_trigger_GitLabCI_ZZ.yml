@@ -10,7 +10,7 @@ condition-spec:
 data-spec:
   inputFileList: ["file:ZZ_numEvent300.root"]
   maxEvents: -1
-  outputFileName: "ffNtuple_ZZ.root"
+  outputFileName: "ffNtuple_ZZ_trigger.root"
   lumiMask: ""
   dataType: "bkgmc"
   denomTriggerPaths:

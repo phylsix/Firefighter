@@ -1,6 +1,7 @@
 stages:
   - compile
   - test_ff
+  - dump_ff
 
 before_script:
   - source /cvmfs/grid.cern.ch/etc/profile.d/setup-cvmfs-ui.sh
@@ -50,6 +51,24 @@ test_sigMC:
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-4mu.yml
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_2mu2e.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-2mu2e.yml
+    - mv ffNtuple_signal-2mu2e.root $CI_HOME
+    - mv ffNtuple_signal-4mu.root $CI_HOME
+  artifacts:
+    paths:
+      - ffNtuple_signal-2mu2e.root
+      - ffNtuple_signal-4mu.root
+
+sigMC_dump:
+  tags: [cvmfs]
+  stage: dump_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd $CI_HOME
+    - rootls -1t ffNtuple_signal-2mu2e.root
+    - rootls -1t ffNtuple_signal-4mu.root
 
 test_bkgMC:
   tags: [cvmfs]
@@ -61,6 +80,21 @@ test_bkgMC:
     - eval `scramv1 runtime -sh`
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_ZZ.yml
+    - mv ffNtuple_ZZ.root $CI_HOME
+  artifacts:
+    paths:
+      - ffNtuple_ZZ.root
+
+bkgMC_dump:
+  tags: [cvmfs]
+  stage: dump_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd $CI_HOME
+    - rootls -1t ffNtuple_ZZ.root
 
 test_bkgMC4Trg:
   tags: [cvmfs]
@@ -72,6 +106,22 @@ test_bkgMC4Trg:
     - eval `scramv1 runtime -sh`
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_trigger_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_trigger_GitLabCI_ZZ.yml
+    - mv ffNtuple_ZZ_trigger.root $CI_HOME
+  artifacts:
+    paths:
+      - ffNtuple_ZZ_trigger.root
+
+bkgMC4Trg_dump:
+  tags: [cvmfs]
+  stage: dump_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd $CI_HOME
+    - rootls -1t ffNtuple_ZZ_trigger.root
+
 
 test_data:
   tags: [cvmfs]
@@ -83,3 +133,18 @@ test_data:
     - eval `scramv1 runtime -sh`
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/DoubleMuon2018C_numEvent300.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_DoubleMuon2018C.yml
+    - mv ffNtuple_DoubleMuon2018C.root $CI_HOME
+  artifacts:
+    paths:
+      - ffNtuple_DoubleMuon2018C.root
+
+data_dump:
+  tags: [cvmfs]
+  stage: dump_ff
+  script:
+    - cd $CI_HOME/..
+    - tar xfz $CI_HOME/cmssw.tgz
+    - cd $CI_HOME/../$CMSSW_VERSION/src
+    - eval `scramv1 runtime -sh`
+    - cd $CI_HOME
+    - rootls -1t ffNtuple_DoubleMuon2018C.root
