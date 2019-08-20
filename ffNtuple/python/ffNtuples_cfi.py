@@ -9,13 +9,17 @@ from Firefighter.recoStuff.ffLeptonJetMVAEstimator_cfi import *
 
 ntuple_event = cms.PSet(
     NtupleName=cms.string("ffNtupleEvent"),
-    PrimaryVertices=cms.InputTag("offlinePrimaryVertices"),
 )
 
 ntuple_genevent = cms.PSet(
     NtupleName=cms.string("ffNtupleGenEvent"),
     PileUp=cms.InputTag("addPileupInfo"),
     GenProd=cms.InputTag("generator"),
+)
+
+ntuple_primaryvertex = cms.PSet(
+    NtupleName=cms.string('ffNtuplePrimaryVertex'),
+    src=cms.InputTag("offlinePrimaryVertices"),
 )
 
 ntuple_gen = cms.PSet(
@@ -120,6 +124,7 @@ ffNtuplizer = cms.EDAnalyzer(
     Ntuples=cms.VPSet(
         ntuple_event,
         ntuple_genevent,
+        ntuple_primaryvertex,
         ntuple_gen,
         ntuple_genbkg,
         ntuple_genjet,
