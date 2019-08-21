@@ -55,5 +55,5 @@ if __name__ == "__main__":
     # description
     with open('description.json', 'w') as f:
         f.write(json.dumps(sorted(
-            [join('Firefighter/ffConfig/python/production/Autumn18/data', dtag + '.yml') for dtag in datasetlist]
+            [join('src/Firefighter/ffConfig/python/production/Autumn18/data', dtag + '.yml') for dtag in datasetlist]
             ), indent=4))

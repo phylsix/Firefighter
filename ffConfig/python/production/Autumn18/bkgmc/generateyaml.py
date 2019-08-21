@@ -94,5 +94,5 @@ if __name__ == "__main__":
     # summary
     with open('description.json', 'w') as f:
         f.write(json.dumps(sorted(
-            [join('Firefighter/ffConfig/python/production/Autumn18/bkgmc/', dtag + '.yml') for dtag in datasets]
+            [join('src/Firefighter/ffConfig/python/production/Autumn18/bkgmc/', dtag + '.yml') for dtag in datasets]
             ), indent=4))

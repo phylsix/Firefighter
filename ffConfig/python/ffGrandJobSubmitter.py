@@ -131,6 +131,6 @@ def submit(dkind, submitter="condor"):
 
 if __name__ == "__main__":
 
-    print(">>> I am Mr. ffGrandJobSubmitter <<<")
+    print(" I am Mr. ffGrandJobSubmitter ".center(79, '+'))
     for d in args.datasettype:
         submit(d, submitter=args.submitter)

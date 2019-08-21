@@ -44,5 +44,5 @@ def main():
 
 
 if __name__ == "__main__":
-    print(">>> I am Mr. ffBatchJobSubmitter <<<")
+    print(" I am Mr. ffBatchJobSubmitter ".center(79, '+'))
     main()
