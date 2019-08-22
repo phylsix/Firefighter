@@ -17,11 +17,44 @@ def dumpHepMC(e, hl):
     hepmcprod.getHepMCData().print()
 
 
+def dumpGenParticle(e, hls):
+
+    hl = hls['genparticles']
+    e.getByLabel(*hl)
+    assert hl[1].isValid()
+
+    genparticles = hl[1].product()
+    print("{:>8} | {:>8} {:>8} {:>8} {:>8}  {}".format(
+        'pid', 'pt', 'vxy', 'vz', 'v3d', 'statusFlags'))
+    for p in genparticles:
+        pid = abs(p.pdgId())
+        if pid not in [11, 13, 32]:
+            continue
+        # if pid in [11, 13] and p.status() != 1:
+        #     continue
+        # statusflags = p.statusFlags()
+        # if not all([statusflags.isLastCopy(),
+        #             statusflags.fromHardProcess(),
+        #             statusflags.isPrompt()
+        #             ]):
+        #     continue
+        if pid in [11, 13] and not all([
+            p.isPromptFinalState(),
+            p.fromHardProcessFinalState(),
+            p.isLastCopy()]):
+            continue
+        print("{:>8} | {:8.3f} {:8.3f} {:8.3f} {:8.3f} {}".format(
+            p.pdgId(), p.pt(), p.vertex().rho(), p.vertex().z(), p.vertex().r(), p.statusFlags().flags_.to_string()))
+
+
 def main():
 
     inputfilename = sys.argv[1]
     assert os.path.isfile(inputfilename)
-    label_plus_handles = {"hepmc": (("generatorSmeared", "", "SIM"), Handle("edm::HepMCProduct"))}
+    label_plus_handles = {
+        "hepmc": (("generatorSmeared", "", "SIM"), Handle("edm::HepMCProduct")),
+        "genparticles": (("genParticles", "", "SIM"), Handle("vector<reco::GenParticle>"))
+    }
 
     events = Events(inputfilename)
     print("num_events:", events.size())
@@ -37,7 +70,8 @@ def main():
 
         print("{} : {} : {}".format(_run, _lumi, _event).center(79, "*"))
 
-        dumpHepMC(event, label_plus_handles)
+        # dumpHepMC(event, label_plus_handles)
+        dumpGenParticle(event, label_plus_handles)
 
         print("_" * 79)
 

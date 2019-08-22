@@ -53,17 +53,23 @@ if __name__ == "__main__":
 
     ## Generate all configs
     print('==== GEN-SIM step ====')
-    cmd = get_command('GEN-SIM', year)
-    print(cmd)
+    print(" NOT using randomized method ".center(40, '*'))
+    cmd = get_command('GEN-SIM', year, rand=False)
+    print('$', cmd)
     os.system(cmd)
+    print(" Using randomized method ".center(40, '*'))
+    cmd = get_command('GEN-SIM', year, rand=True)
+    print('$', cmd)
+    os.system(cmd)
+
 
     print('==== PREMIX-RAW-HLT step ====')
     cmd = get_command('PREMIX-RAW-HLT', year)
-    print(cmd)
+    print('$', cmd)
     get_voms_certificate()
     os.system(cmd)
 
     print('==== AODSIM step ====')
     cmd = get_command('AODSIM', year)
-    print(cmd)
+    print('$', cmd)
     os.system(cmd)

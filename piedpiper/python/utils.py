@@ -339,7 +339,7 @@ def get_command(step, year, rand=True):
         else:
 
             if randomized:
-                cfgOutput = os.path.join(cfgOutput, "SIDM_GENSIM_r_cfg.py")
+                cfgOutput = cfgOutput.replace("SIDM_GENSIM_cfg.py", "SIDM_GENSIM_r_cfg.py")
                 cmd = " ".join(
                     [
                         "cmsDriver.py",
@@ -456,7 +456,7 @@ def get_command(step, year, rand=True):
                     "--datamix PreMix",
                     "-n -1",
                     # '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUFull18_102X_upgrade2018_realistic_v11-v1/GEN-SIM-DIGI-RAW"',
-                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUAutumn18_102X_upgrade2018_realistic_v15-v1/GEN-SIM-DIGI-RAW"'
+                    '--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-PUAutumn18_102X_upgrade2018_realistic_v15-v1/GEN-SIM-DIGI-RAW"',
                     "--no_exec",
                     "--python_filename {1}",
                     "--customise Configuration/DataProcessing/Utils.addMonitoring",
@@ -537,5 +537,5 @@ def get_command(step, year, rand=True):
                 ]
             ).format(year, cfgOutput)
 
-    print("><><><>Output python cfg file: {}".format(cfgOutput))
+    print(">>>>> Output python cfg file: {}".format(cfgOutput))
     return cmd

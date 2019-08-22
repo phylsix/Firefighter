@@ -56,14 +56,16 @@ genfilter = cms.EDFilter(
                 "abs(eta)<2.4",
                 "(vertex.rho<740. && abs(vertex.Z)<960.)",
                 "pt>5.",
-                "isHardProcess()",
+                "isLastCopy()",
+                "isPromptFinalState()",
+                "fromHardProcessFinalState()",
             ]
         )
     ),
 )
-gencount = cms.EDFilter(
-    "CandViewCountFilter", src=cms.InputTag("genfilter"), minNumber=cms.uint32(4)
-)
+gencount = cms.EDFilter("CandViewCountFilter",
+                        src=cms.InputTag("genfilter"),
+                        minNumber=cms.uint32(4))
 
 ProductionFilterSequence = cms.Sequence(
     generator * (genParticlesForFilter + genfilter + gencount)
