@@ -3565,5 +3565,5 @@ fileList:
   - /store/data/Run2018B/DoubleMuon/AOD/17Sep2018-v1/60000/FEBE139B-9E1A-0A40-BBAA-C9BEC4D945DE.root
   - /store/data/Run2018B/DoubleMuon/AOD/17Sep2018-v1/810000/E2E621BC-C217-114D-86A5-CF725FCE046C.root
 globalTag: 102X_dataRun2_v11
-lumiMask: https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON_MuonPhys.txt
+lumiMask: https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt
 maxEvents: -1

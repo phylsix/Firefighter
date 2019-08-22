@@ -74,7 +74,7 @@ def submit(dkind, submitter="condor"):
             _eventregion = "control"  # only control for data now.
 
         for i, ds in enumerate(ffds[dkind]):
-            print("----> submitting {0}/{1}".format(i, len(ffds[dkind]) - 1))
+            print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
             cb = CrabCB(ds, eventRegion=_eventregion)
             for c in cb.build():
                 CrabCB.submit(c)
@@ -100,7 +100,7 @@ def submit(dkind, submitter="condor"):
         if dkind == "bkgmc":  # only background mc has dataset not on disk
             diskGhosts = []
             for i, ds in enumerate(ffds[dkind]):
-                print("----> submitting {0}/{1}".format(i, len(ffds[dkind]) - 1))
+                print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
                 if any(map(lambda d: get_storageSites(d), ds["datasetNames"])):  # condor, this way
                     cb = CondorCB(ds, eventRegion=_eventregion)
                     for c in cb.build():
@@ -120,7 +120,7 @@ def submit(dkind, submitter="condor"):
                 print("@@@ saved at {}.".format(logfn))
         else:
             for i, ds in enumerate(ffds[dkind]):
-                print("----> submitting {0}/{1}".format(i, len(ffds[dkind]) - 1))
+                print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
                 cb = CondorCB(ds, eventRegion=_eventregion)
                 for c in cb.build():
                     CondorCB.submit(c)
