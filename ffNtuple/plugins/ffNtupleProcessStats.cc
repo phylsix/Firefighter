@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "TH1.h"
 #include "TTree.h"
@@ -32,10 +33,12 @@ class ffNtupleProcessStats
   virtual void endJob() override {}
 
   edm::EDGetToken fGenProductToken;
+  edm::EDGetToken fPileupToken;
 
   edm::Service<TFileService> fs;
 
-  TH1F*  fHisto;
+  TH1D*  fHisto;
+  TH1D*  fPileup;
   TTree* fTree;
   TTree* fTree2;
 
@@ -46,14 +49,18 @@ class ffNtupleProcessStats
 
 ffNtupleProcessStats::ffNtupleProcessStats( const edm::ParameterSet& ps ) {
   usesResource( "TFileService" );
+  TH1::SetDefaultSumw2();
+
   fGenProductToken = consumes<GenEventInfoProduct>( edm::InputTag( "generator" ) );
+  fPileupToken     = consumes<std::vector<PileupSummaryInfo>>( edm::InputTag( "addPileupInfo" ) );
 }
 
 ffNtupleProcessStats::~ffNtupleProcessStats() {}
 
 void
 ffNtupleProcessStats::beginJob() {
-  fHisto = fs->make<TH1F>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
+  fHisto  = fs->make<TH1D>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
+  fPileup = fs->make<TH1D>( "pileup", "pileup distribution;TrueInteraction;events", 100, 0, 100 );
 
   fTree = fs->make<TTree>( "runlumi", "" );
   fTree->Branch( "run", &fRun );
@@ -85,6 +92,19 @@ ffNtupleProcessStats::analyze( const edm::Event&      e,
   e.getByToken( fGenProductToken, genProductHdl );
   fWeight = genProductHdl.isValid() ? genProductHdl->weight() : 0;
   fHisto->Fill( 3, fWeight );  // this is filling sum of genwgt
+
+  edm::Handle<std::vector<PileupSummaryInfo>> pileupSummaryInfoHdl;
+  e.getByToken( fPileupToken, pileupSummaryInfoHdl );
+
+  if ( pileupSummaryInfoHdl.isValid() ) {  // MC, produce pileup distribution
+    for ( const auto& puinfo : *pileupSummaryInfoHdl ) {
+      if ( puinfo.getBunchCrossing() == 0 ) {
+        fPileup->Fill( puinfo.getTrueNumInteractions() );
+        break;
+      }
+    }
+  }
+
   fTree2->Fill();
 }
 
