@@ -67,7 +67,9 @@ sigMC_dump:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
+    - rootls -1t ffNtuple_signal-2mu2e.root:ffNtupleStat
     - rootls -1t ffNtuple_signal-2mu2e.root:ffNtuplizer
+    - rootls -1t ffNtuple_signal-4mu.root:ffNtupleStat
     - rootls -1t ffNtuple_signal-4mu.root:ffNtuplizer
 
 test_bkgMC:
@@ -94,6 +96,7 @@ bkgMC_dump:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
+    - rootls -1t ffNtuple_ZZ.root:ffNtupleStat
     - rootls -1t ffNtuple_ZZ.root:ffNtuplizer
 
 test_bkgMC4Trg:
@@ -120,6 +123,7 @@ bkgMC4Trg_dump:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
+    - rootls -1t ffNtuple_ZZ_trigger.root:ffNtupleStat
     - rootls -1t ffNtuple_ZZ_trigger.root:ffNtuplizer
 
 
@@ -147,4 +151,5 @@ data_dump:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
+    - rootls -1t ffNtuple_DoubleMuon2018C.root:ffNtupleStat
     - rootls -1t ffNtuple_DoubleMuon2018C.root:ffNtuplizer
