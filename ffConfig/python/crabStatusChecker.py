@@ -76,6 +76,14 @@ def displaystatus(submissiondir, queryresult):
         print()
 
 
+def printcrabresubcmd(submissiondir, queryresult):
+    jobnames = [d for d in queryresult if queryresult[d]['status']=='FAILED']
+    cmds = ['crab resubmit -d {}'.format(join(submissiondir, d)) for d in jobnames]
+    if cmds:
+        print(" To submit failed jobs ".center(79, "*"))
+        print(*cmds, sep="\n")
+
+
 
 if __name__ == "__main__":
 
@@ -88,3 +96,4 @@ if __name__ == "__main__":
     qresults = querystatus(subdir, qlist)
     updatecompletelist(subdir, qresults)
     displaystatus(subdir, qresults)
+    printcrabresubcmd(subdir, qresults)
