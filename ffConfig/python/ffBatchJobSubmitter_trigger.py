@@ -44,7 +44,7 @@ def main():
     )
 
     for ds in tosubd_:
-        tosubdff = yaml.load(open(ds), Loader=yaml.Loader)
+        tosubdff = yaml.load(open(join(os.getenv("CMSSW_BASE"), ds)), Loader=yaml.Loader)
 
         cb = configBuilder(tosubdff, **customize)
         for c in cb.build():
