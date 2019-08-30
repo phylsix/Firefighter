@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 from Firefighter.ffEvtFilters.LeptonJetPairFilter_cfi import *
 from Firefighter.ffEvtFilters.ffTriggerObjectsMatchingFilter_cfi import *
+from Firefighter.ffEvtFilters.ffCosmicEventFilter_cfi import *
 # from Firefighter.ffConfig.ffConfigSwitch import switches
 
 
 ###############################################################################
-ffBeginEventFilteringSeq = cms.Sequence(triggerObjectMatchingFilter)
+ffBeginEventFilteringSeq = cms.Sequence(
+    ffcosmiceventfilter
+    + triggerObjectMatchingFilter
+)
 
 
 ###############################################################################

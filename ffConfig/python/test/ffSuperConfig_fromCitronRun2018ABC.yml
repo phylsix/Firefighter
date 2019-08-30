@@ -1,0 +1,22 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 8
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_dataRun2_v11"
+
+data-spec:
+  inputFileList:
+    - file:/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/ffConfig/crabGarage/190825/fromCitron/Run2018A.root
+    - file:/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/ffConfig/crabGarage/190825/fromCitron/Run2018B.root
+
+  maxEvents: -1
+  outputFileName: "ffNtuple_fromCitronRun2018ABC.root"
+  lumiMask: ""
+  dataType: "data"
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"

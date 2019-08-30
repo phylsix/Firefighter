@@ -1,0 +1,21 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 8
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_dataRun2_Prompt_v14"
+
+data-spec:
+  inputFileList:
+    - file:/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/ffConfig/crabGarage/190825/results/pickevents_merged_D.root
+
+  maxEvents: -1
+  outputFileName: "ffNtuple_pickeventsDoubleMuon2018D.root"
+  lumiMask: ""
+  dataType: "data"
+
+reco-spec:
+  eventRegion: "control"
+  leptonJetCandStrategy: "hadronFree"
