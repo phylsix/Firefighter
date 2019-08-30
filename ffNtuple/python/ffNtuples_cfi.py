@@ -116,7 +116,9 @@ ntuple_beamhalo = cms.PSet(
 
 ntuple_metfilters = cms.PSet(NtupleName=cms.string("ffNtupleMetFilters"))
 
-
+ntuple_leptonjetmisc = cms.PSet(
+    NtupleName=cms.string("ffNtupleLeptonJetMisc"),
+)
 
 ffNtuplizer = cms.EDAnalyzer(
     "ffNtupleManager",
@@ -137,6 +139,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_muontiming,
         # ntuple_beamhalo,
         ntuple_metfilters,
+        # ntuple_leptonjetmisc,
     ),
 )
 
