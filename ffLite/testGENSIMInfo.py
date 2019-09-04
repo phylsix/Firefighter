@@ -28,7 +28,7 @@ def dumpGenParticle(e, hls):
         'pid', 'pt', 'vxy', 'vz', 'v3d', 'statusFlags'))
     for p in genparticles:
         pid = abs(p.pdgId())
-        if pid not in [11, 13, 32]:
+        if pid not in [11, 13, 32, 35]:
             continue
         # if pid in [11, 13] and p.status() != 1:
         #     continue
@@ -38,10 +38,15 @@ def dumpGenParticle(e, hls):
         #             statusflags.isPrompt()
         #             ]):
         #     continue
-        if pid in [11, 13] and not all([
-            p.isPromptFinalState(),
-            p.fromHardProcessFinalState(),
-            p.isLastCopy()]):
+        # if pid in [11, 13,] and not all([
+        #     p.isPromptFinalState(),
+        #     p.fromHardProcessFinalState(),
+        #     p.isLastCopy()]):
+        #     continue
+        if pid in [11, 13, 32, 35] and not all([
+            p.statusFlags().isLastCopy(),
+            p.statusFlags().fromHardProcess(),
+            p.statusFlags().isPrompt(),]):
             continue
         print("{:>8} | {:8.3f} {:8.3f} {:8.3f} {:8.3f} {}".format(
             p.pdgId(), p.pt(), p.vertex().rho(), p.vertex().z(), p.vertex().r(), p.statusFlags().flags_.to_string()))

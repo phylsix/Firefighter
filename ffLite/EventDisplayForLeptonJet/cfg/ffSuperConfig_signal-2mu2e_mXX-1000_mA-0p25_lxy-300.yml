@@ -1,0 +1,20 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 8
+  reportEvery: 100
+
+condition-spec:
+  globalTag: "102X_upgrade2018_realistic_v19"
+
+data-spec:
+  inputFileList:
+    - /store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo2Mu2e_MBs-1000_MDp-0p25_ctau-1p875/181228_061745/0000/SIDM_AODSIM_1.root
+  maxEvents: 50
+  outputFileName: "ffNtuple_signal-2mu2e_mXX-1000_mA-0p25_lxy-300.root"
+  lumiMask: ""
+  dataType: "sigmc"
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"

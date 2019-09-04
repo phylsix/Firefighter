@@ -1,0 +1,25 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 8
+  reportEvery: 1000
+
+condition-spec:
+  globalTag: "102X_upgrade2018_realistic_v19"
+
+data-spec:
+  inputFileList:
+  - /store/mc/RunIIAutumn18DRPremix/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/10000/337DB92B-B85C-2946-8924-838F5AD34AAC.root
+  - /store/mc/RunIIAutumn18DRPremix/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/10000/3404B602-33DA-5E4E-BCA0-BEEAF22B4D21.root
+  - /store/mc/RunIIAutumn18DRPremix/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/10000/382BFE1C-B092-394C-A91B-B8F4E65F08F1.root
+  - /store/mc/RunIIAutumn18DRPremix/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/10000/3A1F096F-FF73-F044-B368-6940491428BC.root
+  - /store/mc/RunIIAutumn18DRPremix/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/10000/3CD2F708-B801-5B4F-A35B-3509A6DA82C8.root
+  - /store/mc/RunIIAutumn18DRPremix/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/10000/417ECF26-10F8-1D41-B04B-6AB113E771DD.root
+  maxEvents: 100
+  outputFileName: "ffNtuple_TTJets.root"
+  lumiMask: ""
+  dataType: "bkgmc"
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"
