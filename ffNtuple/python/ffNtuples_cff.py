@@ -29,6 +29,7 @@ if year == 2018:
             "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_NoL2Matched",
             "HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4",
             "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4",
+            # "HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL",
         ]
     )
 

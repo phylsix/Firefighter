@@ -7,6 +7,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtraFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
@@ -35,6 +37,10 @@ class ffNtupleLeptonJetMisc : public ffNtupleBase {
   edm::EDGetToken fCosmicMuonToken;
   edm::EDGetToken fLeptonJetToken;
   edm::EDGetToken fGeneralTkToken;
+  edm::EDGetToken fDsaAsRecoMuonToken;
+
+  std::map<std::string, edm::EDGetToken> fDsaAsRecoMuonTimeTokens;
+  std::vector<std::string>               fMuonTimeInstances;
 
   unsigned int fNumParallelDsaMuon;
   unsigned int fNumParallelCosmicMuon;
@@ -43,6 +49,14 @@ class ffNtupleLeptonJetMisc : public ffNtupleBase {
   std::vector<std::vector<float>> fDsaInLjPtError;
   std::vector<std::vector<int>>   fDsaInLjNumValidDTHits;
   std::vector<std::vector<int>>   fDsaInLjNumValidCSCHits;
+  std::vector<std::vector<int>>   fDsaInLjNumValidRPCHits;
+  std::vector<std::vector<int>>   fDsaInLjNumValidMuonStations;
+  std::vector<std::vector<int>>   fDsaInLjNumValidDTChambers;
+  std::vector<std::vector<int>>   fDsaInLjHemisphere;
+  std::vector<std::vector<float>> fDsaInLjDTTOF;
+  std::vector<std::vector<int>>   fDsaInLjDTTOFnDOF;
+  std::vector<std::vector<float>> fDsaInLjDTTOFError;
+  std::vector<std::vector<float>> fDsaInLjRPCTOF;
   std::vector<std::vector<bool>>  fDsaInLjIsSubsetRecoMuonWithInnerTrack;
 };
 
@@ -61,12 +75,26 @@ ffNtupleLeptonJetMisc::initialize( TTree&                   tree,
   fLeptonJetToken  = cc.consumes<reco::PFJetCollection>( edm::InputTag( "filteredLeptonJet" ) );
   fGeneralTkToken  = cc.consumes<reco::TrackCollection>( edm::InputTag( "generalTracks" ) );
 
+  fDsaAsRecoMuonToken = cc.consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) );
+  fMuonTimeInstances  = {"combined", "dt", "csc"};
+  for ( const std::string& ins : fMuonTimeInstances ) {
+    fDsaAsRecoMuonTimeTokens.emplace( ins, cc.consumes<reco::MuonTimeExtraMap>( edm::InputTag( "muonsFromdSA", ins ) ) );
+  }
+
   tree.Branch( "ljmisc_numParallelDsa", &fNumParallelDsaMuon );
   tree.Branch( "ljmisc_numParallelCosmic", &fNumParallelCosmicMuon );
   tree.Branch( "ljmisc_dsaPt", &fDsaInLjPt );
   tree.Branch( "ljmisc_dsaPtError", &fDsaInLjPtError );
   tree.Branch( "ljmisc_dsaNumValidDTHits", &fDsaInLjNumValidDTHits );
   tree.Branch( "ljmisc_dsaNumValidCSCHits", &fDsaInLjNumValidCSCHits );
+  tree.Branch( "ljmisc_dsaNumValidRPCHits", &fDsaInLjNumValidRPCHits );
+  tree.Branch( "ljmisc_dsaNumValidMuonStations", &fDsaInLjNumValidMuonStations );
+  tree.Branch( "ljmisc_dsaNumValidDTChambers", &fDsaInLjNumValidDTChambers );
+  tree.Branch( "ljmisc_dsaHemisphere", &fDsaInLjHemisphere );
+  tree.Branch( "ljmisc_dsaDTTOF", &fDsaInLjDTTOF );
+  tree.Branch( "ljmisc_dsaDTTOFnDOF", &fDsaInLjDTTOFnDOF );
+  tree.Branch( "ljmisc_dsaDTTOFError", &fDsaInLjDTTOFError );
+  tree.Branch( "ljmisc_dsaRPCTOF", &fDsaInLjRPCTOF );
   tree.Branch( "ljmisc_dsaIsSubsetRecoMuonWithInnerTrack", &fDsaInLjIsSubsetRecoMuonWithInnerTrack );
 }
 
@@ -100,6 +128,16 @@ ffNtupleLeptonJetMisc::fill( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( fGeneralTkToken, generalTkHdl );
   assert( generalTkHdl.isValid() );
 
+  Handle<reco::MuonCollection> dsaAsRecoMuonHdl;
+  e.getByToken( fDsaAsRecoMuonToken, dsaAsRecoMuonHdl );
+  assert( dsaAsRecoMuonHdl.isValid() );
+
+  map<string, Handle<reco::MuonTimeExtraMap>> dsaAsRecoMuonTimeHdls;
+  for ( const auto& ins : fMuonTimeInstances ) {
+    e.getByToken( fDsaAsRecoMuonTimeTokens[ ins ], dsaAsRecoMuonTimeHdls[ ins ] );
+    assert( dsaAsRecoMuonTimeHdls[ ins ].isValid() );
+  }
+
   clear();
 
   for ( size_t i( 0 ); i != dsamuons.size(); i++ ) {
@@ -125,7 +163,16 @@ ffNtupleLeptonJetMisc::fill( const edm::Event& e, const edm::EventSetup& es ) {
     vector<float> dsaInLjPtError{};
     vector<int>   dsaInLjNumValidDTHits{};
     vector<int>   dsaInLjNumValidCSCHits{};
-    vector<bool>  dsaInLjIsSubsetRecoMuonWithInnerTrack{};
+    vector<int>   dsaInLjNumValidRPCHits{};
+    vector<int>   dsaInLjNumValidMuonStations{};
+    vector<int>   dsaInLjNumValidDTChambers{};
+    vector<int>   dsaInLjHemisphere{};
+    vector<int>   dsaInLjDTTOFnDOF{};
+    vector<float> dsaInLjDTTOF{};
+    vector<float> dsaInLjDTTOFError{};
+    vector<float> dsaInLjRPCTOF{};
+
+    vector<bool> dsaInLjIsSubsetRecoMuonWithInnerTrack{};
 
     const vector<reco::PFCandidatePtr> pfCands = getPFCands( leptonjet );
     for ( const auto& cand : pfCands ) {
@@ -142,6 +189,36 @@ ffNtupleLeptonJetMisc::fill( const edm::Event& e, const edm::EventSetup& es ) {
       const auto& dsahitpattern = dsatrack->hitPattern();
       dsaInLjNumValidDTHits.emplace_back( dsahitpattern.numberOfValidMuonDTHits() );
       dsaInLjNumValidCSCHits.emplace_back( dsahitpattern.numberOfValidMuonCSCHits() );
+      dsaInLjNumValidRPCHits.emplace_back( dsahitpattern.numberOfValidMuonRPCHits() );
+      dsaInLjNumValidMuonStations.emplace_back( dsahitpattern.muonStationsWithValidHits() );
+      dsaInLjNumValidDTChambers.emplace_back( dsahitpattern.dtStationsWithValidHits() );
+      dsaInLjHemisphere.emplace_back( dsatrack->outerY() > 0 ? 1 : -1 );
+
+      /// muon timing info
+      reco::MuonRef dresseddsamuon;
+      for ( size_t i( 0 ); i != dsaAsRecoMuonHdl->size(); ++i ) {
+        reco::MuonRef dsaasrecomuon( dsaAsRecoMuonHdl, i );
+        if ( dsaasrecomuon->outerTrack() != dsatrack )
+          continue;
+        dresseddsamuon = dsaasrecomuon;
+        break;
+      }
+      if ( dresseddsamuon.isNonnull() ) {
+        // fill time info;
+        const reco::MuonTimeExtra& dtTimeInfo = ( *dsaAsRecoMuonTimeHdls[ "dt" ] )[ dresseddsamuon ];
+        dsaInLjDTTOFnDOF.emplace_back( dtTimeInfo.nDof() );
+        dsaInLjDTTOF.emplace_back( dtTimeInfo.timeAtIpInOut() );
+        dsaInLjDTTOFError.emplace_back( dtTimeInfo.timeAtIpInOutErr() );
+
+        dsaInLjRPCTOF.emplace_back( dresseddsamuon->rpcTime().timeAtIpInOut );
+      } else {
+        // fill nans;
+        dsaInLjDTTOFnDOF.emplace_back( 0 );
+        dsaInLjDTTOF.emplace_back( NAN );
+        dsaInLjDTTOFError.emplace_back( NAN );
+        dsaInLjRPCTOF.emplace_back( NAN );
+        cout << "[ljmisc] a dSA track cannot find a cast reco::Muon!" << endl;
+      }
 
       bool isSubsetRecoMuonWithInnerTrack = false;
       // construct a set of dSA's Station/Detector tuple
@@ -203,6 +280,14 @@ ffNtupleLeptonJetMisc::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fDsaInLjPtError.push_back( dsaInLjPtError );
     fDsaInLjNumValidDTHits.push_back( dsaInLjNumValidDTHits );
     fDsaInLjNumValidCSCHits.push_back( dsaInLjNumValidCSCHits );
+    fDsaInLjNumValidRPCHits.push_back( dsaInLjNumValidRPCHits );
+    fDsaInLjNumValidMuonStations.push_back( dsaInLjNumValidMuonStations );
+    fDsaInLjNumValidDTChambers.push_back( dsaInLjNumValidDTChambers );
+    fDsaInLjHemisphere.push_back( dsaInLjHemisphere );
+    fDsaInLjDTTOFnDOF.push_back( dsaInLjDTTOFnDOF );
+    fDsaInLjDTTOF.push_back( dsaInLjDTTOF );
+    fDsaInLjDTTOFError.push_back( dsaInLjDTTOFError );
+    fDsaInLjRPCTOF.push_back( dsaInLjRPCTOF );
     fDsaInLjIsSubsetRecoMuonWithInnerTrack.push_back( dsaInLjIsSubsetRecoMuonWithInnerTrack );
   }
 }
@@ -215,5 +300,14 @@ ffNtupleLeptonJetMisc::clear() {
   fDsaInLjPtError.clear();
   fDsaInLjNumValidDTHits.clear();
   fDsaInLjNumValidCSCHits.clear();
+  fDsaInLjNumValidRPCHits.clear();
+  fDsaInLjNumValidMuonStations.clear();
+  fDsaInLjNumValidDTChambers.clear();
+  fDsaInLjHemisphere.clear();
+  fDsaInLjDTTOFnDOF.clear();
+  fDsaInLjDTTOF.clear();
+  fDsaInLjDTTOFError.clear();
+  fDsaInLjRPCTOF.clear();
+
   fDsaInLjIsSubsetRecoMuonWithInnerTrack.clear();
 }

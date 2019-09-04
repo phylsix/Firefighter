@@ -24,7 +24,8 @@ ntuple_primaryvertex = cms.PSet(
 
 ntuple_gen = cms.PSet(
     NtupleName=cms.string("ffNtupleGen"),
-    GenParticles=cms.InputTag("genParticles"),
+    src=cms.InputTag("genParticles"),
+    AllowedPids=cms.vint32([35, 32, 13, 11]), # XX, A, mu, e
     MCEvent=cms.InputTag("generatorSmeared"),
     CylinderRZ=cms.VPSet(
         cms.PSet(
@@ -88,6 +89,11 @@ ntuple_pfjet = cms.PSet(
     mvaParam=ffLeptonJetMVAEstimatorParam,
 )
 
+ntuple_akjet = cms.PSet(
+    NtupleName=cms.string("ffNtupleAKJet"),
+    src=cms.InputTag("ak4PFJetsCHS"),
+)
+
 ntuple_hftagscore = cms.PSet(
     NtupleName=cms.string("ffNtupleHFtagScore"),
     jet=cms.InputTag("ak4PFJetsCHS"),
@@ -135,11 +141,12 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_electron,
         ntuple_dsamuon,
         ntuple_pfjet,
+        ntuple_akjet,
         ntuple_hftagscore,
         ntuple_muontiming,
         # ntuple_beamhalo,
         ntuple_metfilters,
-        # ntuple_leptonjetmisc,
+        ntuple_leptonjetmisc,
     ),
 )
 
