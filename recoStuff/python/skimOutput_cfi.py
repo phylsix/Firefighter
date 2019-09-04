@@ -13,5 +13,6 @@ skimOutput = cms.OutputModule(
         "drop *TrackingRecHit*_*_*_*",
         "drop *TrackExtra*_*_*_*",
         "keep *PFCandidate*_particleFlow__RECO",
+        "keep *PFJet*_ak4PFJetsCHS__RECO",
     ),
 )
