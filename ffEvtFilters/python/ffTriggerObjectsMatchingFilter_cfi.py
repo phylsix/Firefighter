@@ -10,6 +10,7 @@ triggerObjectMatchingFilter = cms.EDFilter(
         "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched",
         "HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4",
         "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4",
+        "HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL",
     ),
     triggerResults=cms.InputTag("TriggerResults", "", "HLT"),
     triggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
