@@ -34,6 +34,7 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
 
     if keepskim:
         process.load("Firefighter.recoStuff.skimOutput_cfi")
+        process.skimOutput.fileName=cms.untracked.string(ffConfig["data-spec"]["outputFileName"].replace('ffNtuple', 'ffSkim'))
         process.output_step = cms.EndPath(process.skimOutput)
         process.schedule = cms.Schedule(
             process.stathistory,
@@ -186,6 +187,7 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
 
     if keepskim:
         process.load("Firefighter.recoStuff.skimOutput_cfi")
+        process.skimOutput.fileName=cms.untracked.string(ffConfig["data-spec"]["outputFileName"].replace('ffNtuple', 'ffSkim'))
         process.output_step = cms.EndPath(process.skimOutput)
         process.schedule = cms.Schedule(
             process.stathistory,

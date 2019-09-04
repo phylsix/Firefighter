@@ -1,7 +1,7 @@
 # all-in-one configuration file for Firefighter settings
 
 job-spec:
-  numThreads: 8
+  numThreads: 1
   reportEvery: 1
 
 condition-spec:

@@ -22,7 +22,7 @@ options.register(
     0,
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.int,
-    "Wheter to keep skim output.",
+    "Whether to keep skim output.",
 )
 options.parseArguments()
 ffConfig = yaml.safe_load(open(options.config))

@@ -2,17 +2,19 @@
 
 job-spec:
   numThreads: 8
-  reportEvery: 1
+  reportEvery: 1000
 
 condition-spec:
   globalTag: "102X_upgrade2018_realistic_v19"
 
 data-spec:
   inputFileList:
-    [
-      "/store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00001/6B626859-4FE0-3143-8CEA-5A4A836214E4.root",
-    ]
-  maxEvents: 50
+    - /store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00001/6B626859-4FE0-3143-8CEA-5A4A836214E4.root
+    - /store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00000/00FBB948-5D7D-D041-A8C1-49B8F59E1266.root
+    - /store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00000/012C799C-6D52-B046-B030-E7935115670C.root
+    - /store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00000/015D0A1B-A8E6-8646-9FDB-2D4798709CE8.root
+    - /store/mc/RunIIAutumn18DRPremix/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/00000/0172EF5B-E340-EE4A-B763-1B640294E340.root
+  maxEvents: -1
   outputFileName: "ffNtuple_DYJetsM50.root"
   lumiMask: ""
   dataType: "bkgmc"
