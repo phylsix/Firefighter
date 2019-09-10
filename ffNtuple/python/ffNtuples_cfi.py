@@ -51,8 +51,19 @@ ntuple_hlt = cms.PSet(
     TriggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     TriggerResults=cms.InputTag("TriggerResults", "", "HLT"),
     TriggerPaths=cms.vstring(
-        "HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx",
-        "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx",
+        "HLT_DoubleL2Mu23NoVtx_2Cha",
+        "HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched",
+        "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed",
+        "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched",
+        "HLT_DoubleL2Mu25NoVtx_2Cha",
+        "HLT_DoubleL2Mu25NoVtx_2Cha_NoL2Matched",
+        "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed",
+        "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_NoL2Matched",
+        "HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4",
+        "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4",
+        # mu-photon triggers
+        "HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL",
+        "HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL",
     ),
 )
 
