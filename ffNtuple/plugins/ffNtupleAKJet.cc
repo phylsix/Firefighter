@@ -1,5 +1,6 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
@@ -18,17 +19,21 @@ class ffNtupleAKJet : public ffNtupleBase {
              HLTConfigProvider& ) override {}
 
  private:
-  void            clear() final;
-  edm::EDGetToken fAKJetToken;
+  void clear() final;
+
+  edm::EDGetToken                      fAKJetToken;
+  StringCutObjectSelector<reco::PFJet> fJetIdSelector;
 
   std::vector<LorentzVector> fAKJetP4;
+  std::vector<bool>          fJetId;
   std::vector<float>         fHadronEnergyFraction;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleAKJet, "ffNtupleAKJet" );
 
 ffNtupleAKJet::ffNtupleAKJet( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBase( ps ),
+      fJetIdSelector( ps.getParameter<std::string>( "jetid" ), true ) {}
 
 void
 ffNtupleAKJet::initialize( TTree&                   tree,
@@ -37,6 +42,7 @@ ffNtupleAKJet::initialize( TTree&                   tree,
   fAKJetToken = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
 
   tree.Branch( "akjet_p4", &fAKJetP4 );
+  tree.Branch( "akjet_jetid", &fJetId );
   tree.Branch( "akjet_hadronEnergyFraction", &fHadronEnergyFraction );
 }
 
@@ -54,6 +60,7 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   for ( const auto& akjet : akjets ) {
     fAKJetP4.push_back( LorentzVector( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() ) );
+    fJetId.emplace_back( fJetIdSelector( akjet ) );
     fHadronEnergyFraction.emplace_back( akjet.chargedHadronEnergyFraction() + akjet.neutralHadronEnergyFraction() );
   }
 }
@@ -61,5 +68,6 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 void
 ffNtupleAKJet::clear() {
   fAKJetP4.clear();
+  fJetId.clear();
   fHadronEnergyFraction.clear();
 }

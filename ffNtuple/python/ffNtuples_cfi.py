@@ -6,6 +6,7 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 
 from Firefighter.recoStuff.ffLeptonJetMVAEstimator_cfi import *
+from Firefighter.recoStuff.jetIdentificationDefs_cfi import jetiddefs
 
 ntuple_event = cms.PSet(
     NtupleName=cms.string("ffNtupleEvent"),
@@ -103,6 +104,7 @@ ntuple_pfjet = cms.PSet(
 ntuple_akjet = cms.PSet(
     NtupleName=cms.string("ffNtupleAKJet"),
     src=cms.InputTag("ak4PFJetsCHS"),
+    jetid=jetiddefs,
 )
 
 ntuple_hftagscore = cms.PSet(
