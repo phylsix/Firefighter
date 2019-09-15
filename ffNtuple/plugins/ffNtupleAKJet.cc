@@ -27,6 +27,11 @@ class ffNtupleAKJet : public ffNtupleBase {
   std::vector<LorentzVector> fAKJetP4;
   std::vector<bool>          fJetId;
   std::vector<float>         fHadronEnergyFraction;
+  std::vector<float>         fChaHadEnergyFraction;
+  std::vector<float>         fEmEnergyFraction;
+  std::vector<float>         fChaEmEnergyFraction;
+  std::vector<float>         fMuonEnergyFraction;
+  std::vector<int>           fNumCands;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleAKJet, "ffNtupleAKJet" );
@@ -43,7 +48,12 @@ ffNtupleAKJet::initialize( TTree&                   tree,
 
   tree.Branch( "akjet_p4", &fAKJetP4 );
   tree.Branch( "akjet_jetid", &fJetId );
+  tree.Branch( "akjet_pfcands_n", &fNumCands );
   tree.Branch( "akjet_hadronEnergyFraction", &fHadronEnergyFraction );
+  tree.Branch( "akjet_chaHadEnergyFraction", &fChaHadEnergyFraction );
+  tree.Branch( "akjet_emEnergyFraction", &fEmEnergyFraction );
+  tree.Branch( "akjet_chaEmEnergyFraction", &fChaEmEnergyFraction );
+  tree.Branch( "akjet_muonEnergyFraction", &fMuonEnergyFraction );
 }
 
 void
@@ -59,9 +69,14 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   clear();
 
   for ( const auto& akjet : akjets ) {
-    fAKJetP4.push_back( LorentzVector( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() ) );
+    fAKJetP4.emplace_back( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() );
     fJetId.emplace_back( fJetIdSelector( akjet ) );
+    fNumCands.emplace_back( akjet.chargedMultiplicity() + akjet.neutralMultiplicity() );
     fHadronEnergyFraction.emplace_back( akjet.chargedHadronEnergyFraction() + akjet.neutralHadronEnergyFraction() );
+    fChaHadEnergyFraction.emplace_back( akjet.chargedHadronEnergyFraction() );
+    fEmEnergyFraction.emplace_back( akjet.chargedEmEnergyFraction() + akjet.neutralEmEnergyFraction() );
+    fChaEmEnergyFraction.emplace_back( akjet.chargedEmEnergyFraction() );
+    fMuonEnergyFraction.emplace_back( akjet.muonEnergyFraction() );
   }
 }
 
@@ -69,5 +84,10 @@ void
 ffNtupleAKJet::clear() {
   fAKJetP4.clear();
   fJetId.clear();
+  fNumCands.clear();
   fHadronEnergyFraction.clear();
+  fChaHadEnergyFraction.clear();
+  fEmEnergyFraction.clear();
+  fChaEmEnergyFraction.clear();
+  fMuonEnergyFraction.clear();
 }
