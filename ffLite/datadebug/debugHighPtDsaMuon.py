@@ -185,7 +185,7 @@ def main():
         _event = event.object().id().event()
 
         if _event in cosmicevents: continue
-        print("  {} : {}: {}  ".format(_run, _lumi, _event).center(79, "*"))
+        print("  {} : {} : {}  ".format(_run, _lumi, _event).center(79, "*"))
         counter['total'] += 1
 
         ## tasks

@@ -20,9 +20,10 @@ class ffCosmicEventFilter : public edm::one::EDFilter<> {
   edm::EDGetTokenT<reco::TrackCollection> fCosmicToken;
   edm::Handle<reco::TrackCollection>      fCosmicHdl;
 
-  double       fMinCosAlpha;
-  unsigned int fMaxPairCount;
-  bool         fTaggingMode;
+  double fMinCosAlpha;
+  int    fMaxPairCount;
+  int    fNumParallelPairs;
+  bool   fTaggingMode;
 };
 
 #endif

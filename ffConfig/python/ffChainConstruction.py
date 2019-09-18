@@ -3,6 +3,83 @@ import FWCore.ParameterSet.Config as cms
 from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 
+def leptonjetStudyProcess(process, ffConfig, keepskim=False):
+    """Attach leptonjet study sequence to `process`"""
+
+    process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
+    process.load("Firefighter.recoStuff.ffMetFilters_cff")
+    process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
+    process.recoSeq = cms.Sequence(
+        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
+        + process.ffMetFilterSeq)
+
+    process.ntuple_step = cms.Path(process.recoSeq+process.ffNtuplesSeq)
+
+    process.endjob_step = cms.EndPath(process.endOfProcess)
+
+    process.schedule = cms.Schedule(process.ntuple_step,
+                                    process.endjob_step)
+    if keepskim:
+        process.load("Firefighter.recoStuff.skimOutput_cfi")
+        process.skimOutput.fileName=cms.untracked.string(ffConfig["data-spec"]["outputFileName"].replace('ffNtuple', 'ffSkimV2'))
+        process.output_step = cms.EndPath(process.skimOutput)
+        process.schedule = cms.Schedule(process.ntuple_step,
+                                        process.endjob_step,
+                                        process.output_step,)
+
+    ###########################################################################
+    ##                             non signal-mc                             ##
+    ###########################################################################
+
+    if ffConfig["data-spec"]["dataType"] == "sigmc":
+
+        ## exclude genbkg branches from ffNtupling ##
+        process.ffNtuplizer.Ntuples = cms.VPSet(
+            [
+                x
+                for x in process.ffNtuplizer.Ntuples
+                if x.NtupleName.value()!="ffNtupleGenBkg"
+            ]
+        )
+
+    else: # bkgmc | data
+
+        ## keep triggered events only ##
+        process.hltfilter = hltfilter
+        process.ffBeginEventFilteringSeq.insert(0, process.hltfilter)
+
+        ## filter MC related modules out ##
+        # mcmodules = list()
+        # process.ffLeptonJetSeq.visit(cms.ModuleNodeVisitor(mcmodules))
+        # mcmodules = [m for m in mcmodules if m.type_().startswith("MC")]
+        # for m in mcmodules:
+        #     process.ffLeptonJetSeq.remove(m)
+
+        ## exclude gen branches from ffNtupling ##
+        ## background MC will exclude gen particle part
+        process.ffNtuplizer.Ntuples = cms.VPSet(
+            [
+                x
+                for x in process.ffNtuplizer.Ntuples
+                if x.NtupleName.value()!="ffNtupleGen"
+            ]
+        )
+
+        ## data will exclude any gen- related branches
+        if ffConfig["data-spec"]["dataType"] == "data":
+            process.ffNtuplizer.Ntuples = cms.VPSet(
+                [
+                    x
+                    for x in process.ffNtuplizer.Ntuples
+                    if 'gen' not in x.NtupleName.value().lower()
+                ]
+            )
+
+    ###########################################################################
+    return process
+
+
+
 def decorateProcessFF(process, ffConfig, keepskim=False):
     """Attach Firefighter RECO, ntuple -specific to the `process`, configure
     them with `ffConfig`

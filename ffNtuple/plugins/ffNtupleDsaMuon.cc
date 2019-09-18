@@ -35,6 +35,10 @@ class ffNtupleDsaMuon : public ffNtupleBase {
   std::vector<int>                   dsamuon_nValStaHits_;
   std::vector<int>                   dsamuon_nLosStaHits_;
   std::vector<int>                   dsamuon_nStaValHits_;
+  std::vector<int>                   dsamuon_nValCSCStas_;
+  std::vector<int>                   dsamuon_nValDTStas_;
+  std::vector<int>                   dsamuon_nValCSCHits_;
+  std::vector<int>                   dsamuon_nValDTHits_;
   std::vector<int>                   dsamuon_tkQual_;
   std::vector<int>                   dsamuon_algo_;
   std::vector<int>                   dsamuon_algoOrig_;
@@ -68,6 +72,10 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_nValStaHits", &dsamuon_nValStaHits_ );
   tree.Branch( "dsamuon_nLosStaHits", &dsamuon_nLosStaHits_ );
   tree.Branch( "dsamuon_nStaValHits", &dsamuon_nStaValHits_ );
+  tree.Branch( "dsamuon_nValCSCStas", &dsamuon_nValCSCStas_ );
+  tree.Branch( "dsamuon_nValDTStas", &dsamuon_nValDTStas_ );
+  tree.Branch( "dsamuon_nValCSCHits", &dsamuon_nValCSCHits_ );
+  tree.Branch( "dsamuon_nValDTHits", &dsamuon_nValDTHits_ );
   tree.Branch( "dsamuon_tkQual", &dsamuon_tkQual_ );
   tree.Branch( "dsamuon_algo", &dsamuon_algo_ );
   tree.Branch( "dsamuon_algoOrig", &dsamuon_algoOrig_ );
@@ -110,6 +118,10 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
     dsamuon_nValStaHits_.emplace_back( hitPattern.numberOfValidMuonHits() );
     dsamuon_nLosStaHits_.emplace_back( hitPattern.numberOfLostMuonHits() );
     dsamuon_nStaValHits_.emplace_back( hitPattern.muonStationsWithValidHits() );
+    dsamuon_nValCSCStas_.emplace_back( hitPattern.cscStationsWithValidHits() );
+    dsamuon_nValDTStas_.emplace_back( hitPattern.dtStationsWithValidHits() );
+    dsamuon_nValCSCHits_.emplace_back( hitPattern.numberOfValidMuonCSCHits() );
+    dsamuon_nValDTHits_.emplace_back( hitPattern.numberOfValidMuonDTHits() );
     dsamuon_tkQual_.emplace_back( dsamuon.qualityMask() );
     dsamuon_algo_.emplace_back( dsamuon.algo() );
     dsamuon_algoOrig_.emplace_back( dsamuon.originalAlgo() );
@@ -169,6 +181,10 @@ ffNtupleDsaMuon::clear() {
   dsamuon_nValStaHits_.clear();
   dsamuon_nLosStaHits_.clear();
   dsamuon_nStaValHits_.clear();
+  dsamuon_nValCSCStas_.clear();
+  dsamuon_nValDTStas_.clear();
+  dsamuon_nValCSCHits_.clear();
+  dsamuon_nValDTHits_.clear();
   dsamuon_tkQual_.clear();
   dsamuon_algo_.clear();
   dsamuon_algoOrig_.clear();
@@ -249,7 +265,7 @@ enum TrackQuality {
   goodIterative       = 4,  // meaningless
   looseSetWithPV      = 5,
   highPuritySetWithPV = 6,
-  discarded = 7,  // because a better track found. kept in the collection for
-                  // reference....
+  discarded           = 7,  // because a better track found. kept in the collection for
+                            // reference....
   qualitySize = 8
 };

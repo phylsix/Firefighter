@@ -6,6 +6,7 @@
 .vscode
 *.sqlite
 *.png
+*.pdf
 messages.txt
 nohup.out
 crabWorkArea

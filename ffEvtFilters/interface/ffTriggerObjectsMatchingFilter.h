@@ -1,6 +1,7 @@
 #ifndef ffEvtFilters_ffTriggerObjectsMatchingFilter_H
 #define ffEvtFilters_ffTriggerObjectsMatchingFilter_H
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
@@ -21,26 +22,30 @@ class ffTriggerObjectsMatchingFilter
   void beginRun( const edm::Run&, const edm::EventSetup& ) override;
   bool filter( edm::Event&, const edm::EventSetup& ) override;
   void endRun( const edm::Run&, const edm::EventSetup& ) override;
-  math::XYZTLorentzVectorFCollection triggerObjectsFromPath(
-      const std::string&,
-      const HLTConfigProvider& ) const;
+
+  math::XYZTLorentzVectorFCollection triggerObjectsFromPath( const std::string&,
+                                                             const HLTConfigProvider& ) const;
 
  private:
   const std::string              fProcessName;
   const std::vector<std::string> fTriggerNames;
+  const std::string              fSrcCut;
 
   const edm::EDGetTokenT<edm::TriggerResults>   fTriggerResultsToken;
   const edm::EDGetTokenT<trigger::TriggerEvent> fTriggerEventToken;
   const edm::EDGetTokenT<reco::TrackCollection> fTracksToken;
 
-  edm::Handle<edm::TriggerResults>   fTriggerResultsHandle;
-  edm::Handle<trigger::TriggerEvent> fTriggerEventHandle;
-  edm::Handle<reco::TrackCollection> fTracksHandle;
-  HLTPrescaleProvider                fHLTPrescaleProvider;
+  edm::Handle<edm::TriggerResults>     fTriggerResultsHandle;
+  edm::Handle<trigger::TriggerEvent>   fTriggerEventHandle;
+  edm::Handle<reco::TrackCollection>   fTracksHandle;
+  HLTPrescaleProvider                  fHLTPrescaleProvider;
+  StringCutObjectSelector<reco::Track> fTrackSelector;
 
-  double       fMinDr;
-  unsigned int fMinCounts;
-  bool         fTaggingMode;
+  double fMinDr;
+  int    fMinCounts;
+  bool   fTaggingMode;
+
+  std::map<std::string, int> fMatchedTriggerObjectsCountMap;
 };
 
 #endif

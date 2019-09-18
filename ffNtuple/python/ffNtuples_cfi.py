@@ -44,7 +44,8 @@ ntuple_genbkg = cms.PSet(
 )
 
 ntuple_genjet = cms.PSet(
-    NtupleName=cms.string("ffNtupleGenJet"), GenJets=cms.InputTag("ak4GenJetsNoNu")
+    NtupleName=cms.string("ffNtupleGenJet"),
+    GenJets=cms.InputTag("ak4GenJetsNoNu")
 )
 
 ntuple_hlt = cms.PSet(
@@ -68,10 +69,14 @@ ntuple_hlt = cms.PSet(
     ),
 )
 
-ntuple_muon = cms.PSet(NtupleName=cms.string("ffNtupleMuon"), src=cms.InputTag("muons"))
+ntuple_muon = cms.PSet(
+    NtupleName=cms.string("ffNtupleMuon"),
+    src=cms.InputTag("muons")
+)
 
 ntuple_electron = cms.PSet(
-    NtupleName=cms.string("ffNtupleElectron"), src=cms.InputTag("gedGsfElectrons")
+    NtupleName=cms.string("ffNtupleElectron"),
+    src=cms.InputTag("gedGsfElectrons")
 )
 
 ntuple_dsamuon = cms.PSet(
@@ -130,10 +135,13 @@ ntuple_muontiming = cms.PSet(
 )
 
 ntuple_beamhalo = cms.PSet(
-    NtupleName=cms.string("ffNtupleBeamHalo"), src=cms.InputTag("BeamHaloSummary")
+    NtupleName=cms.string("ffNtupleBeamHalo"),
+    src=cms.InputTag("BeamHaloSummary")
 )
 
-ntuple_metfilters = cms.PSet(NtupleName=cms.string("ffNtupleMetFilters"))
+ntuple_metfilters = cms.PSet(
+    NtupleName=cms.string("ffNtupleMetFilters"),
+)
 
 ntuple_leptonjetsrc = cms.PSet(
     NtupleName=cms.string("ffNtupleLeptonJetSource"),
@@ -143,29 +151,9 @@ ntuple_leptonjetmisc = cms.PSet(
     NtupleName=cms.string("ffNtupleLeptonJetMisc"),
 )
 
-ffNtuplizer = cms.EDAnalyzer(
-    "ffNtupleManager",
-    HltProcName=cms.string("HLT"),
-    Ntuples=cms.VPSet(
-        ntuple_event,
-        ntuple_genevent,
-        ntuple_primaryvertex,
-        ntuple_gen,
-        ntuple_genbkg,
-        ntuple_genjet,
-        ntuple_hlt,
-        ntuple_muon,
-        ntuple_electron,
-        ntuple_dsamuon,
-        ntuple_pfjet,
-        ntuple_akjet,
-        ntuple_hftagscore,
-        ntuple_muontiming,
-        # ntuple_beamhalo,
-        ntuple_metfilters,
-        ntuple_leptonjetsrc,
-        ntuple_leptonjetmisc,
-    ),
+from Firefighter.ffEvtFilters.ffTriggerObjectsMatchingFilter_cfi import triggerObjectMatchingFilter
+ntuple_triggerobjectmatching = cms.PSet(
+    NtupleName=cms.string("ffNtupleTriggerObjectMatchingFilter"),
+    debug=cms.bool(True),
+    triggerNames=triggerObjectMatchingFilter.triggerNames,
 )
-
-ffNtupleStat = cms.EDAnalyzer("ffNtupleProcessStats")

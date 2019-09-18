@@ -7,22 +7,24 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-ffTriggerObjectsMatchingFilter::ffTriggerObjectsMatchingFilter(
-    const edm::ParameterSet& ps )
+ffTriggerObjectsMatchingFilter::ffTriggerObjectsMatchingFilter(const edm::ParameterSet& ps )
     : fProcessName( ps.getParameter<std::string>( "processName" ) ),
-      fTriggerNames(
-          ps.getParameter<std::vector<std::string>>( "triggerNames" ) ),
-      fTriggerResultsToken( consumes<edm::TriggerResults>(
-          ps.getParameter<edm::InputTag>( "triggerResults" ) ) ),
-      fTriggerEventToken( consumes<trigger::TriggerEvent>(
-          ps.getParameter<edm::InputTag>( "triggerEvent" ) ) ),
-      fTracksToken( consumes<reco::TrackCollection>(
-          ps.getParameter<edm::InputTag>( "tracks" ) ) ),
+      fTriggerNames( ps.getParameter<std::vector<std::string>>( "triggerNames" ) ),
+      fSrcCut(ps.getParameter<std::string>("srcCut")),
+      fTriggerResultsToken( consumes<edm::TriggerResults>( ps.getParameter<edm::InputTag>( "triggerResults" ) ) ),
+      fTriggerEventToken( consumes<trigger::TriggerEvent>( ps.getParameter<edm::InputTag>( "triggerEvent" ) ) ),
+      fTracksToken( consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "tracks" ) ) ),
       fHLTPrescaleProvider( ps, consumesCollector(), *this ),
+      fTrackSelector(fSrcCut, true),
       fMinDr( ps.getParameter<double>( "minDr" ) ),
-      fMinCounts( ps.getParameter<unsigned int>( "minCounts" ) ),
+      fMinCounts( ps.getParameter<int>( "minCounts" ) ),
       fTaggingMode( ps.getParameter<bool>( "taggingMode" ) ) {
   produces<bool>();
+  for (const auto& p : fTriggerNames) {
+    std::string _p(p);
+    std::replace(_p.begin(), _p.end(), '_', '-'); // '_' is not allowed in product instance name
+    produces<int>(_p);
+  }
 }
 
 ffTriggerObjectsMatchingFilter::~ffTriggerObjectsMatchingFilter() = default;
@@ -55,30 +57,27 @@ ffTriggerObjectsMatchingFilter::filter( edm::Event&            e,
 
   bool result( false );
 
-  const auto& tracks = *fTracksHandle;
-  if ( tracks.size() >= fMinCounts ) {
-    for ( const auto& p : fTriggerNames ) {
-      math::XYZTLorentzVectorFCollection triggerObjects =
-          triggerObjectsFromPath( p, hltConfig );
-      if ( triggerObjects.size() < fMinCounts )
-        continue;
-
-      unsigned int nmatched( 0 );
-      for ( const auto& to : triggerObjects ) {
-        for ( const auto& tk : tracks ) {
-          if ( deltaR( to, tk ) > fMinDr )
-            continue;
-          nmatched += 1;
-          break;
-        }
-      }
-
-      if ( nmatched < fMinCounts )
-        continue;
-
-      result = true;
-      break;
+  vector<Ptr<reco::Track>> filteredTracks{};
+  for (size_t i(0); i!=fTracksHandle->size(); ++i) {
+    if (fTrackSelector((*fTracksHandle)[i])) {
+      filteredTracks.emplace_back(fTracksHandle, i);
     }
+  }
+
+  for (const auto& p : fTriggerNames) {
+    fMatchedTriggerObjectsCountMap[p] = 0;
+    math::XYZTLorentzVectorFCollection triggerObjects = triggerObjectsFromPath( p, hltConfig );
+    for (const auto& to : triggerObjects) {
+      for (const auto& tk : filteredTracks) {
+        if (deltaR(to, *tk)> fMinDr) continue;
+        fMatchedTriggerObjectsCountMap[p] += 1;
+        break;
+      }
+    }
+    string _p(p);
+    replace(_p.begin(), _p.end(), '_', '-');
+    e.put(make_unique<int>(fMatchedTriggerObjectsCountMap[p]), _p);
+    if (!result and fMatchedTriggerObjectsCountMap[p]>=fMinCounts) result=true;
   }
 
   e.put( make_unique<bool>( result ) );
