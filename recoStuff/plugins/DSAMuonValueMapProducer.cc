@@ -50,8 +50,10 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
       _extrapolateInnermostDistance[ j ] = getExtrapolateInnermostDistance( dsamuon, recomuon );
     }
 
-    v_maxSegmentOverlapRatio[ i ]          = *max_element( _segmentOverlapRatio.begin(), _segmentOverlapRatio.end() );
-    v_minExtrapolateInnermostDistance[ i ] = *min_element( _extrapolateInnermostDistance.begin(), _extrapolateInnermostDistance.end() );
+    if ( !_segmentOverlapRatio.empty() )
+      v_maxSegmentOverlapRatio[ i ] = *max_element( _segmentOverlapRatio.begin(), _segmentOverlapRatio.end() );
+    if ( !_extrapolateInnermostDistance.empty() )
+      v_minExtrapolateInnermostDistance[ i ] = *min_element( _extrapolateInnermostDistance.begin(), _extrapolateInnermostDistance.end() );
   }
 
   ValueMap<float>::Filler ratioFiller( *vm_maxSegmentOverlapRatio );
