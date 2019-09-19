@@ -8,10 +8,14 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
 
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
+    process.load("Firefighter.recoStuff.DsaToPFCandidate_cff")
+    process.load("Firefighter.recoStuff.DsaAdditionalValues_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
     process.recoSeq = cms.Sequence(
         process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
-        + process.ffMetFilterSeq)
+        + process.ffMetFilterSeq
+        + process.dSAToPFCandSeq
+        + process.dsamuonExtraSeq)
 
     process.ntuple_step = cms.Path(process.recoSeq+process.ffNtuplesSeq)
 

@@ -157,3 +157,7 @@ ntuple_triggerobjectmatching = cms.PSet(
     debug=cms.bool(True),
     triggerNames=triggerObjectMatchingFilter.triggerNames,
 )
+
+ntuple_dsamuonextra = cms.PSet(
+    NtupleName=cms.string("ffNtupleDsaMuonExtra"),
+)
