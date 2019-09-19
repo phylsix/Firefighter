@@ -1,6 +1,7 @@
 .vscode
 **/.vscode
 *.root
+**/*.root
 **/crabWorkArea
 **/condorGarage
 **/crabGarage
@@ -9,4 +10,5 @@
 **/*.tar.gz
 **/*.png
 **/*.pdf
+**/*.nfs*
 **/piedpiper/cfg

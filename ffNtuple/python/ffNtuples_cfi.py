@@ -161,3 +161,7 @@ ntuple_triggerobjectmatching = cms.PSet(
 ntuple_dsamuonextra = cms.PSet(
     NtupleName=cms.string("ffNtupleDsaMuonExtra"),
 )
+
+ntuple_cosmicveto = cms.PSet(
+    NtupleName=cms.string("ffNtupleCosmicVeto"),
+)
