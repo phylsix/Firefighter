@@ -1,0 +1,25 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 1
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_upgrade2018_realistic_v19"
+
+data-spec:
+  inputFileList:
+  - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-120to170_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/110000/95527D1C-BFE8-CD45-96DF-EBAF0C5F8464.root
+  # - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/90000/F522418C-3CA0-5949-A14E-33576ECB15D4.root
+  # - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/00000/1CC797F6-039A-5A4D-A466-51DF25DF7AA5.root
+  # - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/00000/1D063324-CFBE-C24C-B3AA-69CF1C760647.root
+  # - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/00000/1D1E7450-22AC-7043-B184-7FCEC720E384.root
+  # - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext3-v1/00000/1D2A7BEC-CFA9-7C4C-9E7F-B885E4F94008.root
+  maxEvents: 300
+  outputFileName: "ffNtuple_QCD.root"
+  lumiMask: ""
+  dataType: "bkgmc"
+
+reco-spec:
+  eventRegion: "all"
+  leptonJetCandStrategy: "hadronFree"
