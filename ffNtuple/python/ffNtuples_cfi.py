@@ -41,6 +41,7 @@ ntuple_genbkg = cms.PSet(
     NtupleName=cms.string("ffNtupleGenBkg"),
     src=cms.InputTag("genParticles"),
     AllowedPids=cms.vint32([6, 22, 23, 24, 25]), # top, gamma, Z, W, Higgs
+    AllowedStatusOnePids=cms.vint32([13,]), # mu
 )
 
 ntuple_genjet = cms.PSet(
