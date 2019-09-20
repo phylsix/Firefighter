@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/src/MuonSelectors.cc"
 
 class ffNtupleDsaMuonExtra : public ffNtupleBase {
  public:
@@ -25,6 +26,7 @@ class ffNtupleDsaMuonExtra : public ffNtupleBase {
 
   std::vector<float> fDsaMuonOverlapRatio;
   std::vector<float> fDsaMuonExpoDistance;
+  std::vector<bool>  fDsaOutOfTime;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleDsaMuonExtra, "ffNtupleDsaMuonExtra" );
@@ -42,6 +44,7 @@ ffNtupleDsaMuonExtra::initialize( TTree&                   tree,
 
   tree.Branch( "dsamuon_maxSegmentOverlapRatio", &fDsaMuonOverlapRatio );
   tree.Branch( "dsamuon_minExtrapolateInnermostDistance", &fDsaMuonExpoDistance );
+  tree.Branch( "dsamuon_outOfTime", &fDsaOutOfTime );
 }
 
 void
@@ -66,6 +69,7 @@ ffNtupleDsaMuonExtra::fill( const edm::Event& e, const edm::EventSetup& es ) {
     Ptr<reco::Muon> dsamuonptr( dsamuonHdl, i );
     fDsaMuonOverlapRatio.emplace_back( ( *dsamuonOverlapRatioHdl )[ dsamuonptr ] );
     fDsaMuonExpoDistance.emplace_back( ( *dsamuonExpoDistanceHdl )[ dsamuonptr ] );
+    fDsaOutOfTime.emplace_back( outOfTimeMuon( *dsamuonptr ) );
   }
 }
 
@@ -73,4 +77,5 @@ void
 ffNtupleDsaMuonExtra::clear() {
   fDsaMuonOverlapRatio.clear();
   fDsaMuonExpoDistance.clear();
+  fDsaOutOfTime.clear();
 }
