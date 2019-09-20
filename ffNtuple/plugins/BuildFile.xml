@@ -20,6 +20,7 @@
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/KinematicFitPrimitives"/>
+<use name="RecoMuon/MuonIdentification"/>
 <!-- <use name="heppdt"/> -->
 <use name="root"/>
 <use name="Firefighter/ffNtuple"/>
