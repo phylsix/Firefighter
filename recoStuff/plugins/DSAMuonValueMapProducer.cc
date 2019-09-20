@@ -46,7 +46,7 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
     for ( size_t j( 0 ); j != fRecoMuonHdl->size(); j++ ) {
       const auto& recomuon = ( *fRecoMuonHdl )[ j ];
 
-      _segmentOverlapRatio[ j ]          = getSegmentOverlapRatio( dsamuon, recomuon );
+      _segmentOverlapRatio[ j ]          = getSegmentOverlapRatioArbitration( dsamuon, recomuon );
       _extrapolateInnermostDistance[ j ] = getExtrapolateInnermostDistance( dsamuon, recomuon );
     }
 
@@ -123,11 +123,41 @@ DSAMuonValueMapProducer::getSegmentOverlapRatio( const reco::Muon& dsamuon,
   set_intersection( dsamuonCSCSegKeys.begin(), dsamuonCSCSegKeys.end(), recomuonCSCSegKeys.begin(), recomuonCSCSegKeys.end(), back_inserter( overlappedCSCSegKeys ) );
   set_intersection( dsamuonDTSegKeys.begin(), dsamuonDTSegKeys.end(), recomuonDTSegKeys.begin(), recomuonDTSegKeys.end(), back_inserter( overlappedDTSegKeys ) );
 
-  if ( ( dsamuonCSCSegKeys.size() + dsamuonDTSegKeys.size() ) == 0 )
+  if ( dsamuonCSCSegKeys.empty() and dsamuonDTSegKeys.empty() )
     return 0.;
 
   // overlap ratio
   return float( overlappedCSCSegKeys.size() + overlappedDTSegKeys.size() ) / ( dsamuonCSCSegKeys.size() + dsamuonDTSegKeys.size() );
+}
+
+int
+DSAMuonValueMapProducer::numberOfSegments( const reco::Muon& muon,
+                                           unsigned int      segmentArbitraionMask ) const {
+  int segments( 0 );
+
+  for ( const auto& chambermatch : muon.matches() ) {
+    if ( chambermatch.segmentMatches.empty() )
+      continue;
+    for ( const auto& seg : chambermatch.segmentMatches ) {
+      if ( !seg.isMask( segmentArbitraionMask ) )
+        continue;
+      ++segments;
+    }
+  }
+
+  return segments;
+}
+
+float
+DSAMuonValueMapProducer::getSegmentOverlapRatioArbitration( const reco::Muon& dsamuon,
+                                                            const reco::Muon& recomuon,
+                                                            unsigned int      segmentArbitraionMask ) const {
+  int dsasegments = numberOfSegments( dsamuon );
+  if ( dsasegments == 0 )
+    return 0.;
+
+  int sharedsegments = muon::sharedSegments( dsamuon, recomuon, segmentArbitraionMask );
+  return float( sharedsegments ) / dsasegments;
 }
 
 float
