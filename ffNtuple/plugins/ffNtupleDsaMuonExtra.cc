@@ -26,10 +26,12 @@ class ffNtupleDsaMuonExtra : public ffNtupleBase {
   edm::EDGetToken fDsaMuonToken;
   edm::EDGetToken fDsaMuonTrackToken;
   edm::EDGetToken fDsaMuonOverlapRatioToken;
-  edm::EDGetToken fDsaMuonExpoDistanceToken;
+  edm::EDGetToken fDsaMuonExpoLocalDrToken;
+  edm::EDGetToken fDsaMuonExpoLocalDiffToken;
 
   std::vector<float> fDsaMuonOverlapRatio;
-  std::vector<float> fDsaMuonExpoDistance;
+  std::vector<float> fDsaMuonExpoLocalDr;
+  std::vector<float> fDsaMuonExpoLocalDiff;
   std::vector<bool>  fDsaOutOfTime;
   std::vector<bool>  fDsaFindOppositeTrack;
 };
@@ -46,10 +48,12 @@ ffNtupleDsaMuonExtra::initialize( TTree&                   tree,
   fDsaMuonToken             = cc.consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) );
   fDsaMuonTrackToken        = cc.consumes<reco::TrackCollection>( edm::InputTag( "displacedStandAloneMuons" ) );
   fDsaMuonOverlapRatioToken = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "maxSegmentOverlapRatio" ) );
-  fDsaMuonExpoDistanceToken = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "minExtrapolateInnermostDistance" ) );
+  fDsaMuonExpoLocalDrToken = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "minExtrapolateInnermostLocalDr" ) );
+  fDsaMuonExpoLocalDiffToken = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "minExtrapolateInnermostLocalDiff" ) );
 
   tree.Branch( "dsamuon_maxSegmentOverlapRatio", &fDsaMuonOverlapRatio );
-  tree.Branch( "dsamuon_minExtrapolateInnermostDistance", &fDsaMuonExpoDistance );
+  tree.Branch( "dsamuon_minExtrapolateInnermostLocalDr", &fDsaMuonExpoLocalDr );
+  tree.Branch( "dsamuon_minExtrapolateInnermostLocalDiff", &fDsaMuonExpoLocalDiff );
   tree.Branch( "dsamuon_outOfTime", &fDsaOutOfTime );
   tree.Branch( "dsamuon_findOppositeTrack", &fDsaFindOppositeTrack );
 }
@@ -70,16 +74,20 @@ ffNtupleDsaMuonExtra::fill( const edm::Event& e, const edm::EventSetup& es ) {
   Handle<ValueMap<float>> dsamuonOverlapRatioHdl;
   e.getByToken( fDsaMuonOverlapRatioToken, dsamuonOverlapRatioHdl );
   assert( dsamuonOverlapRatioHdl.isValid() );
-  Handle<ValueMap<float>> dsamuonExpoDistanceHdl;
-  e.getByToken( fDsaMuonExpoDistanceToken, dsamuonExpoDistanceHdl );
-  assert( dsamuonExpoDistanceHdl.isValid() );
+  Handle<ValueMap<float>> dsamuonExpoLocalDrHdl;
+  e.getByToken( fDsaMuonExpoLocalDrToken, dsamuonExpoLocalDrHdl );
+  assert( dsamuonExpoLocalDrHdl.isValid() );
+  Handle<ValueMap<float>> dsamuonExpoLocalDiffHdl;
+  e.getByToken( fDsaMuonExpoLocalDiffToken, dsamuonExpoLocalDiffHdl );
+  assert( dsamuonExpoLocalDiffHdl.isValid() );
 
   clear();
 
   for ( size_t i( 0 ); i != dsamuonHdl->size(); i++ ) {
     Ptr<reco::Muon> dsamuonptr( dsamuonHdl, i );
     fDsaMuonOverlapRatio.emplace_back( ( *dsamuonOverlapRatioHdl )[ dsamuonptr ] );
-    fDsaMuonExpoDistance.emplace_back( ( *dsamuonExpoDistanceHdl )[ dsamuonptr ] );
+    fDsaMuonExpoLocalDr.emplace_back( ( *dsamuonExpoLocalDrHdl )[ dsamuonptr ] );
+    fDsaMuonExpoLocalDiff.emplace_back( ( *dsamuonExpoLocalDiffHdl )[ dsamuonptr ] );
     fDsaOutOfTime.emplace_back( outOfTimeMuon( *dsamuonptr ) );
     fDsaFindOppositeTrack.emplace_back( muonid::findOppositeTrack( dsamuonTkHdl, *( dsamuonptr->bestTrack() ) ).isNonnull() );
   }
@@ -88,7 +96,8 @@ ffNtupleDsaMuonExtra::fill( const edm::Event& e, const edm::EventSetup& es ) {
 void
 ffNtupleDsaMuonExtra::clear() {
   fDsaMuonOverlapRatio.clear();
-  fDsaMuonExpoDistance.clear();
+  fDsaMuonExpoLocalDr.clear();
+  fDsaMuonExpoLocalDiff.clear();
   fDsaOutOfTime.clear();
   fDsaFindOppositeTrack.clear();
 }

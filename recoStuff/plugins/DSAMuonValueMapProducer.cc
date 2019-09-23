@@ -12,7 +12,8 @@ DSAMuonValueMapProducer::DSAMuonValueMapProducer( const edm::ParameterSet& ps )
     : fDsaMuonToken( consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) ) ),
       fRecoMuonToken( consumes<reco::MuonCollection>( edm::InputTag( "muons" ) ) ) {
   produces<edm::ValueMap<float>>( "maxSegmentOverlapRatio" );
-  produces<edm::ValueMap<float>>( "minExtrapolateInnermostDistance" );
+  produces<edm::ValueMap<float>>( "minExtrapolateInnermostLocalDr" );
+  produces<edm::ValueMap<float>>( "minExtrapolateInnermostLocalDiff" );
 }
 
 DSAMuonValueMapProducer::~DSAMuonValueMapProducer() = default;
@@ -27,8 +28,9 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   using namespace std;
   using namespace edm;
 
-  auto vm_maxSegmentOverlapRatio          = make_unique<ValueMap<float>>();
-  auto vm_minExtrapolateInnermostDistance = make_unique<ValueMap<float>>();
+  auto vm_maxSegmentOverlapRatio           = make_unique<ValueMap<float>>();
+  auto vm_minExtrapolateInnermostLocalDr   = make_unique<ValueMap<float>>();
+  auto vm_minExtrapolateInnermostLocalDiff = make_unique<ValueMap<float>>();
 
   e.getByToken( fDsaMuonToken, fDsaMuonHdl );
   assert( fDsaMuonHdl.isValid() );
@@ -36,24 +38,30 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   assert( fRecoMuonHdl.isValid() );
 
   vector<float> v_maxSegmentOverlapRatio( fDsaMuonHdl->size(), 0. );
-  vector<float> v_minExtrapolateInnermostDistance( fDsaMuonHdl->size(), 999. );
+  vector<float> v_minExtrapolateInnermostLocalDr( fDsaMuonHdl->size(), 999. );
+  vector<float> v_minExtrapolateInnermostLocalDiff( fDsaMuonHdl->size(), 999. );
 
   for ( size_t i( 0 ); i != fDsaMuonHdl->size(); i++ ) {
     const auto&   dsamuon = ( *fDsaMuonHdl )[ i ];
     vector<float> _segmentOverlapRatio( fRecoMuonHdl->size(), 0. );
-    vector<float> _extrapolateInnermostDistance( fRecoMuonHdl->size(), 999. );
+    vector<float> _extrapolateInnermostLocalDr( fRecoMuonHdl->size(), 999. );
+    vector<float> _extrapolateInnermostLocalDiff( fRecoMuonHdl->size(), 999. );
 
     for ( size_t j( 0 ); j != fRecoMuonHdl->size(); j++ ) {
       const auto& recomuon = ( *fRecoMuonHdl )[ j ];
 
-      _segmentOverlapRatio[ j ]          = getSegmentOverlapRatioArbitration( dsamuon, recomuon );
-      _extrapolateInnermostDistance[ j ] = getExtrapolateInnermostDistance( dsamuon, recomuon );
+      _segmentOverlapRatio[ j ]           = getSegmentOverlapRatioArbitration( dsamuon, recomuon );
+      pair<float, float> localdistances   = getExtrapolateInnermostDistance( dsamuon, recomuon );
+      _extrapolateInnermostLocalDr[ j ]   = localdistances.first;
+      _extrapolateInnermostLocalDiff[ j ] = localdistances.second;
     }
 
     if ( !_segmentOverlapRatio.empty() )
       v_maxSegmentOverlapRatio[ i ] = *max_element( _segmentOverlapRatio.begin(), _segmentOverlapRatio.end() );
-    if ( !_extrapolateInnermostDistance.empty() )
-      v_minExtrapolateInnermostDistance[ i ] = *min_element( _extrapolateInnermostDistance.begin(), _extrapolateInnermostDistance.end() );
+    if ( !_extrapolateInnermostLocalDr.empty() )
+      v_minExtrapolateInnermostLocalDr[ i ] = *min_element( _extrapolateInnermostLocalDr.begin(), _extrapolateInnermostLocalDr.end() );
+    if ( !_extrapolateInnermostLocalDiff.empty() )
+      v_minExtrapolateInnermostLocalDiff[ i ] = *min_element( _extrapolateInnermostLocalDiff.begin(), _extrapolateInnermostLocalDiff.end() );
   }
 
   ValueMap<float>::Filler ratioFiller( *vm_maxSegmentOverlapRatio );
@@ -61,10 +69,15 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   ratioFiller.fill();
   e.put( move( vm_maxSegmentOverlapRatio ), "maxSegmentOverlapRatio" );
 
-  ValueMap<float>::Filler distanceFiller( *vm_minExtrapolateInnermostDistance );
-  distanceFiller.insert( fDsaMuonHdl, v_minExtrapolateInnermostDistance.begin(), v_minExtrapolateInnermostDistance.end() );
-  distanceFiller.fill();
-  e.put( move( vm_minExtrapolateInnermostDistance ), "minExtrapolateInnermostDistance" );
+  ValueMap<float>::Filler localDrFiller( *vm_minExtrapolateInnermostLocalDr );
+  localDrFiller.insert( fDsaMuonHdl, v_minExtrapolateInnermostLocalDr.begin(), v_minExtrapolateInnermostLocalDr.end() );
+  localDrFiller.fill();
+  e.put( move( vm_minExtrapolateInnermostLocalDr ), "minExtrapolateInnermostLocalDr" );
+
+  ValueMap<float>::Filler localDiffFiller( *vm_minExtrapolateInnermostLocalDiff );
+  localDiffFiller.insert( fDsaMuonHdl, v_minExtrapolateInnermostLocalDiff.begin(), v_minExtrapolateInnermostLocalDiff.end() );
+  localDiffFiller.fill();
+  e.put( move( vm_minExtrapolateInnermostLocalDiff ), "minExtrapolateInnermostLocalDiff" );
 }
 
 std::vector<int>
@@ -160,10 +173,10 @@ DSAMuonValueMapProducer::getSegmentOverlapRatioArbitration( const reco::Muon& ds
   return float( sharedsegments ) / dsasegments;
 }
 
-float
+std::pair<float, float>
 DSAMuonValueMapProducer::getExtrapolateInnermostDistance( const reco::Muon& dsamuon,
                                                           const reco::Muon& recomuon ) const {
-  float res = 999.;
+  std::pair<float, float> res = std::make_pair( 999., 999. );
   if ( !recomuon.isTrackerMuon() )
     return res;
   if ( recomuon.innerTrack().isNull() )
@@ -188,7 +201,8 @@ DSAMuonValueMapProducer::getExtrapolateInnermostDistance( const reco::Muon& dsam
   if ( !tsosInner.isValid() )
     return res;
 
-  res = deltaR( tsosInner.localMomentum(), targetInner.localMomentum() );
+  res.first  = deltaR( tsosInner.localMomentum(), targetInner.localMomentum() );
+  res.second = ( tsosInner.localPosition() - targetInner.localPosition() ).mag();
   return res;
 }
 

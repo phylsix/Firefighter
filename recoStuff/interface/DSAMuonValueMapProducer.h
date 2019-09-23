@@ -45,7 +45,7 @@ class DSAMuonValueMapProducer : public edm::stream::EDProducer<> {
                                           unsigned int segmentArbitraionMask=reco::MuonSegmentMatch::BestInChamberByDR) const;
 
   std::unique_ptr<ff::TrackExtrapolator> fTkExtrapolator;
-  float getExtrapolateInnermostDistance( const reco::Muon&, const reco::Muon& ) const;
+  std::pair<float, float> getExtrapolateInnermostDistance( const reco::Muon&, const reco::Muon& ) const;
 
   const edm::EDGetTokenT<reco::MuonCollection> fDsaMuonToken;
   const edm::EDGetTokenT<reco::MuonCollection> fRecoMuonToken;

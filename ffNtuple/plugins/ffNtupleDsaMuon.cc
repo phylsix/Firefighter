@@ -46,6 +46,7 @@ class ffNtupleDsaMuon : public ffNtupleBase {
   std::vector<float>                 dsamuon_d0Sig_;
   std::vector<float>                 dsamuon_dzSig_;
   std::vector<int>                   dsamuon_charge_;
+  std::vector<int>                   dsamuon_innermostSta_;
   std::vector<Point>                 dsamuon_refPoint_;
 
   std::vector<Point>                 dsamuon_innerPos_;
@@ -83,6 +84,7 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_d0Sig", &dsamuon_d0Sig_ );
   tree.Branch( "dsamuon_dzSig", &dsamuon_dzSig_ );
   tree.Branch( "dsamuon_charge", &dsamuon_charge_ );
+  tree.Branch("dsamuon_innermostSta", &dsamuon_innermostSta_);
   tree.Branch( "dsamuon_refPoint", &dsamuon_refPoint_ );
   tree.Branch( "dsamuon_innerPos", &dsamuon_innerPos_ );
   tree.Branch( "dsamuon_outerPos", &dsamuon_outerPos_ );
@@ -129,6 +131,7 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
                                                            : NAN );
     dsamuon_d0Sig_.emplace_back( fabs( dsamuon.d0() ) / dsamuon.d0Error() );
     dsamuon_dzSig_.emplace_back( fabs( dsamuon.dz() ) / dsamuon.dzError() );
+    dsamuon_innermostSta_.emplace_back(hitPattern.innermostMuonStationWithValidHits());
     dsamuon_refPoint_.push_back( Point( dsamuon.referencePoint().X(),
                                         dsamuon.referencePoint().Y(),
                                         dsamuon.referencePoint().Z() ) );
@@ -192,6 +195,7 @@ ffNtupleDsaMuon::clear() {
   dsamuon_d0Sig_.clear();
   dsamuon_dzSig_.clear();
   dsamuon_charge_.clear();
+  dsamuon_innermostSta_.clear();
   dsamuon_refPoint_.clear();
   dsamuon_innerPos_.clear();
   dsamuon_outerPos_.clear();
