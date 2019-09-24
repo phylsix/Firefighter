@@ -75,11 +75,12 @@ class ffNtupleMuon : public ffNtupleBase {
   std::vector<float> muon_qual_chi2LocMom_;
 
   // muon id
-  std::vector<float> muon_id_TMLastStationLoose_;
-  std::vector<float> muon_id_TMLastStationTight_;
-  std::vector<float> muon_id_TM2DCompatibilityLoose_;
-  std::vector<float> muon_id_TM2DCompatibilityTight_;
-  std::vector<float> muon_id_TMOneStationTight_;
+  std::vector<float>        muon_id_TMLastStationLoose_;
+  std::vector<float>        muon_id_TMLastStationTight_;
+  std::vector<float>        muon_id_TM2DCompatibilityLoose_;
+  std::vector<float>        muon_id_TM2DCompatibilityTight_;
+  std::vector<float>        muon_id_TMOneStationTight_;
+  std::vector<unsigned int> muon_id_selectors_;
 
   // MUON
   std::vector<int>                   muon_type_;
@@ -124,8 +125,7 @@ void
 ffNtupleMuon::initialize( TTree&                   tree,
                           const edm::ParameterSet& ps,
                           edm::ConsumesCollector&& cc ) {
-  muon_token_ = cc.consumes<reco::MuonCollection>(
-      ps.getParameter<edm::InputTag>( "src" ) );
+  muon_token_ = cc.consumes<reco::MuonCollection>( ps.getParameter<edm::InputTag>( "src" ) );
 
   tree.Branch( "muon_n", &muon_n_, "muon_n/I" );
   // globalTrack
@@ -173,11 +173,10 @@ ffNtupleMuon::initialize( TTree&                   tree,
   // muon id
   tree.Branch( "muon_id_TMLastStationLoose", &muon_id_TMLastStationLoose_ );
   tree.Branch( "muon_id_TMLastStationTight", &muon_id_TMLastStationTight_ );
-  tree.Branch( "muon_id_TM2DCompatibilityLoose",
-               &muon_id_TM2DCompatibilityLoose_ );
-  tree.Branch( "muon_id_TM2DCompatibilityTight",
-               &muon_id_TM2DCompatibilityTight_ );
+  tree.Branch( "muon_id_TM2DCompatibilityLoose", &muon_id_TM2DCompatibilityLoose_ );
+  tree.Branch( "muon_id_TM2DCompatibilityTight", &muon_id_TM2DCompatibilityTight_ );
   tree.Branch( "muon_id_TMOneStationTight", &muon_id_TMOneStationTight_ );
+  tree.Branch( "muon_id_selectors", &muon_id_selectors_ );
 
   // MUON
   tree.Branch( "muon_type", &muon_type_ );
@@ -383,6 +382,9 @@ ffNtupleMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
         muon.isMatchesValid()
             ? muon::isGoodMuon( muon, muon::TMOneStationTight )
             : NAN );
+    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
+    // https://cmssdt.cern.ch/dxr/CMSSW/source/DataFormats/MuonReco/interface/Muon.h#192-227
+    muon_id_selectors_.emplace_back( muon.selectors() );
 
     // MUON
     muon_type_.emplace_back( muon.type() );
@@ -487,6 +489,7 @@ ffNtupleMuon::clear() {
   muon_id_TM2DCompatibilityLoose_.clear();
   muon_id_TM2DCompatibilityTight_.clear();
   muon_id_TMOneStationTight_.clear();
+  muon_id_selectors_.clear();
 
   // MUON
   muon_type_.clear();
@@ -589,8 +592,8 @@ enum TrackQuality {
   goodIterative       = 4,  // meaningless
   looseSetWithPV      = 5,
   highPuritySetWithPV = 6,
-  discarded = 7,  // because a better track found. kept in the collection for
-                  // reference....
+  discarded           = 7,  // because a better track found. kept in the collection for
+                            // reference....
   qualitySize = 8
 };
 
@@ -622,31 +625,29 @@ enum Selector {
   CutBasedIdMedium       = 1UL << 1,
   CutBasedIdMediumPrompt = 1UL << 2,  // medium with IP cuts
   CutBasedIdTight        = 1UL << 3,
-  CutBasedIdGlobalHighPt =
-      1UL << 4,  // high pt muon for Z',W' (better momentum resolution)
-  CutBasedIdTrkHighPt = 1UL
-                        << 5,  // high pt muon for boosted Z (better efficiency)
-  PFIsoVeryLoose     = 1UL << 6,   // reliso<0.40
-  PFIsoLoose         = 1UL << 7,   // reliso<0.25
-  PFIsoMedium        = 1UL << 8,   // reliso<0.20
-  PFIsoTight         = 1UL << 9,   // reliso<0.15
-  PFIsoVeryTight     = 1UL << 10,  // reliso<0.10
-  TkIsoLoose         = 1UL << 11,  // reliso<0.10
-  TkIsoTight         = 1UL << 12,  // reliso<0.05
-  SoftCutBasedId     = 1UL << 13,
-  SoftMvaId          = 1UL << 14,
-  MvaLoose           = 1UL << 15,
-  MvaMedium          = 1UL << 16,
-  MvaTight           = 1UL << 17,
-  MiniIsoLoose       = 1UL << 18,  // reliso<0.40
-  MiniIsoMedium      = 1UL << 19,  // reliso<0.20
-  MiniIsoTight       = 1UL << 20,  // reliso<0.10
-  MiniIsoVeryTight   = 1UL << 21,  // reliso<0.05
-  TriggerIdLoose     = 1UL << 22,  // robust selector for HLT
-  InTimeMuon         = 1UL << 23,
-  PFIsoVeryVeryTight = 1UL << 24,  // reliso<0.05
-  MultiIsoLoose      = 1UL << 25,  // miniIso with ptRatio and ptRel
-  MultiIsoMedium     = 1UL << 26   // miniIso with ptRatio and ptRel
+  CutBasedIdGlobalHighPt = 1UL << 4,   // high pt muon for Z',W' (better momentum resolution)
+  CutBasedIdTrkHighPt    = 1UL << 5,   // high pt muon for boosted Z (better efficiency)
+  PFIsoVeryLoose         = 1UL << 6,   // reliso<0.40
+  PFIsoLoose             = 1UL << 7,   // reliso<0.25
+  PFIsoMedium            = 1UL << 8,   // reliso<0.20
+  PFIsoTight             = 1UL << 9,   // reliso<0.15
+  PFIsoVeryTight         = 1UL << 10,  // reliso<0.10
+  TkIsoLoose             = 1UL << 11,  // reliso<0.10
+  TkIsoTight             = 1UL << 12,  // reliso<0.05
+  SoftCutBasedId         = 1UL << 13,
+  SoftMvaId              = 1UL << 14,
+  MvaLoose               = 1UL << 15,
+  MvaMedium              = 1UL << 16,
+  MvaTight               = 1UL << 17,
+  MiniIsoLoose           = 1UL << 18,  // reliso<0.40
+  MiniIsoMedium          = 1UL << 19,  // reliso<0.20
+  MiniIsoTight           = 1UL << 20,  // reliso<0.10
+  MiniIsoVeryTight       = 1UL << 21,  // reliso<0.05
+  TriggerIdLoose         = 1UL << 22,  // robust selector for HLT
+  InTimeMuon             = 1UL << 23,
+  PFIsoVeryVeryTight     = 1UL << 24,  // reliso<0.05
+  MultiIsoLoose          = 1UL << 25,  // miniIso with ptRatio and ptRel
+  MultiIsoMedium         = 1UL << 26   // miniIso with ptRatio and ptRel
 };
 
 /// ***********************************************

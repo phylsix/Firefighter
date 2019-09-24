@@ -3,7 +3,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/src/MuonSelectors.cc"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCosmicsId.h"
@@ -34,7 +33,7 @@ class ffNtupleDsaMuonExtra : public ffNtupleBase {
   std::vector<float> fDsaMuonExpoLocalDr;
   std::vector<float> fDsaMuonExpoLocalDiff;
   std::vector<float> fDsaMuonGlobalDr;
-  std::vector<bool>  fDsaOutOfTime;
+  std::vector<bool>  fDsaInTime;
   std::vector<bool>  fDsaFindOppositeTrack;
 };
 
@@ -58,7 +57,7 @@ ffNtupleDsaMuonExtra::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_minExtrapolateInnermostLocalDr", &fDsaMuonExpoLocalDr );
   tree.Branch( "dsamuon_minExtrapolateInnermostLocalDiff", &fDsaMuonExpoLocalDiff );
   tree.Branch( "dsamuon_minGlobalDeltaR", &fDsaMuonGlobalDr );
-  tree.Branch( "dsamuon_outOfTime", &fDsaOutOfTime );
+  tree.Branch( "dsamuon_inTime", &fDsaInTime );
   tree.Branch( "dsamuon_findOppositeTrack", &fDsaFindOppositeTrack );
 }
 
@@ -96,7 +95,7 @@ ffNtupleDsaMuonExtra::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fDsaMuonExpoLocalDr.emplace_back( ( *dsamuonExpoLocalDrHdl )[ dsamuonptr ] );
     fDsaMuonExpoLocalDiff.emplace_back( ( *dsamuonExpoLocalDiffHdl )[ dsamuonptr ] );
     fDsaMuonGlobalDr.emplace_back( ( *dsamuonGlobalDrHdl )[ dsamuonptr ] );
-    fDsaOutOfTime.emplace_back( outOfTimeMuon( *dsamuonptr ) );
+    fDsaInTime.emplace_back( dsamuonptr->passed(reco::Muon::InTimeMuon) );
     fDsaFindOppositeTrack.emplace_back( muonid::findOppositeTrack( dsamuonTkHdl, *( dsamuonptr->bestTrack() ) ).isNonnull() );
   }
 }
@@ -107,6 +106,6 @@ ffNtupleDsaMuonExtra::clear() {
   fDsaMuonExpoLocalDr.clear();
   fDsaMuonExpoLocalDiff.clear();
   fDsaMuonGlobalDr.clear();
-  fDsaOutOfTime.clear();
+  fDsaInTime.clear();
   fDsaFindOppositeTrack.clear();
 }
