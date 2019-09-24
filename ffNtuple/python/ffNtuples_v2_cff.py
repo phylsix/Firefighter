@@ -13,6 +13,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_genjet,
         ntuple_hlt,
         ntuple_muon,
+        ntuple_pfmuon,
         ntuple_dsamuon,
         ntuple_dsamuonextra,
         ntuple_triggerobjectmatching,

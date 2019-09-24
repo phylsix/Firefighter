@@ -75,6 +75,10 @@ ntuple_muon = cms.PSet(
     src=cms.InputTag("muons")
 )
 
+ntuple_pfmuon = cms.PSet(
+    NtupleName=cms.string("ffNtuplePfMuon"),
+)
+
 ntuple_electron = cms.PSet(
     NtupleName=cms.string("ffNtupleElectron"),
     src=cms.InputTag("gedGsfElectrons")
