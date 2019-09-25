@@ -33,7 +33,7 @@ class ffNtupleDsaMuonExtra : public ffNtupleBase {
   std::vector<float> fDsaMuonExpoLocalDr;
   std::vector<float> fDsaMuonExpoLocalDiff;
   std::vector<float> fDsaMuonGlobalDr;
-  std::vector<bool>  fDsaInTime;
+  std::vector<unsigned int>  fDsaMuonSelectors;
   std::vector<bool>  fDsaFindOppositeTrack;
 };
 
@@ -57,7 +57,7 @@ ffNtupleDsaMuonExtra::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_minExtrapolateInnermostLocalDr", &fDsaMuonExpoLocalDr );
   tree.Branch( "dsamuon_minExtrapolateInnermostLocalDiff", &fDsaMuonExpoLocalDiff );
   tree.Branch( "dsamuon_minGlobalDeltaR", &fDsaMuonGlobalDr );
-  tree.Branch( "dsamuon_inTime", &fDsaInTime );
+  tree.Branch( "dsamuon_selectors", &fDsaMuonSelectors );
   tree.Branch( "dsamuon_findOppositeTrack", &fDsaFindOppositeTrack );
 }
 
@@ -95,7 +95,7 @@ ffNtupleDsaMuonExtra::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fDsaMuonExpoLocalDr.emplace_back( ( *dsamuonExpoLocalDrHdl )[ dsamuonptr ] );
     fDsaMuonExpoLocalDiff.emplace_back( ( *dsamuonExpoLocalDiffHdl )[ dsamuonptr ] );
     fDsaMuonGlobalDr.emplace_back( ( *dsamuonGlobalDrHdl )[ dsamuonptr ] );
-    fDsaInTime.emplace_back( dsamuonptr->passed(reco::Muon::InTimeMuon) );
+    fDsaMuonSelectors.emplace_back( dsamuonptr->selectors() );
     fDsaFindOppositeTrack.emplace_back( muonid::findOppositeTrack( dsamuonTkHdl, *( dsamuonptr->bestTrack() ) ).isNonnull() );
   }
 }
@@ -106,6 +106,6 @@ ffNtupleDsaMuonExtra::clear() {
   fDsaMuonExpoLocalDr.clear();
   fDsaMuonExpoLocalDiff.clear();
   fDsaMuonGlobalDr.clear();
-  fDsaInTime.clear();
+  fDsaMuonSelectors.clear();
   fDsaFindOppositeTrack.clear();
 }
