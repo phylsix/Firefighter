@@ -109,6 +109,9 @@ ntuple_pfjet = cms.PSet(
     SubjetEcf2=cms.InputTag("ffLeptonJetSubjetECF", "ecf2"),
     SubjetEcf3=cms.InputTag("ffLeptonJetSubjetECF", "ecf3"),
     mvaParam=ffLeptonJetMVAEstimatorParam,
+    doVertexing=cms.bool(True),
+    doSubstructureVariables=cms.bool(True),
+    doMVA=cms.bool(True),
 )
 
 ntuple_akjet = cms.PSet(

@@ -12,11 +12,14 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
     process.load("Firefighter.recoStuff.DsaAdditionalValues_cff")
     process.load("Firefighter.recoStuff.LeptonjetClustering_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
     process.recoSeq = cms.Sequence(
         process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
         + process.ffMetFilterSeq
         + process.dSAToPFCandSeq
         + process.dsamuonExtraSeq
+        + process.egammaPostRecoSeq
         + process.leptonjetClusteringSeq
         )
 

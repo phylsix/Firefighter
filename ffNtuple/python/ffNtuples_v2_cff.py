@@ -19,8 +19,13 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_triggerobjectmatching,
         ntuple_metfilters,
         ntuple_cosmicveto,
+        ntuple_pfjet,
     ),
 )
 
+ntuple_pfjet.src=cms.InputTag("leptonjet")
+ntuple_pfjet.doVertexing=cms.bool(False)
+ntuple_pfjet.doSubstructureVariables=cms.bool(False)
+ntuple_pfjet.doMVA=cms.bool(False)
 
 ffNtuplesSeq = cms.Sequence(ffNtuplizer)

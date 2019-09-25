@@ -56,10 +56,14 @@ class ffNtuplePfJet : public ffNtupleBase {
   edm::EDGetToken subjet_ecf2_token_;
   edm::EDGetToken subjet_ecf3_token_;
 
-  StringCutObjectSelector<reco::Track> track_selector_;
-  edm::ParameterSet                    kvfParam_;
-  std::vector<double>                  isoRadius_;
-  ffLeptonJetMVAEstimator              mvaEstimator_;
+  bool doVertexing_;
+  bool doSubstructureVariables_;
+  bool doMVA_;
+
+  StringCutObjectSelector<reco::Track>     track_selector_;
+  edm::ParameterSet                        kvfParam_;
+  std::vector<double>                      isoRadius_;
+  std::unique_ptr<ffLeptonJetMVAEstimator> mvaEstimator_;
 
   int                                 pfjet_n_;
   std::vector<LorentzVector>          pfjet_p4_;
@@ -162,24 +166,44 @@ DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
 
 ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
     : ffNtupleBase( ps ),
+      doVertexing_( ps.getParameter<bool>( "doVertexing" ) ),
+      doSubstructureVariables_( ps.getParameter<bool>( "doSubstructureVariables" ) ),
+      doMVA_( ps.getParameter<bool>( "doMVA" ) ),
       track_selector_( ps.getParameter<std::string>( "TrackSelection" ), true ),
-      kvfParam_( ps.getParameter<edm::ParameterSet>( "kvfParam" ) ),
-      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ),
-      mvaEstimator_( ps.getParameter<edm::ParameterSet>( "mvaParam" ) ) {}
+      isoRadius_( ps.getParameter<std::vector<double>>( "IsolationRadius" ) ) {
+  if ( doVertexing_ ) {
+    assert( ps.existsAs<edm::ParameterSet>( "kvfParam" ) );
+    kvfParam_ = ps.getParameter<edm::ParameterSet>( "kvfParam" );
+  }
+
+  if ( !doSubstructureVariables_ and doMVA_ ) {
+    std::cout << "[ffNtuplePfJet]\t doSubstructureVariables need to be set as True if doMVA is set to be true. ";
+    std::cout << "I am disabling both!" << std::endl;
+    doMVA_ = false;
+  }
+
+  if ( doMVA_ ) {
+    assert( ps.existsAs<edm::ParameterSet>( "mvaParam" ) );
+    mvaEstimator_ = std::make_unique<ffLeptonJetMVAEstimator>( ps.getParameter<edm::ParameterSet>( "mvaParam" ) );
+  }
+}
 
 void
 ffNtuplePfJet::initialize( TTree&                   tree,
                            const edm::ParameterSet& ps,
                            edm::ConsumesCollector&& cc ) {
-  pfjet_token_          = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
-  pvs_token_            = cc.consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>( "PrimaryVertices" ) );
-  generaltk_token_      = cc.consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
-  pfcand_token_         = cc.consumes<reco::PFCandidateCollection>( ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
-  subjet_lambda_token_  = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
-  subjet_epsilon_token_ = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEnergyDistributioin" ) );
-  subjet_ecf1_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf1" ) );
-  subjet_ecf2_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf2" ) );
-  subjet_ecf3_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf3" ) );
+  pfjet_token_     = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  pvs_token_       = cc.consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>( "PrimaryVertices" ) );
+  generaltk_token_ = cc.consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
+  pfcand_token_    = cc.consumes<reco::PFCandidateCollection>( ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
+
+  if ( doSubstructureVariables_ ) {
+    subjet_lambda_token_  = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
+    subjet_epsilon_token_ = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEnergyDistributioin" ) );
+    subjet_ecf1_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf1" ) );
+    subjet_ecf2_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf2" ) );
+    subjet_ecf3_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf3" ) );
+  }
 
   tree.Branch( "pfjet_n", &pfjet_n_, "pfjet_n/I" );
   tree.Branch( "pfjet_p4", &pfjet_p4_ );
@@ -243,46 +267,51 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcand_tkD0SigSub", &pfjet_pfcand_tkD0SigSub_ );
   tree.Branch( "pfjet_pfcand_tkD0SigMin", &pfjet_pfcand_tkD0SigMin_ );
 
-  tree.Branch( "pfjet_medianvtx", &pfjet_medianvtx_ );
-  tree.Branch( "pfjet_averagevtx", &pfjet_averagevtx_ );
+  if ( doVertexing_ ) {
+    tree.Branch( "pfjet_medianvtx", &pfjet_medianvtx_ );
+    tree.Branch( "pfjet_averagevtx", &pfjet_averagevtx_ );
 
-  tree.Branch( "pfjet_klmvtx", &pfjet_klmvtx_ );
-  tree.Branch( "pfjet_klmvtx_lxy", &pfjet_klmvtx_lxy_ );
-  tree.Branch( "pfjet_klmvtx_l3d", &pfjet_klmvtx_l3d_ );
-  tree.Branch( "pfjet_klmvtx_lxySig", &pfjet_klmvtx_lxySig_ );
-  tree.Branch( "pfjet_klmvtx_l3dSig", &pfjet_klmvtx_l3dSig_ );
-  tree.Branch( "pfjet_klmvtx_normChi2", &pfjet_klmvtx_normChi2_ );
-  tree.Branch( "pfjet_klmvtx_prob", &pfjet_klmvtx_prob_ );
-  tree.Branch( "pfjet_klmvtx_mass", &pfjet_klmvtx_mass_ );
-  tree.Branch( "pfjet_klmvtx_cosThetaXy", &pfjet_klmvtx_cosThetaXy_ );
-  tree.Branch( "pfjet_klmvtx_cosTheta3d", &pfjet_klmvtx_cosTheta3d_ );
-  tree.Branch( "pfjet_klmvtx_impactDistXy", &pfjet_klmvtx_impactDistXy_ );
-  tree.Branch( "pfjet_klmvtx_impactDist3d", &pfjet_klmvtx_impactDist3d_ );
-  tree.Branch( "pfjet_klmvtx_tkImpactDist2d", &pfjet_klmvtx_tkImpactDist2d_ );
-  tree.Branch( "pfjet_klmvtx_tkImpactDist3d", &pfjet_klmvtx_tkImpactDist3d_ );
+    tree.Branch( "pfjet_klmvtx", &pfjet_klmvtx_ );
+    tree.Branch( "pfjet_klmvtx_lxy", &pfjet_klmvtx_lxy_ );
+    tree.Branch( "pfjet_klmvtx_l3d", &pfjet_klmvtx_l3d_ );
+    tree.Branch( "pfjet_klmvtx_lxySig", &pfjet_klmvtx_lxySig_ );
+    tree.Branch( "pfjet_klmvtx_l3dSig", &pfjet_klmvtx_l3dSig_ );
+    tree.Branch( "pfjet_klmvtx_normChi2", &pfjet_klmvtx_normChi2_ );
+    tree.Branch( "pfjet_klmvtx_prob", &pfjet_klmvtx_prob_ );
+    tree.Branch( "pfjet_klmvtx_mass", &pfjet_klmvtx_mass_ );
+    tree.Branch( "pfjet_klmvtx_cosThetaXy", &pfjet_klmvtx_cosThetaXy_ );
+    tree.Branch( "pfjet_klmvtx_cosTheta3d", &pfjet_klmvtx_cosTheta3d_ );
+    tree.Branch( "pfjet_klmvtx_impactDistXy", &pfjet_klmvtx_impactDistXy_ );
+    tree.Branch( "pfjet_klmvtx_impactDist3d", &pfjet_klmvtx_impactDist3d_ );
+    tree.Branch( "pfjet_klmvtx_tkImpactDist2d", &pfjet_klmvtx_tkImpactDist2d_ );
+    tree.Branch( "pfjet_klmvtx_tkImpactDist3d", &pfjet_klmvtx_tkImpactDist3d_ );
 
-  tree.Branch( "pfjet_kinvtx", &pfjet_kinvtx_ );
-  tree.Branch( "pfjet_kinvtx_lxy", &pfjet_kinvtx_lxy_ );
-  tree.Branch( "pfjet_kinvtx_l3d", &pfjet_kinvtx_l3d_ );
-  tree.Branch( "pfjet_kinvtx_lxySig", &pfjet_kinvtx_lxySig_ );
-  tree.Branch( "pfjet_kinvtx_l3dSig", &pfjet_kinvtx_l3dSig_ );
-  tree.Branch( "pfjet_kinvtx_normChi2", &pfjet_kinvtx_normChi2_ );
-  tree.Branch( "pfjet_kinvtx_prob", &pfjet_kinvtx_prob_ );
-  tree.Branch( "pfjet_kinvtx_mass", &pfjet_kinvtx_mass_ );
-  tree.Branch( "pfjet_kinvtx_cosThetaXy", &pfjet_kinvtx_cosThetaXy_ );
-  tree.Branch( "pfjet_kinvtx_cosTheta3d", &pfjet_kinvtx_cosTheta3d_ );
-  tree.Branch( "pfjet_kinvtx_impactDistXy", &pfjet_kinvtx_impactDistXy_ );
-  tree.Branch( "pfjet_kinvtx_impactDist3d", &pfjet_kinvtx_impactDist3d_ );
-  tree.Branch( "pfjet_kinvtx_tkImpactDist2d", &pfjet_kinvtx_tkImpactDist2d_ );
-  tree.Branch( "pfjet_kinvtx_tkImpactDist3d", &pfjet_kinvtx_tkImpactDist3d_ );
+    tree.Branch( "pfjet_kinvtx", &pfjet_kinvtx_ );
+    tree.Branch( "pfjet_kinvtx_lxy", &pfjet_kinvtx_lxy_ );
+    tree.Branch( "pfjet_kinvtx_l3d", &pfjet_kinvtx_l3d_ );
+    tree.Branch( "pfjet_kinvtx_lxySig", &pfjet_kinvtx_lxySig_ );
+    tree.Branch( "pfjet_kinvtx_l3dSig", &pfjet_kinvtx_l3dSig_ );
+    tree.Branch( "pfjet_kinvtx_normChi2", &pfjet_kinvtx_normChi2_ );
+    tree.Branch( "pfjet_kinvtx_prob", &pfjet_kinvtx_prob_ );
+    tree.Branch( "pfjet_kinvtx_mass", &pfjet_kinvtx_mass_ );
+    tree.Branch( "pfjet_kinvtx_cosThetaXy", &pfjet_kinvtx_cosThetaXy_ );
+    tree.Branch( "pfjet_kinvtx_cosTheta3d", &pfjet_kinvtx_cosTheta3d_ );
+    tree.Branch( "pfjet_kinvtx_impactDistXy", &pfjet_kinvtx_impactDistXy_ );
+    tree.Branch( "pfjet_kinvtx_impactDist3d", &pfjet_kinvtx_impactDist3d_ );
+    tree.Branch( "pfjet_kinvtx_tkImpactDist2d", &pfjet_kinvtx_tkImpactDist2d_ );
+    tree.Branch( "pfjet_kinvtx_tkImpactDist3d", &pfjet_kinvtx_tkImpactDist3d_ );
+  }
+  if ( doSubstructureVariables_ ) {
+    tree.Branch( "pfjet_subjet_lambda", &pfjet_subjet_lambda_ );
+    tree.Branch( "pfjet_subjet_epsilon", &pfjet_subjet_epsilon_ );
+    tree.Branch( "pfjet_subjet_ecf1", &pfjet_subjet_ecf1_ );
+    tree.Branch( "pfjet_subjet_ecf2", &pfjet_subjet_ecf2_ );
+    tree.Branch( "pfjet_subjet_ecf3", &pfjet_subjet_ecf3_ );
+  }
 
-  tree.Branch( "pfjet_subjet_lambda", &pfjet_subjet_lambda_ );
-  tree.Branch( "pfjet_subjet_epsilon", &pfjet_subjet_epsilon_ );
-  tree.Branch( "pfjet_subjet_ecf1", &pfjet_subjet_ecf1_ );
-  tree.Branch( "pfjet_subjet_ecf2", &pfjet_subjet_ecf2_ );
-  tree.Branch( "pfjet_subjet_ecf3", &pfjet_subjet_ecf3_ );
-
-  tree.Branch( "pfjet_mva", &pfjet_mva_ );
+  if ( doMVA_ ) {
+    tree.Branch( "pfjet_mva", &pfjet_mva_ );
+  }
 }
 
 void
@@ -310,24 +339,24 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   assert( pfCand_h.isValid() );
 
   Handle<ValueMap<float>> subjet_lambda_h;
-  e.getByToken( subjet_lambda_token_, subjet_lambda_h );
-  assert( subjet_lambda_h.isValid() );
-  const auto& subjetLambdaVM = *subjet_lambda_h;
-
   Handle<ValueMap<float>> subjet_epsilon_h;
-  e.getByToken( subjet_epsilon_token_, subjet_epsilon_h );
-  assert( subjet_epsilon_h.isValid() );
-  const auto& subjetEpsilonVM = *subjet_epsilon_h;
+  Handle<ValueMap<float>> subjet_ecf1_h;
+  Handle<ValueMap<float>> subjet_ecf2_h;
+  Handle<ValueMap<float>> subjet_ecf3_h;
 
-  Handle<ValueMap<float>> subjet_ecf1_h, subjet_ecf2_h, subjet_ecf3_h;
-  e.getByToken( subjet_ecf1_token_, subjet_ecf1_h );
-  e.getByToken( subjet_ecf2_token_, subjet_ecf2_h );
-  e.getByToken( subjet_ecf3_token_, subjet_ecf3_h );
-  assert( subjet_ecf1_h.isValid() && subjet_ecf2_h.isValid() &&
-          subjet_ecf3_h.isValid() );
-  const auto& subjetecf1VM = *subjet_ecf1_h;
-  const auto& subjetecf2VM = *subjet_ecf2_h;
-  const auto& subjetecf3VM = *subjet_ecf3_h;
+  if ( doSubstructureVariables_ ) {
+    e.getByToken( subjet_lambda_token_, subjet_lambda_h );
+    e.getByToken( subjet_epsilon_token_, subjet_epsilon_h );
+    e.getByToken( subjet_ecf1_token_, subjet_ecf1_h );
+    e.getByToken( subjet_ecf2_token_, subjet_ecf2_h );
+    e.getByToken( subjet_ecf3_token_, subjet_ecf3_h );
+
+    assert( subjet_lambda_h.isValid() );
+    assert( subjet_epsilon_h.isValid() );
+    assert( subjet_ecf1_h.isValid() );
+    assert( subjet_ecf2_h.isValid() );
+    assert( subjet_ecf3_h.isValid() );
+  }
 
   clear();
 
@@ -461,187 +490,190 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     // -------------------------------------------------------------------------
 
     // vertices ----------------------------------------------------------------
-    pfjet_medianvtx_.push_back( estimatedVertexFromMedianReferencePoints( tracksSelected ) );
-    pfjet_averagevtx_.push_back( estimatedVertexFromAverageReferencePoints( tracksSelected ) );
+    if ( doVertexing_ ) {
+      pfjet_medianvtx_.push_back( estimatedVertexFromMedianReferencePoints( tracksSelected ) );
+      pfjet_averagevtx_.push_back( estimatedVertexFromAverageReferencePoints( tracksSelected ) );
 
-    vector<reco::TransientTrack> transientTks = transientTracksFromPFJet( pfjet, track_selector_, es );
-    Measurement1D                distXY;
-    Measurement1D                dist3D;
+      vector<reco::TransientTrack> transientTks = transientTracksFromPFJet( pfjet, track_selector_, es );
+      Measurement1D                distXY;
+      Measurement1D                dist3D;
 
-    GlobalVector pfjetMomentum( pfjet.px(), pfjet.py(), pfjet.pz() );
+      GlobalVector pfjetMomentum( pfjet.px(), pfjet.py(), pfjet.pz() );
 
-    const auto             klmVtxInfo  = kalmanVertexFromTransientTracks( transientTks, kvfParam_ );
-    const TransientVertex& klmVtx      = klmVtxInfo.first;
-    const float&           klmVtxMass  = klmVtxInfo.second;
-    bool                   klmVtxValid = klmVtx.isValid();
+      const auto             klmVtxInfo  = kalmanVertexFromTransientTracks( transientTks, kvfParam_ );
+      const TransientVertex& klmVtx      = klmVtxInfo.first;
+      const float&           klmVtxMass  = klmVtxInfo.second;
+      bool                   klmVtxValid = klmVtx.isValid();
 
-    distXY = klmVtxValid ? signedDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum ) : Measurement1D();
-    dist3D = klmVtxValid ? signedDistance3D( pv, klmVtx.vertexState(), pfjetMomentum ) : Measurement1D();
+      distXY = klmVtxValid ? signedDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum ) : Measurement1D();
+      dist3D = klmVtxValid ? signedDistance3D( pv, klmVtx.vertexState(), pfjetMomentum ) : Measurement1D();
 
-    pfjet_klmvtx_.emplace_back( klmVtxValid ? Point( klmVtx.position().x(),
-                                                     klmVtx.position().y(),
-                                                     klmVtx.position().z() )
-                                            : Point( NAN, NAN, NAN ) );
-    pfjet_klmvtx_lxy_.emplace_back( distXY.significance() ? distXY.value() : NAN );
-    pfjet_klmvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value() : NAN );
-    pfjet_klmvtx_lxySig_.emplace_back( distXY.significance() ? distXY.value() / distXY.error() : NAN );
-    pfjet_klmvtx_l3dSig_.emplace_back( dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
-    pfjet_klmvtx_normChi2_.emplace_back(
-        klmVtxValid && klmVtx.degreesOfFreedom() ? klmVtx.normalisedChiSquared()
-                                                 : NAN );
-    pfjet_klmvtx_prob_.emplace_back(
-        klmVtxValid ? ChiSquaredProbability( klmVtx.totalChiSquared(),
-                                             klmVtx.degreesOfFreedom() )
-                    : NAN );
-    pfjet_klmvtx_mass_.emplace_back( klmVtxValid ? klmVtxMass : NAN );
-    pfjet_klmvtx_cosThetaXy_.emplace_back(
-        klmVtxValid
-            ? cosThetaOfJetPvXY( pv, klmVtx.vertexState(), pfjetMomentum )
-            : NAN );
-    pfjet_klmvtx_cosTheta3d_.emplace_back(
-        klmVtxValid
-            ? cosThetaOfJetPv3D( pv, klmVtx.vertexState(), pfjetMomentum )
-            : NAN );
-    pfjet_klmvtx_impactDistXy_.emplace_back(
-        klmVtxValid
-            ? impactDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum )
-            : NAN );
-    pfjet_klmvtx_impactDist3d_.emplace_back(
-        klmVtxValid
-            ? impactDistance3D( pv, klmVtx.vertexState(), pfjetMomentum )
-            : NAN );
+      pfjet_klmvtx_.emplace_back( klmVtxValid ? Point( klmVtx.position().x(),
+                                                       klmVtx.position().y(),
+                                                       klmVtx.position().z() )
+                                              : Point( NAN, NAN, NAN ) );
+      pfjet_klmvtx_lxy_.emplace_back( distXY.significance() ? distXY.value() : NAN );
+      pfjet_klmvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value() : NAN );
+      pfjet_klmvtx_lxySig_.emplace_back( distXY.significance() ? distXY.value() / distXY.error() : NAN );
+      pfjet_klmvtx_l3dSig_.emplace_back( dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
+      pfjet_klmvtx_normChi2_.emplace_back(
+          klmVtxValid && klmVtx.degreesOfFreedom() ? klmVtx.normalisedChiSquared()
+                                                   : NAN );
+      pfjet_klmvtx_prob_.emplace_back(
+          klmVtxValid ? ChiSquaredProbability( klmVtx.totalChiSquared(),
+                                               klmVtx.degreesOfFreedom() )
+                      : NAN );
+      pfjet_klmvtx_mass_.emplace_back( klmVtxValid ? klmVtxMass : NAN );
+      pfjet_klmvtx_cosThetaXy_.emplace_back(
+          klmVtxValid
+              ? cosThetaOfJetPvXY( pv, klmVtx.vertexState(), pfjetMomentum )
+              : NAN );
+      pfjet_klmvtx_cosTheta3d_.emplace_back(
+          klmVtxValid
+              ? cosThetaOfJetPv3D( pv, klmVtx.vertexState(), pfjetMomentum )
+              : NAN );
+      pfjet_klmvtx_impactDistXy_.emplace_back(
+          klmVtxValid
+              ? impactDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum )
+              : NAN );
+      pfjet_klmvtx_impactDist3d_.emplace_back(
+          klmVtxValid
+              ? impactDistance3D( pv, klmVtx.vertexState(), pfjetMomentum )
+              : NAN );
 
-    vector<float> trackImpactDist2dKlmVtx{}, trackImpactDist3dKlmVtx{};
-    if ( klmVtxValid ) {
-      for ( const auto& tt : transientTks ) {
-        pair<bool, Measurement1D> impact2dResult =
-            ff::absoluteTransverseImpactParameter( tt, klmVtx.vertexState() );
-        trackImpactDist2dKlmVtx.emplace_back(
-            impact2dResult.first && impact2dResult.second.significance()
-                ? impact2dResult.second.value()
-                : NAN );
+      vector<float> trackImpactDist2dKlmVtx{}, trackImpactDist3dKlmVtx{};
+      if ( klmVtxValid ) {
+        for ( const auto& tt : transientTks ) {
+          pair<bool, Measurement1D> impact2dResult =
+              ff::absoluteTransverseImpactParameter( tt, klmVtx.vertexState() );
+          trackImpactDist2dKlmVtx.emplace_back(
+              impact2dResult.first && impact2dResult.second.significance()
+                  ? impact2dResult.second.value()
+                  : NAN );
 
-        pair<bool, Measurement1D> impact3dResult =
-            ff::absoluteImpactParameter3D( tt, klmVtx.vertexState() );
-        trackImpactDist3dKlmVtx.emplace_back(
-            impact3dResult.first && impact3dResult.second.significance()
-                ? impact3dResult.second.value()
-                : NAN );
+          pair<bool, Measurement1D> impact3dResult =
+              ff::absoluteImpactParameter3D( tt, klmVtx.vertexState() );
+          trackImpactDist3dKlmVtx.emplace_back(
+              impact3dResult.first && impact3dResult.second.significance()
+                  ? impact3dResult.second.value()
+                  : NAN );
+        }
       }
-    }
-    pfjet_klmvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKlmVtx );
-    pfjet_klmvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKlmVtx );
+      pfjet_klmvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKlmVtx );
+      pfjet_klmvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKlmVtx );
 
-    const auto             kinVtxInfo  = kinematicVertexFromTransientTracks( transientTks );
-    const KinematicVertex& kinVtx      = kinVtxInfo.first;
-    const float&           kinVtxMass  = kinVtxInfo.second;
-    bool                   kinVtxValid = kinVtx.vertexIsValid();
+      const auto             kinVtxInfo  = kinematicVertexFromTransientTracks( transientTks );
+      const KinematicVertex& kinVtx      = kinVtxInfo.first;
+      const float&           kinVtxMass  = kinVtxInfo.second;
+      bool                   kinVtxValid = kinVtx.vertexIsValid();
 
-    distXY = kinVtxValid
-                 ? signedDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum )
-                 : Measurement1D();
-    dist3D = kinVtxValid
-                 ? signedDistance3D( pv, kinVtx.vertexState(), pfjetMomentum )
-                 : Measurement1D();
+      distXY = kinVtxValid
+                   ? signedDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum )
+                   : Measurement1D();
+      dist3D = kinVtxValid
+                   ? signedDistance3D( pv, kinVtx.vertexState(), pfjetMomentum )
+                   : Measurement1D();
 
-    pfjet_kinvtx_.emplace_back( kinVtxValid ? Point( kinVtx.position().x(),
-                                                     kinVtx.position().y(),
-                                                     kinVtx.position().z() )
-                                            : Point( NAN, NAN, NAN ) );
-    pfjet_kinvtx_lxy_.emplace_back( distXY.significance() ? distXY.value()
-                                                          : NAN );
-    pfjet_kinvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value()
-                                                          : NAN );
-    pfjet_kinvtx_lxySig_.emplace_back(
-        distXY.significance() ? distXY.value() / distXY.error() : NAN );
-    pfjet_kinvtx_l3dSig_.emplace_back(
-        dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
-    pfjet_kinvtx_normChi2_.emplace_back(
-        kinVtxValid && kinVtx.degreesOfFreedom()
-            ? kinVtx.chiSquared() / kinVtx.degreesOfFreedom()
-            : NAN );
-    pfjet_kinvtx_prob_.emplace_back(
-        kinVtxValid ? ChiSquaredProbability( kinVtx.chiSquared(),
-                                             kinVtx.degreesOfFreedom() )
-                    : NAN );
-    pfjet_kinvtx_mass_.emplace_back( kinVtxValid ? kinVtxMass : NAN );
-    pfjet_kinvtx_cosThetaXy_.emplace_back(
-        kinVtxValid
-            ? cosThetaOfJetPvXY( pv, kinVtx.vertexState(), pfjetMomentum )
-            : NAN );
-    pfjet_kinvtx_cosTheta3d_.emplace_back(
-        kinVtxValid
-            ? cosThetaOfJetPv3D( pv, kinVtx.vertexState(), pfjetMomentum )
-            : NAN );
-    pfjet_kinvtx_impactDistXy_.emplace_back(
-        kinVtxValid
-            ? impactDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum )
-            : NAN );
-    pfjet_kinvtx_impactDist3d_.emplace_back(
-        kinVtxValid
-            ? impactDistance3D( pv, kinVtx.vertexState(), pfjetMomentum )
-            : NAN );
+      pfjet_kinvtx_.emplace_back( kinVtxValid ? Point( kinVtx.position().x(),
+                                                       kinVtx.position().y(),
+                                                       kinVtx.position().z() )
+                                              : Point( NAN, NAN, NAN ) );
+      pfjet_kinvtx_lxy_.emplace_back( distXY.significance() ? distXY.value()
+                                                            : NAN );
+      pfjet_kinvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value()
+                                                            : NAN );
+      pfjet_kinvtx_lxySig_.emplace_back(
+          distXY.significance() ? distXY.value() / distXY.error() : NAN );
+      pfjet_kinvtx_l3dSig_.emplace_back(
+          dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
+      pfjet_kinvtx_normChi2_.emplace_back(
+          kinVtxValid && kinVtx.degreesOfFreedom()
+              ? kinVtx.chiSquared() / kinVtx.degreesOfFreedom()
+              : NAN );
+      pfjet_kinvtx_prob_.emplace_back(
+          kinVtxValid ? ChiSquaredProbability( kinVtx.chiSquared(),
+                                               kinVtx.degreesOfFreedom() )
+                      : NAN );
+      pfjet_kinvtx_mass_.emplace_back( kinVtxValid ? kinVtxMass : NAN );
+      pfjet_kinvtx_cosThetaXy_.emplace_back(
+          kinVtxValid
+              ? cosThetaOfJetPvXY( pv, kinVtx.vertexState(), pfjetMomentum )
+              : NAN );
+      pfjet_kinvtx_cosTheta3d_.emplace_back(
+          kinVtxValid
+              ? cosThetaOfJetPv3D( pv, kinVtx.vertexState(), pfjetMomentum )
+              : NAN );
+      pfjet_kinvtx_impactDistXy_.emplace_back(
+          kinVtxValid
+              ? impactDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum )
+              : NAN );
+      pfjet_kinvtx_impactDist3d_.emplace_back(
+          kinVtxValid
+              ? impactDistance3D( pv, kinVtx.vertexState(), pfjetMomentum )
+              : NAN );
 
-    vector<float> trackImpactDist2dKinVtx{}, trackImpactDist3dKinVtx{};
-    if ( kinVtxValid ) {
-      for ( const auto& tt : transientTks ) {
-        pair<bool, Measurement1D> impact2dResult =
-            ff::absoluteTransverseImpactParameter( tt, kinVtx.vertexState() );
-        trackImpactDist2dKinVtx.emplace_back(
-            impact2dResult.first && impact2dResult.second.significance()
-                ? impact2dResult.second.value()
-                : NAN );
+      vector<float> trackImpactDist2dKinVtx{}, trackImpactDist3dKinVtx{};
+      if ( kinVtxValid ) {
+        for ( const auto& tt : transientTks ) {
+          pair<bool, Measurement1D> impact2dResult =
+              ff::absoluteTransverseImpactParameter( tt, kinVtx.vertexState() );
+          trackImpactDist2dKinVtx.emplace_back(
+              impact2dResult.first && impact2dResult.second.significance()
+                  ? impact2dResult.second.value()
+                  : NAN );
 
-        pair<bool, Measurement1D> impact3dResult =
-            ff::absoluteImpactParameter3D( tt, kinVtx.vertexState() );
-        trackImpactDist3dKinVtx.emplace_back(
-            impact3dResult.first && impact3dResult.second.significance()
-                ? impact3dResult.second.value()
-                : NAN );
+          pair<bool, Measurement1D> impact3dResult =
+              ff::absoluteImpactParameter3D( tt, kinVtx.vertexState() );
+          trackImpactDist3dKinVtx.emplace_back(
+              impact3dResult.first && impact3dResult.second.significance()
+                  ? impact3dResult.second.value()
+                  : NAN );
+        }
       }
+      pfjet_kinvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKinVtx );
+      pfjet_kinvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKinVtx );
     }
-    pfjet_kinvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKinVtx );
-    pfjet_kinvtx_tkImpactDist3d_.emplace_back( trackImpactDist3dKinVtx );
     // -------------------------------------------------------------------------
 
     // subjet ------------------------------------------------------------------
-    size_t           idx( &pfjet - &*pfjets.begin() );
-    Ptr<reco::PFJet> pfjetptr( pfjet_h, idx );
+    if ( doSubstructureVariables_ ) {
+      size_t           idx( &pfjet - &*pfjets.begin() );
+      Ptr<reco::PFJet> pfjetptr( pfjet_h, idx );
 
-    pfjet_subjet_lambda_.emplace_back( subjetLambdaVM[ pfjetptr ] );
-    pfjet_subjet_epsilon_.emplace_back( subjetEpsilonVM[ pfjetptr ] );
-    pfjet_subjet_ecf1_.emplace_back(
-        subjetecf1VM[ pfjetptr ] > 0 ? subjetecf1VM[ pfjetptr ] : NAN );
-    pfjet_subjet_ecf2_.emplace_back(
-        subjetecf2VM[ pfjetptr ] > 0 ? subjetecf2VM[ pfjetptr ] : NAN );
-    pfjet_subjet_ecf3_.emplace_back(
-        subjetecf3VM[ pfjetptr ] > 0 ? subjetecf3VM[ pfjetptr ] : NAN );
+      pfjet_subjet_lambda_.emplace_back( ( *subjet_lambda_h )[ pfjetptr ] );
+      pfjet_subjet_epsilon_.emplace_back( ( *subjet_epsilon_h )[ pfjetptr ] );
+      pfjet_subjet_ecf1_.emplace_back( ( *subjet_ecf1_h )[ pfjetptr ] > 0 ? ( *subjet_ecf1_h )[ pfjetptr ] : NAN );
+      pfjet_subjet_ecf2_.emplace_back( ( *subjet_ecf2_h )[ pfjetptr ] > 0 ? ( *subjet_ecf2_h )[ pfjetptr ] : NAN );
+      pfjet_subjet_ecf3_.emplace_back( ( *subjet_ecf3_h )[ pfjetptr ] > 0 ? ( *subjet_ecf3_h )[ pfjetptr ] : NAN );
+    }
     // -------------------------------------------------------------------------
 
     // mva ---------------------------------------------------------------------
-    map<string, float> mvaVariablesMap{};
-    mvaVariablesMap.emplace( "pt", pfjet.pt() );
-    mvaVariablesMap.emplace( "eta", pfjet.eta() );
-    mvaVariablesMap.emplace( "nef", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) / pfjet.energy() );
-    mvaVariablesMap.emplace( "maxd0", isnan( pfjet_pfcand_tkD0Max_.back() ) ? 0. : pfjet_pfcand_tkD0Max_.back() );
-    mvaVariablesMap.emplace( "mind0", isnan( pfjet_pfcand_tkD0Min_.back() ) ? 0. : pfjet_pfcand_tkD0Min_.back() );
-    mvaVariablesMap.emplace( "maxd0sig", isnan( pfjet_pfcand_tkD0SigMax_.back() ) ? 0. : pfjet_pfcand_tkD0SigMax_.back() );
-    mvaVariablesMap.emplace( "mind0sig", isnan( pfjet_pfcand_tkD0SigMin_.back() ) ? 0. : pfjet_pfcand_tkD0SigMin_.back() );
-    mvaVariablesMap.emplace( "tkiso05", isnan( pfjet_tkIsolation_[ 0.5 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.5 ].back() );
-    mvaVariablesMap.emplace( "pfiso05", pfjet_pfIsolation_[ 0.5 ].back() );
-    mvaVariablesMap.emplace( "tkiso06", isnan( pfjet_tkIsolation_[ 0.6 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.6 ].back() );
-    mvaVariablesMap.emplace( "pfiso06", pfjet_pfIsolation_[ 0.6 ].back() );
-    mvaVariablesMap.emplace( "tkiso07", isnan( pfjet_tkIsolation_[ 0.7 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.7 ].back() );
-    mvaVariablesMap.emplace( "pfiso07", pfjet_pfIsolation_[ 0.7 ].back() );
-    mvaVariablesMap.emplace( "spreadpt", pfjet_ptDistribution_.back() );
-    mvaVariablesMap.emplace( "spreaddr", pfjet_dRSpread_.back() );
-    mvaVariablesMap.emplace( "lamb", pfjet_subjet_lambda_.back() );
-    mvaVariablesMap.emplace( "epsi", pfjet_subjet_epsilon_.back() );
-    mvaVariablesMap.emplace( "ecfe1", pfjet_subjet_ecf1_.back() );
-    mvaVariablesMap.emplace( "ecfe2", isnan( pfjet_subjet_ecf2_.back() ) ? 0. : pfjet_subjet_ecf2_.back() );
-    mvaVariablesMap.emplace( "ecfe3", isnan( pfjet_subjet_ecf3_.back() ) ? 0. : pfjet_subjet_ecf3_.back() );
+    if ( doMVA_ ) {
+      map<string, float> mvaVariablesMap{};
+      mvaVariablesMap.emplace( "pt", pfjet.pt() );
+      mvaVariablesMap.emplace( "eta", pfjet.eta() );
+      mvaVariablesMap.emplace( "nef", ( pfjet_neutralEmE_.back() + pfjet_neutralHadronE_.back() ) / pfjet.energy() );
+      mvaVariablesMap.emplace( "maxd0", isnan( pfjet_pfcand_tkD0Max_.back() ) ? 0. : pfjet_pfcand_tkD0Max_.back() );
+      mvaVariablesMap.emplace( "mind0", isnan( pfjet_pfcand_tkD0Min_.back() ) ? 0. : pfjet_pfcand_tkD0Min_.back() );
+      mvaVariablesMap.emplace( "maxd0sig", isnan( pfjet_pfcand_tkD0SigMax_.back() ) ? 0. : pfjet_pfcand_tkD0SigMax_.back() );
+      mvaVariablesMap.emplace( "mind0sig", isnan( pfjet_pfcand_tkD0SigMin_.back() ) ? 0. : pfjet_pfcand_tkD0SigMin_.back() );
+      mvaVariablesMap.emplace( "tkiso05", isnan( pfjet_tkIsolation_[ 0.5 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.5 ].back() );
+      mvaVariablesMap.emplace( "pfiso05", pfjet_pfIsolation_[ 0.5 ].back() );
+      mvaVariablesMap.emplace( "tkiso06", isnan( pfjet_tkIsolation_[ 0.6 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.6 ].back() );
+      mvaVariablesMap.emplace( "pfiso06", pfjet_pfIsolation_[ 0.6 ].back() );
+      mvaVariablesMap.emplace( "tkiso07", isnan( pfjet_tkIsolation_[ 0.7 ].back() ) ? 0. : pfjet_tkIsolation_[ 0.7 ].back() );
+      mvaVariablesMap.emplace( "pfiso07", pfjet_pfIsolation_[ 0.7 ].back() );
+      mvaVariablesMap.emplace( "spreadpt", pfjet_ptDistribution_.back() );
+      mvaVariablesMap.emplace( "spreaddr", pfjet_dRSpread_.back() );
+      mvaVariablesMap.emplace( "lamb", pfjet_subjet_lambda_.back() );
+      mvaVariablesMap.emplace( "epsi", pfjet_subjet_epsilon_.back() );
+      mvaVariablesMap.emplace( "ecfe1", pfjet_subjet_ecf1_.back() );
+      mvaVariablesMap.emplace( "ecfe2", isnan( pfjet_subjet_ecf2_.back() ) ? 0. : pfjet_subjet_ecf2_.back() );
+      mvaVariablesMap.emplace( "ecfe3", isnan( pfjet_subjet_ecf3_.back() ) ? 0. : pfjet_subjet_ecf3_.back() );
 
-    pfjet_mva_.emplace_back( mvaEstimator_.mvaValue( &pfjet, mvaVariablesMap ) );
+      pfjet_mva_.emplace_back( mvaEstimator_->mvaValue( &pfjet, mvaVariablesMap ) );
+    }
 
     // -------------------------------------------------------------------------
   }
