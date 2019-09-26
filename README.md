@@ -21,7 +21,7 @@ git cms-merge-topic cms-egamma:PhotonIDValueMapSpeedup1029
 git cms-merge-topic cms-egamma:slava77-btvDictFix_10210
 git cms-addpkg EgammaAnalysis/ElectronTools
 rm EgammaAnalysis/ElectronTools/data -rf
-git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
+git clone https://github.com/cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
 
 # checkout leptonjet reco+ntuple code
 git clone https://YOURCERNID@gitlab.cern.ch/wsi/Firefighter.git
