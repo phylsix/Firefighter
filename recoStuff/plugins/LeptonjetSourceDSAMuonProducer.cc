@@ -49,8 +49,10 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
     if ( ( trackref->ptError() / trackref->pt() ) > 1 )
       continue;
 
-    //loose iso
-    if ( !muonref->passed( reco::Muon::PFIsoLoose ) )
+    //loose iso. ref: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation
+    const auto&  pfiso04  = muonref->pfIsolationR04();
+    double       iso04val = ( pfiso04.sumChargedHadronPt + max( 0., pfiso04.sumNeutralHadronEt + pfiso04.sumPhotonEt - 0.5 * pfiso04.sumPUPt ) ) / muonref->pt();
+    if (iso04val>0.25) // 0.4, 0.25, 0.20, 0.15, 0.10, 0.05
       continue;
 
     //matching with loose PFMuon

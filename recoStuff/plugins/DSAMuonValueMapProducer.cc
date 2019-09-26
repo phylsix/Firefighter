@@ -9,7 +9,7 @@
 #include <algorithm>
 
 DSAMuonValueMapProducer::DSAMuonValueMapProducer( const edm::ParameterSet& ps )
-    : fDsaMuonToken( consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) ) ),
+    : fDsaMuonToken( consumes<reco::MuonCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ),
       fRecoMuonToken( consumes<reco::MuonCollection>( edm::InputTag( "muons" ) ) ) {
   produces<edm::ValueMap<float>>( "maxSegmentOverlapRatio" );
   produces<edm::ValueMap<float>>( "minExtrapolateInnermostLocalDr" );

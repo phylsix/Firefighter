@@ -29,12 +29,12 @@ class ffNtupleDsaMuonExtra : public ffNtupleBase {
   edm::EDGetToken fDsaMuonExpoLocalDiffToken;
   edm::EDGetToken fDsaMuonGlobalDrToken;
 
-  std::vector<float> fDsaMuonOverlapRatio;
-  std::vector<float> fDsaMuonExpoLocalDr;
-  std::vector<float> fDsaMuonExpoLocalDiff;
-  std::vector<float> fDsaMuonGlobalDr;
-  std::vector<unsigned int>  fDsaMuonSelectors;
-  std::vector<bool>  fDsaFindOppositeTrack;
+  std::vector<float>        fDsaMuonOverlapRatio;
+  std::vector<float>        fDsaMuonExpoLocalDr;
+  std::vector<float>        fDsaMuonExpoLocalDiff;
+  std::vector<float>        fDsaMuonGlobalDr;
+  std::vector<unsigned int> fDsaMuonSelectors;
+  std::vector<bool>         fDsaFindOppositeTrack;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleDsaMuonExtra, "ffNtupleDsaMuonExtra" );
@@ -46,7 +46,7 @@ void
 ffNtupleDsaMuonExtra::initialize( TTree&                   tree,
                                   const edm::ParameterSet& ps,
                                   edm::ConsumesCollector&& cc ) {
-  fDsaMuonToken              = cc.consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) );
+  fDsaMuonToken              = cc.consumes<reco::MuonCollection>( ps.getParameter<edm::InputTag>( "src" ) );
   fDsaMuonTrackToken         = cc.consumes<reco::TrackCollection>( edm::InputTag( "displacedStandAloneMuons" ) );
   fDsaMuonOverlapRatioToken  = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "maxSegmentOverlapRatio" ) );
   fDsaMuonExpoLocalDrToken   = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "minExtrapolateInnermostLocalDr" ) );
@@ -95,7 +95,25 @@ ffNtupleDsaMuonExtra::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fDsaMuonExpoLocalDr.emplace_back( ( *dsamuonExpoLocalDrHdl )[ dsamuonptr ] );
     fDsaMuonExpoLocalDiff.emplace_back( ( *dsamuonExpoLocalDiffHdl )[ dsamuonptr ] );
     fDsaMuonGlobalDr.emplace_back( ( *dsamuonGlobalDrHdl )[ dsamuonptr ] );
-    fDsaMuonSelectors.emplace_back( dsamuonptr->selectors() );
+
+    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation
+    const auto&  pfiso04  = dsamuonptr->pfIsolationR04();
+    double       iso04val = ( pfiso04.sumChargedHadronPt + max( 0., pfiso04.sumNeutralHadronEt + pfiso04.sumPhotonEt - 0.5 * pfiso04.sumPUPt ) ) / dsamuonptr->pt();
+    unsigned int selectorval( 0 );
+    if ( iso04val < 0.4 )
+      selectorval |= ( 1 << 6 );  //PFIsoVeryLoose
+    if ( iso04val < 0.25 )
+      selectorval |= ( 1 << 7 );  //PFIsoloose
+    if ( iso04val < 0.20 )
+      selectorval |= ( 1 << 8 );  //PFIsoMedium
+    if ( iso04val < 0.15 )
+      selectorval |= ( 1 << 9 );  //PFIsoTight
+    if ( iso04val < 0.10 )
+      selectorval |= ( 1 << 10 );  //PFIsoVeryTight
+    if ( iso04val < 0.05 )
+      selectorval |= ( 1 << 24 );  //PFIsoVeryVeryTight
+
+    fDsaMuonSelectors.emplace_back( selectorval );
     fDsaFindOppositeTrack.emplace_back( muonid::findOppositeTrack( dsamuonTkHdl, *( dsamuonptr->bestTrack() ) ).isNonnull() );
   }
 }
