@@ -14,9 +14,9 @@ leptonjetSourcePFPhoton = cms.EDProducer("LeptonjetSourcePFPhotonProducer")
 from Firefighter.recoStuff.PFCandMerger_cfi import pfcandfwdptrmerger as _pfcandmerger
 leptonjetSources = _pfcandmerger.clone(
     src=cms.VInputTag(
-        cms.InputTag("leptonjetSourcePFMuon", "nonisolated"),
-        cms.InputTag("leptonjetSourceDSAMuon", "nonisolated"),
-        cms.InputTag("leptonjetSourcePFElectron", "nonisolated"),
+        cms.InputTag("leptonjetSourcePFMuon", "inclusive"),
+        cms.InputTag("leptonjetSourceDSAMuon", "inclusive"),
+        cms.InputTag("leptonjetSourcePFElectron", "inclusive"),
         cms.InputTag("leptonjetSourcePFPhoton"),
     )
 )

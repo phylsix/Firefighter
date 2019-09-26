@@ -153,6 +153,7 @@ ntuple_metfilters = cms.PSet(
 
 ntuple_leptonjetsrc = cms.PSet(
     NtupleName=cms.string("ffNtupleLeptonJetSource"),
+    src=cms.InputTag("particleFlowIncDSA"),
 )
 
 ntuple_leptonjetmisc = cms.PSet(

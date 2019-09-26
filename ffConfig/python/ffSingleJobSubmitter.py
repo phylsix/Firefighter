@@ -31,7 +31,7 @@ def main():
     # from Firefighter.piedpiper.utils import get_voms_certificate
 
     # os.system(
-    #     "tar -X EXCLUDEPATTERNS --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION}"
+    #    "tar -X EXCLUDEPATTERNS --exclude-vcs -zcf `basename ${CMSSW_BASE}`.tar.gz -C ${CMSSW_BASE}/.. `basename ${CMSSW_BASE}`"
     # )
     # get_voms_certificate()
 

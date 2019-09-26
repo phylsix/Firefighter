@@ -94,7 +94,7 @@ def submit(dkind, submitter="condor"):
         if dkind == "data":
             _eventregion = "control"  # only control for data now.
 
-        os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION}")
+        os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf `basename ${CMSSW_BASE}`.tar.gz -C ${CMSSW_BASE}/.. `basename ${CMSSW_BASE}`")
         get_voms_certificate()
 
         if dkind == "bkgmc":  # only background mc has dataset not on disk
