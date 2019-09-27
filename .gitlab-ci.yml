@@ -48,9 +48,9 @@ test_sigMC:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_4mu.root
-    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-4mu.yml
+    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-4mu.yml
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_2mu2e.root
-    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-2mu2e.yml
+    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-2mu2e.yml
     - mv ffNtuple_signal-2mu2e.root $CI_HOME
     - mv ffNtuple_signal-4mu.root $CI_HOME
   artifacts:
@@ -81,7 +81,7 @@ test_bkgMC:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
-    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_ZZ.yml
+    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_ZZ.yml
     - mv ffNtuple_ZZ.root $CI_HOME
   artifacts:
     paths:
@@ -136,7 +136,7 @@ test_data:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/DoubleMuon2018C_numEvent300.root
-    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_DoubleMuon2018C.yml
+    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_DoubleMuon2018C.yml
     - mv ffNtuple_DoubleMuon2018C.root $CI_HOME
   artifacts:
     paths:

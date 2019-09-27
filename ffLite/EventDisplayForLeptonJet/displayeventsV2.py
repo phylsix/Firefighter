@@ -90,7 +90,6 @@ def main():
         dsamuon = {}
         dsamuon_p4 = list(event.dsamuon_p4)
         dsamuon_selectors = list(event.dsamuon_selectors)
-        print(dsamuon_selectors)
         dsamuon_passIso = [(s&(1<<6))==(1<<6) for s in dsamuon_selectors]
         dsamuon['energy'] = [p.energy() for i, p in enumerate(dsamuon_p4) if dsamuon_passIso[i]]
         dsamuon['eta'] = [p.eta() for i, p in enumerate(dsamuon_p4) if dsamuon_passIso[i]]
@@ -113,7 +112,7 @@ def main():
             ljdf.plot.scatter(x='eta', y='phi', s=ljdf['energy']*50, c="None", ax=ax, edgecolors='k', linewidth=2, linestyle='--')
         dsadf = pd.DataFrame(eventinfo['dsamuon'])
         if not dsadf.empty:
-            dsadf.plot.scatter(x='eta', y='phi', s=dsadf['energy']*50, c='#756bb1', ax=ax, alpha=0.8)
+            dsadf.plot.scatter(x='eta', y='phi', s=dsadf['energy']*50, c='#756bb1', marker='h', ax=ax, alpha=0.8)
         darkphotons = eventinfo.get('darkphotons', None)
         if darkphotons:
             ax.scatter([d[0] for d in darkphotons],
