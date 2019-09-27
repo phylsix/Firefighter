@@ -172,6 +172,11 @@ ntuple_dsamuonextra = cms.PSet(
     src=cms.InputTag("pfEmbeddedDSAMuons"),
 )
 
+ntuple_pfjetextra = cms.PSet(
+    NtupleName=cms.string("ffNtuplePfJetExtra"),
+    src=cms.InputTag("leptonjet"),
+)
+
 ntuple_cosmicveto = cms.PSet(
     NtupleName=cms.string("ffNtupleCosmicVeto"),
 )

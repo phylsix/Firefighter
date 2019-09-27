@@ -11,6 +11,7 @@
 <use name="CommonTools/ParticleFlow"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="RecoJets/JetProducers"/>
+<use name="RecoMuon/MuonIdentification"/>
 <use name="Firefighter/recoStuff"/>
 
 <library name="FirefighterrecoStuff_plugins" file="*.cc">

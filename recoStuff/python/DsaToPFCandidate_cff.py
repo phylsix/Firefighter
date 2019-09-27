@@ -55,7 +55,7 @@ muonsFromdSA.runArbitrationCleaner = False
 #####################################################################
 from CommonTools.ParticleFlow.pfNoPileUpIso_cff import *
 from CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff import *
-from  RecoMuon.MuonIsolation.muonPFIsolation_cff import *
+from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
 
 sourceMuons = 'muonsFromdSA'
 muPFIsoDepositCharged.src = sourceMuons

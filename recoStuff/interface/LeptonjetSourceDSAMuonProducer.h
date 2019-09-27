@@ -18,6 +18,8 @@
 #include "DataFormats/MuonReco/interface/MuonSegmentMatch.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "Firefighter/recoStuff/interface/TrackExtrapolator.h"
 
@@ -39,8 +41,10 @@ class LeptonjetSourceDSAMuonProducer : public edm::stream::EDProducer<> {
 
   const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> fDSACandsToken;
   const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> fPFMuonsToken;
+  const edm::EDGetTokenT<reco::TrackCollection>         fDSATkToken;
   edm::Handle<reco::PFCandidateFwdPtrVector>            fDSACandsHdl;
   edm::Handle<reco::PFCandidateFwdPtrVector>            fPFMuonsHdl;
+  edm::Handle<reco::TrackCollection>                    fDSATkHdl;
 
   std::unique_ptr<ff::TrackExtrapolator> fTkExtrapolator;
 };

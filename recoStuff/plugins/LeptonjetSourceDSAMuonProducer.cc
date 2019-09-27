@@ -2,11 +2,13 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "RecoMuon/MuonIdentification/interface/MuonCosmicsId.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 LeptonjetSourceDSAMuonProducer::LeptonjetSourceDSAMuonProducer( const edm::ParameterSet& ps )
     : fDSACandsToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "pfcandsFromMuondSAPtr" ) ) ),
-      fPFMuonsToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "leptonjetSourcePFMuon", "inclusive" ) ) ) {
+      fPFMuonsToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "leptonjetSourcePFMuon", "inclusive" ) ) ),
+      fDSATkToken( consumes<reco::TrackCollection>( edm::InputTag( "displacedStandAloneMuons" ) ) ) {
   produces<reco::PFCandidateFwdPtrVector>( "inclusive" );
   produces<reco::PFCandidateFwdPtrVector>( "nonisolated" );
 }
@@ -30,6 +32,8 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
   assert( fDSACandsHdl.isValid() );
   e.getByToken( fPFMuonsToken, fPFMuonsHdl );
   assert( fPFMuonsHdl.isValid() );
+  e.getByToken( fDSATkToken, fDSATkHdl );
+  assert( fDSATkHdl.isValid() );
 
   for ( const auto& candfwdptr : *fDSACandsHdl ) {
     const auto& candptr  = candfwdptr.ptr();
@@ -50,9 +54,9 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
       continue;
 
     //loose iso. ref: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation
-    const auto&  pfiso04  = muonref->pfIsolationR04();
-    double       iso04val = ( pfiso04.sumChargedHadronPt + max( 0., pfiso04.sumNeutralHadronEt + pfiso04.sumPhotonEt - 0.5 * pfiso04.sumPUPt ) ) / muonref->pt();
-    if (iso04val>0.25) // 0.4, 0.25, 0.20, 0.15, 0.10, 0.05
+    const auto& pfiso04  = muonref->pfIsolationR04();
+    double      iso04val = ( pfiso04.sumChargedHadronPt + max( 0., pfiso04.sumNeutralHadronEt + pfiso04.sumPhotonEt - 0.5 * pfiso04.sumPUPt ) ) / muonref->pt();
+    if ( iso04val > 0.25 )  // 0.4, 0.25, 0.20, 0.15, 0.10, 0.05
       continue;
 
     //matching with loose PFMuon
@@ -69,6 +73,10 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
     if ( trackref->normalizedChi2() > 4 )
       continue;
     if ( hitpattern.numberOfValidMuonCSCHits() == 0 and hitpattern.numberOfValidMuonDTHits() <= 18 )
+      continue;
+
+    // reject cosmic-like
+    if ( muonid::findOppositeTrack( fDSATkHdl, *trackref ).isNonnull() )
       continue;
 
     inclusiveColl->push_back( candfwdptr );

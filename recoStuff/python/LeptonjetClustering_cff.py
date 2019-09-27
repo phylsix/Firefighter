@@ -29,6 +29,12 @@ leptonjet = ak4PFJets.clone(
     jetAlgorithm=cms.string("AntiKt"),
 )
 
+## produce addiitonal valueMaps
+leptonjetExtra = cms.EDProducer(
+    "LeptonjetValueMapProducer",
+    src=cms.InputTag("leptonjet"),
+)
+
 ## clustering sequence
 leptonjetClusteringSeq = cms.Sequence(
     leptonjetSourcePFMuon
@@ -37,4 +43,5 @@ leptonjetClusteringSeq = cms.Sequence(
     + leptonjetSourcePFPhoton
     + leptonjetSources
     + leptonjet
+    + leptonjetExtra
 )
