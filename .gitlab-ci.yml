@@ -34,7 +34,7 @@ compile:
     - git cms-addpkg EgammaAnalysis/ElectronTools
     - rm EgammaAnalysis/ElectronTools/data -rf
     - git clone https://github.com/cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
-    - cp -r $CI_HOME/../Firefighter $CMSSW_VERSION/src
+    - cp -r $CI_HOME/../Firefighter .
     - scram b -j4
     - cd $CMSSW_BASE/..
     - tar -czf cmssw.tgz $CMSSW_VERSION
