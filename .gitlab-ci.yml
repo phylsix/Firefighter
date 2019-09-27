@@ -28,7 +28,7 @@ compile:
     - cp -r $CI_HOME/../Firefighter $CMSSW_VERSION/src
     - cd $CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
-    - git cms-init
+    # - git cms-init
     - git cms-merge-topic cms-egamma:EgammaPostRecoTools
     - git cms-merge-topic cms-egamma:PhotonIDValueMapSpeedup1029
     - git cms-merge-topic cms-egamma:slava77-btvDictFix_10210
