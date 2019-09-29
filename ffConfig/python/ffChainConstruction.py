@@ -21,6 +21,8 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
         + process.dsamuonExtraSeq
         + process.egammaPostRecoSeq
         + process.leptonjetClusteringSeq
+        + process.leptonjetFilteringSeq
+        + process.ffLeptonJetSingleCountFilter
         )
 
     process.ntuple_step = cms.Path(process.recoSeq+process.ffNtuplesSeq)

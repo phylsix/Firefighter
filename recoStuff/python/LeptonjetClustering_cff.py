@@ -45,3 +45,10 @@ leptonjetClusteringSeq = cms.Sequence(
     + leptonjet
     + leptonjetExtra
 )
+
+## filtering sequence
+from Firefighter.recoStuff.ffLeptonJetFiltering_cff import *
+leptonjetFilteringSeq = cms.Sequence(
+    ffLeptonJetFwdPtrs
+    + filteredLeptonJet
+)

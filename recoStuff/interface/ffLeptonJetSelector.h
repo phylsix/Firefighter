@@ -9,15 +9,27 @@ class ffLeptonJetSelector {
  public:
   ffLeptonJetSelector( const edm::ParameterSet& ps )
       : fStringCut( ps.getParameter<std::string>( "cut" ), true ),
-        fMinChargedMass( ps.getParameter<double>( "minChargedMass" ) ),
-        fMaxTimeLimit( ps.getParameter<double>( "maxTimeLimit" ) ) {}
+        fUseChargedMass( ps.getParameter<bool>( "useChargedMass" ) ),
+        fUseMuonTime( ps.getParameter<bool>( "useMuonTime" ) ) {
+    if ( fUseChargedMass )
+      fMinChargedMass = ps.getParameter<double>( "minChargedMass" );
+    if ( fUseMuonTime )
+      fMaxTimeLimit = ps.getParameter<double>( "maxTimeLimit" );
+  }
   bool operator()( const reco::PFJet& jet ) const {
-    return fStringCut( jet ) and ff::chargedMass( jet ) >= fMinChargedMass and
-           ff::muonInTime( jet, fMaxTimeLimit );
+    bool res = fStringCut( jet );
+    if ( fUseChargedMass )
+      res = ( res and ff::chargedMass( jet ) >= fMinChargedMass );
+    if ( fUseMuonTime )
+      res = ( res and ff::muonInTime( jet, fMaxTimeLimit ) );
+    return res;
   }
 
  private:
   StringCutObjectSelector<reco::PFJet> fStringCut;
+
+  bool fUseChargedMass;
+  bool fUseMuonTime;
 
   float fMinChargedMass;
   float fMaxTimeLimit;

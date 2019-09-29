@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ffLeptonJetFwdPtrs = cms.EDProducer(
-    "PFJetFwdPtrProducer", src=cms.InputTag("ffLeptonJet")
+    "PFJetFwdPtrProducer", src=cms.InputTag("leptonjet")
 )
 
 filteredLeptonJet = cms.EDFilter(
@@ -12,13 +12,15 @@ filteredLeptonJet = cms.EDFilter(
             [
                 "pt>20.",
                 "abs(eta)<2.4",
-                "numberOfDaughters>1",
-                #"!test_bit(muonMultiplicity(), 0)",  # even multiplicity
+                "numberOfDaughters>0",
+                "!test_bit(muonMultiplicity(), 0)",  # even multiplicity
                 #"!test_bit(electronMultiplicity(), 0)",  # even multiplicity
             ]
         )
     ),
+    useChargedMass=cms.bool(False),
     minChargedMass=cms.double(0.0),
+    useMuonTime=cms.bool(False),
     maxTimeLimit=cms.double(20.0),
     makeClones=cms.bool(True),
 )
