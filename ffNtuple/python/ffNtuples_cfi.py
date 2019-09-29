@@ -180,3 +180,5 @@ ntuple_pfjetextra = cms.PSet(
 ntuple_cosmicveto = cms.PSet(
     NtupleName=cms.string("ffNtupleCosmicVeto"),
 )
+
+ffNtupleStat = cms.EDAnalyzer("ffNtupleProcessStats")

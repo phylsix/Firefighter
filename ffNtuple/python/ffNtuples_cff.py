@@ -41,8 +41,6 @@ ffNtuplizer = cms.EDAnalyzer(
     ),
 )
 
-ffNtupleStat = cms.EDAnalyzer("ffNtupleProcessStats")
-
 if year == 2017:
     ntuple_hlt.TriggerPaths = [
         "HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx",

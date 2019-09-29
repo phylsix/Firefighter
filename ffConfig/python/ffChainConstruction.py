@@ -26,16 +26,18 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
         )
 
     process.ntuple_step = cms.Path(process.recoSeq+process.ffNtuplesSeq)
-
+    process.stathistory = cms.Path(process.ffNtuplesStatSeq)
     process.endjob_step = cms.EndPath(process.endOfProcess)
 
-    process.schedule = cms.Schedule(process.ntuple_step,
+    process.schedule = cms.Schedule(process.stathistory,
+                                    process.ntuple_step,
                                     process.endjob_step)
     if keepskim:
         process.load("Firefighter.recoStuff.skimOutput_cfi")
         process.skimOutput.fileName=cms.untracked.string(ffConfig["data-spec"]["outputFileName"].replace('ffNtuple', 'ffSkimV2'))
         process.output_step = cms.EndPath(process.skimOutput)
-        process.schedule = cms.Schedule(process.ntuple_step,
+        process.schedule = cms.Schedule(process.stathistory,
+                                        process.ntuple_step,
                                         process.endjob_step,
                                         process.output_step,)
 
