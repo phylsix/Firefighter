@@ -63,6 +63,12 @@ def submit(dkind, submitter="condor"):
     assert dkind in ["sigmc", "bkgmc", "data"]
     assert submitter in ["condor", "crab"]
 
+    # common kwargs for config builders
+    commonCBkwargs = dict(
+        ffConfigName='ffNtupleFromAOD_v2_cfg.py',
+        outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
+    )
+
     if submitter == "crab":
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder as CrabCB
 
@@ -75,7 +81,7 @@ def submit(dkind, submitter="condor"):
 
         for i, ds in enumerate(ffds[dkind]):
             print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
-            cb = CrabCB(ds, eventRegion=_eventregion)
+            cb = CrabCB(ds, eventRegion=_eventregion, **commonCBkwargs)
             for c in cb.build():
                 CrabCB.submit(c)
 
@@ -102,12 +108,12 @@ def submit(dkind, submitter="condor"):
             for i, ds in enumerate(ffds[dkind]):
                 print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
                 if any(map(lambda d: get_storageSites(d), ds["datasetNames"])):  # condor, this way
-                    cb = CondorCB(ds, eventRegion=_eventregion)
+                    cb = CondorCB(ds, eventRegion=_eventregion, **commonCBkwargs)
                     for c in cb.build():
                         CondorCB.submit(c)
                 else:  # crab, this way
                     diskGhosts.append(BKGMC_L[i])
-                    cb = CrabCB(ds, eventRegion=_eventregion)
+                    cb = CrabCB(ds, eventRegion=_eventregion, **commonCBkwargs)
                     for c in cb.build():
                         CrabCB.submit(c)
             if diskGhosts:
@@ -121,7 +127,7 @@ def submit(dkind, submitter="condor"):
         else:
             for i, ds in enumerate(ffds[dkind]):
                 print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
-                cb = CondorCB(ds, eventRegion=_eventregion)
+                cb = CondorCB(ds, eventRegion=_eventregion, **commonCBkwargs)
                 for c in cb.build():
                     CondorCB.submit(c)
     else:

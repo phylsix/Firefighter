@@ -10,7 +10,7 @@ condition-spec:
 data-spec:
   inputFileList:
     [
-      "root://xrootd.unl.edu//store/data/Run2018C/DoubleMuon/AOD/17Sep2018-v1/60000/594FF9F2-9547-F84E-A730-EC5587267D36.root",
+      "root://cmsxrootd.fnal.gov//store/data/Run2018C/DoubleMuon/AOD/17Sep2018-v1/60000/594FF9F2-9547-F84E-A730-EC5587267D36.root",
     ]
   maxEvents: 50
   outputFileName: "ffNtuple_DoubleMuon2018C.root"
@@ -19,4 +19,3 @@ data-spec:
 
 reco-spec:
   eventRegion: "control"
-  leptonJetCandStrategy: "hadronFree"

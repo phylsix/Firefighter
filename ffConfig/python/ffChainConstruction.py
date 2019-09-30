@@ -23,6 +23,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
         + process.leptonjetClusteringSeq
         + process.leptonjetFilteringSeq
         + process.ffLeptonJetSingleCountFilter
+        + process.ffEndEventFilteringSeq
         )
 
     process.ntuple_step = cms.Path(process.recoSeq+process.ffNtuplesSeq)
@@ -89,6 +90,29 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
                 ]
             )
 
+    ###########################################################################
+    ##                              event region                             ##
+    ###########################################################################
+
+    if ffConfig["reco-spec"]["eventRegion"] == "all":
+        pass
+    elif ffConfig["reco-spec"]["eventRegion"] == "single":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_single
+        )
+    elif ffConfig["reco-spec"]["eventRegion"] == "signal":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_signal
+        )
+    elif ffConfig["reco-spec"]["eventRegion"] == "control":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_control
+        )
+    else:
+        msg = "ffConfig['reco-spec']['eventRegion'] can only be 'all'/'single'/'signal'/'control'! --- {0} is given.".format(
+            ffConfig["reco-spec"]["eventRegion"]
+        )
+        raise ValueError(msg)
     ###########################################################################
     return process
 

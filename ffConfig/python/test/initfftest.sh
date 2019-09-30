@@ -16,3 +16,5 @@ alias fftestdatad='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon
 alias ffv2testsig4mu='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_signal-4mu.yml keepskim=1'
 alias ffv2testsig2mu2e='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_signal-2mu2e.yml keepskim=1'
 alias ffv2testqcd='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_QCD.yml'
+alias ffv2testdatac='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018C.yml'
+alias ffv2testdatad='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018D.yml'

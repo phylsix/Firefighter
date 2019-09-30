@@ -99,8 +99,8 @@ class configBuilder:
             unitsPerJob=10,
             year=2018,
             redirector='',
-            ffConfigName='ffNtupleFromAOD_cfg.py',
-            outbase='/store/group/lpcmetx/SIDM/ffNtuple/'
+            ffConfigName='ffNtupleFromAOD_v2_cfg.py',
+            outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/'
         )
         self.specs_.update(kwargs)
         self.specs_['outLFNDirBase'] = join(self.specs_['outbase'], str(self.specs_['year']))
