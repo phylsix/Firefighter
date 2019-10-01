@@ -117,6 +117,7 @@ ntuple_pfjet = cms.PSet(
 ntuple_akjet = cms.PSet(
     NtupleName=cms.string("ffNtupleAKJet"),
     src=cms.InputTag("ak4PFJetsCHS"),
+    cut=cms.string("pt>10."),
     jetid=jetiddefs,
 )
 
@@ -179,6 +180,13 @@ ntuple_pfjetextra = cms.PSet(
 
 ntuple_cosmicveto = cms.PSet(
     NtupleName=cms.string("ffNtupleCosmicVeto"),
+)
+
+ntuple_akjetnolj = cms.PSet(
+    NtupleName=cms.string("ffNtupleAKJet"),
+    src=cms.InputTag("ak4chsNoLeptonjets"),
+    cut=cms.string("pt>10."),
+    jetid=jetiddefs,
 )
 
 ffNtupleStat = cms.EDAnalyzer("ffNtupleProcessStats")

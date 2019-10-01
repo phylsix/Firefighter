@@ -22,6 +22,7 @@ class ffNtupleAKJet : public ffNtupleBase {
   void clear() final;
 
   edm::EDGetToken                      fAKJetToken;
+  StringCutObjectSelector<reco::PFJet> fJetCut;
   StringCutObjectSelector<reco::PFJet> fJetIdSelector;
 
   std::vector<LorentzVector> fAKJetP4;
@@ -38,22 +39,24 @@ DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleAKJet, "ffNtupleAKJet" );
 
 ffNtupleAKJet::ffNtupleAKJet( const edm::ParameterSet& ps )
     : ffNtupleBase( ps ),
+      fJetCut( ps.getParameter<std::string>( "cut" ), true ),
       fJetIdSelector( ps.getParameter<std::string>( "jetid" ), true ) {}
 
 void
 ffNtupleAKJet::initialize( TTree&                   tree,
                            const edm::ParameterSet& ps,
                            edm::ConsumesCollector&& cc ) {
-  fAKJetToken = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  fAKJetToken              = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  const std::string label_ = ps.getParameter<edm::InputTag>( "src" ).label();
 
-  tree.Branch( "akjet_p4", &fAKJetP4 );
-  tree.Branch( "akjet_jetid", &fJetId );
-  tree.Branch( "akjet_pfcands_n", &fNumCands );
-  tree.Branch( "akjet_hadronEnergyFraction", &fHadronEnergyFraction );
-  tree.Branch( "akjet_chaHadEnergyFraction", &fChaHadEnergyFraction );
-  tree.Branch( "akjet_emEnergyFraction", &fEmEnergyFraction );
-  tree.Branch( "akjet_chaEmEnergyFraction", &fChaEmEnergyFraction );
-  tree.Branch( "akjet_muonEnergyFraction", &fMuonEnergyFraction );
+  tree.Branch( TString::Format( "akjet_%s_p4", label_.c_str() ), &fAKJetP4 );
+  tree.Branch( TString::Format( "akjet_%s_jetid", label_.c_str() ), &fJetId );
+  tree.Branch( TString::Format( "akjet_%s_pfcands_n", label_.c_str() ), &fNumCands );
+  tree.Branch( TString::Format( "akjet_%s_hadronEnergyFraction", label_.c_str() ), &fHadronEnergyFraction );
+  tree.Branch( TString::Format( "akjet_%s_chaHadEnergyFraction", label_.c_str() ), &fChaHadEnergyFraction );
+  tree.Branch( TString::Format( "akjet_%s_emEnergyFraction", label_.c_str() ), &fEmEnergyFraction );
+  tree.Branch( TString::Format( "akjet_%s_chaEmEnergyFraction", label_.c_str() ), &fChaEmEnergyFraction );
+  tree.Branch( TString::Format( "akjet_%s_muonEnergyFraction", label_.c_str() ), &fMuonEnergyFraction );
 }
 
 void
@@ -69,6 +72,8 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   clear();
 
   for ( const auto& akjet : akjets ) {
+    if ( !fJetCut( akjet ) )
+      continue;
     fAKJetP4.emplace_back( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() );
     fJetId.emplace_back( fJetIdSelector( akjet ) );
     fNumCands.emplace_back( akjet.chargedMultiplicity() + akjet.neutralMultiplicity() );

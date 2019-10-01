@@ -38,7 +38,11 @@ def main():
     for ds in tosubd_:
         tosubdff = yaml.load(open(join(os.getenv('CMSSW_BASE'), ds)), Loader=yaml.Loader)
 
+        eventRegion_ = 'control'
+        if 'sigmc' in ds or 'bkgmc' in ds:
+            eventRegion_ = 'all'
         cb = configBuilder(tosubdff,
+                           eventRegion=eventRegion_,
                            ffConfigName='ffNtupleFromAOD_v2_cfg.py',
                            outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',)
         for c in cb.build():
