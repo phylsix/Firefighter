@@ -88,6 +88,7 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::map<float, std::vector<float>> pfjet_tkIsolation_;
   std::map<float, std::vector<float>> pfjet_pfIsolation_;
   std::map<float, std::vector<float>> pfjet_neuIsolation_;
+  std::map<float, std::vector<float>> pfjet_hadIsolation_;
   std::vector<int>                    pfjet_tracks_n_;
   std::vector<float>                  pfjet_ptDistribution_;
   std::vector<float>                  pfjet_dRSpread_;
@@ -229,12 +230,14 @@ ffNtuplePfJet::initialize( TTree&                   tree,
     pfjet_tkIsolation_[ isor ]  = {};
     pfjet_pfIsolation_[ isor ]  = {};
     pfjet_neuIsolation_[ isor ] = {};
+    pfjet_hadIsolation_[ isor ] = {};
     std::stringstream ss;
     ss << isor;
     std::string suffix = ss.str().replace( 1, 1, "" );
     tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(), &pfjet_tkIsolation_[ isor ] );
     tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(), &pfjet_pfIsolation_[ isor ] );
     tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(), &pfjet_neuIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_hadIsolation" + suffix ).c_str(), &pfjet_hadIsolation_[ isor ] );
   }
   tree.Branch( "pfjet_pfcands_n", &pfjet_pfcands_n_ );
   tree.Branch( "pfjet_tracks_n", &pfjet_tracks_n_ );
@@ -362,12 +365,10 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   pfjet_n_ = pfjets.size();
   for ( const auto& pfjet : pfjets ) {
-    const vector<const reco::Track*> tracksSelected =
-        getSelectedTracks( pfjet, track_selector_ );
-    const vector<reco::PFCandidatePtr> pfCands = getPFCands( pfjet );
+    const vector<const reco::Track*>   tracksSelected = getSelectedTracks( pfjet, track_selector_ );
+    const vector<reco::PFCandidatePtr> pfCands        = getPFCands( pfjet );
 
-    pfjet_p4_.push_back(
-        LorentzVector( pfjet.px(), pfjet.py(), pfjet.pz(), pfjet.energy() ) );
+    pfjet_p4_.emplace_back( pfjet.px(), pfjet.py(), pfjet.pz(), pfjet.energy() );
     pfjet_chargedHadronE_.emplace_back( pfjet.chargedHadronEnergy() );
     pfjet_neutralHadronE_.emplace_back( pfjet.neutralHadronEnergy() );
     pfjet_chargedEmE_.emplace_back( pfjet.chargedEmEnergy() );
@@ -388,12 +389,10 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_maxDistance_.emplace_back( pfjet.maxDistance() );
 
     for ( const double& isor : isoRadius_ ) {
-      pfjet_tkIsolation_[ isor ].emplace_back(
-          getTkIsolation( pfjet, generalTk_h, isor ) );
-      pfjet_pfIsolation_[ isor ].emplace_back(
-          getPfIsolation( pfjet, pfCand_h, isor ) );
-      pfjet_neuIsolation_[ isor ].emplace_back(
-          getNeutralIsolation( pfjet, pfCand_h, isor ) );
+      pfjet_tkIsolation_[ isor ].emplace_back( getTkIsolation( pfjet, generalTk_h, isor ) );
+      pfjet_pfIsolation_[ isor ].emplace_back( getPfIsolation( pfjet, pfCand_h, isor ) );
+      pfjet_neuIsolation_[ isor ].emplace_back( getNeutralIsolation( pfjet, pfCand_h, isor ) );
+      pfjet_hadIsolation_[ isor ].emplace_back( getHadronIsolation( pfjet, pfCand_h, isor ) );
     }
 
     pfjet_pfcands_n_.emplace_back( pfCands.size() );
@@ -401,10 +400,8 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_ptDistribution_.emplace_back( pfjet.constituentPtDistribution() );
     pfjet_dRSpread_.emplace_back( pfjet.constituentEtaPhiSpread() );
     pfjet_pfcands_chargedMass_.emplace_back( chargedMass( pfjet ) );
-    pfjet_pfcands_nDsaMu_.emplace_back(
-        getNumberOfDisplacedStandAloneMuons( pfjet, generalTk_h ) );
-    pfjet_pfcands_maxPtType_.emplace_back(
-        getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
+    pfjet_pfcands_nDsaMu_.emplace_back( getNumberOfDisplacedStandAloneMuons( pfjet, generalTk_h ) );
+    pfjet_pfcands_maxPtType_.emplace_back( getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
 
     // pfcand ------------------------------------------------------------------
     vector<int>   cPFCandType{};
@@ -705,6 +702,7 @@ ffNtuplePfJet::clear() {
     pfjet_tkIsolation_[ isor ].clear();
     pfjet_pfIsolation_[ isor ].clear();
     pfjet_neuIsolation_[ isor ].clear();
+    pfjet_hadIsolation_[ isor ].clear();
   }
   pfjet_pfcands_n_.clear();
   pfjet_tracks_n_.clear();

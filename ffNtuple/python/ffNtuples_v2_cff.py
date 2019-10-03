@@ -24,6 +24,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_pfjet,
         ntuple_pfjetextra,
         ntuple_leptonjetsrc,
+        ntuple_genbkgcheck,
     ),
 )
 

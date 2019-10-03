@@ -189,4 +189,8 @@ ntuple_akjetnolj = cms.PSet(
     jetid=jetiddefs,
 )
 
+ntuple_genbkgcheck = cms.PSet(
+    NtupleName=cms.string("ffNtupleGenBkgCheck"),
+)
+
 ffNtupleStat = cms.EDAnalyzer("ffNtupleProcessStats")

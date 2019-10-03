@@ -55,7 +55,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
             [
                 x
                 for x in process.ffNtuplizer.Ntuples
-                if x.NtupleName.value()!="ffNtupleGenBkg"
+                if not x.NtupleName.value().startswith("ffNtupleGenBkg")
             ]
         )
 
