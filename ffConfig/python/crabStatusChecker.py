@@ -83,7 +83,12 @@ def displaystatus(submissiondir, queryresult):
 
 def printcrabresubcmd(submissiondir, queryresult):
     jobnames = [d for d in queryresult if queryresult[d]['status']=='FAILED']
-    cmds = ['crab resubmit -d {}'.format(join(submissiondir, d)) for d in jobnames]
+    cmds = []
+    for d in jobnames:
+        if d.startswith(submissiondir):
+            cmds.append('crab resubmit -d {}'.format(d))
+        else:
+            cmds.append('crab resubmit -d {}'.format(join(submissiondir, d)))
     if cmds:
         print(" To submit failed jobs ".center(79, "*"))
         print(*cmds, sep="\n")
