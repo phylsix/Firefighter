@@ -35,16 +35,31 @@ class LeptonjetSourceDSAMuonProducer : public edm::stream::EDProducer<> {
   float maxSegmentOverlapRatio( const reco::Muon& ) const;
   float minDeltaRAtInnermostPoint( const reco::Muon& ) const;
 
+  std::vector<DTChamberId> getDTDetIds( const reco::Muon& ) const;
+  std::vector<DTChamberId> getDTDetIds( const reco::Track& ) const;
+
+  std::vector<CSCDetId> getCSCDetIds( const reco::Muon& ) const;
+  std::vector<CSCDetId> getCSCDetIds( const reco::Track& ) const;
+
+  bool detIdsIsSubSetOfAnyPFMuon( const reco::Track&,
+                                  const std::vector<std::vector<DTChamberId>>&,
+                                  const std::vector<std::vector<CSCDetId>>& ) const;
+
   // https://cmssdt.cern.ch/dxr/CMSSW/source/DataFormats/MuonReco/interface/MuonSegmentMatch.h#15-31
   int   numberOfSegments( const reco::Muon&, unsigned int segmentArbitraionMask = reco::MuonSegmentMatch::BestInChamberByDR ) const;
   float getSegmentOverlapRatioArbitration( const reco::Muon&, const reco::Muon&, unsigned int segmentArbitraionMask = reco::MuonSegmentMatch::BestInChamberByDR ) const;
 
+  reco::MuonRef findOppositeMuon(const reco::MuonRef&) const;
+  float timingDiffDT(const reco::MuonRef&, const reco::MuonRef&) const;
+  float timingDiffRPC(const reco::MuonRef&, const reco::MuonRef&) const;
+
   const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> fDSACandsToken;
   const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> fPFMuonsToken;
-  const edm::EDGetTokenT<reco::TrackCollection>         fDSATkToken;
   edm::Handle<reco::PFCandidateFwdPtrVector>            fDSACandsHdl;
   edm::Handle<reco::PFCandidateFwdPtrVector>            fPFMuonsHdl;
-  edm::Handle<reco::TrackCollection>                    fDSATkHdl;
+
+  float fMinDTTimeDiff;
+  float fMinRPCTimeDiff;
 
   std::unique_ptr<ff::TrackExtrapolator> fTkExtrapolator;
 };

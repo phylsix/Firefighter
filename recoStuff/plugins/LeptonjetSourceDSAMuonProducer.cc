@@ -1,16 +1,21 @@
 #include "Firefighter/recoStuff/interface/LeptonjetSourceDSAMuonProducer.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "RecoMuon/MuonIdentification/interface/MuonCosmicsId.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 LeptonjetSourceDSAMuonProducer::LeptonjetSourceDSAMuonProducer( const edm::ParameterSet& ps )
     : fDSACandsToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "pfcandsFromMuondSAPtr" ) ) ),
       fPFMuonsToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "leptonjetSourcePFMuon", "inclusive" ) ) ),
-      fDSATkToken( consumes<reco::TrackCollection>( edm::InputTag( "displacedStandAloneMuons" ) ) ) {
+      fMinDTTimeDiff(ps.getParameter<double>("minDTTimeDiff")),
+      fMinRPCTimeDiff(ps.getParameter<double>("minRPCTimeDiff")) {
   produces<reco::PFCandidateFwdPtrVector>( "inclusive" );
   produces<reco::PFCandidateFwdPtrVector>( "nonisolated" );
+  produces<std::vector<float>>( "dtDT" );
+  produces<std::vector<float>>( "dtRPC" );
 }
 
 LeptonjetSourceDSAMuonProducer::~LeptonjetSourceDSAMuonProducer() = default;
@@ -27,13 +32,22 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
 
   auto inclusiveColl   = make_unique<reco::PFCandidateFwdPtrVector>();
   auto nonisolatedColl = make_unique<reco::PFCandidateFwdPtrVector>();
+  auto dtDTColl        = make_unique<vector<float>>();
+  auto dtRPCColl       = make_unique<vector<float>>();
 
   e.getByToken( fDSACandsToken, fDSACandsHdl );
   assert( fDSACandsHdl.isValid() );
   e.getByToken( fPFMuonsToken, fPFMuonsHdl );
   assert( fPFMuonsHdl.isValid() );
-  e.getByToken( fDSATkToken, fDSATkHdl );
-  assert( fDSATkHdl.isValid() );
+
+  // collect PFMuon DetIds
+  vector<vector<DTChamberId>> pfmuonDTIds{};
+  vector<vector<CSCDetId>>    pfmuonCSCIds{};
+  for ( const auto& m : *fPFMuonsHdl ) {
+    const auto& muonref = m.ptr()->muonRef();
+    pfmuonDTIds.push_back( getDTDetIds( *muonref ) );
+    pfmuonCSCIds.push_back( getCSCDetIds( *muonref ) );
+  }
 
   for ( const auto& candfwdptr : *fDSACandsHdl ) {
     const auto& candptr  = candfwdptr.ptr();
@@ -64,6 +78,8 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
       continue;
     if ( minDeltaRAtInnermostPoint( *muonref ) < 0.2 )
       continue;
+    if ( detIdsIsSubSetOfAnyPFMuon( *trackref, pfmuonDTIds, pfmuonCSCIds ) )
+      continue;
 
     //further -id
     if ( trackref->pt() < 10. )
@@ -76,8 +92,16 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
       continue;
 
     // reject cosmic-like
-    if ( muonid::findOppositeTrack( fDSATkHdl, *trackref ).isNonnull() )
-      continue;
+    reco::MuonRef oppositeMuon = findOppositeMuon( muonref );
+
+    float deltaTDT  = timingDiffDT( muonref, oppositeMuon );
+    float deltaTRPC = timingDiffRPC( muonref, oppositeMuon );
+    if ( oppositeMuon.isNonnull() ) {
+      dtDTColl->push_back( deltaTDT );
+      dtRPCColl->push_back( deltaTRPC );
+      if ( !( deltaTDT > fMinDTTimeDiff and deltaTRPC > fMinRPCTimeDiff ) )
+        continue;
+    }
 
     inclusiveColl->push_back( candfwdptr );
   }
@@ -97,6 +121,8 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
 
   e.put( move( inclusiveColl ), "inclusive" );
   e.put( move( nonisolatedColl ), "nonisolated" );
+  e.put( move( dtDTColl ), "dtDT" );
+  e.put( move( dtRPCColl ), "dtRPC" );
 }
 
 int
@@ -191,6 +217,170 @@ LeptonjetSourceDSAMuonProducer::minDeltaRAtInnermostPoint( const reco::Muon& dsa
   float res( 999. );
   if ( !_deltaRAtInnermostPoint.empty() )
     res = *min_element( _deltaRAtInnermostPoint.begin(), _deltaRAtInnermostPoint.end() );
+
+  return res;
+}
+
+std::vector<DTChamberId>
+LeptonjetSourceDSAMuonProducer::getDTDetIds( const reco::Muon& muon ) const {
+  using namespace std;
+  vector<DTChamberId> res{};
+
+  for ( const auto& chambermatch : muon.matches() ) {
+    if ( chambermatch.detector() == MuonSubdetId::DT ) {
+      DTChamberId dtId( chambermatch.id.rawId() );
+
+      if ( find( res.begin(), res.end(), dtId ) == res.end() )
+        res.push_back( dtId );
+    }
+  }
+
+  sort( res.begin(), res.end() );
+  return res;
+}
+
+std::vector<DTChamberId>
+LeptonjetSourceDSAMuonProducer::getDTDetIds( const reco::Track& track ) const {
+  using namespace std;
+  vector<DTChamberId> res{};
+
+  for ( auto hitIter = track.recHitsBegin(); hitIter != track.recHitsEnd(); ++hitIter ) {
+    if ( !( *hitIter )->isValid() )
+      continue;
+    const DetId id = ( *hitIter )->geographicalId();
+    if ( id.det() != DetId::Muon )
+      continue;
+
+    if ( id.subdetId() == MuonSubdetId::DT ) {
+      DTChamberId dtId( id.rawId() );
+
+      if ( find( res.begin(), res.end(), dtId ) == res.end() )
+        res.push_back( dtId );
+    }
+  }
+
+  sort( res.begin(), res.end() );
+  return res;
+}
+
+std::vector<CSCDetId>
+LeptonjetSourceDSAMuonProducer::getCSCDetIds( const reco::Muon& muon ) const {
+  using namespace std;
+  vector<CSCDetId> res{};
+
+  for ( const auto& chambermatch : muon.matches() ) {
+    if ( chambermatch.detector() == MuonSubdetId::CSC ) {
+      CSCDetId cscId( chambermatch.id.rawId() );
+
+      if ( find( res.begin(), res.end(), cscId ) == res.end() )
+        res.push_back( cscId );
+    }
+  }
+
+  sort( res.begin(), res.end() );
+  return res;
+}
+
+std::vector<CSCDetId>
+LeptonjetSourceDSAMuonProducer::getCSCDetIds( const reco::Track& track ) const {
+  using namespace std;
+  vector<CSCDetId> res{};
+
+  for ( auto hitIter = track.recHitsBegin(); hitIter != track.recHitsEnd(); ++hitIter ) {
+    if ( !( *hitIter )->isValid() )
+      continue;
+    const DetId id = ( *hitIter )->geographicalId();
+    if ( id.det() != DetId::Muon )
+      continue;
+
+    if ( id.subdetId() == MuonSubdetId::CSC ) {
+      CSCDetId cscId( id.rawId() );
+
+      if ( find( res.begin(), res.end(), cscId ) == res.end() )
+        res.push_back( cscId );
+    }
+  }
+
+  sort( res.begin(), res.end() );
+  return res;
+}
+
+bool
+LeptonjetSourceDSAMuonProducer::detIdsIsSubSetOfAnyPFMuon( const reco::Track&                           track,
+                                                           const std::vector<std::vector<DTChamberId>>& dtids,
+                                                           const std::vector<std::vector<CSCDetId>>&    cscids ) const {
+  using namespace std;
+  bool isSubsetPFMuon( false );
+
+  vector<DTChamberId> _dtDetId  = getDTDetIds( track );
+  vector<CSCDetId>    _cscDetId = getCSCDetIds( track );
+
+  for ( pair<vector<vector<DTChamberId>>::const_iterator, vector<vector<CSCDetId>>::const_iterator> iter( dtids.begin(), cscids.begin() );
+        iter.first != dtids.end() && iter.second != cscids.end();
+        ++iter.first, ++iter.second ) {
+    bool isDTSubsetPFMuon  = includes( iter.first->begin(), iter.first->end(), _dtDetId.begin(), _dtDetId.end() );
+    bool isCSCSubsetPFMuon = includes( iter.second->begin(), iter.second->end(), _cscDetId.begin(), _cscDetId.end() );
+
+    isSubsetPFMuon = isDTSubsetPFMuon && isCSCSubsetPFMuon;
+    if ( isSubsetPFMuon )
+      break;
+  }
+
+  return isSubsetPFMuon;
+}
+
+reco::MuonRef
+LeptonjetSourceDSAMuonProducer::findOppositeMuon( const reco::MuonRef& muon ) const {
+  assert( fDSACandsHdl.isValid() );
+
+  reco::MuonRef res = reco::MuonRef();
+  for ( const auto& dsacand : *fDSACandsHdl ) {
+    const auto& candptr   = dsacand.ptr();
+    const auto& probemuon = candptr->muonRef();
+    if ( muon == probemuon )
+      continue;
+
+    double cosalpha = muon->momentum().Dot( probemuon->momentum() );
+    cosalpha /= muon->momentum().R() * probemuon->momentum().R();
+    if ( cosalpha < -0.99 )
+      res = probemuon;
+    if ( res.isNonnull() )
+      break;
+  }
+
+  return res;
+}
+
+float
+LeptonjetSourceDSAMuonProducer::timingDiffDT( const reco::MuonRef& mu0, const reco::MuonRef& mu1 ) const {
+  float res = -999.;
+  if ( mu0.isNull() or mu1.isNull() )
+    return res;
+
+  float mu0time = mu0->time().timeAtIpInOut;
+  float mu1time = mu1->time().timeAtIpInOut;
+
+  if ( mu0->outerTrack()->outerY() > 0 and mu1->outerTrack()->outerY() < 0 )
+    res = mu1time - mu0time;
+  if ( mu0->outerTrack()->outerY() < 0 and mu1->outerTrack()->outerY() > 0 )
+    res = mu0time - mu1time;
+
+  return res;
+}
+
+float
+LeptonjetSourceDSAMuonProducer::timingDiffRPC( const reco::MuonRef& mu0, const reco::MuonRef& mu1 ) const {
+  float res = -999.;
+  if ( mu0.isNull() or mu1.isNull() )
+    return res;
+
+  float mu0time = mu0->rpcTime().timeAtIpInOut;
+  float mu1time = mu1->rpcTime().timeAtIpInOut;
+
+  if ( mu0->outerTrack()->outerY() >= 0 and mu1->outerTrack()->outerY() < 0 )
+    res = mu0time - mu1time;
+  if ( mu0->outerTrack()->outerY() < 0 and mu1->outerTrack()->outerY() >= 0 )
+    res = mu1time - mu0time;
 
   return res;
 }

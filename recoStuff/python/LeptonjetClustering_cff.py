@@ -4,7 +4,11 @@ import FWCore.ParameterSet.Config as cms
 ## 1. PFMuon
 leptonjetSourcePFMuon = cms.EDProducer("LeptonjetSourcePFMuonProducer")
 ## 2. DSAMuon
-leptonjetSourceDSAMuon = cms.EDProducer("LeptonjetSourceDSAMuonProducer")
+leptonjetSourceDSAMuon = cms.EDProducer(
+    "LeptonjetSourceDSAMuonProducer",
+    minDTTimeDiff=cms.double(-20.),
+    minRPCTimeDiff=cms.double(-7.5)
+)
 ## 3. PFElectron
 leptonjetSourcePFElectron = cms.EDProducer("LeptonjetSourcePFElectronProducer")
 ## 4. PFPhoton

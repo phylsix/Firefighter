@@ -5,13 +5,13 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/HLTReco"/>
+<use name="DataFormats/MuonDetId"/>
 <use name="CommonTools/RecoAlgos"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/CandAlgos"/>
 <use name="CommonTools/ParticleFlow"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="RecoJets/JetProducers"/>
-<use name="RecoMuon/MuonIdentification"/>
 <use name="Firefighter/recoStuff"/>
 
 <library name="FirefighterrecoStuff_plugins" file="*.cc">
