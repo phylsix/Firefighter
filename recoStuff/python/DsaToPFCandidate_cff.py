@@ -54,6 +54,9 @@ muonsFromdSA.runArbitrationCleaner = False
 
 #####################################################################
 from CommonTools.ParticleFlow.pfNoPileUpIso_cff import *
+pfPileUpIso.PFCandidates = cms.InputTag("particleFlowPtrs")
+pfNoPileUpIso.bottomCollection = cms.InputTag("particleFlowPtrs")
+
 from CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff import *
 from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("USER")
+process = cms.Process("TEST")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
@@ -20,15 +20,15 @@ if os.environ["CMSSW_VERSION"].startswith("CMSSW_10"):
     process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v15"
 
 process.MessageLogger.cerr.threshold = cms.untracked.string("INFO")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10)
 
 process.options = cms.untracked.PSet(
     wantSummary=cms.untracked.bool(False),
-    numberOfThreads=cms.untracked.uint32(8),
+    numberOfThreads=cms.untracked.uint32(1),
     numberOfStreams=cms.untracked.uint32(0),
 )
 
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(50))
 
 process.source = cms.Source(
     "PoolSource",
@@ -74,6 +74,18 @@ process.gencount = cms.EDFilter(
 process.gen_step = cms.Path(process.genfilter + process.gencount)
 
 process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+
+## *hadFree*
+process.filteredPFCandsFwdPtr.src = cms.InputTag("particleFlowPtrs")
+process.filteredPFCandsFwdPtr.cut = cms.string(
+    " && ".join(
+        ["abs(eta)<2.5", "particleId!=1", "particleId!=5", "particleId!=6"]
+    )
+)
+process.filteringPFCands = cms.Sequence(process.filteringPFCands_hadFree)
+process.ffLeptonJetProd = cms.Sequence(process.ffLeptonJetProd_hadFree)
+process.ffLeptonJetFwdPtrs.src = cms.InputTag("ffLeptonJetHadFree")
+
 process.leptonjet_step = cms.Path(process.ffLeptonJetSeq)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.skimOutput)

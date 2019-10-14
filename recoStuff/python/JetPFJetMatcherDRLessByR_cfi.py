@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 jetpfjetmatcherdrlessbyr = cms.EDProducer(
     "JetPFJetMatcherDRLessByR",
-    src=cms.InputTag("ffLeptonJetSubjets", "", "FF"),
-    matched=cms.InputTag("ffLeptonJet", "", "FF"),
+    src=cms.InputTag("ffLeptonJetSubjets"),
+    matched=cms.InputTag("ffLeptonJet"),
     resolveAmbiguities=cms.bool(True),
     resolveByMatchQuality=cms.bool(True),
     # For matcher
