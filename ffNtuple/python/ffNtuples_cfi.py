@@ -84,6 +84,11 @@ ntuple_electron = cms.PSet(
     src=cms.InputTag("gedGsfElectrons")
 )
 
+ntuple_photon = cms.PSet(
+    NtupleName=cms.string("ffNtuplePhoton"),
+    src=cms.InputTag("gedPhotons")
+)
+
 ntuple_dsamuon = cms.PSet(
     NtupleName=cms.string("ffNtupleDsaMuon"),
     src=cms.InputTag("displacedStandAloneMuons"),

@@ -16,15 +16,16 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_pfmuon,
         ntuple_dsamuon,
         ntuple_dsamuonextra,
+        ntuple_photon,
         ntuple_triggerobjectmatching,
         ntuple_metfilters,
         ntuple_cosmicveto,
         ntuple_akjet,
-        ntuple_akjetnolj,
+        # ntuple_akjetnolj,
         ntuple_pfjet,
         ntuple_pfjetextra,
         ntuple_leptonjetsrc,
-        ntuple_genbkgcheck,
+        # ntuple_genbkgcheck,
     ),
 )
 

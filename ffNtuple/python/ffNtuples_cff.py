@@ -29,6 +29,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_hlt,
         ntuple_muon,
         ntuple_electron,
+        ntuple_photon,
         ntuple_dsamuon,
         ntuple_pfjet,
         ntuple_akjet,

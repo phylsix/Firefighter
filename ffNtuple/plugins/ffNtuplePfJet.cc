@@ -110,6 +110,11 @@ class ffNtuplePfJet : public ffNtupleBase {
   std::vector<std::vector<float>> pfjet_pfcand_tkDzSig_;
   std::vector<std::vector<float>> pfjet_pfcand_tkNormChi2_;
 
+  std::vector<std::vector<unsigned int>> pfjet_pfcand_electronIdx_;
+  std::vector<std::vector<unsigned int>> pfjet_pfcand_photonIdx_;
+  std::vector<std::vector<unsigned int>> pfjet_pfcand_pfmuonIdx_;
+  std::vector<std::vector<unsigned int>> pfjet_pfcand_dsamuonIdx_;
+
   std::vector<std::vector<float>> pfjet_pfcand_muonTime_;
   std::vector<std::vector<float>> pfjet_pfcand_muonTimeErr_;
   std::vector<float>              pfjet_pfcand_muonTimeStd_;
@@ -258,6 +263,10 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcand_tkDz", &pfjet_pfcand_tkDz_ );
   tree.Branch( "pfjet_pfcand_tkDzSig", &pfjet_pfcand_tkDzSig_ );
   tree.Branch( "pfjet_pfcand_tkNormChi2", &pfjet_pfcand_tkNormChi2_ );
+  tree.Branch( "pfjet_pfcand_electronIdx", &pfjet_pfcand_electronIdx_ );
+  tree.Branch( "pfjet_pfcand_photonIdx", &pfjet_pfcand_photonIdx_ );
+  tree.Branch( "pfjet_pfcand_pfmuonIdx", &pfjet_pfcand_pfmuonIdx_ );
+  tree.Branch( "pfjet_pfcand_dsamuonIdx", &pfjet_pfcand_dsamuonIdx_ );
 
   tree.Branch( "pfjet_pfcand_muonTime", &pfjet_pfcand_muonTime_ );
   tree.Branch( "pfjet_pfcand_muonTimeErr", &pfjet_pfcand_muonTimeErr_ );
@@ -413,6 +422,8 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     vector<float> cPFCandTkNormChi2{};
     vector<float> cPFCandMuonTime{}, cPFCandMuonTimeErr{};
 
+    vector<unsigned int> cPFCandElectronIdx{}, cPFCandPhotonIdx{}, cPFCandPFMuonIdx{}, cPFCandDSAMuonIdx{};
+
     for ( const auto& cand : pfCands ) {
       cPFCandType.emplace_back( getCandType( cand, generalTk_h ) );
       cPFCandCharge.emplace_back( cand->charge() );
@@ -443,6 +454,14 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
                                               candEmbedTrack->ndof() != 0
                                           ? candEmbedTrack->normalizedChi2()
                                           : NAN );
+      if ( cPFCandType.back() == 2 )
+        cPFCandElectronIdx.emplace_back( cand->gsfElectronRef().key() );
+      if ( cPFCandType.back() == 3 )
+        cPFCandPFMuonIdx.emplace_back( cand->muonRef().key() );
+      if ( cPFCandType.back() == 4 )
+        cPFCandPhotonIdx.emplace_back( cand->photonRef().key() );
+      if ( cPFCandType.back() == 8 )
+        cPFCandDSAMuonIdx.emplace_back( cand->muonRef().key() );
 
       const reco::MuonRef cmuref = cand->muonRef();
       cPFCandMuonTime.emplace_back( cmuref.isNonnull() and cmuref->isTimeValid()
@@ -465,6 +484,10 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcand_tkDz_.push_back( cPFCandTkDz );
     pfjet_pfcand_tkDzSig_.push_back( cPFCandTkDzSig );
     pfjet_pfcand_tkNormChi2_.push_back( cPFCandTkNormChi2 );
+    pfjet_pfcand_electronIdx_.push_back( cPFCandElectronIdx );
+    pfjet_pfcand_pfmuonIdx_.push_back( cPFCandPFMuonIdx );
+    pfjet_pfcand_photonIdx_.push_back( cPFCandPhotonIdx );
+    pfjet_pfcand_dsamuonIdx_.push_back( cPFCandDSAMuonIdx );
 
     pfjet_pfcand_muonTime_.push_back( cPFCandMuonTime );
     pfjet_pfcand_muonTimeErr_.push_back( cPFCandMuonTimeErr );
@@ -723,6 +746,10 @@ ffNtuplePfJet::clear() {
   pfjet_pfcand_tkDz_.clear();
   pfjet_pfcand_tkDzSig_.clear();
   pfjet_pfcand_tkNormChi2_.clear();
+  pfjet_pfcand_electronIdx_.clear();
+  pfjet_pfcand_pfmuonIdx_.clear();
+  pfjet_pfcand_photonIdx_.clear();
+  pfjet_pfcand_dsamuonIdx_.clear();
 
   pfjet_pfcand_muonTime_.clear();
   pfjet_pfcand_muonTimeErr_.clear();
