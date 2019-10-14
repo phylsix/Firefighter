@@ -102,7 +102,7 @@ ffNtuplePhoton::fill( const edm::Event& e, const edm::EventSetup& es ) {
     // Loose id criteria
     // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#Offline_selection_criteria_AN2
     unsigned int idbit = 0;
-    if ( abseta < 1.479 ) {  // barrel
+    if ( abseta <= 1.479 ) {  // barrel
       if ( fHOverE.back() < 0.04596 )
         idbit |= 1 << 0;
       if ( fFull5x5_sigmaIetaIeta.back() < 0.0106 )

@@ -1,11 +1,13 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
-#define M_Electron 0.510999e-3
-using Point         = math::XYZPointF;
 using LorentzVector = math::XYZTLorentzVectorF;
 
 class ffNtupleElectron : public ffNtupleBase {
@@ -23,126 +25,61 @@ class ffNtupleElectron : public ffNtupleBase {
  private:
   void clear() final;
 
-  edm::EDGetToken electron_token_;
-  int             electron_n_;
+  // RecoEgamma/ElectronIdentification/plugins/cuts/
+  float dEtaInSeed( const reco::GsfElectron& ) const;
+  float eInvMinusPInv( const reco::GsfElectron& ) const;
+  float relIsoWithEA( const reco::GsfElectron& ) const;
 
-  // http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_10_2_12/doc/html/d8/dac/GsfElectron_8h_source.html
-  // Electron
-  math::XYZTLorentzVectorFCollection electron_p4_;
-  std::vector<int>                   electron_charge_;
+  edm::EDGetToken fElectronToken;
 
-  // track extrapolation
-  math::XYZTLorentzVectorFCollection electron_trackMomentumAtVtx_;
-  math::XYZTLorentzVectorFCollection electron_trackMomentumAtCalo_;
-  std::vector<Point>                 electron_trackPositionAtVtx_;
-  std::vector<Point>                 electron_trackPositionAtCalo_;
+  math::XYZTLorentzVectorFCollection fElectronP4;
+  std::vector<int>                   fElectronCharge;
+  std::vector<float>                 fFull5x5_sigmaIetaIeta;
+  std::vector<float>                 fHOverE;
+  std::vector<float>                 fAbsdEtaSeed;
+  std::vector<float>                 fAbsdPhiIn;
+  std::vector<float>                 fRelIsoWithEA;
+  std::vector<float>                 fEInvMinusPInv;
+  std::vector<int>                   fExpectedMissingInnerHits;
+  std::vector<bool>                  fPassConvVeto;
+  std::vector<unsigned int>          fIdBit;
 
-  // supercluster
-  std::vector<Point> electron_superClusterPosition_;
-  std::vector<int>   electron_basicClusterSize_;
+  edm::EDGetToken fRhoToken;
+  double          fRho;
 
-  // shower shape variables
-  std::vector<float> electron_sigmaEtaEta_;
-  std::vector<float> electron_sigmaIetaIeta_;
-  std::vector<float> electron_sigmaIphiIphi_;
-  std::vector<float> electron_r9_;
-  std::vector<float> electron_hcalOverEcal_;
-  std::vector<float> electron_hcalOverEcalBc_;
+  EffectiveAreas fEffArea;
 
-  // saturation info
-  std::vector<int>  electron_nSaturatedXtals_;
-  std::vector<bool> electron_isSeedSaturated_;
-
-  // isolation variables
-  std::vector<float> electron_dr03TkSumPt_;
-  std::vector<float> electron_dr03EcalSumEt_;
-  std::vector<float> electron_dr03HcalSumEt_;
-  std::vector<float> electron_dr03HcalSumEtBc_;
-  std::vector<float> electron_dr04TkSumPt_;
-  std::vector<float> electron_dr04EcalSumEt_;
-  std::vector<float> electron_dr04HcalSumEt_;
-  std::vector<float> electron_dr04HcalSumEtBc_;
-
-  // conversion rejection information
-  std::vector<float> electron_convDist_;
-  std::vector<float> electron_convDcot_;
-  std::vector<float> electron_convRadius_;
-
-  // plfow information
-  std::vector<float> electron_ecalPFClusterIso_;
-  std::vector<float> electron_hcalPFClusterIso_;
-  std::vector<float> electron_mva_isolated_;
-  std::vector<float> electron_mva_ePi_;
-
-  // brem fractions and classification
-  std::vector<float> electron_trackFbrem_;
-  std::vector<float> electron_superClusterFbrem_;
+  edm::EDGetToken fConvToken;
+  edm::EDGetToken fBeamspotToken;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleElectron, "ffNtupleElectron" );
 
 ffNtupleElectron::ffNtupleElectron( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBase( ps ),
+      fEffArea( edm::FileInPath( "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt" ).fullPath() ) {}
 
 void
 ffNtupleElectron::initialize( TTree&                   tree,
                               const edm::ParameterSet& ps,
                               edm::ConsumesCollector&& cc ) {
-  electron_token_ = cc.consumes<reco::GsfElectronCollection>(
-      ps.getParameter<edm::InputTag>( "src" ) );
+  fElectronToken = cc.consumes<reco::GsfElectronCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  fRhoToken      = cc.consumes<double>( edm::InputTag( "fixedGridRhoFastjetAll" ) );
+  fConvToken     = cc.consumes<reco::ConversionCollection>( edm::InputTag( "allConversions" ) );
+  fBeamspotToken = cc.consumes<reco::BeamSpot>( edm::InputTag( "offlineBeamSpot" ) );
 
-  tree.Branch( "electron_n", &electron_n_, "electron_n/I" );
   // Electron
-  tree.Branch( "electron_p4", &electron_p4_ );
-  tree.Branch( "electron_charge", &electron_charge_ );
-
-  // track extrapolation
-  tree.Branch( "electron_trackMomentumAtVtx", &electron_trackMomentumAtVtx_ );
-  tree.Branch( "electron_trackMomentumAtCalo", &electron_trackMomentumAtCalo_ );
-  tree.Branch( "electron_trackPositionAtVtx", &electron_trackPositionAtVtx_ );
-  tree.Branch( "electron_trackPositionAtCalo", &electron_trackPositionAtCalo_ );
-
-  // supercluster
-  tree.Branch( "electron_superClusterPosition",
-               &electron_superClusterPosition_ );
-  tree.Branch( "electron_basicClusterSize", &electron_basicClusterSize_ );
-
-  // shower shape variables
-  tree.Branch( "electron_sigmaEtaEta", &electron_sigmaEtaEta_ );
-  tree.Branch( "electron_sigmaIetaIeta", &electron_sigmaIetaIeta_ );
-  tree.Branch( "electron_sigmaIphiIphi", &electron_sigmaIphiIphi_ );
-  tree.Branch( "electron_r9", &electron_r9_ );
-  tree.Branch( "electron_hcalOverEcal", &electron_hcalOverEcal_ );
-  tree.Branch( "electron_hcalOverEcalBc", &electron_hcalOverEcalBc_ );
-
-  // saturation info
-  tree.Branch( "electron_nSaturatedXtals", &electron_nSaturatedXtals_ );
-  tree.Branch( "electron_isSeedSaturated", &electron_isSeedSaturated_ );
-
-  // isolation variables
-  tree.Branch( "electron_dr03TkSumPt", &electron_dr03TkSumPt_ );
-  tree.Branch( "electron_dr03EcalSumEt", &electron_dr03EcalSumEt_ );
-  tree.Branch( "electron_dr03HcalSumEt", &electron_dr03HcalSumEt_ );
-  tree.Branch( "electron_dr03HcalSumEtBc", &electron_dr03HcalSumEtBc_ );
-  tree.Branch( "electron_dr04TkSumPt", &electron_dr04TkSumPt_ );
-  tree.Branch( "electron_dr04EcalSumEt", &electron_dr04EcalSumEt_ );
-  tree.Branch( "electron_dr04HcalSumEt", &electron_dr04HcalSumEt_ );
-  tree.Branch( "electron_dr04HcalSumEtBc", &electron_dr04HcalSumEtBc_ );
-
-  // conversion rejection information
-  tree.Branch( "electron_convDist", &electron_convDist_ );
-  tree.Branch( "electron_convDcot", &electron_convDcot_ );
-  tree.Branch( "electron_convRadius", &electron_convRadius_ );
-
-  // plfow information
-  tree.Branch( "electron_ecalPFClusterIso", &electron_ecalPFClusterIso_ );
-  tree.Branch( "electron_hcalPFClusterIso", &electron_hcalPFClusterIso_ );
-  tree.Branch( "electron_mva_isolated", &electron_mva_isolated_ );
-  tree.Branch( "electron_mva_ePi", &electron_mva_ePi_ );
-
-  // brem fractions and classification
-  tree.Branch( "electron_trackFbrem", &electron_trackFbrem_ );
-  tree.Branch( "electron_superClusterFbrem", &electron_superClusterFbrem_ );
+  tree.Branch( "electron_p4", &fElectronP4 );
+  tree.Branch( "electron_charge", &fElectronCharge );
+  tree.Branch( "electron_full5x5SigmaIetaIeta", &fFull5x5_sigmaIetaIeta );
+  tree.Branch( "electron_hOverE", &fHOverE );
+  tree.Branch( "electron_absdEtaSeed", &fAbsdEtaSeed );
+  tree.Branch( "electron_absdPhiIn", &fAbsdPhiIn );
+  tree.Branch( "electron_relIsoWithEA", &fRelIsoWithEA );
+  tree.Branch( "electron_absEInvMinusPInv", &fEInvMinusPInv );
+  tree.Branch( "electron_expectedMissingInnerHits", &fExpectedMissingInnerHits );
+  tree.Branch( "electron_passConvVeto", &fPassConvVeto );
+  tree.Branch( "electron_idbit", &fIdBit );
 }
 
 void
@@ -150,131 +87,117 @@ ffNtupleElectron::fill( const edm::Event& e, const edm::EventSetup& es ) {
   using namespace std;
   using namespace edm;
 
-  Handle<reco::GsfElectronCollection> electron_h;
-  e.getByToken( electron_token_, electron_h );
-  assert( electron_h.isValid() );
-  const reco::GsfElectronCollection& electrons = *electron_h;
+  Handle<reco::GsfElectronCollection> electronHdl;
+  e.getByToken( fElectronToken, electronHdl );
+  assert( electronHdl.isValid() );
+
+  Handle<double> rhoHdl;
+  e.getByToken( fRhoToken, rhoHdl );
+  assert( rhoHdl.isValid() );
+  fRho = *rhoHdl;
+
+  Handle<reco::ConversionCollection> conversionsHdl;
+  e.getByToken( fConvToken, conversionsHdl );
+  assert( conversionsHdl.isValid() );
+
+  Handle<reco::BeamSpot> beamspotHdl;
+  e.getByToken( fBeamspotToken, beamspotHdl );
+  assert( beamspotHdl.isValid() );
 
   clear();
 
-  electron_n_ = electrons.size();
-  for ( const auto& electron : electrons ) {
-    // Electron
-    electron_p4_.push_back( LorentzVector( electron.px(), electron.py(),
-                                           electron.pz(), electron.energy() ) );
-    electron_charge_.emplace_back( electron.charge() );
+  for ( const auto& electron : *electronHdl ) {
+    fElectronP4.emplace_back( electron.px(), electron.py(), electron.pz(), electron.energy() );
+    fElectronCharge.emplace_back( electron.charge() );
+    fFull5x5_sigmaIetaIeta.emplace_back( electron.full5x5_sigmaIetaIeta() );
+    fHOverE.emplace_back( electron.hadronicOverEm() );
+    fAbsdEtaSeed.emplace_back( fabs( dEtaInSeed( electron ) ) );
+    fAbsdPhiIn.emplace_back( fabs( electron.deltaPhiSuperClusterTrackAtVtx() ) );
 
-    // track extrapolation
-    electron_trackMomentumAtVtx_.push_back( LorentzVector(
-        electron.trackMomentumAtVtx().X(), electron.trackMomentumAtVtx().Y(),
-        electron.trackMomentumAtVtx().Z(),
-        hypot( electron.trackMomentumAtVtx().R(), M_Electron ) ) );
-    electron_trackMomentumAtCalo_.push_back( LorentzVector(
-        electron.trackMomentumAtCalo().X(), electron.trackMomentumAtCalo().Y(),
-        electron.trackMomentumAtCalo().Z(),
-        hypot( electron.trackMomentumAtCalo().R(), M_Electron ) ) );
-    electron_trackPositionAtVtx_.emplace_back( electron.trackPositionAtVtx() );
-    electron_trackPositionAtCalo_.emplace_back(
-        electron.trackPositionAtCalo() );
+    float abseta = fabs( electron.superCluster()->eta() );
+    fRelIsoWithEA.emplace_back( relIsoWithEA( electron ) );
+    fEInvMinusPInv.emplace_back( eInvMinusPInv( electron ) );
+    fExpectedMissingInnerHits.emplace_back( electron.gsfTrack()->hitPattern().numberOfLostHits( reco::HitPattern::MISSING_INNER_HITS ) );
+    fPassConvVeto.emplace_back( !ConversionTools::hasMatchedConversion( electron, conversionsHdl, beamspotHdl->position() ) );
 
-    // supercluster
-    electron_superClusterPosition_.emplace_back(
-        electron.superClusterPosition() );
-    electron_basicClusterSize_.emplace_back( electron.basicClustersSize() );
-
-    // shower shape variables
-    electron_sigmaEtaEta_.emplace_back( electron.sigmaEtaEta() );
-    electron_sigmaIetaIeta_.emplace_back( electron.sigmaIetaIeta() );
-    electron_sigmaIphiIphi_.emplace_back( electron.sigmaIphiIphi() );
-    electron_r9_.emplace_back( electron.r9() );
-    electron_hcalOverEcal_.emplace_back( electron.hcalOverEcal() );
-    electron_hcalOverEcalBc_.emplace_back( electron.hcalOverEcalBc() );
-
-    // saturation info
-    electron_nSaturatedXtals_.emplace_back(
-        electron.saturationInfo().nSaturatedXtals );
-    electron_isSeedSaturated_.emplace_back(
-        electron.saturationInfo().isSeedSaturated );
-
-    // isolation variables
-    electron_dr03TkSumPt_.emplace_back( electron.dr03TkSumPt() );
-    electron_dr03EcalSumEt_.emplace_back( electron.dr03EcalRecHitSumEt() );
-    electron_dr03HcalSumEt_.emplace_back( electron.dr03HcalTowerSumEt() );
-    electron_dr03HcalSumEtBc_.emplace_back( electron.dr03HcalTowerSumEtBc() );
-    electron_dr04TkSumPt_.emplace_back( electron.dr04TkSumPt() );
-    electron_dr04EcalSumEt_.emplace_back( electron.dr04EcalRecHitSumEt() );
-    electron_dr04HcalSumEt_.emplace_back( electron.dr04HcalTowerSumEt() );
-    electron_dr04HcalSumEtBc_.emplace_back( electron.dr04HcalTowerSumEtBc() );
-
-    // conversion rejection information
-    electron_convDist_.emplace_back( electron.convDist() );
-    electron_convDcot_.emplace_back( electron.convDcot() );
-    electron_convRadius_.emplace_back( electron.convRadius() );
-
-    // plfow information
-    electron_ecalPFClusterIso_.emplace_back( electron.ecalPFClusterIso() );
-    electron_hcalPFClusterIso_.emplace_back( electron.hcalPFClusterIso() );
-    electron_mva_isolated_.emplace_back( electron.mva_Isolated() );
-    electron_mva_ePi_.emplace_back( electron.mva_e_pi() );
-
-    // brem fractions and classification
-    electron_trackFbrem_.emplace_back( electron.trackFbrem() );
-    electron_superClusterFbrem_.emplace_back( electron.superClusterFbrem() );
+    // Loose ID criteria
+    // https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Offline_selection_criteria_for_V
+    unsigned int idbit = 0;
+    if ( abseta <= 1.479 ) {  // barrel
+      if ( fFull5x5_sigmaIetaIeta.back() < 0.0112 )
+        idbit |= 1 << 0;
+      if ( fAbsdEtaSeed.back() < 0.00377 )
+        idbit |= 1 << 1;
+      if ( fAbsdPhiIn.back() < 0.0884 )
+        idbit |= 1 << 2;
+      if ( fHOverE.back() < 0.05 + 1.16 / electron.superCluster()->energy() + 0.0324 * fRho / electron.superCluster()->energy() )
+        idbit |= 1 << 3;
+      if ( fRelIsoWithEA.back() < 0.112 + 0.506 / electron.pt() )
+        idbit |= 1 << 4;
+      if ( fEInvMinusPInv.back() < 0.193 )
+        idbit |= 1 << 5;
+      if ( fExpectedMissingInnerHits.back() <= 1 )
+        idbit |= 1 << 6;
+      if ( fPassConvVeto.back() )
+        idbit |= 1 << 7;
+    } else {  // endcap
+      if ( fFull5x5_sigmaIetaIeta.back() < 0.0425 )
+        idbit |= 1 << 0;
+      if ( fAbsdEtaSeed.back() < 0.00674 )
+        idbit |= 1 << 1;
+      if ( fAbsdPhiIn.back() < 0.169 )
+        idbit |= 1 << 2;
+      if ( fHOverE.back() < 0.0441 + 2.54 / electron.superCluster()->energy() + 0.183 * fRho / electron.superCluster()->energy() )
+        idbit |= 1 << 3;
+      if ( fRelIsoWithEA.back() < 0.108 + 0.963 / electron.pt() )
+        idbit |= 1 << 4;
+      if ( fEInvMinusPInv.back() < 0.111 )
+        idbit |= 1 << 5;
+      if ( fExpectedMissingInnerHits.back() <= 1 )
+        idbit |= 1 << 6;
+      if ( fPassConvVeto.back() )
+        idbit |= 1 << 7;
+    }
+    fIdBit.emplace_back( idbit );
   }
 }
 
 void
 ffNtupleElectron::clear() {
-  electron_n_ = 0;
+  fElectronP4.clear();
+  fElectronCharge.clear();
+  fFull5x5_sigmaIetaIeta.clear();
+  fHOverE.clear();
+  fAbsdEtaSeed.clear();
+  fAbsdPhiIn.clear();
+  fRelIsoWithEA.clear();
+  fEInvMinusPInv.clear();
+  fExpectedMissingInnerHits.clear();
+  fPassConvVeto.clear();
+  fIdBit.clear();
+}
 
-  // Electron
-  electron_p4_.clear();
-  electron_charge_.clear();
+float
+ffNtupleElectron::dEtaInSeed( const reco::GsfElectron& electron ) const {
+  return electron.superCluster().isNonnull() && electron.superCluster()->seed().isNonnull() ? electron.deltaEtaSuperClusterTrackAtVtx() - electron.superCluster()->eta() + electron.superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+}
 
-  // track extrapolation
-  electron_trackMomentumAtVtx_.clear();
-  electron_trackMomentumAtCalo_.clear();
-  electron_trackPositionAtVtx_.clear();
-  electron_trackPositionAtCalo_.clear();
+float
+ffNtupleElectron::eInvMinusPInv( const reco::GsfElectron& electron ) const {
+  const float ecal_energy_inverse = 1.0 / electron.ecalEnergy();
+  const float eSCoverP            = electron.eSuperClusterOverP();
+  return std::abs( 1.0 - eSCoverP ) * ecal_energy_inverse;
+}
 
-  // supercluster
-  electron_superClusterPosition_.clear();
-  electron_basicClusterSize_.clear();
-
-  // shower shape variables
-  electron_sigmaEtaEta_.clear();
-  electron_sigmaIetaIeta_.clear();
-  electron_sigmaIphiIphi_.clear();
-  electron_r9_.clear();
-  electron_hcalOverEcal_.clear();
-  electron_hcalOverEcalBc_.clear();
-
-  // saturation info
-  electron_nSaturatedXtals_.clear();
-  electron_isSeedSaturated_.clear();
-
-  // isolation variables
-  electron_dr03TkSumPt_.clear();
-  electron_dr03EcalSumEt_.clear();
-  electron_dr03HcalSumEt_.clear();
-  electron_dr03HcalSumEtBc_.clear();
-  electron_dr04TkSumPt_.clear();
-  electron_dr04EcalSumEt_.clear();
-  electron_dr04HcalSumEt_.clear();
-  electron_dr04HcalSumEtBc_.clear();
-
-  // conversion rejection information
-  electron_convDist_.clear();
-  electron_convDcot_.clear();
-  electron_convRadius_.clear();
-
-  // plfow information
-  electron_ecalPFClusterIso_.clear();
-  electron_hcalPFClusterIso_.clear();
-  electron_mva_isolated_.clear();
-  electron_mva_ePi_.clear();
-
-  // brem fractions and classification
-  electron_trackFbrem_.clear();
-  electron_superClusterFbrem_.clear();
+float
+ffNtupleElectron::relIsoWithEA( const reco::GsfElectron& electron ) const {
+  float       absEta = fabs( electron.superCluster()->eta() );
+  auto        pfIso  = electron.pfIsolationVariables();
+  const float chad   = pfIso.sumChargedHadronPt;
+  const float nhad   = pfIso.sumNeutralHadronEt;
+  const float pho    = pfIso.sumPhotonEt;
+  const float eA     = fEffArea.getEffectiveArea( absEta );
+  float       iso    = chad + std::max( 0., nhad + pho - fRho * eA );
+  iso /= electron.pt();
+  return iso;
 }
