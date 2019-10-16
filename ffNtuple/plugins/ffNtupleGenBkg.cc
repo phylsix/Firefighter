@@ -22,6 +22,7 @@ class ffNtupleGenBkg : public ffNtupleBase {
 
   edm::EDGetToken  fGenToken;
   std::vector<int> fAllowedPids;
+  std::vector<int> fAllowedStatusOnePids;
 
   std::vector<int>                   fGenPid;
   std::vector<int>                   fGenCharge;
@@ -38,8 +39,9 @@ void
 ffNtupleGenBkg::initialize( TTree&                   tree,
                             const edm::ParameterSet& ps,
                             edm::ConsumesCollector&& cc ) {
-  fGenToken    = cc.consumes<reco::GenParticleCollection>( ps.getParameter<edm::InputTag>( "src" ) );
-  fAllowedPids = ps.getParameter<std::vector<int>>( "AllowedPids" );
+  fGenToken             = cc.consumes<reco::GenParticleCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  fAllowedPids          = ps.getParameter<std::vector<int>>( "AllowedPids" );
+  fAllowedStatusOnePids = ps.getParameter<std::vector<int>>( "AllowedStatusOnePids" );
 
   tree.Branch( "gen_p4", &fGenP4 );
   tree.Branch( "gen_charge", &fGenCharge );
@@ -62,13 +64,21 @@ ffNtupleGenBkg::fill( const edm::Event& e, const edm::EventSetup& es ) {
     if ( !p.isLastCopy() )
       continue;
 
-    if ( std::find( fAllowedPids.cbegin(), fAllowedPids.cend(), abs( p.pdgId() ) ) == fAllowedPids.cend() )
-      continue;
+    if ( std::find( fAllowedPids.cbegin(), fAllowedPids.cend(), abs( p.pdgId() ) ) != fAllowedPids.cend() ) {
+      fGenP4.emplace_back( p.px(), p.py(), p.pz(), p.energy() );
+      fGenCharge.emplace_back( p.charge() );
+      fGenPid.emplace_back( p.pdgId() );
+      fGenStatusFlags.emplace_back( p.statusFlags().flags_.to_ulong() );
+    }
 
-    fGenP4.emplace_back( p.px(), p.py(), p.pz(), p.energy() );
-    fGenCharge.emplace_back( p.charge() );
-    fGenPid.emplace_back( p.pdgId() );
-    fGenStatusFlags.emplace_back( p.statusFlags().flags_.to_ulong() );
+    if ( std::find( fAllowedStatusOnePids.cbegin(), fAllowedStatusOnePids.cend(), abs( p.pdgId() ) ) != fAllowedStatusOnePids.cend() ) {
+      if ( p.status() != 1 )
+        continue;
+      fGenP4.emplace_back( p.px(), p.py(), p.pz(), p.energy() );
+      fGenCharge.emplace_back( p.charge() );
+      fGenPid.emplace_back( p.pdgId() );
+      fGenStatusFlags.emplace_back( p.statusFlags().flags_.to_ulong() );
+    }
   }
 }
 

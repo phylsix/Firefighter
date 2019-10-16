@@ -5,6 +5,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/HLTReco"/>
+<use name="DataFormats/MuonDetId"/>
 <use name="CommonTools/RecoAlgos"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/CandAlgos"/>

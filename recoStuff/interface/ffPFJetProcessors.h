@@ -86,6 +86,14 @@ getNeutralIsolation( const reco::PFJet&,
                      const edm::Handle<reco::PFCandidateCollection>&,
                      const float& );
 
+/** sum of hadron-type candidate energy within cone radius/ jet energy
+ * --> smaller the value, the more isolated it is.
+ */
+float
+getHadronIsolation( const reco::PFJet&,
+                     const edm::Handle<reco::PFCandidateCollection>&,
+                     const float& );
+
 std::vector<reco::TransientTrack>
 transientTracksFromPFJet( const reco::PFJet&,
                           const StringCutObjectSelector<reco::Track>&,

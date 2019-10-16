@@ -29,7 +29,7 @@ def main():
         from Firefighter.piedpiper.utils import get_voms_certificate
 
         os.system(
-            "tar -X EXCLUDEPATTERNS --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION}"
+            "tar -X EXCLUDEPATTERNS --exclude-vcs -zcf `basename ${CMSSW_BASE}`.tar.gz -C ${CMSSW_BASE}/.. `basename ${CMSSW_BASE}`"
         )
         get_voms_certificate()
     elif args.submitter == 'crab':
@@ -38,7 +38,13 @@ def main():
     for ds in tosubd_:
         tosubdff = yaml.load(open(join(os.getenv('CMSSW_BASE'), ds)), Loader=yaml.Loader)
 
-        cb = configBuilder(tosubdff, eventRegion="all")
+        eventRegion_ = 'control'
+        if 'sigmc' in ds or 'bkgmc' in ds:
+            eventRegion_ = 'all'
+        cb = configBuilder(tosubdff,
+                           eventRegion=eventRegion_,
+                           ffConfigName="ffNtupleFromAOD_cfg.py",
+                           outbase="/store/group/lpcmetx/SIDM/ffNtuple/")
         for c in cb.build():
             configBuilder.submit(c)
 

@@ -35,8 +35,8 @@ class configBuilder:
             ),
             splittingMode="FileBased",
             unitsPerJob=10,
-            ffConfigName = 'ffNtupleFromAOD_cfg.py',
-            outbase="/store/group/lpcmetx/SIDM/ffNtuple/",
+            ffConfigName = 'ffNtupleFromAOD_v2_cfg.py',
+            outbase="/store/group/lpcmetx/SIDM/ffNtupleV2/",
             year=2018,
         )
         self.specs_.update(kwargs)

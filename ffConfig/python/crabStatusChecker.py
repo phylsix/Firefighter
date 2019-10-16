@@ -8,15 +8,18 @@ Usage: python crabStatusChecker.py <folder>
 from __future__ import print_function
 import os
 import json
-from os.path import join, isdir
+from os.path import join, isdir, exists
 from CRABAPI.RawCommand import crabCommand
 from CRABClient.UserUtilities import setConsoleLogLevel
 from CRABClient.ClientUtilities import LOGLEVEL_MUTE
 
 
 def preparequerylist(submissiondir):
-    totaljobdirs = [d for d in os.listdir(submissiondir) if isdir(join(submissiondir, d))]
+    totaljobdirs = []
+    for root, dirs, files in os.walk(submissiondir):
+        totaljobdirs.extend( [join(root, name) for name in dirs if exists(join(root, name, '.requestcache'))] )
     print("Number of jobs under {}: {}".format(submissiondir, len(totaljobdirs)))
+    print(*totaljobdirs, sep='\n')
     completeddirs = []
     completejson = join(submissiondir, 'crabcompleted.json')
     if os.path.exists(completejson):
@@ -29,7 +32,9 @@ def querystatus(submissiondir, toquerylist):
     res = {}
     print("Making queries for {} jobs..".format(len(toquerylist)))
     for d in toquerylist:
-        statusdict = crabCommand("status", dir=join(submissiondir, d))
+        if not d.startswith(submissiondir):
+            d = join(submissiondir, d)
+        statusdict = crabCommand("status", dir=d)
         _status = statusdict.get("status", "")
         _jobsPerStatus = statusdict.get("jobsPerStatus", {})
         res[d] = {'status': _status, 'jobsPerStatus': _jobsPerStatus}
@@ -78,7 +83,12 @@ def displaystatus(submissiondir, queryresult):
 
 def printcrabresubcmd(submissiondir, queryresult):
     jobnames = [d for d in queryresult if queryresult[d]['status']=='FAILED']
-    cmds = ['crab resubmit -d {}'.format(join(submissiondir, d)) for d in jobnames]
+    cmds = []
+    for d in jobnames:
+        if d.startswith(submissiondir):
+            cmds.append('crab resubmit -d {}'.format(d))
+        else:
+            cmds.append('crab resubmit -d {}'.format(join(submissiondir, d)))
     if cmds:
         print(" To submit failed jobs ".center(79, "*"))
         print(*cmds, sep="\n")

@@ -22,7 +22,7 @@ ffLeptonJetSubjets = ak4PFJets.clone(
 )
 
 ffLeptonJetSLeptonJetMap = _jetpfjetmatcherdrlessbyr.clone(
-    matched=cms.InputTag("filteredLeptonJet", "", "FF")
+    matched=cms.InputTag("filteredLeptonJet")
 )
 
 ffLeptonJetSubjetEMD = _jetemdadder.clone(src=cms.InputTag("filteredLeptonJet"))

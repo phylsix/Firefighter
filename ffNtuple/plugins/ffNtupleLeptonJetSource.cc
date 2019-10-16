@@ -39,7 +39,7 @@ void
 ffNtupleLeptonJetSource::initialize( TTree&                   tree,
                                      const edm::ParameterSet& ps,
                                      edm::ConsumesCollector&& cc ) {
-  fLjSrcToken     = cc.consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "particleFlowIncDSA" ) );
+  fLjSrcToken     = cc.consumes<reco::PFCandidateFwdPtrVector>( ps.getParameter<edm::InputTag>( "src" ) );
   fGeneralTkToken = cc.consumes<reco::TrackCollection>( edm::InputTag( "generalTracks" ) );
 
   tree.Branch( "ljsource_p4", &fLjSrcP4 );

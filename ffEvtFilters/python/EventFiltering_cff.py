@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Firefighter.ffEvtFilters.LeptonJetPairFilter_cfi import *
 from Firefighter.ffEvtFilters.ffTriggerObjectsMatchingFilter_cfi import *
 from Firefighter.ffEvtFilters.ffCosmicEventFilter_cfi import *
+from Firefighter.recoStuff.ffLeptonJetFiltering_cff import ffLeptonJetCountFilter as _ljcntfilter
 # from Firefighter.ffConfig.ffConfigSwitch import switches
 
 
@@ -14,9 +15,8 @@ ffBeginEventFilteringSeq = cms.Sequence(
 
 ###############################################################################
 
-ffLeptonJetPairCountFilter = cms.EDFilter(
-    "CandViewCountFilter",
-    src=cms.InputTag("filteredLeptonJet"),
+ffLeptonJetSingleCountFilter = _ljcntfilter.clone()
+ffLeptonJetPairCountFilter = _ljcntfilter.clone(
     minNumber=cms.uint32(2),
 )
 

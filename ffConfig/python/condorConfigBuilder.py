@@ -6,14 +6,14 @@ from __future__ import print_function
 
 import os
 import time
-from os.path import join
+from os.path import join, basename
 
 import yaml
 from Firefighter.ffConfig.datasetUtils import (get_datasetType, get_nametag,
                                                get_primaryDatasetName,
                                                get_submissionSites)
 
-# replaced vars: FFSUPERCONFIGDIR, CMSSWVER, JOBIDLIST
+# replaced vars: FFSUPERCONFIGDIR, CMSSWBASENAME, JOBIDLIST
 CONDORJDL = """\
 universe = vanilla
 +REQUIRED_OS = "rhel6"
@@ -22,7 +22,7 @@ Executable = FFSUPERCONFIGDIR/ffCondor.sh
 request_memory = 4 GB
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = FFSUPERCONFIGDIR/ffCondor.sh, FFSUPERCONFIGDIR/ffSuperConfig_$(jobid).yml, CMSSWVER.tar.gz
+Transfer_Input_Files = FFSUPERCONFIGDIR/ffCondor.sh, FFSUPERCONFIGDIR/ffSuperConfig_$(jobid).yml, CMSSWBASENAME.tar.gz
 Output = FFSUPERCONFIGDIR/ffCondor_$(jobid).stdout
 Error = FFSUPERCONFIGDIR/ffCondor_$(jobid).stderr
 Log = FFSUPERCONFIGDIR/ffCondor_$(jobid).log
@@ -35,7 +35,7 @@ on_exit_hold_reason = strcat("Job held by ON_EXIT_HOLD due to ", ifThenElse((Exi
 queue 1 jobid in JOBIDLIST"""
 
 
-# replaced vars; CMSSWVER, FFCONFIGNAME, OUTPUTBASE
+# replaced vars; CMSSWBASENAME, FFCONFIGNAME, OUTPUTBASE
 EXECSHELL = r"""#!/bin/bash
 set -x
 echo "Starting Firefighter job on " `date`
@@ -47,8 +47,8 @@ ls -alrth
 CWD=`pwd`
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 export SCRAM_ARCH=slc6_amd64_gcc700
-tar xzf CMSSWVER.tar.gz
-cd CMSSWVER/src/
+tar xzf CMSSWBASENAME.tar.gz
+cd CMSSWBASENAME/src/
 echo ">> scram b ProjectRename"
 scram b ProjectRename
 eval `scramv1 runtime -sh`
@@ -99,8 +99,8 @@ class configBuilder:
             unitsPerJob=10,
             year=2018,
             redirector='',
-            ffConfigName='ffNtupleFromAOD_cfg.py',
-            outbase='/store/group/lpcmetx/SIDM/ffNtuple/'
+            ffConfigName='ffNtupleFromAOD_v2_cfg.py',
+            outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/'
         )
         self.specs_.update(kwargs)
         self.specs_['outLFNDirBase'] = join(self.specs_['outbase'], str(self.specs_['year']))
@@ -159,14 +159,14 @@ class configBuilder:
             ## set up condor jdl ##
             condorjdlFn = join(jobdir, 'condor.jdl')
             condorjdl = CONDORJDL.replace('FFSUPERCONFIGDIR', jobdir)\
-                                 .replace('CMSSWVER', os.getenv('CMSSW_VERSION'))\
+                                 .replace('CMSSWBASENAME', basename(os.getenv('CMSSW_BASE')))\
                                  .replace('JOBIDLIST', str(tuple(range(len(splittedjobs)))) )
             with open(condorjdlFn, 'w') as outf: outf.write(condorjdl)
 
             ## set up executable script ##
             execshellFn = join(jobdir, 'ffCondor.sh')
             outputdir = join(self.specs_['outLFNDirBase'], primarydatasetname, nametag, time.strftime("%y%m%d_%H%M%S"))
-            execshell = EXECSHELL.replace('CMSSWVER', os.getenv('CMSSW_VERSION'))\
+            execshell = EXECSHELL.replace('CMSSWBASENAME', basename(os.getenv('CMSSW_BASE')))\
                                  .replace('FFCONFIGNAME', self.specs_.get('ffConfigName', 'ffNtupleFromAOD_cfg.py'))\
                                  .replace('OUTPUTBASE', outputdir)
             with open(execshellFn, 'w') as outf: outf.write(execshell)

@@ -16,6 +16,32 @@ else:
 
 from Firefighter.ffNtuple.ffNtuples_cfi import *
 
+ffNtuplizer = cms.EDAnalyzer(
+    "ffNtupleManager",
+    HltProcName=cms.string("HLT"),
+    Ntuples=cms.VPSet(
+        ntuple_event,
+        ntuple_genevent,
+        ntuple_primaryvertex,
+        ntuple_gen,
+        ntuple_genbkg,
+        ntuple_genjet,
+        ntuple_hlt,
+        ntuple_muon,
+        ntuple_electron,
+        ntuple_photon,
+        ntuple_dsamuon,
+        ntuple_pfjet,
+        ntuple_akjet,
+        ntuple_hftagscore,
+        # ntuple_muontiming,
+        # ntuple_beamhalo,
+        ntuple_metfilters,
+        ntuple_leptonjetsrc,
+        ntuple_leptonjetmisc,
+    ),
+)
+
 if year == 2017:
     ntuple_hlt.TriggerPaths = [
         "HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx",
@@ -29,6 +55,7 @@ if year == 2016:
         "HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10",
         "HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10",
     ]
+
 
 ffNtuplesSeq = cms.Sequence(ffNtuplizer)
 ffNtuplesStatSeq = cms.Sequence(ffNtupleStat)

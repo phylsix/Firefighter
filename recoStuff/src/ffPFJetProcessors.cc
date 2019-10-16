@@ -168,7 +168,7 @@ ff::getTkIsolation( const reco::PFJet&                        jet,
 float
 ff::getPfIsolation( const reco::PFJet&                              jet,
                     const edm::Handle<reco::PFCandidateCollection>& pfH,
-                    const float& isoRadius ) {
+                    const float&                                    isoRadius ) {
   std::vector<reco::PFCandidatePtr> pfCandPtrs{};
   for ( size_t i( 0 ); i != pfH->size(); ++i )
     pfCandPtrs.emplace_back( pfH, i );
@@ -203,7 +203,7 @@ ff::getPfIsolation( const reco::PFJet&                              jet,
 float
 ff::getNeutralIsolation( const reco::PFJet&                              jet,
                          const edm::Handle<reco::PFCandidateCollection>& pfH,
-                         const float& isoRadius ) {
+                         const float&                                    isoRadius ) {
   std::vector<reco::PFCandidatePtr> pfCandPtrs{};
   for ( size_t i( 0 ); i != pfH->size(); ++i )
     pfCandPtrs.emplace_back( pfH, i );
@@ -233,6 +233,32 @@ ff::getNeutralIsolation( const reco::PFJet&                              jet,
 
   return ( ofCands + notOfCands ) == 0 ? NAN
                                        : notOfCands / ( ofCands + notOfCands );
+}
+
+//-----------------------------------------------------------------------------
+
+float
+ff::getHadronIsolation( const reco::PFJet&                              jet,
+                        const edm::Handle<reco::PFCandidateCollection>& pfH,
+                        const float&                                    isoRadius ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( size_t i( 0 ); i != pfH->size(); ++i )
+    pfCandPtrs.emplace_back( pfH, i );
+
+  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
+
+  double numer( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    auto candpid = cand->particleId();
+    if ( candpid == reco::PFCandidate::e or candpid == reco::PFCandidate::mu or candpid == reco::PFCandidate::gamma )
+      continue;  // nonelep
+    if ( deltaR( jet, *cand ) > isoRadius )
+      continue;  // outside radius
+
+    numer += cand->energy();
+  }
+
+  return ( jet.energy() ) == 0 ? NAN : float( numer / jet.energy() );
 }
 
 //-----------------------------------------------------------------------------

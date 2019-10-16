@@ -159,8 +159,9 @@ def parallel_dsamuons(e, lhmap):
 
 def main():
 
-    # inputfilename = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/ffConfig/crabGarage/190825/results/pickevents_merged_ABC.root'
-    inputfilename = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/ffConfig/crabGarage/190825/results/pickevents_merged_D.root'
+    inputfilename = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/ffConfig/crabGarage/190825/results/pickevents_merged_ABC.root'
+    # inputfilename = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14/src/Firefighter/ffConfig/crabGarage/190825/results/pickevents_merged_D.root'
+    inputfilename = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/191004a/results/pickevents2018D_merged.root'
     if len(sys.argv) > 1:
         inputfilename = sys.argv[1]
     assert os.path.isfile(inputfilename)
@@ -184,13 +185,13 @@ def main():
         _lumi = event.object().luminosityBlock()
         _event = event.object().id().event()
 
-        if _event in cosmicevents: continue
-        print("  {} : {}: {}  ".format(_run, _lumi, _event).center(79, "*"))
+        # if _event not in cosmicevents: continue
+        print("  {} : {} : {}  ".format(_run, _lumi, _event).center(79, "*"))
         counter['total'] += 1
 
         ## tasks
-        inspect_highpt_dsamuon(event, lableHandleMap, counter=counter)
-        # parallel_dsamuons(event, lableHandleMap)
+        # inspect_highpt_dsamuon(event, lableHandleMap, counter=counter)
+        parallel_dsamuons(event, lableHandleMap)
 
         print("_"*79)
 

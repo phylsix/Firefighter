@@ -3,24 +3,150 @@ import FWCore.ParameterSet.Config as cms
 from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 
+def leptonjetStudyProcess(process, ffConfig, keepskim=False):
+    """Attach leptonjet study sequence to `process`"""
+
+    process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
+    process.load("Firefighter.recoStuff.ffMetFilters_cff")
+    process.load("Firefighter.recoStuff.DsaToPFCandidate_cff")
+    process.load("Firefighter.recoStuff.LeptonjetClustering_cff")
+    # process.load("Firefighter.recoStuff.Ak4chsPostLeptonjets_cff")
+    process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
+    process.recoSeq = cms.Sequence(
+        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
+        + process.ffMetFilterSeq
+        + process.dSAToPFCandSeq
+        + process.egammaPostRecoSeq
+        + process.leptonjetClusteringSeq
+        + process.leptonjetFilteringSeq
+        + process.ffLeptonJetSingleCountFilter
+        # + process.ak4chsPostLeptonjetsSeq
+        + process.ffEndEventFilteringSeq
+        )
+
+    process.ntuple_step = cms.Path(process.recoSeq+process.ffNtuplesSeq)
+    process.stathistory = cms.Path(process.ffNtuplesStatSeq)
+    process.endjob_step = cms.EndPath(process.endOfProcess)
+
+    process.schedule = cms.Schedule(process.stathistory,
+                                    process.ntuple_step,
+                                    process.endjob_step)
+    if keepskim:
+        process.load("Firefighter.recoStuff.skimOutput_cfi")
+        process.skimOutput.fileName=cms.untracked.string(ffConfig["data-spec"]["outputFileName"].replace('ffNtuple', 'ffSkimV2'))
+        process.output_step = cms.EndPath(process.skimOutput)
+        process.schedule = cms.Schedule(process.stathistory,
+                                        process.ntuple_step,
+                                        process.endjob_step,
+                                        process.output_step,)
+
+    ###########################################################################
+    ##                             non signal-mc                             ##
+    ###########################################################################
+
+    if ffConfig["data-spec"]["dataType"] == "sigmc":
+
+        ## exclude genbkg branches from ffNtupling ##
+        process.ffNtuplizer.Ntuples = cms.VPSet(
+            [
+                x
+                for x in process.ffNtuplizer.Ntuples
+                if not x.NtupleName.value().startswith("ffNtupleGenBkg")
+            ]
+        )
+
+    else: # bkgmc | data
+
+        ## keep triggered events only ##
+        process.hltfilter = hltfilter
+        process.ffBeginEventFilteringSeq.insert(0, process.hltfilter)
+
+        ## filter MC related modules out ##
+        # mcmodules = list()
+        # process.ffLeptonJetSeq.visit(cms.ModuleNodeVisitor(mcmodules))
+        # mcmodules = [m for m in mcmodules if m.type_().startswith("MC")]
+        # for m in mcmodules:
+        #     process.ffLeptonJetSeq.remove(m)
+
+        ## exclude gen branches from ffNtupling ##
+        ## background MC will exclude gen particle part
+        process.ffNtuplizer.Ntuples = cms.VPSet(
+            [
+                x
+                for x in process.ffNtuplizer.Ntuples
+                if x.NtupleName.value()!="ffNtupleGen"
+            ]
+        )
+
+        ## data will exclude any gen- related branches
+        if ffConfig["data-spec"]["dataType"] == "data":
+            process.ffNtuplizer.Ntuples = cms.VPSet(
+                [
+                    x
+                    for x in process.ffNtuplizer.Ntuples
+                    if 'gen' not in x.NtupleName.value().lower()
+                ]
+            )
+
+    ###########################################################################
+    ##                              event region                             ##
+    ###########################################################################
+
+    if ffConfig["reco-spec"]["eventRegion"] == "all":
+        pass
+    elif ffConfig["reco-spec"]["eventRegion"] == "single":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_single
+        )
+    elif ffConfig["reco-spec"]["eventRegion"] == "signal":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_signal
+        )
+    elif ffConfig["reco-spec"]["eventRegion"] == "control":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_control
+        )
+    else:
+        msg = "ffConfig['reco-spec']['eventRegion'] can only be 'all'/'single'/'signal'/'control'! --- {0} is given.".format(
+            ffConfig["reco-spec"]["eventRegion"]
+        )
+        raise ValueError(msg)
+    ###########################################################################
+    return process
+
+
+
 def decorateProcessFF(process, ffConfig, keepskim=False):
     """Attach Firefighter RECO, ntuple -specific to the `process`, configure
     them with `ffConfig`
     """
 
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+    process.load("Firefighter.recoStuff.DsaAdditionalValues_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
     process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
 
+    process.leptonjetSourcePFMuon = cms.EDProducer("LeptonjetSourcePFMuonProducer")
     process.recofilterSeq = cms.Sequence(
         process.ffBeginEventFilteringSeq
         + process.ffLeptonJetSeq
         + process.ffMetFilterSeq
         + process.ffDeepFlavourSeq
         + process.ffEndEventFilteringSeq
+        + process.egammaPostRecoSeq
+        + process.leptonjetSourcePFMuon
+        + process.dsamuonExtraSeq
     )
+    process.filteredLeptonJet.cut=cms.string(" && ".join([
+        process.filteredLeptonJet.cut.value(),
+        "!test_bit(electronMultiplicity(), 0)"
+        ]))
 
     process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
     process.stathistory = cms.Path(process.ffNtuplesStatSeq)
@@ -162,18 +288,29 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
     """
 
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+    process.load("Firefighter.recoStuff.DsaAdditionalValues_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
     process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
 
+    process.leptonjetSourcePFMuon = cms.EDProducer("LeptonjetSourcePFMuonProducer")
     process.recofilterSeq = cms.Sequence(
         process.ffBeginEventFilteringSeq
         + process.ffLeptonJetSeq
         + process.ffMetFilterSeq
         + process.ffDeepFlavourSeq
         + process.ffEndEventFilteringSeq
+        + process.egammaPostRecoSeq
+        + process.leptonjetSourcePFMuon
+        + process.dsamuonExtraSeq
     )
+    process.filteredLeptonJet.cut=cms.string(" && ".join([
+        process.filteredLeptonJet.cut.value(),
+        "!test_bit(electronMultiplicity(), 0)"
+        ]))
 
     process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
     process.stathistory = cms.Path(process.ffNtuplesStatSeq)

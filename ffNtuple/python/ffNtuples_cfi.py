@@ -41,10 +41,12 @@ ntuple_genbkg = cms.PSet(
     NtupleName=cms.string("ffNtupleGenBkg"),
     src=cms.InputTag("genParticles"),
     AllowedPids=cms.vint32([6, 22, 23, 24, 25]), # top, gamma, Z, W, Higgs
+    AllowedStatusOnePids=cms.vint32([13,]), # mu
 )
 
 ntuple_genjet = cms.PSet(
-    NtupleName=cms.string("ffNtupleGenJet"), GenJets=cms.InputTag("ak4GenJetsNoNu")
+    NtupleName=cms.string("ffNtupleGenJet"),
+    GenJets=cms.InputTag("ak4GenJetsNoNu")
 )
 
 ntuple_hlt = cms.PSet(
@@ -68,16 +70,47 @@ ntuple_hlt = cms.PSet(
     ),
 )
 
-ntuple_muon = cms.PSet(NtupleName=cms.string("ffNtupleMuon"), src=cms.InputTag("muons"))
+ntuple_muon = cms.PSet(
+    NtupleName=cms.string("ffNtupleMuon"),
+    src=cms.InputTag("muons")
+)
 
 ntuple_electron = cms.PSet(
-    NtupleName=cms.string("ffNtupleElectron"), src=cms.InputTag("gedGsfElectrons")
+    NtupleName=cms.string("ffNtupleElectron"),
+    src=cms.InputTag("gedGsfElectrons"),
+    idName=cms.string("cutBasedElectronID-Fall17-94X-V2-loose"),
 )
+def _getElectronCutNames(idname):
+    psetname = idname.value().replace('-', '_')
+    modulename = 'RecoEgamma.ElectronIdentification.Identification.{}'.format(psetname.rsplit('_', 1)[0]+'_cff')
+
+    import importlib
+    psets = importlib.import_module(modulename).__dict__[psetname]
+    _cutnames = [x.cutName.value() for x in psets.cutFlow]
+    cutnames = [_cutnames[i]+'_'+str(_cutnames[:i].count(_cutnames[i])) for i in range(len(_cutnames))]
+    return cms.vstring(*cutnames)
+
+ntuple_electron.cutNames=_getElectronCutNames(ntuple_electron.idName)
+
+ntuple_photon = cms.PSet(
+    NtupleName=cms.string("ffNtuplePhoton"),
+    src=cms.InputTag("gedPhotons"),
+    idName=cms.string("cutBasedPhotonID-Fall17-94X-V2-loose"),
+)
+def _getPhotonCutNames(idname):
+    psetname = idname.value().replace('-', '_')
+    modulename = 'RecoEgamma.PhotonIdentification.Identification.{}'.format(psetname.rsplit('_', 1)[0]+'_cff')
+
+    import importlib
+    psets = importlib.import_module(modulename).__dict__[psetname]
+    _cutnames = [x.cutName.value() for x in psets.cutFlow]
+    cutnames = [_cutnames[i]+'_'+str(_cutnames[:i].count(_cutnames[i])) for i in range(len(_cutnames))]
+    return cms.vstring(*cutnames)
+ntuple_photon.cutNames=_getPhotonCutNames(ntuple_photon.idName)
 
 ntuple_dsamuon = cms.PSet(
     NtupleName=cms.string("ffNtupleDsaMuon"),
-    src=cms.InputTag("displacedStandAloneMuons"),
-    UseMuonHypothesis=cms.bool(True),
+    src=cms.InputTag("pfEmbeddedDSAMuons"),
 )
 
 ntuple_pfjet = cms.PSet(
@@ -99,11 +132,15 @@ ntuple_pfjet = cms.PSet(
     SubjetEcf2=cms.InputTag("ffLeptonJetSubjetECF", "ecf2"),
     SubjetEcf3=cms.InputTag("ffLeptonJetSubjetECF", "ecf3"),
     mvaParam=ffLeptonJetMVAEstimatorParam,
+    doVertexing=cms.bool(True),
+    doSubstructureVariables=cms.bool(True),
+    doMVA=cms.bool(True),
 )
 
 ntuple_akjet = cms.PSet(
     NtupleName=cms.string("ffNtupleAKJet"),
     src=cms.InputTag("ak4PFJetsCHS"),
+    cut=cms.string("pt>10."),
     jetid=jetiddefs,
 )
 
@@ -130,42 +167,48 @@ ntuple_muontiming = cms.PSet(
 )
 
 ntuple_beamhalo = cms.PSet(
-    NtupleName=cms.string("ffNtupleBeamHalo"), src=cms.InputTag("BeamHaloSummary")
+    NtupleName=cms.string("ffNtupleBeamHalo"),
+    src=cms.InputTag("BeamHaloSummary")
 )
 
-ntuple_metfilters = cms.PSet(NtupleName=cms.string("ffNtupleMetFilters"))
+ntuple_metfilters = cms.PSet(
+    NtupleName=cms.string("ffNtupleMetFilters"),
+)
 
 ntuple_leptonjetsrc = cms.PSet(
     NtupleName=cms.string("ffNtupleLeptonJetSource"),
+    src=cms.InputTag("particleFlowIncDSA"),
 )
 
 ntuple_leptonjetmisc = cms.PSet(
     NtupleName=cms.string("ffNtupleLeptonJetMisc"),
 )
 
-ffNtuplizer = cms.EDAnalyzer(
-    "ffNtupleManager",
-    HltProcName=cms.string("HLT"),
-    Ntuples=cms.VPSet(
-        ntuple_event,
-        ntuple_genevent,
-        ntuple_primaryvertex,
-        ntuple_gen,
-        ntuple_genbkg,
-        ntuple_genjet,
-        ntuple_hlt,
-        ntuple_muon,
-        ntuple_electron,
-        ntuple_dsamuon,
-        ntuple_pfjet,
-        ntuple_akjet,
-        ntuple_hftagscore,
-        ntuple_muontiming,
-        # ntuple_beamhalo,
-        ntuple_metfilters,
-        ntuple_leptonjetsrc,
-        ntuple_leptonjetmisc,
-    ),
+from Firefighter.ffEvtFilters.ffTriggerObjectsMatchingFilter_cfi import triggerObjectMatchingFilter
+ntuple_triggerobjectmatching = cms.PSet(
+    NtupleName=cms.string("ffNtupleTriggerObjectMatchingFilter"),
+    debug=cms.bool(True),
+    triggerNames=triggerObjectMatchingFilter.triggerNames,
+)
+
+ntuple_pfjetextra = cms.PSet(
+    NtupleName=cms.string("ffNtuplePfJetExtra"),
+    src=cms.InputTag("leptonjet"),
+)
+
+ntuple_cosmicveto = cms.PSet(
+    NtupleName=cms.string("ffNtupleCosmicVeto"),
+)
+
+ntuple_akjetnolj = cms.PSet(
+    NtupleName=cms.string("ffNtupleAKJet"),
+    src=cms.InputTag("ak4chsNoLeptonjets"),
+    cut=cms.string("pt>10."),
+    jetid=jetiddefs,
+)
+
+ntuple_genbkgcheck = cms.PSet(
+    NtupleName=cms.string("ffNtupleGenBkgCheck"),
 )
 
 ffNtupleStat = cms.EDAnalyzer("ffNtupleProcessStats")

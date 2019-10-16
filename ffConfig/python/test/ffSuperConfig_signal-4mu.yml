@@ -10,6 +10,7 @@ condition-spec:
 data-spec:
   inputFileList:
     [
+      "root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-100_MDp-5_ctau-375/181228_055526/0000/SIDM_AODSIM_15.root",
       "root://cmseos.fnal.gov//store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-150_MDp-5_ctau-250/181228_055735/0000/SIDM_AODSIM_1.root",
     ]
   maxEvents: 50
