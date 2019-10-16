@@ -8,15 +8,14 @@
  * keep the non-isolated ones for clustering
  */
 
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 class LeptonjetSourcePFElectronProducer : public edm::stream::EDProducer<> {
  public:
@@ -29,8 +28,10 @@ class LeptonjetSourcePFElectronProducer : public edm::stream::EDProducer<> {
   const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> fPFCandsToken;
   edm::Handle<reco::PFCandidateFwdPtrVector>            fPFCandsHdl;
 
+  const std::string fIdName;
+
   const edm::EDGetTokenT<edm::ValueMap<bool>> fPFElectronIDToken;
-  edm::Handle<edm::ValueMap<bool>> fPFElectronIDHdl;
+  edm::Handle<edm::ValueMap<bool>>            fPFElectronIDHdl;
 };
 
 #endif

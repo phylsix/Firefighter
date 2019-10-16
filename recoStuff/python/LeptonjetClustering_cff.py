@@ -4,15 +4,22 @@ import FWCore.ParameterSet.Config as cms
 ## 1. PFMuon
 leptonjetSourcePFMuon = cms.EDProducer("LeptonjetSourcePFMuonProducer")
 ## 2. DSAMuon
+from Firefighter.recoStuff.DsaAdditionalValues_cff import *
 leptonjetSourceDSAMuon = cms.EDProducer(
     "LeptonjetSourceDSAMuonProducer",
     minDTTimeDiff=cms.double(-20.),
     minRPCTimeDiff=cms.double(-7.5)
 )
 ## 3. PFElectron
-leptonjetSourcePFElectron = cms.EDProducer("LeptonjetSourcePFElectronProducer")
+leptonjetSourcePFElectron = cms.EDProducer(
+    "LeptonjetSourcePFElectronProducer",
+    idName=cms.string("cutBasedElectronID-Fall17-94X-V2-loose")
+)
 ## 4. PFPhoton
-leptonjetSourcePFPhoton = cms.EDProducer("LeptonjetSourcePFPhotonProducer")
+leptonjetSourcePFPhoton = cms.EDProducer(
+    "LeptonjetSourcePFPhotonProducer",
+    idName=cms.string("cutBasedPhotonID-Fall17-94X-V2-loose")
+)
 
 ## merge into a single collection
 from Firefighter.recoStuff.PFCandMerger_cfi import pfcandfwdptrmerger as _pfcandmerger
@@ -42,6 +49,7 @@ leptonjetExtra = cms.EDProducer(
 ## clustering sequence
 leptonjetClusteringSeq = cms.Sequence(
     leptonjetSourcePFMuon
+    + dsamuonExtraSeq
     + leptonjetSourceDSAMuon
     + leptonjetSourcePFElectron
     + leptonjetSourcePFPhoton

@@ -1,12 +1,13 @@
 #include "Firefighter/recoStuff/interface/LeptonjetSourcePFPhotonProducer.h"
 
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 LeptonjetSourcePFPhotonProducer::LeptonjetSourcePFPhotonProducer( const edm::ParameterSet& ps )
     : fPFCandsToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "particleFlowPtrs" ) ) ),
-      fPFPhotonIDToken( consumes<edm::ValueMap<bool>>( edm::InputTag( "egmPhotonIDs", "cutBasedPhotonID-Fall17-94X-V2-loose" ) ) ) {
+      fIdName( ps.getParameter<std::string>( "idName" ) ),
+      fPFPhotonIDToken( consumes<edm::ValueMap<bool>>( edm::InputTag( "egmPhotonIDs", fIdName ) ) ) {
   produces<reco::PFCandidateFwdPtrVector>();
 }
 

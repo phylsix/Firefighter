@@ -454,13 +454,13 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
                                               candEmbedTrack->ndof() != 0
                                           ? candEmbedTrack->normalizedChi2()
                                           : NAN );
-      if ( cPFCandType.back() == 2 )
+      if ( cPFCandType.back() == 2 and cand->gsfElectronRef().isNonnull() )
         cPFCandElectronIdx.emplace_back( cand->gsfElectronRef().key() );
-      if ( cPFCandType.back() == 3 )
+      if ( cPFCandType.back() == 3 and cand->muonRef().isNonnull() )
         cPFCandPFMuonIdx.emplace_back( cand->muonRef().key() );
-      if ( cPFCandType.back() == 4 )
+      if ( cPFCandType.back() == 4 and cand->photonRef().isNonnull() )
         cPFCandPhotonIdx.emplace_back( cand->photonRef().key() );
-      if ( cPFCandType.back() == 8 )
+      if ( cPFCandType.back() == 8 and cand->muonRef().isNonnull() )
         cPFCandDSAMuonIdx.emplace_back( cand->muonRef().key() );
 
       const reco::MuonRef cmuref = cand->muonRef();

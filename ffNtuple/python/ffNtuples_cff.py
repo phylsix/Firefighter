@@ -34,7 +34,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_pfjet,
         ntuple_akjet,
         ntuple_hftagscore,
-        ntuple_muontiming,
+        # ntuple_muontiming,
         # ntuple_beamhalo,
         ntuple_metfilters,
         ntuple_leptonjetsrc,

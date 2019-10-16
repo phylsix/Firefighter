@@ -9,6 +9,7 @@
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/BTauReco"/>
 <use name="DataFormats/METReco"/>
+<use name="DataFormats/PatCandidates"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="SimDataFormats/GeneratorProducts"/>
@@ -20,8 +21,6 @@
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/KinematicFitPrimitives"/>
-<use name="RecoMuon/MuonIdentification"/>
-<use name="RecoEgamma/EgammaTools"/>
 <!-- <use name="heppdt"/> -->
 <use name="root"/>
 <use name="Firefighter/ffNtuple"/>

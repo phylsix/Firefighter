@@ -75,24 +75,42 @@ ntuple_muon = cms.PSet(
     src=cms.InputTag("muons")
 )
 
-ntuple_pfmuon = cms.PSet(
-    NtupleName=cms.string("ffNtuplePfMuon"),
-)
-
 ntuple_electron = cms.PSet(
     NtupleName=cms.string("ffNtupleElectron"),
-    src=cms.InputTag("gedGsfElectrons")
+    src=cms.InputTag("gedGsfElectrons"),
+    idName=cms.string("cutBasedElectronID-Fall17-94X-V2-loose"),
 )
+def _getElectronCutNames(idname):
+    psetname = idname.value().replace('-', '_')
+    modulename = 'RecoEgamma.ElectronIdentification.Identification.{}'.format(psetname.rsplit('_', 1)[0]+'_cff')
+
+    import importlib
+    psets = importlib.import_module(modulename).__dict__[psetname]
+    _cutnames = [x.cutName.value() for x in psets.cutFlow]
+    cutnames = [_cutnames[i]+'_'+str(_cutnames[:i].count(_cutnames[i])) for i in range(len(_cutnames))]
+    return cms.vstring(*cutnames)
+
+ntuple_electron.cutNames=_getElectronCutNames(ntuple_electron.idName)
 
 ntuple_photon = cms.PSet(
     NtupleName=cms.string("ffNtuplePhoton"),
-    src=cms.InputTag("gedPhotons")
+    src=cms.InputTag("gedPhotons"),
+    idName=cms.string("cutBasedPhotonID-Fall17-94X-V2-loose"),
 )
+def _getPhotonCutNames(idname):
+    psetname = idname.value().replace('-', '_')
+    modulename = 'RecoEgamma.PhotonIdentification.Identification.{}'.format(psetname.rsplit('_', 1)[0]+'_cff')
+
+    import importlib
+    psets = importlib.import_module(modulename).__dict__[psetname]
+    _cutnames = [x.cutName.value() for x in psets.cutFlow]
+    cutnames = [_cutnames[i]+'_'+str(_cutnames[:i].count(_cutnames[i])) for i in range(len(_cutnames))]
+    return cms.vstring(*cutnames)
+ntuple_photon.cutNames=_getPhotonCutNames(ntuple_photon.idName)
 
 ntuple_dsamuon = cms.PSet(
     NtupleName=cms.string("ffNtupleDsaMuon"),
-    src=cms.InputTag("displacedStandAloneMuons"),
-    UseMuonHypothesis=cms.bool(True),
+    src=cms.InputTag("pfEmbeddedDSAMuons"),
 )
 
 ntuple_pfjet = cms.PSet(
@@ -171,11 +189,6 @@ ntuple_triggerobjectmatching = cms.PSet(
     NtupleName=cms.string("ffNtupleTriggerObjectMatchingFilter"),
     debug=cms.bool(True),
     triggerNames=triggerObjectMatchingFilter.triggerNames,
-)
-
-ntuple_dsamuonextra = cms.PSet(
-    NtupleName=cms.string("ffNtupleDsaMuonExtra"),
-    src=cms.InputTag("pfEmbeddedDSAMuons"),
 )
 
 ntuple_pfjetextra = cms.PSet(

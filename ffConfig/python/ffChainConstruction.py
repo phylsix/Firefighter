@@ -9,7 +9,6 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
     process.load("Firefighter.recoStuff.DsaToPFCandidate_cff")
-    process.load("Firefighter.recoStuff.DsaAdditionalValues_cff")
     process.load("Firefighter.recoStuff.LeptonjetClustering_cff")
     # process.load("Firefighter.recoStuff.Ak4chsPostLeptonjets_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
@@ -19,7 +18,6 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
         process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
         + process.ffMetFilterSeq
         + process.dSAToPFCandSeq
-        + process.dsamuonExtraSeq
         + process.egammaPostRecoSeq
         + process.leptonjetClusteringSeq
         + process.leptonjetFilteringSeq
@@ -126,18 +124,29 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
     """
 
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+    process.load("Firefighter.recoStuff.DsaAdditionalValues_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
     process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
 
+    process.leptonjetSourcePFMuon = cms.EDProducer("LeptonjetSourcePFMuonProducer")
     process.recofilterSeq = cms.Sequence(
         process.ffBeginEventFilteringSeq
         + process.ffLeptonJetSeq
         + process.ffMetFilterSeq
         + process.ffDeepFlavourSeq
         + process.ffEndEventFilteringSeq
+        + process.egammaPostRecoSeq
+        + process.leptonjetSourcePFMuon
+        + process.dsamuonExtraSeq
     )
+    process.filteredLeptonJet.cut=cms.string(" && ".join([
+        process.filteredLeptonJet.cut.value(),
+        "!test_bit(electronMultiplicity(), 0)"
+        ]))
 
     process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
     process.stathistory = cms.Path(process.ffNtuplesStatSeq)
@@ -279,18 +288,29 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
     """
 
     process.load("Firefighter.recoStuff.ffDsaPFCandMergeCluster_cff")
+    process.load("Firefighter.recoStuff.DsaAdditionalValues_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
     process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
 
+    process.leptonjetSourcePFMuon = cms.EDProducer("LeptonjetSourcePFMuonProducer")
     process.recofilterSeq = cms.Sequence(
         process.ffBeginEventFilteringSeq
         + process.ffLeptonJetSeq
         + process.ffMetFilterSeq
         + process.ffDeepFlavourSeq
         + process.ffEndEventFilteringSeq
+        + process.egammaPostRecoSeq
+        + process.leptonjetSourcePFMuon
+        + process.dsamuonExtraSeq
     )
+    process.filteredLeptonJet.cut=cms.string(" && ".join([
+        process.filteredLeptonJet.cut.value(),
+        "!test_bit(electronMultiplicity(), 0)"
+        ]))
 
     process.ntuple_step = cms.Path(process.recofilterSeq + process.ffNtuplesSeq)
     process.stathistory = cms.Path(process.ffNtuplesStatSeq)
