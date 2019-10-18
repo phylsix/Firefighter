@@ -1,14 +1,12 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-#include "DataFormats/Math/interface/LorentzVectorFwd.h"
-
-class ffNtupleGenBkgCheck : public ffNtupleBase {
+class ffNtupleGenBkgCheck : public ffNtupleBaseNoHLT {
  public:
   ffNtupleGenBkgCheck( const edm::ParameterSet& );
 
@@ -16,9 +14,6 @@ class ffNtupleGenBkgCheck : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -37,7 +32,7 @@ class ffNtupleGenBkgCheck : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleGenBkgCheck, "ffNtupleGenBkgCheck" );
 
 ffNtupleGenBkgCheck::ffNtupleGenBkgCheck( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleGenBkgCheck::initialize( TTree&                   tree,

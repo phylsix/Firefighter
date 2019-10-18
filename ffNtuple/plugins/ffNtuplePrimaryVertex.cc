@@ -1,9 +1,8 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtuplePrimaryVertex : public ffNtupleBase {
+class ffNtuplePrimaryVertex : public ffNtupleBaseNoHLT {
  public:
   ffNtuplePrimaryVertex( const edm::ParameterSet& );
 
@@ -11,9 +10,6 @@ class ffNtuplePrimaryVertex : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -31,7 +27,7 @@ class ffNtuplePrimaryVertex : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePrimaryVertex, "ffNtuplePrimaryVertex" );
 
 ffNtuplePrimaryVertex::ffNtuplePrimaryVertex( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtuplePrimaryVertex::initialize( TTree&                   tree,

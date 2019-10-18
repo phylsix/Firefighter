@@ -1,15 +1,12 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleTriggerObjectMatchingFilter : public ffNtupleBase {
+class ffNtupleTriggerObjectMatchingFilter : public ffNtupleBaseNoHLT {
  public:
   ffNtupleTriggerObjectMatchingFilter( const edm::ParameterSet& );
   void initialize( TTree&,
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -26,7 +23,7 @@ class ffNtupleTriggerObjectMatchingFilter : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleTriggerObjectMatchingFilter, "ffNtupleTriggerObjectMatchingFilter" );
 
 ffNtupleTriggerObjectMatchingFilter::ffNtupleTriggerObjectMatchingFilter( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleTriggerObjectMatchingFilter::initialize( TTree&                   tree,
@@ -37,7 +34,7 @@ ffNtupleTriggerObjectMatchingFilter::initialize( TTree&                   tree,
 
   fDebug = ps.getParameter<bool>( "debug" );
   if ( fDebug ) {
-    fTriggerNames = ps.getParameter<std::vector<std::string>> ( "triggerNames" );
+    fTriggerNames = ps.getParameter<std::vector<std::string>>( "triggerNames" );
     for ( const auto& p : fTriggerNames ) {
       std::string _p( p );
       std::replace( _p.begin(), _p.end(), '_', '-' );

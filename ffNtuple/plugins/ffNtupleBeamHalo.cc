@@ -1,17 +1,13 @@
+#include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-#include "DataFormats/METReco/interface/BeamHaloSummary.h"
-
-class ffNtupleBeamHalo : public ffNtupleBase {
+class ffNtupleBeamHalo : public ffNtupleBaseNoHLT {
  public:
   ffNtupleBeamHalo( const edm::ParameterSet& );
   void initialize( TTree&,
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -26,7 +22,7 @@ class ffNtupleBeamHalo : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleBeamHalo, "ffNtupleBeamHalo" );
 
 ffNtupleBeamHalo::ffNtupleBeamHalo( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleBeamHalo::initialize( TTree&                   tree,

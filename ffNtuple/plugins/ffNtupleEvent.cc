@@ -1,6 +1,6 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleEvent : public ffNtupleBase {
+class ffNtupleEvent : public ffNtupleBaseNoHLT {
  public:
   ffNtupleEvent( const edm::ParameterSet& );
 
@@ -8,9 +8,6 @@ class ffNtupleEvent : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -23,7 +20,7 @@ class ffNtupleEvent : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleEvent, "ffNtupleEvent" );
 
 ffNtupleEvent::ffNtupleEvent( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleEvent::initialize( TTree&                   tree,

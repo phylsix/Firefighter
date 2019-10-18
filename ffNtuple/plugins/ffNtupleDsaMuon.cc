@@ -6,7 +6,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleDsaMuon : public ffNtupleBase {
+class ffNtupleDsaMuon : public ffNtupleBaseNoHLT {
  public:
   ffNtupleDsaMuon( const edm::ParameterSet& );
 
@@ -14,9 +14,6 @@ class ffNtupleDsaMuon : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -51,7 +48,7 @@ class ffNtupleDsaMuon : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleDsaMuon, "ffNtupleDsaMuon" );
 
 ffNtupleDsaMuon::ffNtupleDsaMuon( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleDsaMuon::initialize( TTree&                   tree,

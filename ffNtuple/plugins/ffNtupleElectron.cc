@@ -4,7 +4,7 @@
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleElectron : public ffNtupleBase {
+class ffNtupleElectron : public ffNtupleBaseNoHLT {
  public:
   ffNtupleElectron( const edm::ParameterSet& );
 
@@ -12,9 +12,6 @@ class ffNtupleElectron : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -33,7 +30,7 @@ class ffNtupleElectron : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleElectron, "ffNtupleElectron" );
 
 ffNtupleElectron::ffNtupleElectron( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ),
+    : ffNtupleBaseNoHLT( ps ),
       fIdName( ps.getParameter<std::string>( "idName" ) ),
       fCutFlowNames( ps.getParameter<std::vector<std::string>>( "cutNames" ) ) {}
 void

@@ -1,15 +1,12 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleMetFilters : public ffNtupleBase {
+class ffNtupleMetFilters : public ffNtupleBaseNoHLT {
  public:
   ffNtupleMetFilters( const edm::ParameterSet& );
   void initialize( TTree&,
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -40,7 +37,7 @@ class ffNtupleMetFilters : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleMetFilters, "ffNtupleMetFilters" );
 
 ffNtupleMetFilters::ffNtupleMetFilters( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleMetFilters::initialize( TTree&                   tree,

@@ -6,7 +6,7 @@
 
 using LorentzVector = math::XYZTLorentzVectorF;
 
-class ffNtuplePhoton : public ffNtupleBase {
+class ffNtuplePhoton : public ffNtupleBaseNoHLT {
  public:
   ffNtuplePhoton( const edm::ParameterSet& );
 
@@ -14,9 +14,6 @@ class ffNtuplePhoton : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -34,7 +31,7 @@ class ffNtuplePhoton : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePhoton, "ffNtuplePhoton" );
 
 ffNtuplePhoton::ffNtuplePhoton( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ),
+    : ffNtupleBaseNoHLT( ps ),
       fIdName( ps.getParameter<std::string>( "idName" ) ),
       fCutFlowNames( ps.getParameter<std::vector<std::string>>( "cutNames" ) ) {}
 

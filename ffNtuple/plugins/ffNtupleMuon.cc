@@ -6,7 +6,7 @@
 #include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleMuon : public ffNtupleBase {
+class ffNtupleMuon : public ffNtupleBaseNoHLT {
  public:
   ffNtupleMuon( const edm::ParameterSet& );
 
@@ -14,9 +14,6 @@ class ffNtupleMuon : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -39,7 +36,7 @@ class ffNtupleMuon : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleMuon, "ffNtupleMuon" );
 
 ffNtupleMuon::ffNtupleMuon( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleMuon::initialize( TTree&                   tree,

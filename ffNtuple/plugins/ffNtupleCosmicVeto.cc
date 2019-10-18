@@ -1,6 +1,6 @@
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleCosmicVeto : public ffNtupleBase {
+class ffNtupleCosmicVeto : public ffNtupleBaseNoHLT {
  public:
   ffNtupleCosmicVeto( const edm::ParameterSet& );
 
@@ -8,9 +8,6 @@ class ffNtupleCosmicVeto : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -25,7 +22,7 @@ class ffNtupleCosmicVeto : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleCosmicVeto, "ffNtupleCosmicVeto" );
 
 ffNtupleCosmicVeto::ffNtupleCosmicVeto( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleCosmicVeto::initialize( TTree&                   tree,

@@ -1,24 +1,20 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-#include "Firefighter/recoStuff/interface/RecoHelpers.h"
-
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
 
 using LorentzVector = math::XYZTLorentzVectorF;
 
-class ffNtupleLeptonJetSource : public ffNtupleBase {
+class ffNtupleLeptonJetSource : public ffNtupleBaseNoHLT {
  public:
   ffNtupleLeptonJetSource( const edm::ParameterSet& );
   void initialize( TTree&,
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -33,7 +29,7 @@ class ffNtupleLeptonJetSource : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleLeptonJetSource, "ffNtupleLeptonJetSource" );
 
 ffNtupleLeptonJetSource::ffNtupleLeptonJetSource( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleLeptonJetSource::initialize( TTree&                   tree,

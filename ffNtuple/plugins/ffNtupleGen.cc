@@ -1,5 +1,4 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-#include "Firefighter/recoStuff/interface/TrackExtrapolator.h"
+#include <memory>
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -7,10 +6,10 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "Firefighter/recoStuff/interface/TrackExtrapolator.h"
 
-#include <memory>
-
-class ffNtupleGen : public ffNtupleBase {
+class ffNtupleGen : public ffNtupleBaseNoHLT {
  public:
   ffNtupleGen( const edm::ParameterSet& );
 
@@ -18,9 +17,6 @@ class ffNtupleGen : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -48,7 +44,7 @@ class ffNtupleGen : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleGen, "ffNtupleGen" );
 
 ffNtupleGen::ffNtupleGen( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleGen::initialize( TTree&                   tree,

@@ -1,7 +1,8 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-#include "Firefighter/recoStuff/interface/RecoHelpers.h"
-#include "Firefighter/recoStuff/interface/ffLeptonJetMVAEstimator.h"
-#include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
+#include <algorithm>
+#include <functional>
+#include <map>
+#include <numeric>
+#include <sstream>
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -17,21 +18,19 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
+#include "Firefighter/recoStuff/interface/ffLeptonJetMVAEstimator.h"
+#include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
-#include <algorithm>
-#include <functional>
-#include <map>
-#include <numeric>
-#include <sstream>
-
 using Point         = math::XYZPointF;
 using LorentzVector = math::XYZTLorentzVectorF;
 
-class ffNtuplePfJet : public ffNtupleBase {
+class ffNtuplePfJet : public ffNtupleBaseNoHLT {
  public:
   ffNtuplePfJet( const edm::ParameterSet& );
 
@@ -39,9 +38,6 @@ class ffNtuplePfJet : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -171,7 +167,7 @@ class ffNtuplePfJet : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJet, "ffNtuplePfJet" );
 
 ffNtuplePfJet::ffNtuplePfJet( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ),
+    : ffNtupleBaseNoHLT( ps ),
       doVertexing_( ps.getParameter<bool>( "doVertexing" ) ),
       doSubstructureVariables_( ps.getParameter<bool>( "doSubstructureVariables" ) ),
       doMVA_( ps.getParameter<bool>( "doMVA" ) ),

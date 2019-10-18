@@ -1,11 +1,10 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleGenJet : public ffNtupleBase {
+class ffNtupleGenJet : public ffNtupleBaseNoHLT {
  public:
   ffNtupleGenJet( const edm::ParameterSet& );
 
@@ -13,9 +12,6 @@ class ffNtupleGenJet : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -29,7 +25,7 @@ class ffNtupleGenJet : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleGenJet, "ffNtupleGenJet" );
 
 ffNtupleGenJet::ffNtupleGenJet( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleGenJet::initialize( TTree&                   tree,

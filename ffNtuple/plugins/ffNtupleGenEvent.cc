@@ -1,20 +1,16 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include <numeric>
 
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
-#include <numeric>
-
-class ffNtupleGenEvent : public ffNtupleBase {
+class ffNtupleGenEvent : public ffNtupleBaseNoHLT {
  public:
   ffNtupleGenEvent( const edm::ParameterSet& );
   void initialize( TTree&,
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -31,7 +27,7 @@ class ffNtupleGenEvent : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleGenEvent, "ffNtupleGenEvent" );
 
 ffNtupleGenEvent::ffNtupleGenEvent( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleGenEvent::initialize( TTree&                   tree,

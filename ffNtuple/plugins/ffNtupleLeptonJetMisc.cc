@@ -1,6 +1,5 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-#include "Firefighter/recoStuff/interface/RecoHelpers.h"
-#include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
+#include <algorithm>
+#include <tuple>
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -13,11 +12,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
+#include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
 
-#include <algorithm>
-#include <tuple>
-
-class ffNtupleLeptonJetMisc : public ffNtupleBase {
+class ffNtupleLeptonJetMisc : public ffNtupleBaseNoHLT {
  public:
   ffNtupleLeptonJetMisc( const edm::ParameterSet& );
 
@@ -25,9 +24,6 @@ class ffNtupleLeptonJetMisc : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -63,7 +59,7 @@ class ffNtupleLeptonJetMisc : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleLeptonJetMisc, "ffNtupleLeptonJetMisc" );
 
 ffNtupleLeptonJetMisc::ffNtupleLeptonJetMisc( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleLeptonJetMisc::initialize( TTree&                   tree,

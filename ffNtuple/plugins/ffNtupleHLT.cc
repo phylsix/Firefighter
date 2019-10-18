@@ -1,14 +1,13 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include <map>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-#include <map>
-
-class ffNtupleHLT : public ffNtupleBase {
+class ffNtupleHLT : public ffNtupleBaseHLT {
  public:
   ffNtupleHLT( const edm::ParameterSet& );
   ~ffNtupleHLT();
@@ -16,7 +15,6 @@ class ffNtupleHLT : public ffNtupleBase {
   void initialize( TTree&,
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
-  void fill( const edm::Event&, const edm::EventSetup& ) override {}
   void fill( const edm::Event&,
              const edm::EventSetup&,
              HLTConfigProvider& ) final;
@@ -36,7 +34,7 @@ class ffNtupleHLT : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleHLT, "ffNtupleHLT" );
 
 ffNtupleHLT::ffNtupleHLT( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseHLT( ps ) {}
 
 ffNtupleHLT::~ffNtupleHLT() {
   hlt_pathsNoVer_.clear();
@@ -114,7 +112,7 @@ ffNtupleHLT::fill( const edm::Event&      e,
         continue;
 
       const string identifier = nameFilter.substr( 0, 5 );
-      if ( (identifier == "hltL2" or identifier == "hltL3") and lastFilterIndex == hlt_eventH->sizeFilters() ) {
+      if ( ( identifier == "hltL2" or identifier == "hltL3" ) and lastFilterIndex == hlt_eventH->sizeFilters() ) {
         lastFilterIndex = hlt_eventH->filterIndex( edm::InputTag( nameFilter, "", "HLT" ) );
       }
       if ( identifier == "hltL1" and lastL1FilterIndex == hlt_eventH->sizeFilters() ) {

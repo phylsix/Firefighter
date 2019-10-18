@@ -1,4 +1,4 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include <numeric>
 
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
@@ -7,10 +7,9 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraFwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-#include <numeric>
-
-class ffNtupleMuonTiming : public ffNtupleBase {
+class ffNtupleMuonTiming : public ffNtupleBaseNoHLT {
  public:
   ffNtupleMuonTiming( const edm::ParameterSet& );
 
@@ -18,9 +17,6 @@ class ffNtupleMuonTiming : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -49,7 +45,7 @@ class ffNtupleMuonTiming : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleMuonTiming, "ffNtupleMuonTiming" );
 
 ffNtupleMuonTiming::ffNtupleMuonTiming( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleMuonTiming::initialize( TTree&                   tree,

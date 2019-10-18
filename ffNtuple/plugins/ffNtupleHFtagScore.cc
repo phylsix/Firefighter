@@ -2,13 +2,12 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtupleHFtagScore : public ffNtupleBase {
+class ffNtupleHFtagScore : public ffNtupleBaseNoHLT {
  public:
   ffNtupleHFtagScore( const edm::ParameterSet& );
 
   void initialize( TTree&, const edm::ParameterSet&, edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&, const edm::EventSetup&, HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -38,7 +37,7 @@ class ffNtupleHFtagScore : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleHFtagScore, "ffNtupleHFtagScore" );
 
 ffNtupleHFtagScore::ffNtupleHFtagScore( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleHFtagScore::initialize( TTree& tree, const edm::ParameterSet& ps, edm::ConsumesCollector&& cc ) {

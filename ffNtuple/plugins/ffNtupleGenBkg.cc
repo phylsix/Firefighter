@@ -1,11 +1,10 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include <algorithm>
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-#include <algorithm>
-
-class ffNtupleGenBkg : public ffNtupleBase {
+class ffNtupleGenBkg : public ffNtupleBaseNoHLT {
  public:
   ffNtupleGenBkg( const edm::ParameterSet& );
 
@@ -13,9 +12,6 @@ class ffNtupleGenBkg : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -33,7 +29,7 @@ class ffNtupleGenBkg : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleGenBkg, "ffNtupleGenBkg" );
 
 ffNtupleGenBkg::ffNtupleGenBkg( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtupleGenBkg::initialize( TTree&                   tree,

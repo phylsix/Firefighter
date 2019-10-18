@@ -1,10 +1,9 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
-class ffNtuplePfJetExtra : public ffNtupleBase {
+class ffNtuplePfJetExtra : public ffNtupleBaseNoHLT {
  public:
   ffNtuplePfJetExtra( const edm::ParameterSet& );
 
@@ -12,9 +11,6 @@ class ffNtuplePfJetExtra : public ffNtupleBase {
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -30,7 +26,7 @@ class ffNtuplePfJetExtra : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJetExtra, "ffNtuplePfJetExtra" );
 
 ffNtuplePfJetExtra::ffNtuplePfJetExtra( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ) {}
+    : ffNtupleBaseNoHLT( ps ) {}
 
 void
 ffNtuplePfJetExtra::initialize( TTree&                   tree,

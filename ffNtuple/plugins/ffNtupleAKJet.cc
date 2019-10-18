@@ -1,22 +1,18 @@
-#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
-
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
+#include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
 
 using LorentzVector = math::XYZTLorentzVectorF;
 
-class ffNtupleAKJet : public ffNtupleBase {
+class ffNtupleAKJet : public ffNtupleBaseNoHLT {
  public:
   ffNtupleAKJet( const edm::ParameterSet& );
   void initialize( TTree&,
                    const edm::ParameterSet&,
                    edm::ConsumesCollector&& ) final;
   void fill( const edm::Event&, const edm::EventSetup& ) final;
-  void fill( const edm::Event&,
-             const edm::EventSetup&,
-             HLTConfigProvider& ) override {}
 
  private:
   void clear() final;
@@ -38,7 +34,7 @@ class ffNtupleAKJet : public ffNtupleBase {
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleAKJet, "ffNtupleAKJet" );
 
 ffNtupleAKJet::ffNtupleAKJet( const edm::ParameterSet& ps )
-    : ffNtupleBase( ps ),
+    : ffNtupleBaseNoHLT( ps ),
       fJetCut( ps.getParameter<std::string>( "cut" ), true ),
       fJetIdSelector( ps.getParameter<std::string>( "jetid" ), true ) {}
 
