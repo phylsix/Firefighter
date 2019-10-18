@@ -18,7 +18,6 @@ class ffNtupleAKJet : public ffNtupleBaseNoHLT {
   void clear() final;
 
   edm::EDGetToken                      fAKJetToken;
-  StringCutObjectSelector<reco::PFJet> fJetCut;
   StringCutObjectSelector<reco::PFJet> fJetIdSelector;
 
   std::vector<LorentzVector> fAKJetP4;
@@ -35,7 +34,6 @@ DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleAKJet, "ffNtupleAKJet" );
 
 ffNtupleAKJet::ffNtupleAKJet( const edm::ParameterSet& ps )
     : ffNtupleBaseNoHLT( ps ),
-      fJetCut( ps.getParameter<std::string>( "cut" ), true ),
       fJetIdSelector( ps.getParameter<std::string>( "jetid" ), true ) {}
 
 void
@@ -68,8 +66,6 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   clear();
 
   for ( const auto& akjet : akjets ) {
-    if ( !fJetCut( akjet ) )
-      continue;
     fAKJetP4.emplace_back( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() );
     fJetId.emplace_back( fJetIdSelector( akjet ) );
     fNumCands.emplace_back( akjet.chargedMultiplicity() + akjet.neutralMultiplicity() );

@@ -142,7 +142,6 @@ ntuple_pfjet = cms.PSet(
 ntuple_akjet = cms.PSet(
     NtupleName=cms.string("ffNtupleAKJet"),
     src=cms.InputTag("ak4PFJetsCHS"),
-    cut=cms.string("pt>10."),
     jetid=jetiddefs,
 )
 
@@ -153,7 +152,6 @@ ntuple_hftagscore = cms.PSet(
     deepcsv_bb=cms.InputTag("pfDeepCSVJetTags", "probbb"),
     deepcsv_c=cms.InputTag("pfDeepCSVJetTags", "probc"),
     deepcsv_udsg=cms.InputTag("pfDeepCSVJetTags", "probudsg"),
-    csvv2_b=cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     deepflavour_b=cms.InputTag('pfDeepFlavourJetTags', 'probb'),
     deepflavour_bb=cms.InputTag('pfDeepFlavourJetTags', 'probbb'),
     deepflavour_lepb=cms.InputTag('pfDeepFlavourJetTags', 'problepb'),
