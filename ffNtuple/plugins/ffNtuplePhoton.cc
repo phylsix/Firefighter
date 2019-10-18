@@ -20,27 +20,37 @@ class ffNtuplePhoton : public ffNtupleBaseNoHLT {
 
   edm::EDGetToken                fPhotonToken;
   edm::EDGetToken                fPhotonIdCutflowToken;
-  const std::string              fIdName;
+  std::vector<edm::EDGetToken>   fIdResultTokens;
+  const std::string              fIdVersion;
+  const std::string              fIdLabel;
   const std::vector<std::string> fCutFlowNames;
+
+  const std::vector<std::string> kIdLabels{"loose", "medium", "tight"};
 
   math::XYZTLorentzVectorFCollection        fPhotonP4;
   std::map<std::string, std::vector<float>> fCutFlowValMap;
   std::vector<unsigned int>                 fIdBit;
+  std::vector<unsigned int>                 fIdResults;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePhoton, "ffNtuplePhoton" );
 
 ffNtuplePhoton::ffNtuplePhoton( const edm::ParameterSet& ps )
     : ffNtupleBaseNoHLT( ps ),
-      fIdName( ps.getParameter<std::string>( "idName" ) ),
-      fCutFlowNames( ps.getParameter<std::vector<std::string>>( "cutNames" ) ) {}
+      fIdVersion( ps.getParameter<std::string>( "idVersion" ) ),
+      fIdLabel( ps.getParameter<std::string>( "idLabel" ) ),
+      fCutFlowNames( ps.getParameter<std::vector<std::string>>( "cutNames" ) ) {
+  assert( std::find( kIdLabels.begin(), kIdLabels.end(), fIdLabel ) != kIdLabels.end() );
+}
 
 void
 ffNtuplePhoton::initialize( TTree&                   tree,
                             const edm::ParameterSet& ps,
                             edm::ConsumesCollector&& cc ) {
   fPhotonToken          = cc.consumes<reco::PhotonCollection>( ps.getParameter<edm::InputTag>( "src" ) );
-  fPhotonIdCutflowToken = cc.consumes<edm::ValueMap<vid::CutFlowResult>>( edm::InputTag( "egmPhotonIDs", fIdName ) );
+  fPhotonIdCutflowToken = cc.consumes<edm::ValueMap<vid::CutFlowResult>>( edm::InputTag( "egmPhotonIDs", fIdVersion + "-" + fIdLabel ) );
+  for ( const auto& idLabel : kIdLabels )
+    fIdResultTokens.push_back( cc.consumes<edm::ValueMap<bool>>( edm::InputTag( "egmPhotonIDs", fIdVersion + "-" + idLabel ) ) );
 
   tree.Branch( "photon_p4", &fPhotonP4 );
   for ( const auto& name : fCutFlowNames ) {
@@ -48,6 +58,7 @@ ffNtuplePhoton::initialize( TTree&                   tree,
     tree.Branch( ( "photon_" + name ).c_str(), &fCutFlowValMap[ name ] );
   }
   tree.Branch( "photon_idBit", &fIdBit );
+  tree.Branch( "photon_idResults", &fIdResults );
 }
 
 void
@@ -62,6 +73,12 @@ ffNtuplePhoton::fill( const edm::Event& e, const edm::EventSetup& es ) {
   Handle<ValueMap<vid::CutFlowResult>> cutflowHdl;
   e.getByToken( fPhotonIdCutflowToken, cutflowHdl );
   assert( cutflowHdl.isValid() );
+
+  vector<Handle<ValueMap<bool>>> idResultHdls( kIdLabels.size() );
+  for ( size_t i( 0 ); i != kIdLabels.size(); ++i ) {
+    e.getByToken( fIdResultTokens[ i ], idResultHdls[ i ] );
+    assert( idResultHdls[ i ].isValid() );
+  }
 
   clear();
   for ( size_t ipho( 0 ); ipho != photonHdl->size(); ipho++ ) {
@@ -80,6 +97,13 @@ ffNtuplePhoton::fill( const edm::Event& e, const edm::EventSetup& es ) {
     }
 
     fIdBit.emplace_back( idbit );
+
+    unsigned int idresult = 0;
+    for ( size_t i( 0 ); i != kIdLabels.size(); ++i ) {
+      if ( ( *( idResultHdls[ i ] ) )[ photonptr ] )
+        idresult |= 1 << i;
+    }
+    fIdResults.emplace_back( idresult );
   }
 }
 
@@ -89,4 +113,5 @@ ffNtuplePhoton::clear() {
   for ( const auto& name : fCutFlowNames )
     fCutFlowValMap[ name ].clear();
   fIdBit.clear();
+  fIdResults.clear();
 }

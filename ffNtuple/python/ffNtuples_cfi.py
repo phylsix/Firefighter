@@ -78,10 +78,11 @@ ntuple_muon = cms.PSet(
 ntuple_electron = cms.PSet(
     NtupleName=cms.string("ffNtupleElectron"),
     src=cms.InputTag("gedGsfElectrons"),
-    idName=cms.string("cutBasedElectronID-Fall17-94X-V2-loose"),
+    idVersion=cms.string("cutBasedElectronID-Fall17-94X-V2"),
+    idLabel=cms.string("loose"), # veto, loose, medium, tight
 )
-def _getElectronCutNames(idname):
-    psetname = idname.value().replace('-', '_')
+def _getElectronCutNames(version, label):
+    psetname = '{}_{}'.format(version.value().replace('-', '_'), label.value())
     modulename = 'RecoEgamma.ElectronIdentification.Identification.{}'.format(psetname.rsplit('_', 1)[0]+'_cff')
 
     import importlib
@@ -90,15 +91,16 @@ def _getElectronCutNames(idname):
     cutnames = [_cutnames[i]+'_'+str(_cutnames[:i].count(_cutnames[i])) for i in range(len(_cutnames))]
     return cms.vstring(*cutnames)
 
-ntuple_electron.cutNames=_getElectronCutNames(ntuple_electron.idName)
+ntuple_electron.cutNames=_getElectronCutNames(ntuple_electron.idVersion, ntuple_electron.idLabel)
 
 ntuple_photon = cms.PSet(
     NtupleName=cms.string("ffNtuplePhoton"),
     src=cms.InputTag("gedPhotons"),
-    idName=cms.string("cutBasedPhotonID-Fall17-94X-V2-loose"),
+    idVersion=cms.string("cutBasedPhotonID-Fall17-94X-V2"),
+    idLabel=cms.string("loose"), # loose, medium, tight
 )
-def _getPhotonCutNames(idname):
-    psetname = idname.value().replace('-', '_')
+def _getPhotonCutNames(version, label):
+    psetname = '{}_{}'.format(version.value().replace('-', '_'), label.value())
     modulename = 'RecoEgamma.PhotonIdentification.Identification.{}'.format(psetname.rsplit('_', 1)[0]+'_cff')
 
     import importlib
@@ -106,7 +108,7 @@ def _getPhotonCutNames(idname):
     _cutnames = [x.cutName.value() for x in psets.cutFlow]
     cutnames = [_cutnames[i]+'_'+str(_cutnames[:i].count(_cutnames[i])) for i in range(len(_cutnames))]
     return cms.vstring(*cutnames)
-ntuple_photon.cutNames=_getPhotonCutNames(ntuple_photon.idName)
+ntuple_photon.cutNames=_getPhotonCutNames(ntuple_photon.idVersion, ntuple_photon.idLabel)
 
 ntuple_dsamuon = cms.PSet(
     NtupleName=cms.string("ffNtupleDsaMuon"),
