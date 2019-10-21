@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
         ffds = ffdatasetdata()
         ffds.datasetNames = [d]
-        ffds.globalTag = '102X_dataRun2_v11'
+        ffds.globalTag = '102X_dataRun2_v12'
         ffds.fileList = [sorted(flist)]
         with open(dtag + '.yml', 'w') as f:
             f.write(ffds.dump())
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     ffds = ffdatasetdata()
     ffds.datasetNames = [d]
-    ffds.globalTag = '102X_dataRun2_Prompt_v14'
+    ffds.globalTag = '102X_dataRun2_Prompt_v15'
     ffds.fileList = [sorted(flist)]
     with open(dtag + '.yml', 'w') as f:
         f.write(ffds.dump())

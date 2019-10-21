@@ -5596,5 +5596,5 @@ fileList:
   - /store/mc/RunIIAutumn18DRPremix/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/80002/FED0D1BE-29CC-734C-A22E-140F22481EA4.root
   - /store/mc/RunIIAutumn18DRPremix/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/80002/FF144AC0-B92E-2E46-B3F0-5EFCC40DE3A2.root
   - /store/mc/RunIIAutumn18DRPremix/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/80002/FFCFF097-1022-B34B-9DF6-88ACBEF04C4E.root
-globalTag: 102X_upgrade2018_realistic_v19
+globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1

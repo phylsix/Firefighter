@@ -36,9 +36,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load(
-    "Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff"
-)
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ffConfig["condition-spec"]["globalTag"]
 
 process.MessageLogger.cerr.threshold = cms.untracked.string("INFO")

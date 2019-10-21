@@ -58,6 +58,8 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
                 if not x.NtupleName.value().startswith("ffNtupleGenBkg")
             ]
         )
+        ## JEC
+        process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     else: # bkgmc | data
 
@@ -91,6 +93,14 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
                     if 'gen' not in x.NtupleName.value().lower()
                 ]
             )
+            ## switch JEC label
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            for ps in process.ffNtuplizer.Ntuples:
+                if ps.NtupleName.value()=="ffNtupleAKJet":
+                    setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
+        else:
+            ## JEC
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     ###########################################################################
     ##                              event region                             ##
@@ -185,6 +195,8 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
                 if x.NtupleName.value()!="ffNtupleGenBkg"
             ]
         )
+        ## JEC
+        process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     else: # bkgmc | data
 
@@ -218,6 +230,14 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
                     if 'gen' not in x.NtupleName.value().lower()
                 ]
             )
+            ## switch JEC label
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            for ps in process.ffNtuplizer.Ntuples:
+                if ps.NtupleName.value()=="ffNtupleAKJet":
+                    setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
+        else:
+            ## JEC
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     ###########################################################################
     ##                              event region                             ##
@@ -358,6 +378,8 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
                 if x.NtupleName.value()!="ffNtupleGenBkg"
             ]
         )
+        ## JEC
+        process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     else: # bkgmc | data
 
@@ -393,6 +415,14 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
                     if 'gen' not in x.NtupleName.value().lower()
                 ]
             )
+            ## switch JEC label
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            for ps in process.ffNtuplizer.Ntuples:
+                if ps.NtupleName.value()=="ffNtupleAKJet":
+                    setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
+        else:
+            ## JEC
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     ###########################################################################
     ##                              event region                             ##

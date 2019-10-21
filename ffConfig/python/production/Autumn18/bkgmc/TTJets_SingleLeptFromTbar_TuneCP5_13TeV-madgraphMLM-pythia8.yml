@@ -3249,5 +3249,5 @@ fileList:
   - /store/mc/RunIIAutumn18DRPremix/TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/910000/F6874248-5EB0-F34B-A3F2-32AD91A415DE.root
   - /store/mc/RunIIAutumn18DRPremix/TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/910000/FA63D83A-3376-024F-AE79-0CC4B71CDB09.root
   - /store/mc/RunIIAutumn18DRPremix/TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/910000/FAB63957-5186-E545-A891-BC2053907F72.root
-globalTag: 102X_upgrade2018_realistic_v19
+globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1

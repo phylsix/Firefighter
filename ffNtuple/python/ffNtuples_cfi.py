@@ -5,6 +5,8 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi imp
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
+
 from Firefighter.recoStuff.ffLeptonJetMVAEstimator_cfi import *
 from Firefighter.recoStuff.jetIdentificationDefs_cfi import jetiddefs
 
@@ -143,6 +145,7 @@ ntuple_akjet = cms.PSet(
     NtupleName=cms.string("ffNtupleAKJet"),
     src=cms.InputTag("ak4PFJetsCHS"),
     jetid=jetiddefs,
+    corrector=cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
 )
 
 ntuple_hftagscore = cms.PSet(

@@ -1489,5 +1489,5 @@ fileList:
   - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-80to120_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/910000/FAECD1AF-2CA0-454F-9A98-8E26476AF4EC.root
   - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-80to120_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/910000/FE18B129-E696-AE43-9490-7F36D1481C62.root
   - /store/mc/RunIIAutumn18DRPremix/QCD_Pt-80to120_MuEnrichedPt5_TuneCP5_13TeV_pythia8/AODSIM/102X_upgrade2018_realistic_v15_ext1-v2/910000/FF2AAF2D-DCF6-074D-BA21-A04231EF6177.root
-globalTag: 102X_upgrade2018_realistic_v19
+globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1

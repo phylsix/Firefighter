@@ -51,5 +51,5 @@ fileList:
   - /store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-200_MDp-2p5_ctau-93p75/181228_055858/0000/SIDM_AODSIM_7.root
   - /store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-200_MDp-2p5_ctau-93p75/181228_055858/0000/SIDM_AODSIM_8.root
   - /store/group/lpcmetx/MCSIDM/AODSIM/2018/CRAB_PrivateMC/SIDM_BsTo2DpTo4Mu_MBs-200_MDp-2p5_ctau-93p75/181228_055858/0000/SIDM_AODSIM_9.root
-globalTag: 102X_upgrade2018_realistic_v19
+globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1

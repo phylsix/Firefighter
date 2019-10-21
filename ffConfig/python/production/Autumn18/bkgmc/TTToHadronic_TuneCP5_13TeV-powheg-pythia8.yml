@@ -6528,5 +6528,5 @@ fileList:
   - /store/mc/RunIIAutumn18DRPremix/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/60001/FF72CCBA-BA1A-7A4A-B75E-4C2BCF7CB30B.root
   - /store/mc/RunIIAutumn18DRPremix/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/60001/FF9AE051-B33B-C447-8673-DDA85DAE319C.root
   - /store/mc/RunIIAutumn18DRPremix/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/60001/FFB016B2-51E0-1345-8ACE-B3FDC456E111.root
-globalTag: 102X_upgrade2018_realistic_v19
+globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1

@@ -21,6 +21,7 @@
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/KinematicFitPrimitives"/>
+<use name="JetMETCorrections/JetCorrector"/>
 <!-- <use name="heppdt"/> -->
 <use name="root"/>
 <use name="Firefighter/ffNtuple"/>

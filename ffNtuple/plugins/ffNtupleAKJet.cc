@@ -3,6 +3,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 using LorentzVector = math::XYZTLorentzVectorF;
 
@@ -19,6 +20,7 @@ class ffNtupleAKJet : public ffNtupleBaseNoHLT {
 
   edm::EDGetToken                      fAKJetToken;
   StringCutObjectSelector<reco::PFJet> fJetIdSelector;
+  edm::EDGetToken                      fJetCorrectorToken;
 
   std::vector<LorentzVector> fAKJetP4;
   std::vector<bool>          fJetId;
@@ -42,6 +44,7 @@ ffNtupleAKJet::initialize( TTree&                   tree,
                            edm::ConsumesCollector&& cc ) {
   fAKJetToken              = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
   const std::string label_ = ps.getParameter<edm::InputTag>( "src" ).label();
+  fJetCorrectorToken       = cc.consumes<reco::JetCorrector>( ps.getParameter<edm::InputTag>( "corrector" ) );
 
   tree.Branch( TString::Format( "akjet_%s_p4", label_.c_str() ), &fAKJetP4 );
   tree.Branch( TString::Format( "akjet_%s_jetid", label_.c_str() ), &fJetId );
@@ -63,10 +66,15 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   assert( akjetHdl.isValid() );
   const reco::PFJetCollection& akjets = *akjetHdl;
 
+  Handle<reco::JetCorrector> correctorHdl;
+  e.getByToken( fJetCorrectorToken, correctorHdl );
+  assert( correctorHdl.isValid() );
+
   clear();
 
   for ( const auto& akjet : akjets ) {
-    fAKJetP4.emplace_back( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() );
+    double jec = correctorHdl->correction( akjet );
+    fAKJetP4.push_back( LorentzVector( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() ) * jec );
     fJetId.emplace_back( fJetIdSelector( akjet ) );
     fNumCands.emplace_back( akjet.chargedMultiplicity() + akjet.neutralMultiplicity() );
     fHadronEnergyFraction.emplace_back( akjet.chargedHadronEnergyFraction() + akjet.neutralHadronEnergyFraction() );

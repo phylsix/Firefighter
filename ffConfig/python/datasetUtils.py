@@ -10,7 +10,7 @@ class ffdatassetbase(object):
     def __init__(self):
         self.datasetNames_ = []
         self.maxEvents_ = -1
-        self.globalTag_ = '102X_upgrade2018_realistic_v19'
+        self.globalTag_ = '102X_upgrade2018_realistic_v20'
         self.fileList_ = []
 
     @property
@@ -59,18 +59,18 @@ class ffdatassetbase(object):
 class ffdatasetsignal(ffdatassetbase):
     def __init__(self):
         ffdatassetbase.__init__(self)
-        self.globalTag_ = '102X_upgrade2018_realistic_v19'
+        self.globalTag_ = '102X_upgrade2018_realistic_v20'
 
 
 class ffdatasetbackground(ffdatassetbase):
     def __init__(self):
         ffdatassetbase.__init__(self)
-        self.globalTag_ = '102X_upgrade2018_realistic_v19'
+        self.globalTag_ = '102X_upgrade2018_realistic_v20'
 
 class ffdatasetdata(ffdatassetbase):
     def __init__(self):
         ffdatassetbase.__init__(self)
-        self.globalTag_ = '102X_dataRun2_v11'
+        self.globalTag_ = '102X_dataRun2_v12'
         # self.lumiMask_ = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON_MuonPhys.txt'
         self.lumiMask_ = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
 

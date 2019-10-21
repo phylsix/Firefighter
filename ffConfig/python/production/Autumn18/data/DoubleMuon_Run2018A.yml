@@ -7318,6 +7318,6 @@ fileList:
   - /store/data/Run2018A/DoubleMuon/AOD/17Sep2018-v2/60001/EEFCD6BE-81EE-404A-987A-E8667D6C3227.root
   - /store/data/Run2018A/DoubleMuon/AOD/17Sep2018-v2/60001/FBB554A3-3C6B-0B4F-9814-FC70CC49389C.root
   - /store/data/Run2018A/DoubleMuon/AOD/17Sep2018-v2/60001/FC770890-12E1-6842-B964-EB7E64F078DA.root
-globalTag: 102X_dataRun2_v11
+globalTag: 102X_dataRun2_v12
 lumiMask: https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt
 maxEvents: -1

@@ -51,5 +51,5 @@ fileList:
   - /store/group/lpcmetx/MCSIDM/AODSIM/2018/SIDM_XXTo2ATo4Mu/mXX-100_mA-5_lxy-0p3_ctau-0p375_AODSIM_2018/190720_214004/0000/SIDM_AODSIM_7.root
   - /store/group/lpcmetx/MCSIDM/AODSIM/2018/SIDM_XXTo2ATo4Mu/mXX-100_mA-5_lxy-0p3_ctau-0p375_AODSIM_2018/190720_214004/0000/SIDM_AODSIM_8.root
   - /store/group/lpcmetx/MCSIDM/AODSIM/2018/SIDM_XXTo2ATo4Mu/mXX-100_mA-5_lxy-0p3_ctau-0p375_AODSIM_2018/190720_214004/0000/SIDM_AODSIM_9.root
-globalTag: 102X_upgrade2018_realistic_v19
+globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1

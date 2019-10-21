@@ -1600,5 +1600,5 @@ fileList:
   - /store/mc/RunIIAutumn18DRPremix/WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/80000/FE15B737-3AFC-1B4F-A143-A567B7387BFB.root
   - /store/mc/RunIIAutumn18DRPremix/WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/80000/FE8271F4-23A6-BE44-9B16-7C9B8C7D6997.root
   - /store/mc/RunIIAutumn18DRPremix/WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/80000/FFF7A482-A951-B740-A8CA-2898EEBBA25E.root
-globalTag: 102X_upgrade2018_realistic_v19
+globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1
