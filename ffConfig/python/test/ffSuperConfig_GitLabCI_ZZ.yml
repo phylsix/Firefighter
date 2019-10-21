@@ -5,7 +5,7 @@ job-spec:
   reportEvery: 1
 
 condition-spec:
-  globalTag: "102X_upgrade2018_realistic_v19"
+  globalTag: "102X_upgrade2018_realistic_v20"
 
 data-spec:
   inputFileList: ["file:ZZ_numEvent300.root"]
