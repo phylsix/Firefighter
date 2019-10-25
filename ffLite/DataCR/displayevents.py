@@ -115,16 +115,10 @@ def makeplot(f, dirname):
 
 if __name__ == "__main__":
 
-    f = 'ffSkimV2_DoubleMuon2018C_CR.root'
-    d = os.path.join('img', 'C')
-    if not os.path.isdir(d):
-        os.makedirs(d)
-    makeplot(f, d)
-    print(f, '-->done')
-
-    f = 'ffSkimV2_DoubleMuon2018D_CR.root'
-    d = os.path.join('img', 'D')
-    if not os.path.isdir(d):
-        os.makedirs(d)
-    makeplot(f, d)
-    print(f, '-->done')
+    for era in list('ABCD'):
+        f = 'ffSkimV2_DoubleMuon2018{}_CR.root'.format(era)
+        d = os.path.join('img2', era)
+        if not os.path.isdir(d):
+            os.makedirs(d)
+        makeplot(f, d)
+        print(f, '-->done')
