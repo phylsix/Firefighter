@@ -164,7 +164,7 @@ ffNtupleGen::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
       gen_daupid_.emplace_back( abs( dau0gen->pdgId() ) );
       gen_dauvtx_.emplace_back( dau0gen->vertex().X(), dau0gen->vertex().Y(), dau0gen->vertex().Z() );
-      gen_dauposdr_.emplace_back( deltaR( *( dau0gen.get() ), *( dau1gen.get() ) ) );
+      gen_daudr_.emplace_back( deltaR( *( dau0gen.get() ), *( dau1gen.get() ) ) );
 
       for ( const auto& cbound : cylinderBounds_ ) {
         const float& cb_r = cbound.first;

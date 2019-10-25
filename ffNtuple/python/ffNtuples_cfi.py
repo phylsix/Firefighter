@@ -31,11 +31,9 @@ ntuple_gen = cms.PSet(
     AllowedPids=cms.vint32([35, 32, 13, 11]), # XX, A, mu, e
     MCEvent=cms.InputTag("generatorSmeared"),
     CylinderRZ=cms.VPSet(
-        cms.PSet(
-            radius=cms.double(3.0), absZ=cms.double(29.1)
-        ),  # pixel, BPix-LYR1, FPix-DSK1
+        cms.PSet(radius=cms.double(3.0), absZ=cms.double(29.1)),  # pixel, BPix-LYR1, FPix-DSK1
         cms.PSet(radius=cms.double(60.0), absZ=cms.double(123.0)),  # TOB, TEC inner
-        cms.PSet(radius=cms.double(600.0), absZ=cms.double(800.0)),  # MB2, ME2 inner
+        cms.PSet(radius=cms.double(600.0), absZ=cms.double(920.0)),  # MB3, ME3 inner
     ),
 )
 
