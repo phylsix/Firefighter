@@ -1,16 +1,11 @@
 datasetNames:
 - /SkimmedData/DoubleMuon2018C/AOD
 fileList:
-- - /store/user/wsi/DoubleMuon/crab_pickEvents/191004_223641/0000/pickevents2018C_1.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_1.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_2.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_3.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_4.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_5.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_6.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_7.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_8.root
-  - /store/user/wsi/DoubleMuon/crab_pickEvents/191011_041614/0000/pickevents2018C_9.root
+- - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222833/0000/pickevents2018C_1.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222833/0000/pickevents2018C_2.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222833/0000/pickevents2018C_3.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222833/0000/pickevents2018C_4.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222833/0000/pickevents2018C_5.root
 globalTag: 102X_dataRun2_v12
 lumiMask: https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt
 maxEvents: -1

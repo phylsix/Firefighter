@@ -1,0 +1,11 @@
+datasetNames:
+- /SkimmedData/DoubleMuon2018B/AOD
+fileList:
+- - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222746/0000/pickevents2018B_1.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222746/0000/pickevents2018B_2.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222746/0000/pickevents2018B_3.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222746/0000/pickevents2018B_4.root
+  - /store/user/wsi/DoubleMuon/crab_pickEvents/191023_222746/0000/pickevents2018B_5.root
+globalTag: 102X_dataRun2_v12
+lumiMask: https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt
+maxEvents: -1
