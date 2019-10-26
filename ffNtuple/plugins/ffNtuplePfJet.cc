@@ -45,6 +45,7 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   edm::EDGetToken pfjet_token_;
   edm::EDGetToken pvs_token_;
   edm::EDGetToken generaltk_token_;
+  edm::EDGetToken pfcandNoPU_token_;
   edm::EDGetToken pfcand_token_;
   edm::EDGetToken subjet_lambda_token_;
   edm::EDGetToken subjet_epsilon_token_;
@@ -81,6 +82,9 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   std::vector<int>                    pfjet_muon_n_;
   std::vector<float>                  pfjet_area_;
   std::vector<float>                  pfjet_maxDistance_;
+  std::map<float, std::vector<float>> pfjet_pfIsolationNoPU_;
+  std::map<float, std::vector<float>> pfjet_neuIsolationNoPU_;
+  std::map<float, std::vector<float>> pfjet_hadIsolationNoPU_;
   std::map<float, std::vector<float>> pfjet_tkIsolation_;
   std::map<float, std::vector<float>> pfjet_pfIsolation_;
   std::map<float, std::vector<float>> pfjet_neuIsolation_;
@@ -194,10 +198,11 @@ void
 ffNtuplePfJet::initialize( TTree&                   tree,
                            const edm::ParameterSet& ps,
                            edm::ConsumesCollector&& cc ) {
-  pfjet_token_     = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
-  pvs_token_       = cc.consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>( "PrimaryVertices" ) );
-  generaltk_token_ = cc.consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
-  pfcand_token_    = cc.consumes<reco::PFCandidateFwdPtrVector>( ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
+  pfjet_token_      = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  pvs_token_        = cc.consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>( "PrimaryVertices" ) );
+  generaltk_token_  = cc.consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
+  pfcandNoPU_token_ = cc.consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "pfNoPileUpIso" ) );
+  pfcand_token_     = cc.consumes<reco::PFCandidateCollection>( edm::InputTag( "particleFlow" ) );
 
   if ( doSubstructureVariables_ ) {
     subjet_lambda_token_  = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
@@ -228,13 +233,19 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_area", &pfjet_area_ );
   tree.Branch( "pfjet_maxDistance", &pfjet_maxDistance_ );
   for ( const double& isor : isoRadius_ ) {
-    pfjet_tkIsolation_[ isor ]  = {};
-    pfjet_pfIsolation_[ isor ]  = {};
-    pfjet_neuIsolation_[ isor ] = {};
-    pfjet_hadIsolation_[ isor ] = {};
+    pfjet_pfIsolationNoPU_[ isor ]  = {};
+    pfjet_neuIsolationNoPU_[ isor ] = {};
+    pfjet_hadIsolationNoPU_[ isor ] = {};
+    pfjet_tkIsolation_[ isor ]      = {};
+    pfjet_pfIsolation_[ isor ]      = {};
+    pfjet_neuIsolation_[ isor ]     = {};
+    pfjet_hadIsolation_[ isor ]     = {};
     std::stringstream ss;
     ss << isor;
     std::string suffix = ss.str().replace( 1, 1, "" );
+    tree.Branch( ( "pfjet_pfIsolationNoPU" + suffix ).c_str(), &pfjet_pfIsolationNoPU_[ isor ] );
+    tree.Branch( ( "pfjet_neuIsolationNoPU" + suffix ).c_str(), &pfjet_neuIsolationNoPU_[ isor ] );
+    tree.Branch( ( "pfjet_hadIsolationNoPU" + suffix ).c_str(), &pfjet_hadIsolationNoPU_[ isor ] );
     tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(), &pfjet_tkIsolation_[ isor ] );
     tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(), &pfjet_pfIsolation_[ isor ] );
     tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(), &pfjet_neuIsolation_[ isor ] );
@@ -342,7 +353,11 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( generaltk_token_, generalTk_h );
   assert( generalTk_h.isValid() );
 
-  Handle<reco::PFCandidateFwdPtrVector> pfCand_h;
+  Handle<reco::PFCandidateFwdPtrVector> pfCandNoPU_h;
+  e.getByToken( pfcandNoPU_token_, pfCandNoPU_h );
+  assert( pfCandNoPU_h.isValid() );
+
+  Handle<reco::PFCandidateCollection> pfCand_h;
   e.getByToken( pfcand_token_, pfCand_h );
   assert( pfCand_h.isValid() );
 
@@ -394,6 +409,10 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_maxDistance_.emplace_back( pfjet.maxDistance() );
 
     for ( const double& isor : isoRadius_ ) {
+      pfjet_pfIsolationNoPU_[ isor ].emplace_back( getPfIsolation( pfjet, pfCandNoPU_h, isor ) );
+      pfjet_neuIsolationNoPU_[ isor ].emplace_back( getNeutralIsolation( pfjet, pfCandNoPU_h, isor ) );
+      pfjet_hadIsolationNoPU_[ isor ].emplace_back( getHadronIsolation( pfjet, pfCandNoPU_h, isor ) );
+
       pfjet_tkIsolation_[ isor ].emplace_back( getTkIsolation( pfjet, generalTk_h, isor ) );
       pfjet_pfIsolation_[ isor ].emplace_back( getPfIsolation( pfjet, pfCand_h, isor ) );
       pfjet_neuIsolation_[ isor ].emplace_back( getNeutralIsolation( pfjet, pfCand_h, isor ) );
@@ -722,6 +741,9 @@ ffNtuplePfJet::clear() {
     pfjet_pfIsolation_[ isor ].clear();
     pfjet_neuIsolation_[ isor ].clear();
     pfjet_hadIsolation_[ isor ].clear();
+    pfjet_pfIsolationNoPU_[ isor ].clear();
+    pfjet_neuIsolationNoPU_[ isor ].clear();
+    pfjet_hadIsolationNoPU_[ isor ].clear();
   }
   pfjet_pfcands_n_.clear();
   pfjet_tracks_n_.clear();

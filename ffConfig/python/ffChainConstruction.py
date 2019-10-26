@@ -3,6 +3,72 @@ import FWCore.ParameterSet.Config as cms
 from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 
+def skimFullEvents(process, ffConfig):
+    """skim off events with >0 leptonjets, track down stats also"""
+
+    process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
+    # process.load("Firefighter.recoStuff.ffMetFilters_cff")
+    process.load("Firefighter.recoStuff.DsaToPFCandidate_cff")
+    process.load("Firefighter.recoStuff.LeptonjetClustering_cff")
+    # process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
+    process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
+    process.load("Firefighter.recoStuff.skimOutput_cfi")
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
+    process.recoSeq = cms.Sequence(
+        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
+        # + process.ffMetFilterSeq
+        + process.dSAToPFCandSeq
+        + process.egammaPostRecoSeq
+        + process.leptonjetClusteringSeq
+        + process.leptonjetFilteringSeq
+        + process.ffLeptonJetSingleCountFilter
+        # + process.ffDeepFlavourSeq
+        + process.ffEndEventFilteringSeq
+        )
+    process.ntuple_step = cms.Path(process.recoSeq)
+    process.stathistory = cms.Path(process.ffNtuplesStatSeq)
+    process.endjob_step = cms.EndPath(process.endOfProcess)
+
+    process.fullOutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('ntuple_step'))
+    process.output_step = cms.EndPath(process.fullOutput)
+    process.schedule = cms.Schedule(process.stathistory,
+                                    process.ntuple_step,
+                                    process.output_step,)
+
+
+    if ffConfig["data-spec"]["dataType"] == "sigmc":
+        raise NotImplementedError("signal MC does not need full event skimming")
+    else: # bkg/data
+        ## keep triggered events only ##
+        process.hltfilter = hltfilter
+        process.ffBeginEventFilteringSeq.insert(0, process.hltfilter)
+
+
+    if ffConfig["reco-spec"]["eventRegion"] == "all":
+        pass
+    elif ffConfig["reco-spec"]["eventRegion"] == "single":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_single
+        )
+    elif ffConfig["reco-spec"]["eventRegion"] == "signal":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_signal
+        )
+    elif ffConfig["reco-spec"]["eventRegion"] == "control":
+        process.ffEndEventFilteringSeq = cms.Sequence(
+            process.ffEndEventFilteringSeq_control
+        )
+    else:
+        msg = "ffConfig['reco-spec']['eventRegion'] can only be 'all'/'single'/'signal'/'control'! --- {0} is given.".format(
+            ffConfig["reco-spec"]["eventRegion"]
+        )
+        raise ValueError(msg)
+
+    return process
+
+
+
 def leptonjetStudyProcess(process, ffConfig, keepskim=False):
     """Attach leptonjet study sequence to `process`"""
 
@@ -16,7 +82,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
     setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
     process.recoSeq = cms.Sequence(
-        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
+        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch (neither blocking)
         + process.ffMetFilterSeq
         + process.dSAToPFCandSeq
         + process.egammaPostRecoSeq
@@ -38,6 +104,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
     if keepskim:
         process.load("Firefighter.recoStuff.skimOutput_cfi")
         process.skimOutput.fileName=cms.untracked.string(ffConfig["data-spec"]["outputFileName"].replace('ffNtuple', 'ffSkimV2'))
+        process.skimOutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('ntuple_step'))
         process.output_step = cms.EndPath(process.skimOutput)
         process.schedule = cms.Schedule(process.stathistory,
                                         process.ntuple_step,

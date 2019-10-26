@@ -17,12 +17,20 @@ class ffLeptonJetSelector {
       fMaxTimeLimit = ps.getParameter<double>( "maxTimeLimit" );
   }
   bool operator()( const reco::PFJet& jet ) const {
-    bool res = fStringCut( jet );
-    if ( fUseChargedMass )
-      res = ( res and ff::chargedMass( jet ) >= fMinChargedMass );
-    if ( fUseMuonTime )
-      res = ( res and ff::muonInTime( jet, fMaxTimeLimit ) );
-    return res;
+    if ( !fStringCut( jet ) )
+      return false;
+
+    if ( jet.muonMultiplicity() % 2 != 0 )
+      return false;  // even muon multiplicity
+    if ( jet.muonMultiplicity() > 0 and ff::sumCharge( jet ) != 0 )
+      return false;  // mu-type must be neutral
+
+    if ( fUseChargedMass and ff::chargedMass( jet ) < fMinChargedMass )
+      return false;
+    if ( fUseMuonTime and !ff::muonInTime( jet, fMaxTimeLimit ) )
+      return false;
+
+    return true;
   }
 
  private:

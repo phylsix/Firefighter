@@ -121,7 +121,6 @@ ntuple_pfjet = cms.PSet(
     src=cms.InputTag("filteredLeptonJet"),
     PrimaryVertices=cms.InputTag("offlinePrimaryVertices"),
     GeneralTracks=cms.InputTag("generalTracks"),
-    ParticleFlowCands=cms.InputTag("pfNoPileUpIso"),
     TrackSelection=cms.string(" && ".join(["pt>0.5", "normalizedChi2<5."])),
     kvfParam=cms.PSet(
         maxDistance=cms.double(0.01),  # It is said this is mm.

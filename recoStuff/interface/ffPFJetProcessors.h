@@ -33,6 +33,9 @@ getSelectedTracks( const reco::PFJet&,
 float
 chargedMass( const reco::PFJet& );
 
+int
+sumCharge( const reco::PFJet& );
+
 bool
 muonInTime( const reco::PFJet&, float );
 
@@ -100,13 +103,13 @@ getNeutralIsolation( const reco::PFJet&,
  */
 float
 getHadronIsolation( const reco::PFJet&,
-                     const edm::Handle<reco::PFCandidateCollection>&,
-                     const float& );
+                    const edm::Handle<reco::PFCandidateCollection>&,
+                    const float& );
 
 float
 getHadronIsolation( const reco::PFJet&,
-                     const edm::Handle<reco::PFCandidateFwdPtrVector>&,
-                     const float& );
+                    const edm::Handle<reco::PFCandidateFwdPtrVector>&,
+                    const float& );
 
 std::vector<reco::TransientTrack>
 transientTracksFromPFJet( const reco::PFJet&,

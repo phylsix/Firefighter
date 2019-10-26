@@ -17,3 +17,12 @@ skimOutput = cms.OutputModule(
         "keep *Muon*_muons__RECO",
     ),
 )
+
+fullOutput = cms.OutputModule(
+    "PoolOutputModule",
+    fileName=cms.untracked.string("ffAOD.root"),
+    outputCommands=cms.untracked.vstring(
+        "keep *_*_*_*",
+        "drop *_*_*_FF",
+    ),
+)

@@ -13,8 +13,6 @@ filteredLeptonJet = cms.EDFilter(
                 "pt>20.",
                 "abs(eta)<2.4",
                 "numberOfDaughters>0",
-                "!test_bit(muonMultiplicity(), 0)",  # even multiplicity
-                #"!test_bit(electronMultiplicity(), 0)",  # even multiplicity
             ]
         )
     ),

@@ -2,6 +2,7 @@
 
 FFCFG=$CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_cfg.py
 FFCFG2=$CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py
+FFSKIM=$CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffFullSkimFromAOD_cfg.py
 TESTCONFIGBASE=$CMSSW_BASE/src/Firefighter/ffConfig/python/test
 
 alias fftestsig4mu='cmsRun $FFCFG config=$TESTCONFIGBASE/ffSuperConfig_signal-4mu.yml keepskim=1'
@@ -18,3 +19,9 @@ alias ffv2testsig2mu2e='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_sign
 alias ffv2testqcd='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_QCD.yml'
 alias ffv2testdatac='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018C.yml'
 alias ffv2testdatad='cmsRun $FFCFG2 config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018D.yml'
+
+alias ffskimtestsig4mu='cmsRun $FFSKIM config=$TESTCONFIGBASE/ffSuperConfig_signal-4mu.yml'
+alias ffskimtestsig2mu2e='cmsRun $FFSKIM config=$TESTCONFIGBASE/ffSuperConfig_signal-2mu2e.yml'
+alias ffskimtestqcd='cmsRun $FFSKIM config=$TESTCONFIGBASE/ffSuperConfig_QCD.yml'
+alias ffskimtestdatac='cmsRun $FFSKIM config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018C.yml'
+alias ffskimtestdatad='cmsRun $FFSKIM config=$TESTCONFIGBASE/ffSuperConfig_DoubleMuon2018D.yml'
