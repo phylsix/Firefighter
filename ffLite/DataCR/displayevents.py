@@ -31,12 +31,18 @@ def makeplot(f, dirname):
 
         eventId = '{}-{}-{}'.format(_run, _lumi, _event)
 
-        pfcandsHdl = Handle("vector<reco::PFCandidate>")
-        event.getByLabel(("particleFlow", "", "RECO"), pfcandsHdl)
+        # pfcandsHdl = Handle("vector<reco::PFCandidate>")
+        # event.getByLabel(("particleFlow", "", "RECO"), pfcandsHdl)
+        pfcandsHdl = Handle("vector<edm::FwdPtr<reco::PFCandidate> >")
+        event.getByLabel(("pfNoPileUpIso", "", "FF"), pfcandsHdl)
+
         assert(pfcandsHdl.isValid())
         leptonjetsHdl = Handle("vector<reco::PFJet>")
         event.getByLabel(("filteredLeptonJet", "", "FF"), leptonjetsHdl)
         assert(leptonjetsHdl.isValid())
+        if len(leptonjetsHdl.product())==0:
+            continue
+
         ljsourceHdls = {
             'pfmuon': Handle("vector<edm::FwdPtr<reco::PFCandidate> >"),
             'pfelectron': Handle("vector<edm::FwdPtr<reco::PFCandidate> >"),
@@ -113,7 +119,7 @@ def makeplot(f, dirname):
         fig.savefig(outfilename)
         plt.close()
 
-if __name__ == "__main__":
+def process_skimmed_data():
 
     for era in list('ABCD'):
         f = 'ffSkimV2_DoubleMuon2018{}_CR.root'.format(era)
@@ -122,3 +128,25 @@ if __name__ == "__main__":
             os.makedirs(d)
         makeplot(f, d)
         print(f, '-->done')
+
+def process_skimmed_sigmc():
+
+    f = os.path.join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/python/test/ffSkimV2_signal-4mu.root')
+    d = os.path.join('img2', 'sig-4mu/pfNoPileUpIso')
+    if not os.path.isdir(d):
+        os.makedirs(d)
+    makeplot(f, d)
+    print(f, '-->done')
+
+def process_skimmed_QCD():
+
+    f = 'ffSkimV2_QCD.root'
+    d = os.path.join('img2', 'QCD/pfNoPileUpIso')
+    if not os.path.isdir(d):
+        os.makedirs(d)
+    makeplot(f, d)
+    print(f, '-->done')
+
+if __name__ == "__main__":
+    # process_skimmed_sigmc()
+    process_skimmed_QCD()
