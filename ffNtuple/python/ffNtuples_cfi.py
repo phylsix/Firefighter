@@ -33,6 +33,7 @@ ntuple_gen = cms.PSet(
     CylinderRZ=cms.VPSet(
         cms.PSet(radius=cms.double(3.0), absZ=cms.double(29.1)),  # pixel, BPix-LYR1, FPix-DSK1
         cms.PSet(radius=cms.double(60.0), absZ=cms.double(123.0)),  # TOB, TEC inner
+        cms.PSet(radius=cms.double(490.0), absZ=cms.double(800.0)),  # MB2, ME2 inner
         cms.PSet(radius=cms.double(600.0), absZ=cms.double(920.0)),  # MB3, ME3 inner
     ),
 )
@@ -120,14 +121,14 @@ ntuple_pfjet = cms.PSet(
     src=cms.InputTag("filteredLeptonJet"),
     PrimaryVertices=cms.InputTag("offlinePrimaryVertices"),
     GeneralTracks=cms.InputTag("generalTracks"),
-    ParticleFlowCands=cms.InputTag("particleFlow"),
+    ParticleFlowCands=cms.InputTag("pfNoPileUpIso"),
     TrackSelection=cms.string(" && ".join(["pt>0.5", "normalizedChi2<5."])),
     kvfParam=cms.PSet(
         maxDistance=cms.double(0.01),  # It is said this is mm.
         maxNbrOfIterations=cms.int32(10),
         doSmoothing=cms.bool(True),
     ),
-    IsolationRadius=cms.vdouble(0.5, 0.6, 0.7),
+    IsolationRadius=cms.vdouble(0.5, 0.6, 0.7, 0.8),
     SubjetEnergyDistributioin=cms.InputTag("ffLeptonJetSubjetEMD", "energy"),
     SubjetMomentumDistribution=cms.InputTag("ffLeptonJetSubjetEMD", "momentum"),
     SubjetEcf1=cms.InputTag("ffLeptonJetSubjetECF", "ecf1"),

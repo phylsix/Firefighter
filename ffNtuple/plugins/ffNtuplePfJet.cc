@@ -197,7 +197,7 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   pfjet_token_     = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) );
   pvs_token_       = cc.consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>( "PrimaryVertices" ) );
   generaltk_token_ = cc.consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "GeneralTracks" ) );
-  pfcand_token_    = cc.consumes<reco::PFCandidateCollection>( ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
+  pfcand_token_    = cc.consumes<reco::PFCandidateFwdPtrVector>( ps.getParameter<edm::InputTag>( "ParticleFlowCands" ) );
 
   if ( doSubstructureVariables_ ) {
     subjet_lambda_token_  = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetMomentumDistribution" ) );
@@ -342,7 +342,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( generaltk_token_, generalTk_h );
   assert( generalTk_h.isValid() );
 
-  Handle<reco::PFCandidateCollection> pfCand_h;
+  Handle<reco::PFCandidateFwdPtrVector> pfCand_h;
   e.getByToken( pfcand_token_, pfCand_h );
   assert( pfCand_h.isValid() );
 

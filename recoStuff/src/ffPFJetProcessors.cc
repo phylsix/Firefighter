@@ -1,13 +1,14 @@
 #include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
+
+#include <algorithm>
+#include <numeric>
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
-#include <algorithm>
-#include <numeric>
 
 //-----------------------------------------------------------------------------
 
@@ -201,6 +202,41 @@ ff::getPfIsolation( const reco::PFJet&                              jet,
 //-----------------------------------------------------------------------------
 
 float
+ff::getPfIsolation( const reco::PFJet&                                jet,
+                    const edm::Handle<reco::PFCandidateFwdPtrVector>& pfH,
+                    const float&                                      isoRadius ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( const auto& cand : *pfH )
+    pfCandPtrs.emplace_back( cand.ptr() );
+
+  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
+
+  float notOfCands( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( deltaR( jet, *cand ) > isoRadius )
+      continue;  // outside radius
+
+    if ( std::find_if( jetcands.begin(), jetcands.end(),
+                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
+         jetcands.end() )
+      continue;  // associated with the jet
+
+    notOfCands += cand->energy();
+  }
+
+  float ofCands =
+      std::accumulate( jetcands.begin(), jetcands.end(), 0.,
+                       []( float esum, const reco::PFCandidatePtr& jc ) {
+                         return esum + jc->energy();
+                       } );
+
+  return ( ofCands + notOfCands ) == 0 ? NAN
+                                       : notOfCands / ( ofCands + notOfCands );
+}
+
+//-----------------------------------------------------------------------------
+
+float
 ff::getNeutralIsolation( const reco::PFJet&                              jet,
                          const edm::Handle<reco::PFCandidateCollection>& pfH,
                          const float&                                    isoRadius ) {
@@ -238,12 +274,75 @@ ff::getNeutralIsolation( const reco::PFJet&                              jet,
 //-----------------------------------------------------------------------------
 
 float
+ff::getNeutralIsolation( const reco::PFJet&                                jet,
+                         const edm::Handle<reco::PFCandidateFwdPtrVector>& pfH,
+                         const float&                                      isoRadius ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( const auto& cand : *pfH )
+    pfCandPtrs.emplace_back( cand.ptr() );
+
+  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
+
+  float notOfCands( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( cand->charge() != 0 )
+      continue;  // charged
+    if ( deltaR( jet, *cand ) > isoRadius )
+      continue;  // outside radius
+
+    if ( std::find_if( jetcands.begin(), jetcands.end(),
+                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
+         jetcands.end() )
+      continue;  // associated with the jet
+
+    notOfCands += cand->energy();
+  }
+
+  float ofCands =
+      std::accumulate( jetcands.begin(), jetcands.end(), 0.,
+                       []( float esum, const reco::PFCandidatePtr& jc ) {
+                         return esum + jc->energy();
+                       } );
+
+  return ( ofCands + notOfCands ) == 0 ? NAN
+                                       : notOfCands / ( ofCands + notOfCands );
+}
+
+//-----------------------------------------------------------------------------
+
+float
 ff::getHadronIsolation( const reco::PFJet&                              jet,
                         const edm::Handle<reco::PFCandidateCollection>& pfH,
                         const float&                                    isoRadius ) {
   std::vector<reco::PFCandidatePtr> pfCandPtrs{};
   for ( size_t i( 0 ); i != pfH->size(); ++i )
     pfCandPtrs.emplace_back( pfH, i );
+
+  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
+
+  double numer( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    auto candpid = cand->particleId();
+    if ( candpid == reco::PFCandidate::e or candpid == reco::PFCandidate::mu or candpid == reco::PFCandidate::gamma )
+      continue;  // nonelep
+    if ( deltaR( jet, *cand ) > isoRadius )
+      continue;  // outside radius
+
+    numer += cand->energy();
+  }
+
+  return ( jet.energy() ) == 0 ? NAN : float( numer / jet.energy() );
+}
+
+//-----------------------------------------------------------------------------
+
+float
+ff::getHadronIsolation( const reco::PFJet&                                jet,
+                        const edm::Handle<reco::PFCandidateFwdPtrVector>& pfH,
+                        const float&                                      isoRadius ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( const auto& cand : *pfH )
+    pfCandPtrs.emplace_back( cand.ptr() );
 
   std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
 
