@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 
-def skimFullEvents(process, ffConfig):
+def skimFullEvents(process, ffConfig, fileName):
     """skim off events with >0 leptonjets, track down stats also"""
 
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
@@ -31,6 +31,7 @@ def skimFullEvents(process, ffConfig):
     process.endjob_step = cms.EndPath(process.endOfProcess)
 
     process.fullOutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('ntuple_step'))
+    process.fullOutput.fileName = cms.untracked.string(fileName)
     process.output_step = cms.EndPath(process.fullOutput)
     process.schedule = cms.Schedule(process.stathistory,
                                     process.ntuple_step,

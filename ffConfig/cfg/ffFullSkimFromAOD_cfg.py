@@ -62,4 +62,4 @@ process.TFileService = cms.Service(
     closeFileFast=cms.untracked.bool(True),
 )
 
-process = skimFullEvents(process, ffConfig)
+process = skimFullEvents(process, ffConfig, fileName=ffConfig["data-spec"].get("skimFileName", "ffAOD.root"))

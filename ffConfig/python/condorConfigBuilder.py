@@ -93,6 +93,7 @@ class configBuilder:
             maxMemory=2000,
             reportEvery=10000,
             outputFileName='ffNtuple.root',
+            skimFileName='ffAOD.root',
             leptonJetCandStrategy='hadronFree',
             eventRegion='control',
             workArea=join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/condorGarage/', time.strftime("%y%m%d")),
@@ -177,6 +178,7 @@ class configBuilder:
                 ffscFn = join(jobdir, 'ffSuperConfig_{0}.yml'.format(i))
                 ffsc['data-spec']['inputFileList'] = [self.specs_['redirector'] + f for f in jf]
                 ffsc['data-spec']['outputFileName'] = self.specs_['outputFileName'].split('.')[0] + '_{0}.root'.format(i)
+                ffsc['data-spec']['skimFileName'] = self.specs_['skimFileName'].split('.')[0] + '_{0}.root'.format(i)
                 with open(ffscFn, 'w') as outf:
                     outf.write(yaml.dump(ffsc, default_flow_style=False))
 
