@@ -22,7 +22,7 @@ def skimFullEvents(process, ffConfig):
         + process.egammaPostRecoSeq
         + process.leptonjetClusteringSeq
         + process.leptonjetFilteringSeq
-        + process.ffLeptonJetSingleCountFilter
+        + process.ffLeptonJetPairCountFilter
         # + process.ffDeepFlavourSeq
         + process.ffEndEventFilteringSeq
         )
