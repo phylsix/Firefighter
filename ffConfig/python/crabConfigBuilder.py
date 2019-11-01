@@ -38,6 +38,7 @@ class configBuilder:
             ffConfigName = 'ffNtupleFromAOD_v2_cfg.py',
             outbase="/store/group/lpcmetx/SIDM/ffNtupleV2/",
             year=2018,
+            ignoreLocality=True,
         )
         self.specs_.update(kwargs)
         self.specs_["outLFNDirBase"] = join(self.specs_["outbase"], str(self.specs_["year"]))
@@ -96,7 +97,7 @@ class configBuilder:
             config.Data.outLFNDirBase = self.specs_["outLFNDirBase"]
             config.Data.publication = False
             config.Data.outputDatasetTag = get_nametag(ds)
-            config.Data.ignoreLocality = True
+            config.Data.ignoreLocality = self.specs_["ignoreLocality"]
             config.Site.whitelist = get_submissionSites(ds)
             config.Site.ignoreGlobalBlacklist = True
             config.Site.storageSite = "T3_US_FNALLPC"

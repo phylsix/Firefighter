@@ -15,6 +15,9 @@ import yaml
 parser = argparse.ArgumentParser(description="Submit many datasets in a BATCH.")
 parser.add_argument("datasets", type=str, nargs=1, help='YAML contains list of datasets')
 parser.add_argument("--submitter", "-s", default="condor", type=str, choices=["condor", "crab"])
+parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_true', help='Only take effect when submit with crab, ignore locality.')
+parser.add_argument("--no-ignorelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality.')
+parser.set_defaults(ignorelocality=True)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))
@@ -63,6 +66,8 @@ def main():
         ## update unitsPerJob for ntuple jobs with skimmed files as source
         if args.jobtype == 'ntuplefromskim':
             cbkwargs['unitsPerJob'] = 50
+        if args.submitter == 'crab' and args.ignorelocality == False:
+            cbkwargs['ignoreLocality'] = False
 
         cb = configBuilder(tosubdff, **cbkwargs)
         for c in cb.build():
