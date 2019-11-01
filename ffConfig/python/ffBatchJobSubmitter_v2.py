@@ -66,6 +66,7 @@ def main():
         ## update unitsPerJob for ntuple jobs with skimmed files as source
         if args.jobtype == 'ntuplefromskim':
             cbkwargs['unitsPerJob'] = 50
+            cbkwargs['outbase'] = '/store/group/lpcmetx/SIDM/ffNtupleV2/Skim/'
         if args.submitter == 'crab' and args.ignorelocality == False:
             cbkwargs['ignoreLocality'] = False
 

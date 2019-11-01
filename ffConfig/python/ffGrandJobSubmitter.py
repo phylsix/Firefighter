@@ -83,6 +83,7 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
         )
     if jobtype == 'ntuplefromskim':
         commonCBkwargs['unitsPerJob'] = 50
+        commonCBkwargs['outbase'] = '/store/group/lpcmetx/SIDM/ffNtupleV2/Skim/'
 
     if submitter == "crab":
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder as CrabCB
