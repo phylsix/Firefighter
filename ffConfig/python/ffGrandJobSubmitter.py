@@ -43,6 +43,8 @@ args = parser.parse_args()
 if args.jobtype == 'ntuplefromskim':
     if args.datasettype == 'sigmc':
         sys.exit('No sigmc skimmed files available. -wsi 11/01/19')
+    if args.submitter == 'crab':
+        sys.exit('Skimmed source can only be run with condor. (no real dataset name in DAS)')
     DATA_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/data/description.json")))
     BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/bkgmc/description.json")))
 # ------------------------------------------------------------------------------
@@ -66,9 +68,6 @@ def buildbanner(msg):
 
 
 def submit(dkind, submitter="condor", jobtype="ntuple"):
-    assert dkind in ["sigmc", "bkgmc", "data"]
-    assert submitter in ["condor", "crab"]
-    assert jobtype in ["ntuple", "skim"]
 
     # common kwargs for config builders
     commonCBkwargs = dict(
@@ -121,7 +120,7 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
             diskGhosts = []
             for i, ds in enumerate(ffds[dkind]):
                 print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
-                if any(map(lambda d: get_storageSites(d), ds["datasetNames"])):  # condor, this way
+                if args.jobtype=='ntuplefromskim' or any(map(lambda d: get_storageSites(d), ds["datasetNames"])):  # condor, this way
                     cb = CondorCB(ds, eventRegion=_eventregion, **commonCBkwargs)
                     for c in cb.build():
                         CondorCB.submit(c)

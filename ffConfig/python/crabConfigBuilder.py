@@ -98,7 +98,8 @@ class configBuilder:
             config.Data.publication = False
             config.Data.outputDatasetTag = get_nametag(ds)
             config.Data.ignoreLocality = self.specs_["ignoreLocality"]
-            config.Site.whitelist = get_submissionSites(ds)
+            if config.Data.ignoreLocality:
+                config.Site.whitelist = get_submissionSites(ds)
             config.Site.ignoreGlobalBlacklist = True
             config.Site.storageSite = "T3_US_FNALLPC"
 
