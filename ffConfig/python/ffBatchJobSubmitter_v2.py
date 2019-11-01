@@ -15,7 +15,7 @@ import yaml
 parser = argparse.ArgumentParser(description="Submit many datasets in a BATCH.")
 parser.add_argument("datasets", type=str, nargs=1, help='YAML contains list of datasets')
 parser.add_argument("--submitter", "-s", default="condor", type=str, choices=["condor", "crab"])
-parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim"])
+parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))
 
@@ -43,18 +43,28 @@ def main():
     for ds in tosubd_:
         tosubdff = yaml.load(open(join(os.getenv('CMSSW_BASE'), ds)), Loader=yaml.Loader)
 
+        ## set event region
         eventRegion_ = 'control'
         if 'sigmc' in ds or 'bkgmc' in ds:
             eventRegion_ = 'all'
-        cb = configBuilder(tosubdff,
-                           eventRegion=eventRegion_,
-                           ffConfigName='ffNtupleFromAOD_v2_cfg.py',
-                           outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',)
+
+        ## base submitter config settings
+        cbkwargs = dict(
+            eventRegion=eventRegion_,
+            ffConfigName='ffNtupleFromAOD_v2_cfg.py',
+            outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
+        )
+        ## update CMSSW config file and outputbase for skim jobs
         if args.jobtype == 'skim':
-            cb = configBuilder(tosubdff,
-                               eventRegion=eventRegion_,
-                               ffConfigName='ffFullSkimFromAOD_cfg.py',
-                               outbase='/store/group/lpcmetx/SIDM/Skim/',)
+            cbkwargs.update(dict(
+                ffConfigName='ffFullSkimFromAOD_cfg.py',
+                outbase='/store/group/lpcmetx/SIDM/Skim/',
+                ))
+        ## update unitsPerJob for ntuple jobs with skimmed files as source
+        if args.jobtype == 'ntuplefromskim':
+            cbkwargs['unitsPerJob'] = 50
+
+        cb = configBuilder(tosubdff, **cbkwargs)
         for c in cb.build():
             configBuilder.submit(c)
 

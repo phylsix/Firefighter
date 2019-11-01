@@ -71,4 +71,4 @@ processes. For CRAB, parameters are taken in and understood locally then convert
 pset and uploaded to crab server; while for condor, the physical files are uploaded to the container together
 with the `ffCondor.sh`, the parsing and understanding happens in the worker nodes.
 
-Two scripts, `ffBatchJobSubmitter.py` and `ffSingleJobSubmitter.py` are provided for convenience.
+Two scripts, `ffBatchJobSubmitter_v2.py` and `ffGrandJobSubmitter.py` are provided for convenience.

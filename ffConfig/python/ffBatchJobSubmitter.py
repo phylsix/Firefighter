@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import argparse
 import os
+import sys
 from os.path import join
 
 import yaml
@@ -50,5 +51,7 @@ def main():
 
 
 if __name__ == "__main__":
+    print('='*79, 'WARNING deprecated! consider switch to `ffBatchJobSubmitter_v2.py`', '='*79, sep='\n')
+    sys.exit('Bye!')
     print(" I am Mr. ffBatchJobSubmitter ".center(79, '+'))
     main()

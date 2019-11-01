@@ -37,9 +37,14 @@ parser.add_argument("datasettype", type=str, nargs="*",
                     help="Type of dataset",)
 parser.add_argument("--submitter", "-s", default="condor", type=str,
                     choices=["condor", "crab"])
-parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim"])
+parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
 args = parser.parse_args()
 
+if args.jobtype == 'ntuplefromskim':
+    if args.datasettype == 'sigmc':
+        sys.exit('No sigmc skimmed files available. -wsi 11/01/19')
+    DATA_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/data/description.json")))
+    BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/bkgmc/description.json")))
 # ------------------------------------------------------------------------------
 
 
@@ -75,6 +80,8 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
             ffConfigName='ffFullSkimFromAOD_cfg.py',
             outbase='/store/group/lpcmetx/SIDM/Skim/',
         )
+    if jobtype == 'ntuplefromskim':
+        commonCBkwargs['unitsPerJob'] = 50
 
     if submitter == "crab":
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder as CrabCB
