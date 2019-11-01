@@ -23,13 +23,6 @@ DATA_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/data/description.json")))
 BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/bkgmc/description.json")))
 SIGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/sigmc/private/description.json")))
 
-## all datasets
-ffds = {
-    "data":  [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in DATA_L],
-    "bkgmc": [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in BKGMC_L],
-    "sigmc": [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in SIGMC_L],
-}
-
 ## parser
 parser = argparse.ArgumentParser(description="Submit jobs in a GRAND way.")
 parser.add_argument("datasettype", type=str, nargs="*",
@@ -40,6 +33,7 @@ parser.add_argument("--submitter", "-s", default="condor", type=str,
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
 args = parser.parse_args()
 
+## modify data source dir if run with skimmed AOD
 if args.jobtype == 'ntuplefromskim':
     if args.datasettype == 'sigmc':
         sys.exit('No sigmc skimmed files available. -wsi 11/01/19')
@@ -47,6 +41,14 @@ if args.jobtype == 'ntuplefromskim':
         sys.exit('Skimmed source can only be run with condor. (no real dataset name in DAS)')
     DATA_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/data/description.json")))
     BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/bkgmc/description.json")))
+
+## all datasets
+ffds = {
+    "data":  [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in DATA_L],
+    "bkgmc": [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in BKGMC_L],
+    "sigmc": [yaml.load(open(join(os.getenv('CMSSW_BASE'), m)), Loader=yaml.Loader) for m in SIGMC_L],
+}
+
 # ------------------------------------------------------------------------------
 
 
