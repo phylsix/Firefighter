@@ -37,6 +37,7 @@ parser.add_argument("datasettype", type=str, nargs="*",
                     help="Type of dataset",)
 parser.add_argument("--submitter", "-s", default="condor", type=str,
                     choices=["condor", "crab"])
+parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim"])
 args = parser.parse_args()
 
 # ------------------------------------------------------------------------------
@@ -59,20 +60,26 @@ def buildbanner(msg):
 # ------------------------------------------------------------------------------
 
 
-def submit(dkind, submitter="condor"):
+def submit(dkind, submitter="condor", jobtype="ntuple"):
     assert dkind in ["sigmc", "bkgmc", "data"]
     assert submitter in ["condor", "crab"]
+    assert jobtype in ["ntuple", "skim"]
 
     # common kwargs for config builders
     commonCBkwargs = dict(
         ffConfigName='ffNtupleFromAOD_v2_cfg.py',
         outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
     )
+    if jobtype == 'skim':
+        commonCBkwargs = dict(
+            ffConfigName='ffFullSkimFromAOD_cfg.py',
+            outbase='/store/group/lpcmetx/SIDM/Skim/',
+        )
 
     if submitter == "crab":
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder as CrabCB
 
-        coremsg = "submit {} jobs to crab".format(dkind)
+        coremsg = "submit {} jobs for {} to crab".format(jobtype, dkind)
         print(buildbanner(coremsg))
 
         _eventregion = "all"
@@ -93,7 +100,7 @@ def submit(dkind, submitter="condor"):
         from Firefighter.ffConfig.datasetUtils import get_storageSites
         from Firefighter.piedpiper.utils import get_voms_certificate
 
-        coremsg = "submit {} jobs to condor(crab)".format(dkind)
+        coremsg = "submit {} jobs for {} to condor(crab)".format(jobtype, dkind)
         print(buildbanner(coremsg))
 
         _eventregion = "all"
@@ -139,4 +146,4 @@ if __name__ == "__main__":
 
     print(" I am Mr. ffGrandJobSubmitter ".center(79, '+'))
     for d in args.datasettype:
-        submit(d, submitter=args.submitter)
+        submit(d, submitter=args.submitter, jobtype=args.jobtype)

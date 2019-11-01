@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """submit jobs for a list of dataset
-$cmd: python ffBatchJobSubmitter.py batchdatasets.yml -s crab
+$cmd: python ffBatchJobSubmitter.py batchdatasets.yml -s crab -t ntuple
 """
 from __future__ import print_function
 
@@ -15,11 +15,16 @@ import yaml
 parser = argparse.ArgumentParser(description="Submit many datasets in a BATCH.")
 parser.add_argument("datasets", type=str, nargs=1, help='YAML contains list of datasets')
 parser.add_argument("--submitter", "-s", default="condor", type=str, choices=["condor", "crab"])
+parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim"])
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))
 
 tosubd_ = yaml.load(open(args.datasets[0]), Loader=yaml.Loader)
+
+print("++ submit jobs for:")
 print(*tosubd_, sep="\n")
+print("++ submit jobs with:\t", args.submitter)
+print("++ submit jobs type:\t", args.jobtype)
 
 
 def main():
@@ -45,6 +50,11 @@ def main():
                            eventRegion=eventRegion_,
                            ffConfigName='ffNtupleFromAOD_v2_cfg.py',
                            outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',)
+        if args.jobtype == 'skim':
+            cb = configBuilder(tosubdff,
+                               eventRegion=eventRegion_,
+                               ffConfigName='ffFullSkimFromAOD_cfg.py',
+                               outbase='/store/group/lpcmetx/SIDM/Skim/',)
         for c in cb.build():
             configBuilder.submit(c)
 
