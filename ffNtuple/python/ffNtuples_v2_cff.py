@@ -31,7 +31,7 @@ ffNtuplizer = cms.EDAnalyzer(
     ),
 )
 
-ntuple_pfjet.doVertexing=cms.bool(False)
+ntuple_pfjet.doVertexing=cms.bool(True)
 ntuple_pfjet.doSubstructureVariables=cms.bool(False)
 ntuple_pfjet.doMVA=cms.bool(False)
 ntuple_leptonjetsrc.src=cms.InputTag("leptonjetSources")

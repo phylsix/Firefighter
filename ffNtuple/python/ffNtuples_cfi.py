@@ -123,8 +123,8 @@ ntuple_pfjet = cms.PSet(
     GeneralTracks=cms.InputTag("generalTracks"),
     TrackSelection=cms.string(" && ".join(["pt>0.5", "normalizedChi2<5."])),
     kvfParam=cms.PSet(
-        maxDistance=cms.double(0.01),  # It is said this is mm.
-        maxNbrOfIterations=cms.int32(10),
+        maxDistance=cms.double(500.),  # It is said this is mm.
+        maxNbrOfIterations=cms.int32(20),
         doSmoothing=cms.bool(True),
     ),
     IsolationRadius=cms.vdouble(0.5, 0.6, 0.7, 0.8),
