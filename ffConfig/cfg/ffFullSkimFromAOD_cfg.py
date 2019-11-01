@@ -19,7 +19,7 @@ options.parseArguments()
 ffConfig = yaml.safe_load(open(options.config))
 
 
-process = cms.Process("FF")
+process = cms.Process("FFSKIM")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
