@@ -2,15 +2,20 @@
 """draw energy scatter plots on eta-phi plane from skimmed file, inc.
 - PFCandidates
 - leptonjets
+
+$ python displayevents.py -i <skimmedFile> -o <outdir>
 """
 from __future__ import print_function
+
+import argparse
 import os
 import sys
 from collections import defaultdict
-import ROOT
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import ROOT
 from DataFormats.FWLite import Events, Handle
 from Firefighter.ffLite.utils import colors, pType
 
@@ -20,6 +25,11 @@ plt.rcParams["grid.linestyle"] = ":"
 plt.rcParams["savefig.dpi"] = 120
 plt.rcParams["savefig.bbox"] = "tight"
 
+
+parser = argparse.ArgumentParser(description="Display events in eta-phi map")
+parser.add_argument("--input", "-i", type=str)
+parser.add_argument("--outdir", "-o", type=str)
+args = parser.parse_args()
 
 def makeplot(f, dirname):
 
@@ -34,11 +44,11 @@ def makeplot(f, dirname):
         # pfcandsHdl = Handle("vector<reco::PFCandidate>")
         # event.getByLabel(("particleFlow", "", "RECO"), pfcandsHdl)
         pfcandsHdl = Handle("vector<edm::FwdPtr<reco::PFCandidate> >")
-        event.getByLabel(("pfNoPileUpIso", "", "FF"), pfcandsHdl)
+        event.getByLabel(("pfNoPileUpIso", "", "FFNTP"), pfcandsHdl)
 
         assert(pfcandsHdl.isValid())
         leptonjetsHdl = Handle("vector<reco::PFJet>")
-        event.getByLabel(("filteredLeptonJet", "", "FF"), leptonjetsHdl)
+        event.getByLabel(("filteredLeptonJet", "", "FFNTP"), leptonjetsHdl)
         assert(leptonjetsHdl.isValid())
         if len(leptonjetsHdl.product())==0:
             continue
@@ -49,10 +59,10 @@ def makeplot(f, dirname):
             'pfphoton': Handle("vector<edm::FwdPtr<reco::PFCandidate> >"),
             'dsamuon': Handle("vector<edm::FwdPtr<reco::PFCandidate> >"),
         }
-        event.getByLabel(("leptonjetSourcePFMuon", "inclusive", "FF"), ljsourceHdls['pfmuon'])
-        event.getByLabel(("leptonjetSourcePFElectron", "inclusive", "FF"), ljsourceHdls['pfelectron'])
-        event.getByLabel(("leptonjetSourcePFPhoton", "", "FF"), ljsourceHdls['pfphoton'])
-        event.getByLabel(("leptonjetSourceDSAMuon", "inclusive", "FF"), ljsourceHdls['dsamuon'])
+        event.getByLabel(("leptonjetSourcePFMuon", "inclusive", "FFNTP"), ljsourceHdls['pfmuon'])
+        event.getByLabel(("leptonjetSourcePFElectron", "inclusive", "FFNTP"), ljsourceHdls['pfelectron'])
+        event.getByLabel(("leptonjetSourcePFPhoton", "", "FFNTP"), ljsourceHdls['pfphoton'])
+        event.getByLabel(("leptonjetSourceDSAMuon", "inclusive", "FFNTP"), ljsourceHdls['dsamuon'])
         for v in ljsourceHdls.values():
             assert(v.isValid())
 
@@ -119,34 +129,12 @@ def makeplot(f, dirname):
         fig.savefig(outfilename)
         plt.close()
 
-def process_skimmed_data():
-
-    for era in list('ABCD'):
-        f = 'ffSkimV2_DoubleMuon2018{}_CR.root'.format(era)
-        d = os.path.join('img2', era)
-        if not os.path.isdir(d):
-            os.makedirs(d)
-        makeplot(f, d)
-        print(f, '-->done')
-
-def process_skimmed_sigmc():
-
-    f = os.path.join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/python/test/ffSkimV2_signal-4mu.root')
-    d = os.path.join('img2', 'sig-4mu/pfNoPileUpIso')
-    if not os.path.isdir(d):
-        os.makedirs(d)
-    makeplot(f, d)
-    print(f, '-->done')
-
-def process_skimmed_QCD():
-
-    f = 'ffSkimV2_QCD.root'
-    d = os.path.join('img2', 'QCD/pfNoPileUpIso')
-    if not os.path.isdir(d):
-        os.makedirs(d)
-    makeplot(f, d)
-    print(f, '-->done')
 
 if __name__ == "__main__":
-    # process_skimmed_sigmc()
-    process_skimmed_QCD()
+
+    assert(os.path.isfile(args.input))
+    if not os.path.isdir(args.outdir):
+        print("output dir *{}* not exist, I'm going to make one for you.".format(args.outdir))
+        os.makedirs(args.outdir)
+    makeplot(args.input, args.outdir)
+    print(args.input, '-->done')
