@@ -79,6 +79,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
     process.load("Firefighter.recoStuff.LeptonjetClustering_cff")
     # process.load("Firefighter.recoStuff.Ak4chsPostLeptonjets_cff")
     process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
+    process.load("Firefighter.recoStuff.ffMetCorrections_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
     setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
@@ -92,6 +93,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
         + process.ffLeptonJetSingleCountFilter
         # + process.ak4chsPostLeptonjetsSeq
         + process.ffDeepFlavourSeq
+        + process.ffMetCorrectionsSeq
         + process.ffEndEventFilteringSeq
         )
 

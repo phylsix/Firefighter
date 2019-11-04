@@ -5,7 +5,7 @@ skimOutput = cms.OutputModule(
     fileName=cms.untracked.string("skimOutputLeptonJet.root"),
     outputCommands=cms.untracked.vstring(
         "drop *_*_*_*",
-        "keep *_*_*_FF",
+        "keep *_*_*_FF*",
         "keep *_TriggerResults_*_HLT",
         "keep *GenParticle*_genParticles_*_HLT",
         "keep *Track*_displacedStandAloneMuons_*_RECO",
@@ -23,6 +23,6 @@ fullOutput = cms.OutputModule(
     fileName=cms.untracked.string("ffAOD.root"),
     outputCommands=cms.untracked.vstring(
         "keep *_*_*_*",
-        "drop *_*_*_FF",
+        "drop *_*_*_FF*",
     ),
 )

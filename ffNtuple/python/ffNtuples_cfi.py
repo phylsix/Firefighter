@@ -45,9 +45,8 @@ ntuple_genbkg = cms.PSet(
     AllowedStatusOnePids=cms.vint32([13,]), # mu
 )
 
-ntuple_genjet = cms.PSet(
-    NtupleName=cms.string("ffNtupleGenJet"),
-    GenJets=cms.InputTag("ak4GenJetsNoNu")
+ntuple_genjetmet = cms.PSet(
+    NtupleName=cms.string("ffNtupleGenJetMET"),
 )
 
 ntuple_hlt = cms.PSet(
@@ -137,6 +136,10 @@ ntuple_pfjet = cms.PSet(
     doVertexing=cms.bool(True),
     doSubstructureVariables=cms.bool(True),
     doMVA=cms.bool(True),
+)
+
+ntuple_pfmet = cms.PSet(
+    NtupleName=cms.string("ffNtuplePFMet"),
 )
 
 ntuple_akjet = cms.PSet(
