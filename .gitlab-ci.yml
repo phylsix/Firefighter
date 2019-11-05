@@ -26,6 +26,7 @@ compile:
   stage: compile
   only:
     refs:
+      - master
       - merge_requests
     changes:
       - ffNtuple/**/*.{h,cc,xml,py}
@@ -71,6 +72,10 @@ compile:
 test_sigMC:
   tags: [cvmfs]
   stage: test_ff
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -90,6 +95,10 @@ test_sigMC:
 sigMC_dump:
   tags: [cvmfs]
   stage: dump_ff
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -105,6 +114,10 @@ sigMC_dump:
 test_bkgMC:
   tags: [cvmfs]
   stage: test_ff
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -120,6 +133,10 @@ test_bkgMC:
 bkgMC_dump:
   tags: [cvmfs]
   stage: dump_ff
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -163,6 +180,10 @@ bkgMC_dump:
 test_data:
   tags: [cvmfs]
   stage: test_ff
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -178,6 +199,10 @@ test_data:
 data_dump:
   tags: [cvmfs]
   stage: dump_ff
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -193,7 +218,9 @@ data_dump:
 deployment:
   stage: deploy
   only:
-    - master
+    refs:
+      - master
+      - merge_requests
   image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer:latest
   script:
   - deploy-eos
