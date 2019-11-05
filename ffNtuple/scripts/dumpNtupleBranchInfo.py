@@ -36,9 +36,24 @@ if __name__ == "__main__":
 
     ## save as an output
     with open(args.outfilename, 'w') as outf:
-        nameWidth = max([len(n) for n, c in branchesInfo])+10
-        typeWidth = max([len(c) for n, c in branchesInfo])
-        dic = dict(nameWidth=nameWidth, typeWidth=typeWidth)
-        outf.write('='*(nameWidth+typeWidth)+'\n')
-        outf.write('\n'.join(['{0:{nameWidth}}{1:{typeWidth}}'.format(n, c, **dic) for n, c in branchesInfo]))
-        outf.write('\n'+'='*(nameWidth+typeWidth))
+        if args.outfilename.endswith('.html'):
+            outf.write('<html>\n')
+            outf.write('<head>\n')
+            outf.write('<title>Documentation for Firefighter Ntuple</title>\n')
+            outf.write('<style>th, td {border-bottom: 1px solid black; padding: 1px 1em;}</style>\n')
+            outf.write('</head>\n')
+
+            outf.write("<body style='font-family: monospace;'><table style='margin: auto;'>\n")
+            outf.write("<tr><th>Branch Name</th><th>Class Type</th></tr>\n")
+            for n, c in branchesInfo:
+                outf.write("<tr><th style='text-align: left;'>{0}</th><td><pre>{1}</pre></td></tr>\n".format(n, c.replace('<', '&lt;').replace('>', '&gt;')))
+            outf.write('</table></body>\n')
+            outf.write('</html>\n')
+        else:
+            nameWidth = max([len(n) for n, c in branchesInfo])+10
+            typeWidth = max([len(c) for n, c in branchesInfo])
+            dic = dict(nameWidth=nameWidth, typeWidth=typeWidth)
+
+            outf.write('='*(nameWidth+typeWidth)+'\n')
+            outf.write('\n'.join(['{0:{nameWidth}}{1:{typeWidth}}'.format(n, c, **dic) for n, c in branchesInfo]))
+            outf.write('\n'+'='*(nameWidth+typeWidth))

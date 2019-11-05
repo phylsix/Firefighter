@@ -106,6 +106,7 @@ sigMC_dump:
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_signal-4mu.root -o public/sigmc.html
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_signal-4mu.root -o public/sigmc.txt
   artifacts:
     paths:
       - public
@@ -144,6 +145,7 @@ bkgMC_dump:
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_ZZ.root -o public/bkgmc.html
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_ZZ.root -o public/bkgmc.txt
   artifacts:
     paths:
       - public
@@ -210,6 +212,7 @@ data_dump:
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_DoubleMuon2018C.root -o public/data.html
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_DoubleMuon2018C.root -o public/data.txt
   artifacts:
     paths:
       - public
