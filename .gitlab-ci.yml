@@ -1,7 +1,11 @@
+variables:
+  EOS_PATH: "/eos/user/w/wsi/www/Firefighter"
+
 stages:
   - compile
   - test_ff
   - dump_ff
+  - deploy
 
 before_script:
   - source /cvmfs/grid.cern.ch/etc/profile.d/setup-cvmfs-ui.sh
@@ -20,6 +24,22 @@ before_script:
 compile:
   tags: [cvmfs]
   stage: compile
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
+      - objects/**/*.{h,cc,xml}
+      - ffEvtFilters/**/*.{h,cc,xml,py}
+      - ffConfig/cfg/ff*_cfg.py
+      - ffConfig/python/ffChainConstruction.py
+      - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
+      - .gitlab-ci.yml
+  except:
+    changes:
+      - ffNtuple/test/*
+      - recoStuff/test/*
   script:
     - cd $CI_HOME/..
     - rm -Rf $CMSSW_VERSION
@@ -40,9 +60,12 @@ compile:
     - tar -czf cmssw.tgz $CMSSW_VERSION
     - du -csh cmssw.tgz
     - mv $CI_HOME/../cmssw.tgz $CI_HOME
+    - mkdir $CI_HOME/public
+    - echo "Options +Indexes" > $CI_HOME/public/.htaccess
   artifacts:
     paths:
       - cmssw.tgz
+      - public
     name: "${CI_BUILD_NAME}_${CI_BUILD_REF_NAME}"
 
 test_sigMC:
@@ -73,10 +96,11 @@ sigMC_dump:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
-    - rootls -1t ffNtuple_signal-2mu2e.root:ffNtupleStat
-    - rootls -1t ffNtuple_signal-2mu2e.root:ffNtuplizer
-    - rootls -1t ffNtuple_signal-4mu.root:ffNtupleStat
-    - rootls -1t ffNtuple_signal-4mu.root:ffNtuplizer
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_signal-4mu.root -o public/sigmc.html
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 hour
 
 test_bkgMC:
   tags: [cvmfs]
@@ -102,8 +126,11 @@ bkgMC_dump:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
-    - rootls -1t ffNtuple_ZZ.root:ffNtupleStat
-    - rootls -1t ffNtuple_ZZ.root:ffNtuplizer
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_ZZ.root -o public/bkgmc.html
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 hour
 
 # test_bkgMC4Trg:
 #   tags: [cvmfs]
@@ -157,5 +184,18 @@ data_dump:
     - cd $CI_HOME/../$CMSSW_VERSION/src
     - eval `scramv1 runtime -sh`
     - cd $CI_HOME
-    - rootls -1t ffNtuple_DoubleMuon2018C.root:ffNtupleStat
-    - rootls -1t ffNtuple_DoubleMuon2018C.root:ffNtuplizer
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_DoubleMuon2018C.root -o public/data.html
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 hour
+
+deployment:
+  stage: deploy
+  only:
+    - master
+  image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer:latest
+  script:
+  - deploy-eos
+  before_script: []
+  after_script: []
