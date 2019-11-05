@@ -2,9 +2,17 @@
 
 [![pipeline status](https://gitlab.cern.ch/wsi/Firefighter/badges/master/pipeline.svg)](https://gitlab.cern.ch/wsi/Firefighter/commits/master)
 
-## Setup
 
----
+## Ntuple branch documentation
+
+<table><tr>
+<td><a href='http://wsi.web.cern.ch/wsi/Firefighter/sigmc.html'>signal MC</a></td>
+<td><a href='http://wsi.web.cern.ch/wsi/Firefighter/bkgmc.html'>background MC</a></td>
+<td><a href='http://wsi.web.cern.ch/wsi/Firefighter/data.html'>data</a></td>
+</tr></table>
+
+
+## Setup
 
 ```bash
 export SCRAM_ARCH=slc6_amd64_gcc700
