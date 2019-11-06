@@ -37,6 +37,22 @@ if __name__ == "__main__":
             _className = _className.replace('ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>', 'math::XYZPointF')
             _className = _className.replace('ROOT::Math::DisplacementVector2D<ROOT::Math::Cartesian2D<float>,ROOT::Math::DefaultCoordinateSystemTag>', 'XYVectorF')
             branchesInfo.append((_name, _className, _title))
+    groupedBranchInfo = []
+    lastGroup_ = []
+    processedKeys = []
+    for n, c, d in branchesInfo:
+        if '_' not in n:
+            lastGroup_.append((n, c, d))
+        else:
+            if lastGroup_:
+                groupedBranchInfo.append(lastGroup_)
+                lastGroup_ = []
+            key = n.split('_')[0]
+            if key in processedKeys: continue
+            groupedBranchInfo.append([x for x in branchesInfo if x[0].split('_')[0]==key])
+            processedKeys.append(key)
+    if lastGroup_:
+        groupedBranchInfo.append(lastGroup_)
 
     ## save as an output
     with open(args.outfilename, 'w') as outf:
@@ -47,12 +63,15 @@ if __name__ == "__main__":
             outf.write('<style>th, td {border-bottom: 1px solid black; padding: 1px 1em;}</style>\n')
             outf.write('</head>\n')
 
-            outf.write("<body style='font-family: monospace;'><table style='margin: auto;'>\n")
-            outf.write("<tr><th>Branch Name</th><th>Class Type</th><th>Description</th></tr>\n")
-            for n, c, d in branchesInfo:
-                outf.write("<tr><th style='text-align: left;'>{0}</th><td><pre>{1}</pre></td><td style='text-align: left;'>{2}</td></tr>\n".format(
-                    n, c.replace('<', '&lt;').replace('>', '&gt;'), d))
-            outf.write('</table></body>\n')
+            outf.write("<body style='font-family: monospace;'>\n")
+            for group in groupedBranchInfo:
+                outf.write("<table style='margin: auto; padding: 2em;'>\n")
+                outf.write("<tr><th>Branch Name</th><th>Class Type</th><th>Description</th></tr>\n")
+                for n, c, d in group:
+                    outf.write("<tr><th style='text-align: left;'>{0}</th><td><pre>{1}</pre></td><td style='text-align: left;'>{2}</td></tr>\n".format(
+                        n, c.replace('<', '&lt;').replace('>', '&gt;'), d))
+                outf.write('</table>\n')
+            outf.write('</body>\n')
             outf.write('</html>\n')
         else:
             nameWidth = max([len(n) for n, c, d in branchesInfo])+10

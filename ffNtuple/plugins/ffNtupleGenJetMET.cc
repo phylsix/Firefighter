@@ -5,6 +5,10 @@
 #include "DataFormats/METReco/interface/GenMETFwd.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "Math/Vector2D.h"
+#include "Math/Vector2Dfwd.h"
+
+using XYVectorF = ROOT::Math::XYVectorF;
 
 class ffNtupleGenJetMET : public ffNtupleBaseNoHLT {
  public:
@@ -22,7 +26,7 @@ class ffNtupleGenJetMET : public ffNtupleBaseNoHLT {
   edm::EDGetToken genmet_token_;
 
   math::XYZTLorentzVectorFCollection genjet_p4_;
-  float                              genmet_px_, genmet_py_;
+  XYVectorF                          genmet_;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleGenJetMET, "ffNtupleGenJetMET" );
@@ -38,8 +42,7 @@ ffNtupleGenJetMET::initialize( TTree&                   tree,
   genmet_token_ = cc.consumes<reco::GenMETCollection>( edm::InputTag( "genMetTrue" ) );
 
   tree.Branch( "genjet_p4", &genjet_p4_ );
-  tree.Branch( "genmet_px", &genmet_px_ );
-  tree.Branch( "genmet_py", &genmet_py_ );
+  tree.Branch( "genmet", &genmet_ );
 }
 
 void
@@ -60,13 +63,11 @@ ffNtupleGenJetMET::fill( const edm::Event& e, const edm::EventSetup& es ) {
     genjet_p4_.emplace_back( jet.px(), jet.py(), jet.pz(), jet.energy() );
   }
 
-  genmet_px_ = genmet_h->begin()->px();
-  genmet_py_ = genmet_h->begin()->py();
+  genmet_.SetXY( genmet_h->begin()->px(), genmet_h->begin()->py() );
 }
 
 void
 ffNtupleGenJetMET::clear() {
   genjet_p4_.clear();
-  genmet_px_ = 0.;
-  genmet_py_ = 0.;
+  genmet_ = XYVectorF();
 }
