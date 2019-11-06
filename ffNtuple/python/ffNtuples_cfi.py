@@ -140,6 +140,12 @@ ntuple_pfjet = cms.PSet(
 
 ntuple_pfmet = cms.PSet(
     NtupleName=cms.string("ffNtuplePFMet"),
+    srcs=cms.VInputTag(
+        cms.InputTag("pfMet"),
+        cms.InputTag("pfMetT1"),
+        cms.InputTag("pfMetT0pcT1"),
+        cms.InputTag("pfMetT0pcT1Txy"),
+    ),
 )
 
 ntuple_akjet = cms.PSet(
