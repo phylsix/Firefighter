@@ -63,6 +63,7 @@ compile:
     - mv $CI_HOME/../cmssw.tgz $CI_HOME
     - mkdir $CI_HOME/public
     - echo "Options +Indexes" > $CI_HOME/public/.htaccess
+    - export COMPILE_SUCCESS=1
   artifacts:
     paths:
       - cmssw.tgz
@@ -76,6 +77,8 @@ test_sigMC:
     refs:
       - master
       - merge_requests
+    variables:
+      - $COMPILE_SUCCESS
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -87,6 +90,7 @@ test_sigMC:
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-2mu2e.yml
     - mv ffNtuple_signal-2mu2e.root $CI_HOME
     - mv ffNtuple_signal-4mu.root $CI_HOME
+    - export TESTRUN_SIGMC_SUCCESS=1
   artifacts:
     paths:
       - ffNtuple_signal-2mu2e.root
@@ -98,7 +102,8 @@ sigMC_dump:
   only:
     refs:
       - master
-      - merge_requests
+    variables:
+      - $TESTRUN_SIGMC_SUCCESS
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -107,6 +112,7 @@ sigMC_dump:
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_signal-4mu.root -o public/sigmc.html
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_signal-4mu.root -o public/sigmc.txt
+    - export DUMP_SIGMC_SUCCESS=1
   artifacts:
     paths:
       - public
@@ -119,6 +125,8 @@ test_bkgMC:
     refs:
       - master
       - merge_requests
+    variables:
+      - $COMPILE_SUCCESS
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -127,6 +135,7 @@ test_bkgMC:
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_ZZ.yml
     - mv ffNtuple_ZZ.root $CI_HOME
+    - export TESTRUN_BKGMC_SUCCESS=1
   artifacts:
     paths:
       - ffNtuple_ZZ.root
@@ -137,7 +146,8 @@ bkgMC_dump:
   only:
     refs:
       - master
-      - merge_requests
+    variables:
+      - $TESTRUN_BKGMC_SUCCESS
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -146,6 +156,7 @@ bkgMC_dump:
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_ZZ.root -o public/bkgmc.html
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_ZZ.root -o public/bkgmc.txt
+    - export DUMP_BKGMC_SUCCESS=1
   artifacts:
     paths:
       - public
@@ -186,6 +197,8 @@ test_data:
     refs:
       - master
       - merge_requests
+    variables:
+      - $COMPILE_SUCCESS
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -194,6 +207,7 @@ test_data:
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/DoubleMuon2018C_numEvent300.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_DoubleMuon2018C.yml
     - mv ffNtuple_DoubleMuon2018C.root $CI_HOME
+    - export TESTRUN_DATA_SUCCESS=1
   artifacts:
     paths:
       - ffNtuple_DoubleMuon2018C.root
@@ -204,7 +218,8 @@ data_dump:
   only:
     refs:
       - master
-      - merge_requests
+    variables:
+      - $TESTRUN_DATA_SUCCESS
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -213,6 +228,7 @@ data_dump:
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_DoubleMuon2018C.root -o public/data.html
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_DoubleMuon2018C.root -o public/data.txt
+    - export DUMP_DATA_SUCCESS=1
   artifacts:
     paths:
       - public
@@ -223,7 +239,10 @@ deployment:
   only:
     refs:
       - master
-      - merge_requests
+    variables:
+      - $DUMP_SIGMC_SUCCESS
+      - $DUMP_BKGMC_SUCCESS
+      - $DUMP_DATA_SUCCESS
   image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer:latest
   script:
   - deploy-eos
