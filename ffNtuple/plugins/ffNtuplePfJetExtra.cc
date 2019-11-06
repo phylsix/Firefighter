@@ -36,8 +36,8 @@ ffNtuplePfJetExtra::initialize( TTree&                   tree,
   fLeptonjetPfisoToken = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "leptonjetExtra", "pfIso" ) );
   fLeptonjetMindrToken = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "leptonjetExtra", "minDeltaR" ) );
 
-  tree.Branch( "pfjet_pfiso", &fLeptonjetPfiso );
-  tree.Branch( "pfjet_mindr", &fLeptonjetMindr );
+  tree.Branch( "pfjet_pfiso", &fLeptonjetPfiso )->SetTitle("PFCandidate-based isolation value, delta-beta style PU correction");
+  tree.Branch( "pfjet_mindr", &fLeptonjetMindr )->SetTitle("minimum distance wrt. other leptonjet, if any(999. otherwise), on eta-phi plane");
 }
 
 void
