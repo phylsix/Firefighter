@@ -6,9 +6,9 @@
 ## Ntuple branch documentation
 
 <table><tr>
-<td><a href='http://wsi.web.cern.ch/wsi/Firefighter/sigmc.html'>signal MC</a></td>
-<td><a href='http://wsi.web.cern.ch/wsi/Firefighter/bkgmc.html'>background MC</a></td>
-<td><a href='http://wsi.web.cern.ch/wsi/Firefighter/data.html'>data</a></td>
+<td><a href='https://wsi.web.cern.ch/wsi/Firefighter/sigmc.html'>signal MC</a></td>
+<td><a href='https://wsi.web.cern.ch/wsi/Firefighter/bkgmc.html'>background MC</a></td>
+<td><a href='https://wsi.web.cern.ch/wsi/Firefighter/data.html'>data</a></td>
 </tr></table>
 
 
