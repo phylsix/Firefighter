@@ -1,10 +1,10 @@
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
-#include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
-#include "Firefighter/recoStuff/interface/KinematicParticleVertexFitter.h"
 
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+#include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
+#include "Firefighter/recoStuff/interface/KinematicParticleVertexFitter.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
@@ -104,6 +104,15 @@ ff::getCandType( const reco::PFCandidatePtr&               cand,
     return 8;  // This is coming from a displacedStandAloneMuon
 
   return cand->particleId();
+}
+
+//-----------------------------------------------------------------------------
+
+float
+ff::getMuonIsolationValue( const reco::Muon& muon ) {
+  const auto& pfiso04 = muon.pfIsolationR04();
+  float       val     = ( pfiso04.sumChargedHadronPt + std::max( 0., pfiso04.sumNeutralHadronEt + pfiso04.sumPhotonEt - 0.5 * pfiso04.sumPUPt ) ) / muon.pt();
+  return val;
 }
 
 //-----------------------------------------------------------------------------

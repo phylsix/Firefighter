@@ -54,8 +54,6 @@ class DSAMuonValueMapProducer : public edm::stream::EDProducer<> {
                                   const std::vector<std::vector<DTChamberId>>&,
                                   const std::vector<std::vector<CSCDetId>>& ) const;
 
-  float getMuonIsolationValue( const reco::Muon& ) const;
-
   reco::MuonRef findOppositeMuon( const reco::MuonRef& ) const;
 
   float timingDiffDT(const reco::MuonRef&, const reco::MuonRef&) const;

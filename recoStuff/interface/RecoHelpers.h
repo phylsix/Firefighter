@@ -1,8 +1,17 @@
 #ifndef recoStuff_RecoHelpers_H
 #define recoStuff_RecoHelpers_H
 
+#include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <map>
+#include <numeric>
+#include <set>
+
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -17,13 +26,6 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
-#include <algorithm>
-#include <cmath>
-#include <iterator>
-#include <map>
-#include <numeric>
-#include <set>
 
 /** some helper functions that can be applied across
  * different plugins
@@ -60,6 +62,9 @@ getCandWithMaxPt( const std::vector<reco::PFCandidatePtr>& );
 int
 getCandType( const reco::PFCandidatePtr&,
              const edm::Handle<reco::TrackCollection>& );
+
+float
+getMuonIsolationValue( const reco::Muon& );
 
 /**
  * @brief Estimate vertex as the median value of reference points of tracks of

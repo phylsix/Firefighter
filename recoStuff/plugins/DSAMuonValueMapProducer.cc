@@ -6,6 +6,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 DSAMuonValueMapProducer::DSAMuonValueMapProducer( const edm::ParameterSet& ps )
@@ -69,7 +70,7 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
     v_maxSegmentOverlapRatio[ i ]         = maxSegmentOverlapRatio( dsamuon );
     v_minExtrapolateInnermostLocalDr[ i ] = minDeltaRAtInnermostPoint( dsamuon );
     v_isDetIdSubsetOfAnyPFMuon[ i ]       = detIdsIsSubSetOfAnyPFMuon( *dsamuon.outerTrack(), pfmuonDTIds, pfmuonCSCIds );
-    v_pfiso04[ i ]                        = getMuonIsolationValue( dsamuon );
+    v_pfiso04[ i ]                        = ff::getMuonIsolationValue( dsamuon );
     v_oppositeMuon[ i ]                   = findOppositeMuon( dsamuonref );
     v_timediffDTCSC[ i ]                  = timingDiffDT( dsamuonref, v_oppositeMuon[ i ] );
     v_timediffRPC[ i ]                    = timingDiffRPC( dsamuonref, v_oppositeMuon[ i ] );
@@ -313,13 +314,6 @@ DSAMuonValueMapProducer::detIdsIsSubSetOfAnyPFMuon( const reco::Track&          
   }
 
   return isSubsetPFMuon;
-}
-
-float
-DSAMuonValueMapProducer::getMuonIsolationValue( const reco::Muon& muon ) const {
-  const auto& pfiso04 = muon.pfIsolationR04();
-  float       val     = ( pfiso04.sumChargedHadronPt + std::max( 0., pfiso04.sumNeutralHadronEt + pfiso04.sumPhotonEt - 0.5 * pfiso04.sumPUPt ) ) / muon.pt();
-  return val;
 }
 
 reco::MuonRef

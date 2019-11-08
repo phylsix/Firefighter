@@ -5,6 +5,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "Firefighter/recoStuff/interface/RecoHelpers.h"
 
 class ffNtupleMuon : public ffNtupleBaseNoHLT {
  public:
@@ -30,6 +31,7 @@ class ffNtupleMuon : public ffNtupleBaseNoHLT {
   std::vector<bool>                  fHasOuterTrack;
   std::vector<float>                 fDtCscTime;
   std::vector<float>                 fRpcTime;
+  std::vector<float>                 fIsoValue;
   std::vector<int>                   fSimType;
 };
 
@@ -47,14 +49,15 @@ ffNtupleMuon::initialize( TTree&                   tree,
 
   tree.Branch( "muon_p4", &fMuonP4 );
   tree.Branch( "muon_charge", &fMuonCharge );
-  tree.Branch( "muon_type", &fMuonType );
-  tree.Branch( "muon_bestTrackType", &fBestTrackType );
-  tree.Branch( "muon_selectors", &fSelectors );
+  tree.Branch( "muon_type", &fMuonType )->SetTitle( "<b>MuonType</b>: Global, Tracker, Standalone, Calo, PFMuon, RPC, GEM, ME0" );
+  tree.Branch( "muon_bestTrackType", &fBestTrackType )->SetTitle( "<b>MuonTrackType</b>: None, Inner, Outer, Combined, TPFMS, Picky, DYT" );
+  tree.Branch( "muon_selectors", &fSelectors )->SetTitle( "ID/Iso flags encoded as bitmap" );
   tree.Branch( "muon_hasInnerTrack", &fHasInnerTrack );
   tree.Branch( "muon_hasOuterTrack", &fHasOuterTrack );
-  tree.Branch( "muon_dtCscTime", &fDtCscTime );
-  tree.Branch( "muon_rpcTime", &fRpcTime );
-  tree.Branch( "muon_simType", &fSimType );
+  tree.Branch( "muon_dtCscTime", &fDtCscTime )->SetTitle( "timing info from DT/CSC combined measurements" );
+  tree.Branch( "muon_rpcTime", &fRpcTime )->SetTitle( "timing info from RPC" );
+  tree.Branch( "muon_isoValue", &fIsoValue )->SetTitle( "pfIsoR04, delta-beta PU correction" );
+  tree.Branch( "muon_simType", &fSimType )->SetTitle( "<b>MC-only</b> sim type inferred from gen association, check TWiki/Code" );
 }
 
 void
@@ -78,6 +81,7 @@ ffNtupleMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fHasOuterTrack.emplace_back( muon.outerTrack().isNonnull() );
     fDtCscTime.emplace_back( muon.time().timeAtIpInOut );
     fRpcTime.emplace_back( muon.rpcTime().timeAtIpInOut );
+    fIsoValue.emplace_back( ff::getMuonIsolationValue( muon ) );
   }
 
   Handle<ValueMap<reco::MuonSimInfo>> muonSimInfoHdl;
@@ -101,6 +105,7 @@ ffNtupleMuon::clear() {
   fHasOuterTrack.clear();
   fDtCscTime.clear();
   fRpcTime.clear();
+  fIsoValue.clear();
   fSimType.clear();
 }
 
