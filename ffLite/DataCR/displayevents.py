@@ -27,8 +27,8 @@ plt.rcParams["savefig.bbox"] = "tight"
 
 
 parser = argparse.ArgumentParser(description="Display events in eta-phi map")
-parser.add_argument("--input", "-i", type=str)
-parser.add_argument("--outdir", "-o", type=str)
+parser.add_argument("--input", "-i", type=str, help='input EDM ROOT file which contains intermediate reconstructed products')
+parser.add_argument("--outdir", "-o", type=str, help='output directory to store plots')
 args = parser.parse_args()
 
 def makeplot(f, dirname):

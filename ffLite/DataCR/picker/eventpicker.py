@@ -2,13 +2,19 @@
 """pick events from a list of files"""
 from __future__ import print_function
 
+import argparse
 import json
 import os
 import sys
-from os.path import join
+from os.path import join, splitext, basename
 
 import yaml
 
+parser = argparse.ArgumentParser(description="print edmPickMerge cmd for skim data")
+parser.add_argument("-i", "--input", help="text file contains `run:lumi:event`")
+args = parser.parse_args()
+
+assert os.path.exists(args.input)
 
 def make_run_event_input(runlumieventlistfile, runeventoutname):
     """
@@ -55,20 +61,26 @@ def make_cmd(runeventFilename, inputFilename, outputFilename):
     :return: command to execute
     :rtype: str
     """
-    return 'edmCopyPickMerge eventsToProcess_load={} inputFiles_load={} outputFile={}'.format(runeventFilename,
-                                                                                              inputFilename,
-                                                                                              outputFilename)
+    return 'edmCopyPickMerge eventsToProcess_load={} inputFiles_load={} outputFile={} &'.format(runeventFilename,
+                                                                                                inputFilename,
+                                                                                                outputFilename)
 
 
 if __name__ == "__main__":
 
-    runlumievent_file = sys.argv[1]
-    runevent_file = 'runevent_dsalj_data18CR.txt'
+    runlumievent_file = args.input
+    runlumievent_filebase = basename(runlumievent_file)
+    outdir = splitext(runlumievent_filebase)[0]
+    try:
+        os.makedirs(outdir)
+    except:
+        pass
+    runevent_file = join(outdir, 'runevents.txt')
     make_run_event_input(runlumievent_file, runevent_file)
 
     ## era ABC
-    inputlist_file = 'skimmed_data18CR_ABC.txt'
-    outroot_file = 'skimmed_dsalj_data18CR_ABC_AOD.root'
+    inputlist_file = join(outdir, 'skimmed_data18CR_ABC.txt')
+    outroot_file = join(outdir, 'skimmed_data18CR_ABC_AOD.root')
 
     make_filelist_input(inputlist_file, 'ABC')
     cmd = make_cmd(runevent_file, inputlist_file, outroot_file)
@@ -76,8 +88,8 @@ if __name__ == "__main__":
     os.system(cmd)
 
     ## era D
-    inputlist_file = 'skimmed_data18CR_D.txt'
-    outroot_file = 'skimmed_dsalj_data18CR_D_AOD.root'
+    inputlist_file = join(outdir, 'skimmed_data18CR_D.txt')
+    outroot_file = join(outdir, 'skimmed_data18CR_D_AOD.root')
 
     make_filelist_input(inputlist_file, 'D')
     cmd = make_cmd(runevent_file, inputlist_file, outroot_file)
