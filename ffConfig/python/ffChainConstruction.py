@@ -70,7 +70,7 @@ def skimFullEvents(process, ffConfig, fileName):
 
 
 
-def leptonjetStudyProcess(process, ffConfig, keepskim=False):
+def leptonjetStudyProcess(process, ffConfig, keepskim=0):
     """Attach leptonjet study sequence to `process`"""
 
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
@@ -106,8 +106,10 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=False):
                                     process.endjob_step)
     if keepskim:
         process.load("Firefighter.recoStuff.skimOutput_cfi")
+        from Firefighter.recoStuff.skimOutput_cfi import customizeSkimOutputContent
         process.skimOutput.fileName=cms.untracked.string(ffConfig["data-spec"]["outputFileName"].replace('ffNtuple', 'ffSkimV2'))
         process.skimOutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('ntuple_step'))
+        customizeSkimOutputContent(process, modulename='skimOutput', level=keepskim)
         process.output_step = cms.EndPath(process.skimOutput)
         process.schedule = cms.Schedule(process.stathistory,
                                         process.ntuple_step,
