@@ -55,10 +55,10 @@ ffNtuplePhoton::initialize( TTree&                   tree,
   tree.Branch( "photon_p4", &fPhotonP4 );
   for ( const auto& name : fCutFlowNames ) {
     fCutFlowValMap[ name ] = {};
-    tree.Branch( ( "photon_" + name ).c_str(), &fCutFlowValMap[ name ] );
+    tree.Branch( ( "photon_" + name ).c_str(), &fCutFlowValMap[ name ] )->SetTitle( ( "ID variable `" + name + "`'s value" ).c_str() );
   }
-  tree.Branch( "photon_idBit", &fIdBit );
-  tree.Branch( "photon_idResults", &fIdResults );
+  tree.Branch( "photon_idBit", &fIdBit )->SetTitle( "sub-ID result for defined idLabel" );
+  tree.Branch( "photon_idResults", &fIdResults )->SetTitle( "ID result, encoded as bitmap" );
 }
 
 void

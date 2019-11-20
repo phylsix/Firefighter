@@ -54,10 +54,10 @@ ffNtupleElectron::initialize( TTree&                   tree,
   tree.Branch( "electron_charge", &fElectronCharge );
   for ( const auto& name : fCutFlowNames ) {
     fCutFlowValMap[ name ] = {};
-    tree.Branch( ( "electron_" + name ).c_str(), &fCutFlowValMap[ name ] );
+    tree.Branch( ( "electron_" + name ).c_str(), &fCutFlowValMap[ name ] )->SetTitle( ( "ID variable `" + name + "`'s value" ).c_str() );
   }
-  tree.Branch( "electron_idbit", &fIdBit );
-  tree.Branch( "electron_idResults", &fIdResults );
+  tree.Branch( "electron_idbit", &fIdBit )->SetTitle( "sub-ID result for defined idLabel" );
+  tree.Branch( "electron_idResults", &fIdResults )->SetTitle( "ID result, encoded as bitmap" );
 }
 
 void
