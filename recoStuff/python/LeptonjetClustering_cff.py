@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Firefighter.recoStuff.jetIdentificationDefs_cfi import jetiddefs
 
 ## soure generation
 ## 1. PFMuon
@@ -44,6 +45,9 @@ leptonjet = ak4PFJets.clone(
 leptonjetExtra = cms.EDProducer(
     "LeptonjetValueMapProducer",
     src=cms.InputTag("leptonjet"),
+    ak4jet=cms.InputTag("ak4PFJetsCHS"),
+    jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
+    jetid=jetiddefs,
 )
 
 ## clustering sequence
