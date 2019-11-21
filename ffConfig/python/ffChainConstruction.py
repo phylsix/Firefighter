@@ -167,7 +167,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=0):
             )
             ## switch JEC label
             process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
-            process.leptonjetExtra.jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"),
+            process.leptonjetExtra.jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")
             for ps in process.ffNtuplizer.Ntuples:
                 if ps.NtupleName.value()=="ffNtupleAKJet":
                     setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
@@ -305,6 +305,7 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
             )
             ## switch JEC label
             process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            process.leptonjetExtra.jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")
             for ps in process.ffNtuplizer.Ntuples:
                 if ps.NtupleName.value()=="ffNtupleAKJet":
                     setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
@@ -490,6 +491,7 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
             )
             ## switch JEC label
             process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            process.leptonjetExtra.jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")
             for ps in process.ffNtuplizer.Ntuples:
                 if ps.NtupleName.value()=="ffNtupleAKJet":
                     setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
