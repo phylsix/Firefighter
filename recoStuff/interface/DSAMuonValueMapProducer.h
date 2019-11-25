@@ -8,22 +8,25 @@
  * valueMap wrt. identified (cutbased POG ID) PFMuons
  */
 
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSegmentMatch.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonReco/interface/MuonSegmentMatch.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Firefighter/recoStuff/interface/TrackExtrapolator.h"
 
 class DSAMuonValueMapProducer : public edm::stream::EDProducer<> {
@@ -44,26 +47,26 @@ class DSAMuonValueMapProducer : public edm::stream::EDProducer<> {
   std::unique_ptr<ff::TrackExtrapolator> fTkExtrapolator;
   float                                  minDeltaRAtInnermostPoint( const reco::Muon& ) const;
 
-  std::vector<DTChamberId> getDTDetIds( const reco::Muon& ) const;
-  std::vector<DTChamberId> getDTDetIds( const reco::Track& ) const;
-
-  std::vector<CSCDetId> getCSCDetIds( const reco::Muon& ) const;
-  std::vector<CSCDetId> getCSCDetIds( const reco::Track& ) const;
-
-  bool detIdsIsSubSetOfAnyPFMuon( const reco::Track&,
-                                  const std::vector<std::vector<DTChamberId>>&,
-                                  const std::vector<std::vector<CSCDetId>>& ) const;
-
   reco::MuonRef findOppositeMuon( const reco::MuonRef& ) const;
 
-  float timingDiffDT(const reco::MuonRef&, const reco::MuonRef&) const;
-  float timingDiffRPC(const reco::MuonRef&, const reco::MuonRef&) const;
+  float timingDiffDT( const reco::MuonRef&, const reco::MuonRef& ) const;
+  float timingDiffRPC( const reco::MuonRef&, const reco::MuonRef& ) const;
 
   const edm::EDGetTokenT<reco::MuonCollection>          fDsaMuonToken;
   const edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> fPFMuonToken;
 
+  const edm::EDGetTokenT<reco::TrackCollection>                              fCosmic1LegToken;
+  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::MuonChamberMatch>>> fCosmicMatchVMToken;
+  const edm::EDGetTokenT<reco::VertexCollection>                             fPvToken;
+
+  const edm::ParameterSet fCosmicMatchCutPars;
+
   edm::Handle<reco::MuonCollection>          fDsaMuonHdl;
   edm::Handle<reco::PFCandidateFwdPtrVector> fPFMuonHdl;
+
+  edm::Handle<reco::TrackCollection>                              fCosmic1LegHdl;
+  edm::Handle<edm::ValueMap<std::vector<reco::MuonChamberMatch>>> fCosmicMatchVMHdl;
+  edm::Handle<reco::VertexCollection>                             fPvHdl;
 };
 
 #endif

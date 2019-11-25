@@ -2,5 +2,8 @@
     <class name="edm::Association<edm::View<reco::Jet>>" />
     <class name="edm::Wrapper<edm::Association<edm::View<reco::Jet>>>" />
     <class name="edm::RefProd<edm::View<reco::Jet>>" />
+    <class name="edm::ValueMap<std::vector<reco::MuonChamberMatch>>" />
+    <class name="edm::Wrapper<edm::ValueMap<std::vector<reco::MuonChamberMatch>>>" />
+    <class name="std::vector<std::vector<reco::MuonChamberMatch>>" />
     <class name="ffLeptonJetMVAEstimator" transient="true"/>
 </lcgdict>

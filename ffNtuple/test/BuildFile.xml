@@ -2,6 +2,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/JetReco"/>
+<use name="Firefighter/recoStuff"/>
 
 <library name="FirefighterffNtupleTestPlugins" file="*.cc">
     <flags EDM_PLUGIN="1"/>

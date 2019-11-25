@@ -1,4 +1,5 @@
 <use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/CLHEP"/>
@@ -16,8 +17,11 @@
 <use name="MagneticField/Records"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="Geometry/DTGeometry"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/TrackAssociator"/>
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/RecoAlgos"/>
 <use name="CommonTools/MVAUtils"/>

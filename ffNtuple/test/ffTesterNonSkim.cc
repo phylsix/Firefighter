@@ -7,6 +7,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 // dataformats
+#include <algorithm>
+#include <map>
+
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -17,11 +20,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
-
-#include <algorithm>
-#include <map>
 
 class ffTesterNonSkim : public edm::one::EDAnalyzer<edm::one::SharedResources> {
  public:
@@ -60,7 +59,7 @@ class ffTesterNonSkim : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   using trackRefMap = std::map<reco::TrackRef, reco::TrackRef>;
   trackRefMap buildTrackLinkByDeltaR( const std::vector<reco::TrackRef>& src,
                                       const std::vector<reco::TrackRef>& dest,
-                                      float metric = 0.3 ) const;
+                                      float                              metric = 0.3 ) const;
   trackRefMap buildTrackLinkByHitPatternOverlap(
       const std::vector<reco::TrackRef>& src,
       const std::vector<reco::TrackRef>& dest,
@@ -81,28 +80,26 @@ class ffTesterNonSkim : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   // *************************************************************************
   edm::EDGetTokenT<reco::MuonCollection> fMuonsFromdSAToken;
   edm::Handle<reco::MuonCollection>      fMuonsFromdSAHdl;
+
   void debugdSASegmentsMatching( const edm::Event& e );
+
+  // *************************************************************************
+  edm::EDGetTokenT<reco::TrackCollection> fCosmicMuonOneLegTrackToken;
+  edm::Handle<reco::TrackCollection>      fCosmicMuonOneLegTrackHdl;
+
+  void testCosmicMuonOneLeg( const edm::Event& e );
 };
 
 ffTesterNonSkim::ffTesterNonSkim( const edm::ParameterSet& iC ) {
-  fMuonToken = consumes<reco::MuonCollection>( edm::InputTag( "muons" ) );
-  fDSAToken  = consumes<reco::TrackCollection>(
-      edm::InputTag( "displacedStandAloneMuons" ) );
-  fSAToken =
-      consumes<reco::TrackCollection>( edm::InputTag( "standAloneMuons" ) );
-  fSAVtxToken = consumes<reco::TrackCollection>(
-      edm::InputTag( "standAloneMuons", "UpdatedAtVtx" ) );
-
-  fParticleFlowToken =
-      consumes<reco::PFCandidateCollection>( edm::InputTag( "particleFlow" ) );
-
-  fCosmicMuonToken =
-      consumes<reco::MuonCollection>( edm::InputTag( "muonsFromCosmics" ) );
-  fCosmicMuonOneLegToken =
-      consumes<reco::MuonCollection>( edm::InputTag( "muonsFromCosmics1Leg" ) );
-
-  fMuonsFromdSAToken =
-      consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) );
+  fMuonToken                  = consumes<reco::MuonCollection>( edm::InputTag( "muons" ) );
+  fDSAToken                   = consumes<reco::TrackCollection>( edm::InputTag( "displacedStandAloneMuons" ) );
+  fSAToken                    = consumes<reco::TrackCollection>( edm::InputTag( "standAloneMuons" ) );
+  fSAVtxToken                 = consumes<reco::TrackCollection>( edm::InputTag( "standAloneMuons", "UpdatedAtVtx" ) );
+  fParticleFlowToken          = consumes<reco::PFCandidateCollection>( edm::InputTag( "particleFlow" ) );
+  fCosmicMuonToken            = consumes<reco::MuonCollection>( edm::InputTag( "muonsFromCosmics" ) );
+  fCosmicMuonOneLegToken      = consumes<reco::MuonCollection>( edm::InputTag( "muonsFromCosmics1Leg" ) );
+  fMuonsFromdSAToken          = consumes<reco::MuonCollection>( edm::InputTag( "muonsFromdSA" ) );
+  fCosmicMuonOneLegTrackToken = consumes<reco::TrackCollection>( edm::InputTag( "cosmicMuons1Leg" ) );
 }
 
 void
@@ -110,13 +107,21 @@ ffTesterNonSkim::analyze( const edm::Event& e, const edm::EventSetup& es ) {
   using namespace std;
   using namespace edm;
 
+  vector<int> allowLumi = {
+      171,
+  };
+  if ( find( allowLumi.begin(), allowLumi.end(), e.luminosityBlock() ) == allowLumi.end() )
+    return;
+  cout << "~~~~~~~~~~~~  " << e.run() << ":" << e.luminosityBlock() << ":" << e.id().event() << "  ~~~~~~~~~~~~" << endl;
+
   // compareDSATrackId( e );
   // testParticleFlowRef( e );
   // testDSAHitpattern( e );
   // dSARecoMuonMatching( e );
   // dSARecoMuonOuterTrackSize( e );
   // cosmicMuonTiming( e );
-  debugdSASegmentsMatching( e );
+  // debugdSASegmentsMatching( e );
+  testCosmicMuonOneLeg( e );
 
   cout << "++++++++++++++++++++++++++++++++++" << endl;
 }
@@ -471,6 +476,63 @@ ffTesterNonSkim::debugdSASegmentsMatching( const edm::Event& e ) {
     ss << ">";
 
     cout << ss.str() << endl;
+  }
+}
+
+void
+ffTesterNonSkim::testCosmicMuonOneLeg( const edm::Event& e ) {
+  using namespace std;
+
+  e.getByToken( fCosmicMuonOneLegToken, fCosmicMuonOneLegHdl );
+  assert( fCosmicMuonOneLegHdl.isValid() );
+  e.getByToken( fMuonToken, fMuonHdl );
+  assert( fMuonHdl.isValid() );
+  e.getByToken( fCosmicMuonOneLegTrackToken, fCosmicMuonOneLegTrackHdl );
+  assert( fCosmicMuonOneLegTrackHdl.isValid() );
+
+  cout << "CosmicMuonOneLeg size: " << fCosmicMuonOneLegHdl->size() << endl;
+  cout << "Muon size: " << fMuonHdl->size() << endl;
+  cout << "CosmicMuonOneLegTrack size: " << fCosmicMuonOneLegTrackHdl->size() << endl;
+  for (const auto& tk : *fCosmicMuonOneLegTrackHdl) {
+    cout<<"extra null? "<<tk.extra().isNull()<<endl;
+  }
+
+  for ( const auto& cosmic : *fCosmicMuonOneLegHdl ) {
+    vector<CSCSegmentRef>     CSCSegs{};
+    vector<DTRecSegment4DRef> DTSegs{};
+
+    for ( const auto& mm : cosmic.matches() ) {
+      for ( const auto& seg : mm.segmentMatches ) {
+        if ( seg.cscSegmentRef.isNonnull() )
+          CSCSegs.push_back( seg.cscSegmentRef );
+        if ( seg.dtSegmentRef.isNonnull() )
+          DTSegs.push_back( seg.dtSegmentRef );
+      }
+    }
+
+    for ( const auto& cscSeg : CSCSegs )
+      cout << "Cosmic CSC refid]  " << cscSeg.id() << endl;
+    for ( const auto& dtSeg : DTSegs )
+      cout << "Cosmic DT refid]  " << dtSeg.id() << endl;
+  }
+
+  for ( const auto& muon : *fMuonHdl ) {
+    vector<CSCSegmentRef>     CSCSegs{};
+    vector<DTRecSegment4DRef> DTSegs{};
+
+    for ( const auto& mm : muon.matches() ) {
+      for ( const auto& seg : mm.segmentMatches ) {
+        if ( seg.cscSegmentRef.isNonnull() )
+          CSCSegs.push_back( seg.cscSegmentRef );
+        if ( seg.dtSegmentRef.isNonnull() )
+          DTSegs.push_back( seg.dtSegmentRef );
+      }
+    }
+
+    for ( const auto& cscSeg : CSCSegs )
+      cout << "Muon CSC refid]  " << cscSeg.id() << endl;
+    for ( const auto& dtSeg : DTSegs )
+      cout << "Muon DT refid]  " << dtSeg.id() << endl;
   }
 }
 

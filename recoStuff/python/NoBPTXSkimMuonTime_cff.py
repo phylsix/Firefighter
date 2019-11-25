@@ -30,6 +30,8 @@ muonsFromdSA.writeIsoDeposits = False
 muonsFromdSA.arbitrateTrackerMuons = False
 muonsFromdSA.fillTrackerKink = False
 muonsFromdSA.runArbitrationCleaner = False
+muonsFromdSA.fillEnergy = False
+muonsFromdSA.fillCaloCompatibility = False
 
 ###############################################################################
 

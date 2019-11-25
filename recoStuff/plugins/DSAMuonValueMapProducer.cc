@@ -6,12 +6,17 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Firefighter/recoStuff/interface/DSAMuonHelper.h"
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 DSAMuonValueMapProducer::DSAMuonValueMapProducer( const edm::ParameterSet& ps )
     : fDsaMuonToken( consumes<reco::MuonCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ),
-      fPFMuonToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "leptonjetSourcePFMuon", "inclusive" ) ) ) {
+      fPFMuonToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "leptonjetSourcePFMuon", "inclusive" ) ) ),
+      fCosmic1LegToken( consumes<reco::TrackCollection>( edm::InputTag( "cosmicMuons1Leg" ) ) ),
+      fCosmicMatchVMToken( consumes<edm::ValueMap<std::vector<reco::MuonChamberMatch>>>( edm::InputTag( "cosmicMuon1LegChamberMatch" ) ) ),
+      fPvToken( consumes<reco::VertexCollection>( edm::InputTag( "offlinePrimaryVertices" ) ) ),
+      fCosmicMatchCutPars( ps.getParameterSet( "cosmicMatchCut" ) ) {
   produces<edm::ValueMap<float>>( "maxSegmentOverlapRatio" );
   produces<edm::ValueMap<float>>( "minExtrapolateInnermostLocalDr" );
   produces<edm::ValueMap<bool>>( "isDetIdSubsetOfAnyPFMuon" );
@@ -19,6 +24,7 @@ DSAMuonValueMapProducer::DSAMuonValueMapProducer( const edm::ParameterSet& ps )
   produces<edm::ValueMap<reco::MuonRef>>( "oppositeMuon" );
   produces<edm::ValueMap<float>>( "dTUpperMinusLowerDTCSC" );
   produces<edm::ValueMap<float>>( "dTUpperMinusLowerRPC" );
+  produces<edm::ValueMap<bool>>( "isSegemntSubsetOfFilteredCosmic1Leg" );
 }
 
 DSAMuonValueMapProducer::~DSAMuonValueMapProducer() = default;
@@ -40,19 +46,44 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   auto vm_oppositeMuon                   = make_unique<ValueMap<reco::MuonRef>>();
   auto vm_timediffDTCSC                  = make_unique<ValueMap<float>>();
   auto vm_timediffRPC                    = make_unique<ValueMap<float>>();
+  auto vm_isSegmentSubsetOfAnyCosmic1Leg = make_unique<ValueMap<bool>>();
 
   e.getByToken( fDsaMuonToken, fDsaMuonHdl );
   assert( fDsaMuonHdl.isValid() );
   e.getByToken( fPFMuonToken, fPFMuonHdl );
   assert( fPFMuonHdl.isValid() );
+  e.getByToken( fCosmic1LegToken, fCosmic1LegHdl );
+  assert( fCosmic1LegHdl.isValid() );
+  e.getByToken( fCosmicMatchVMToken, fCosmicMatchVMHdl );
+  assert( fCosmicMatchVMHdl.isValid() );
+  e.getByToken( fPvToken, fPvHdl );
+  assert( fPvHdl.isValid() && fPvHdl->size() > 0 );
+  const auto& pv = *( fPvHdl->begin() );
 
   // collect PFMuon DetIds
   vector<vector<DTChamberId>> pfmuonDTIds{};
   vector<vector<CSCDetId>>    pfmuonCSCIds{};
   for ( const auto& m : *fPFMuonHdl ) {
     const auto& muonref = m.ptr()->muonRef();
-    pfmuonDTIds.push_back( getDTDetIds( *muonref ) );
-    pfmuonCSCIds.push_back( getCSCDetIds( *muonref ) );
+    pfmuonDTIds.push_back( DSAMuonHelper::getDTDetIds( *muonref ) );
+    pfmuonCSCIds.push_back( DSAMuonHelper::getCSCDetIds( *muonref ) );
+  }
+
+  // collect cosmicMuon1Leg DT/CSC segments
+  vector<vector<DTRecSegment4DRef>> cosmic1legDTSegs{};
+  vector<vector<CSCSegmentRef>>     cosmic1legCSCSegs{};
+  for ( size_t i( 0 ); i != fCosmic1LegHdl->size(); i++ ) {
+    reco::TrackRef                 cosmic( fCosmic1LegHdl, i );
+    const auto&                    chambermatches = ( *fCosmicMatchVMHdl )[ cosmic ];
+    std::vector<DTRecSegment4DRef> dtsegs         = DSAMuonHelper::getDTSegments( chambermatches );
+    std::vector<CSCSegmentRef>     cscsegs        = DSAMuonHelper::getCSCSegements( chambermatches );
+
+    if ( cosmic->pt() < fCosmicMatchCutPars.getParameter<double>( "minpt" ) ) continue;
+    if ( fCosmicMatchCutPars.getParameter<bool>( "requireDT" ) && dtsegs.size() == 0 ) continue;
+    if ( fabs( cosmic->dz( pv.position() ) ) < fCosmicMatchCutPars.getParameter<double>( "mindz" ) ) continue;
+
+    cosmic1legDTSegs.push_back( dtsegs );
+    cosmic1legCSCSegs.push_back( cscsegs );
   }
 
   vector<float>         v_maxSegmentOverlapRatio( fDsaMuonHdl->size(), 0. );
@@ -62,6 +93,7 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   vector<reco::MuonRef> v_oppositeMuon( fDsaMuonHdl->size(), reco::MuonRef() );
   vector<float>         v_timediffDTCSC( fDsaMuonHdl->size(), -999. );
   vector<float>         v_timediffRPC( fDsaMuonHdl->size(), -999. );
+  vector<bool>          v_isSegmentSubsetOfAnyCosmic1Leg( fDsaMuonHdl->size(), false );
 
   for ( size_t i( 0 ); i != fDsaMuonHdl->size(); i++ ) {
     reco::MuonRef dsamuonref( fDsaMuonHdl, i );
@@ -69,11 +101,12 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
 
     v_maxSegmentOverlapRatio[ i ]         = maxSegmentOverlapRatio( dsamuon );
     v_minExtrapolateInnermostLocalDr[ i ] = minDeltaRAtInnermostPoint( dsamuon );
-    v_isDetIdSubsetOfAnyPFMuon[ i ]       = detIdsIsSubSetOfAnyPFMuon( *dsamuon.outerTrack(), pfmuonDTIds, pfmuonCSCIds );
+    v_isDetIdSubsetOfAnyPFMuon[ i ]       = DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( *dsamuon.outerTrack(), pfmuonDTIds, pfmuonCSCIds );
     v_pfiso04[ i ]                        = ff::getMuonIsolationValue( dsamuon );
     v_oppositeMuon[ i ]                   = findOppositeMuon( dsamuonref );
     v_timediffDTCSC[ i ]                  = timingDiffDT( dsamuonref, v_oppositeMuon[ i ] );
     v_timediffRPC[ i ]                    = timingDiffRPC( dsamuonref, v_oppositeMuon[ i ] );
+    v_isSegmentSubsetOfAnyCosmic1Leg[ i ] = DSAMuonHelper::segmentsIsSubsetOfDTCSCSegs( dsamuon, cosmic1legDTSegs, cosmic1legCSCSegs );
   }
 
   ValueMap<float>::Filler ratioFiller( *vm_maxSegmentOverlapRatio );
@@ -110,6 +143,11 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   timediffRPCFiller.insert( fDsaMuonHdl, v_timediffRPC.begin(), v_timediffRPC.end() );
   timediffRPCFiller.fill();
   e.put( move( vm_timediffRPC ), "dTUpperMinusLowerRPC" );
+
+  ValueMap<bool>::Filler isSegmentSubsetFiller( *vm_isSegmentSubsetOfAnyCosmic1Leg );
+  isSegmentSubsetFiller.insert( fDsaMuonHdl, v_isSegmentSubsetOfAnyCosmic1Leg.begin(), v_isSegmentSubsetOfAnyCosmic1Leg.end() );
+  isSegmentSubsetFiller.fill();
+  e.put( move( vm_isSegmentSubsetOfAnyCosmic1Leg ), "isSegemntSubsetOfFilteredCosmic1Leg" );
 }
 
 int
@@ -206,114 +244,6 @@ DSAMuonValueMapProducer::minDeltaRAtInnermostPoint( const reco::Muon& dsamuon ) 
     res = *min_element( _deltaRAtInnermostPoint.begin(), _deltaRAtInnermostPoint.end() );
 
   return res;
-}
-
-std::vector<DTChamberId>
-DSAMuonValueMapProducer::getDTDetIds( const reco::Muon& muon ) const {
-  using namespace std;
-  vector<DTChamberId> res{};
-
-  for ( const auto& chambermatch : muon.matches() ) {
-    if ( chambermatch.detector() == MuonSubdetId::DT ) {
-      DTChamberId dtId( chambermatch.id.rawId() );
-
-      if ( find( res.begin(), res.end(), dtId ) == res.end() )
-        res.push_back( dtId );
-    }
-  }
-
-  sort( res.begin(), res.end() );
-  return res;
-}
-
-std::vector<DTChamberId>
-DSAMuonValueMapProducer::getDTDetIds( const reco::Track& track ) const {
-  using namespace std;
-  vector<DTChamberId> res{};
-
-  for ( auto hitIter = track.recHitsBegin(); hitIter != track.recHitsEnd(); ++hitIter ) {
-    if ( !( *hitIter )->isValid() )
-      continue;
-    const DetId id = ( *hitIter )->geographicalId();
-    if ( id.det() != DetId::Muon )
-      continue;
-
-    if ( id.subdetId() == MuonSubdetId::DT ) {
-      DTChamberId dtId( id.rawId() );
-
-      if ( find( res.begin(), res.end(), dtId ) == res.end() )
-        res.push_back( dtId );
-    }
-  }
-
-  sort( res.begin(), res.end() );
-  return res;
-}
-
-std::vector<CSCDetId>
-DSAMuonValueMapProducer::getCSCDetIds( const reco::Muon& muon ) const {
-  using namespace std;
-  vector<CSCDetId> res{};
-
-  for ( const auto& chambermatch : muon.matches() ) {
-    if ( chambermatch.detector() == MuonSubdetId::CSC ) {
-      CSCDetId cscId( chambermatch.id.rawId() );
-
-      if ( find( res.begin(), res.end(), cscId ) == res.end() )
-        res.push_back( cscId );
-    }
-  }
-
-  sort( res.begin(), res.end() );
-  return res;
-}
-
-std::vector<CSCDetId>
-DSAMuonValueMapProducer::getCSCDetIds( const reco::Track& track ) const {
-  using namespace std;
-  vector<CSCDetId> res{};
-
-  for ( auto hitIter = track.recHitsBegin(); hitIter != track.recHitsEnd(); ++hitIter ) {
-    if ( !( *hitIter )->isValid() )
-      continue;
-    const DetId id = ( *hitIter )->geographicalId();
-    if ( id.det() != DetId::Muon )
-      continue;
-
-    if ( id.subdetId() == MuonSubdetId::CSC ) {
-      CSCDetId cscId( id.rawId() );
-
-      if ( find( res.begin(), res.end(), cscId ) == res.end() )
-        res.push_back( cscId );
-    }
-  }
-
-  sort( res.begin(), res.end() );
-  return res;
-}
-
-bool
-DSAMuonValueMapProducer::detIdsIsSubSetOfAnyPFMuon( const reco::Track&                           track,
-                                                    const std::vector<std::vector<DTChamberId>>& dtids,
-                                                    const std::vector<std::vector<CSCDetId>>&    cscids ) const {
-  using namespace std;
-  bool isSubsetPFMuon( false );
-
-  vector<DTChamberId> _dtDetId  = getDTDetIds( track );
-  vector<CSCDetId>    _cscDetId = getCSCDetIds( track );
-
-  for ( pair<vector<vector<DTChamberId>>::const_iterator, vector<vector<CSCDetId>>::const_iterator> iter( dtids.begin(), cscids.begin() );
-        iter.first != dtids.end() && iter.second != cscids.end();
-        ++iter.first, ++iter.second ) {
-    bool isDTSubsetPFMuon  = includes( iter.first->begin(), iter.first->end(), _dtDetId.begin(), _dtDetId.end() );
-    bool isCSCSubsetPFMuon = includes( iter.second->begin(), iter.second->end(), _cscDetId.begin(), _cscDetId.end() );
-
-    isSubsetPFMuon = isDTSubsetPFMuon && isCSCSubsetPFMuon;
-    if ( isSubsetPFMuon )
-      break;
-  }
-
-  return isSubsetPFMuon;
 }
 
 reco::MuonRef

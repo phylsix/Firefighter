@@ -12,3 +12,4 @@ SpacesInParentheses: 'true'
 SpacesInSquareBrackets: 'true'
 Standard: Cpp11
 ColumnLimit: 0
+AllowShortIfStatementsOnASingleLine: 'true'
