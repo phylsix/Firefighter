@@ -88,8 +88,8 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_PFIsoVal", &fPFIsoVal );
   tree.Branch( "dsamuon_segOverlapRatio", &fSegOverlapRatio );
   tree.Branch( "dsamuon_extrapolatedDr", &fExtrapolatedDr );
-  tree.Branch( "dsamuon_isSubsetAnyPFMuon", &fIsSubsetAnyPFMuon )->SetTitle("Associated Muon chamber DetId are subset of any PFMuon's");
-  tree.Branch( "dsamuon_isSubsetFilteredCosmic1Leg", &fIsSubsetFilteredCosmic1Leg )->SetTitle("Associated DT/CSC segments are subset of filtered cosmicMuon1Leg's");
+  tree.Branch( "dsamuon_isSubsetAnyPFMuon", &fIsSubsetAnyPFMuon )->SetTitle( "Associated Muon chamber DetId are subset of any PFMuon's" );
+  tree.Branch( "dsamuon_isSubsetFilteredCosmic1Leg", &fIsSubsetFilteredCosmic1Leg )->SetTitle( "Associated DT/CSC segments are subset of filtered cosmicMuon1Leg's" );
   tree.Branch( "dsamuon_normChi2", &fNormChi2 );
   tree.Branch( "dsamuon_hasOppositeMuon", &fHasOppositeMuon );
   tree.Branch( "dsamuon_timeDiffDTCSC", &fTimeDiffDTCSC );
@@ -144,8 +144,6 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
-  // cout << "~~~~~~~~~~~~  " << e.run() << ":" << e.luminosityBlock() << ":" << e.id().event() << "  ~~~~~~~~~~~~" << endl;
-
   for ( size_t i( 0 ); i != dsamuonHdl->size(); i++ ) {
     reco::MuonRef dsamuonref( dsamuonHdl, i );
     const auto&   dsamuon    = *dsamuonref;
@@ -172,8 +170,6 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fHasOppositeMuon.emplace_back( ( *oppositeMuonHdl )[ dsamuonref ].isNonnull() );
     fTimeDiffDTCSC.emplace_back( ( *timeDiffDTCSCHdl )[ dsamuonref ] );
     fTimeDiffRPC.emplace_back( ( *timeDiffRPCHdl )[ dsamuonref ] );
-
-    // cout<<"dsamuon] "<<i<<" isSubsetFilteredCosmic1Leg - "<<fIsSubsetFilteredCosmic1Leg.back()<<endl;
   }
 }
 

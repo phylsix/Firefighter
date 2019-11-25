@@ -84,11 +84,11 @@ ffTesterCosmicMuonOneLeg::analyze( const edm::Event& e, const edm::EventSetup& e
       cosmicMuonOneLegCSCSegsTwoHemi.push_back( DSAMuonHelper::getCSCSegements( cosmicmatch ) );
     }
 
-    cout<<"[cosmicMuonOneLeg] "<<i<<": pT "<<cosmicOneLegRef->pt()
-        <<" dxy: "<<cosmicOneLegRef->dxy()
-        <<" dz: "<<cosmicOneLegRef->dz()
-        <<" NDTSeg: "<<cosmicMuonOneLegDTSegs.back().size()
-        <<endl;
+    cout << "[cosmicMuonOneLeg] " << i << ": pT " << cosmicOneLegRef->pt()
+         << " dxy: " << cosmicOneLegRef->dxy()
+         << " dz: " << cosmicOneLegRef->dz()
+         << " NDTSeg: " << cosmicMuonOneLegDTSegs.back().size()
+         << endl;
   }
 
   for ( const auto& dsa : *fDSAMuonHdl ) {
