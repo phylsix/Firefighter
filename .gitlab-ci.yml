@@ -39,8 +39,8 @@ compile:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - rm -Rf $CMSSW_VERSION
@@ -87,8 +87,8 @@ test_sigMC:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -122,8 +122,8 @@ sigMC_dump:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -155,8 +155,8 @@ test_bkgMC:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -186,8 +186,8 @@ bkgMC_dump:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -247,8 +247,8 @@ test_data:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -278,8 +278,8 @@ data_dump:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -309,8 +309,8 @@ deployment:
       - .gitlab-ci.yml
   except:
     changes:
-      - ffNtuple/test/*
-      - recoStuff/test/*
+      - ffNtuple/test/*.{py,txt}
+      - recoStuff/test/*.{py,txt}
   image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer:latest
   script:
   - deploy-eos
