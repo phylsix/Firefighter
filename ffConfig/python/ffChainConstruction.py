@@ -44,6 +44,13 @@ def skimFullEvents(process, ffConfig, fileName):
         ## keep triggered events only ##
         process.hltfilter = hltfilter
         process.ffBeginEventFilteringSeq.insert(0, process.hltfilter)
+        ## switch JEC label
+        if ffConfig["data-spec"]["dataType"] == "data":
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            process.leptonjetExtra.jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")
+        else:
+            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
+
 
 
     if ffConfig["reco-spec"]["eventRegion"] == "all":
