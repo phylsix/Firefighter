@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ffLeptonJetFwdPtrs = cms.EDProducer(
-    "PFJetFwdPtrProducer", src=cms.InputTag("leptonjet")
+    "PFJetFwdPtrProducer",
+    src=cms.InputTag("leptonjet"),
 )
 
 filteredLeptonJet = cms.EDFilter(
@@ -22,10 +23,6 @@ filteredLeptonJet = cms.EDFilter(
     maxTimeLimit=cms.double(20.0),
     makeClones=cms.bool(True),
 )
-
-# filteredLeptonJet = cms.EDProducer(
-#     "PFJetFromFwdPtrProducer", src=cms.InputTag("filteredLeptonJetPtrs")
-# )
 
 ffLeptonJetCountFilter = cms.EDFilter(
     "CandViewCountFilter",

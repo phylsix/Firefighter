@@ -22,8 +22,6 @@ class ffLeptonJetSelector {
 
     if ( jet.muonMultiplicity() % 2 != 0 )
       return false;  // even muon multiplicity
-    if ( jet.muonMultiplicity() > 0 and ff::sumCharge( jet ) != 0 )
-      return false;  // mu-type must be neutral
 
     if ( fUseChargedMass and ff::chargedMass( jet ) < fMinChargedMass )
       return false;
