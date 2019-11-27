@@ -91,9 +91,9 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_isSubsetAnyPFMuon", &fIsSubsetAnyPFMuon )->SetTitle( "Associated Muon chamber DetId are subset of any PFMuon's" );
   tree.Branch( "dsamuon_isSubsetFilteredCosmic1Leg", &fIsSubsetFilteredCosmic1Leg )->SetTitle( "Associated DT/CSC segments are subset of filtered cosmicMuon1Leg's" );
   tree.Branch( "dsamuon_normChi2", &fNormChi2 );
-  tree.Branch( "dsamuon_hasOppositeMuon", &fHasOppositeMuon );
-  tree.Branch( "dsamuon_timeDiffDTCSC", &fTimeDiffDTCSC );
-  tree.Branch( "dsamuon_timeDiffRPC", &fTimeDiffRPC );
+  tree.Branch( "dsamuon_hasOppositeMuon", &fHasOppositeMuon )->SetTitle( "Whether this DSA muon has an opposite companion: cos(alpha)<-0.99" );
+  tree.Branch( "dsamuon_timeDiffDTCSC", &fTimeDiffDTCSC )->SetTitle( "Time_upper-Time_lower from DT/CSC measurement if has opposite companion; otherwise -999." );
+  tree.Branch( "dsamuon_timeDiffRPC", &fTimeDiffRPC )->SetTitle( "Time_upper-Time_lower from RPC measurement if has opposite companion; otherwise -999." );
 }
 
 void
