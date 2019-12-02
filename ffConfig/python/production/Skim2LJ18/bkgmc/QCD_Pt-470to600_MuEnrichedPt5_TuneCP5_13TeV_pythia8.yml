@@ -2,32 +2,34 @@ datasetNames:
 - /QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/AODSIM
 - /QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/AODSIM
 fileList:
+- - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_104.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_108.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_112.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_113.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_114.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_115.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_118.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_16.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_2.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_20.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_23.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_31.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_37.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_46.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_48.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_49.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_54.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_59.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_6.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_60.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_64.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_68.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_70.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_74.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_84.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_88.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_93.root
+  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15_ext1-v2/191129_193231/0000/ffAOD_97.root
 - []
-- - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_1.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_107.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_111.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_112.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_113.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_114.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_117.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_19.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_22.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_30.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_36.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_45.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_47.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_48.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_5.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_53.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_58.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_59.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_63.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_67.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_69.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_73.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_83.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_87.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_92.root
-  - root://cmseos.fnal.gov//eos/uscms/store/group/lpcmetx/SIDM/Skim/2018/QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/191027_084206/ffAOD_96.root
 globalTag: 102X_upgrade2018_realistic_v20
 maxEvents: -1
