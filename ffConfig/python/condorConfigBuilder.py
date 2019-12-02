@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import os
 import time
-from os.path import join, basename
+from os.path import join, basename, dirname, abspath
 
 import yaml
 from Firefighter.ffConfig.datasetUtils import (get_datasetType, get_nametag,
@@ -160,7 +160,7 @@ class configBuilder:
             ## set up condor jdl ##
             condorjdlFn = join(jobdir, 'condor.jdl')
             condorjdl = CONDORJDL.replace('FFSUPERCONFIGDIR', jobdir)\
-                                 .replace('CMSSWBASENAME', basename(os.getenv('CMSSW_BASE')))\
+                                 .replace('CMSSWBASENAME', join(dirname(abspath(__file__)), basename(os.getenv('CMSSW_BASE'))) )\
                                  .replace('JOBIDLIST', str(tuple(range(len(splittedjobs)))) )
             with open(condorjdlFn, 'w') as outf: outf.write(condorjdl)
 
