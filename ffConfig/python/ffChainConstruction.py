@@ -276,7 +276,7 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
             ]
         )
         ## JEC
-        process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
+        process.recofilterSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     else: # bkgmc | data
 
@@ -311,14 +311,14 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
                 ]
             )
             ## switch JEC label
-            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            process.recofilterSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
             process.leptonjetExtra.jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")
             for ps in process.ffNtuplizer.Ntuples:
                 if ps.NtupleName.value()=="ffNtupleAKJet":
                     setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
         else:
             ## JEC
-            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
+            process.recofilterSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     ###########################################################################
     ##                              event region                             ##
@@ -460,7 +460,7 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
             ]
         )
         ## JEC
-        process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
+        process.recofilterSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     else: # bkgmc | data
 
@@ -497,14 +497,14 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
                 ]
             )
             ## switch JEC label
-            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
+            process.recofilterSeq.insert(-1, process.ak4PFCHSL1FastL2L3ResidualCorrectorChain)
             process.leptonjetExtra.jetCorrector=cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")
             for ps in process.ffNtuplizer.Ntuples:
                 if ps.NtupleName.value()=="ffNtupleAKJet":
                     setattr(ps, "corrector", cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"))
         else:
             ## JEC
-            process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
+            process.recofilterSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
     ###########################################################################
     ##                              event region                             ##
