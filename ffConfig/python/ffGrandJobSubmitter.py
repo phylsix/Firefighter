@@ -118,6 +118,7 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
 
         os.system("cd $CMSSW_BASE/src/Firefighter && scram b -j12 && cd -")
         os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf `basename ${CMSSW_BASE}`.tar.gz -C ${CMSSW_BASE}/.. `basename ${CMSSW_BASE}`")
+        os.system("cd $CMSSW_BASE/src/Firefighter && scram b -j12 && cd -") # ensure tarball is copied to $CMSSW_base/python
         get_voms_certificate()
 
         if dkind == "bkgmc":  # only background mc has dataset not on disk
