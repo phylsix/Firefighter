@@ -54,9 +54,14 @@ if __name__ == "__main__":
                 energy=lj.energy(),
                 mass=lj.mass(),
             ))
+        for j, lxy in enumerate(event.pfjet_klmvtx_lxy):
+            leptonjetPool[j]['lxy'] = -lxy
+        for j, costheta in enumerate(event.pfjet_klmvtx_cosThetaXy):
+            leptonjetPool[j]['costheta'] = -costheta
         print('## leptonjet')
         df_lj = pd.DataFrame(leptonjetPool)
-        df_lj = df_lj[['energy', 'pt', 'eta', 'phi', 'mass']]
+        df_lj = df_lj[['energy', 'pt', 'eta', 'phi', 'mass', 'lxy', 'costheta']]
+        # df_lj = df_lj[['energy', 'pt', 'eta', 'phi', 'mass',]]
         print(df_lj.to_string())
 
         if len(leptonjetPool)>=2:
