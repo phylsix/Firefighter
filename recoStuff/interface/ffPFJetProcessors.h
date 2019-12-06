@@ -115,6 +115,10 @@ std::vector<reco::TransientTrack>
 transientTracksFromPFJet( const reco::PFJet&,
                           const StringCutObjectSelector<reco::Track>&,
                           const edm::EventSetup& );
+
+bool
+muonChargeNeutral( const reco::PFJet&,
+                   const edm::Handle<reco::TrackCollection>& );
 }  // namespace ff
 
 #endif

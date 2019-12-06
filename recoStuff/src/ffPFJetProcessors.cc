@@ -398,3 +398,15 @@ ff::transientTracksFromPFJet(
 }
 
 //-----------------------------------------------------------------------------
+
+bool
+ff::muonChargeNeutral( const reco::PFJet&                        jet,
+                       const edm::Handle<reco::TrackCollection>& tkH ) {
+  int sum_charge( 0 );
+  for ( const auto& cand : getPFCands( jet ) ) {
+    if ( getCandType( cand, tkH ) == 3 ) sum_charge += cand->charge();
+    if ( getCandType( cand, tkH ) == 8 ) sum_charge += cand->charge();
+  }
+
+  return sum_charge == 0;
+}

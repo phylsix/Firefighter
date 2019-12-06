@@ -1,12 +1,13 @@
 #include "Firefighter/ffEvtFilters/interface/LeptonJetPairFilter.h"
 
-#include "DataFormats/Math/interface/deltaPhi.h"
-
 #include <cmath>
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
+
 LeptonJetPairFilter::LeptonJetPairFilter( const edm::ParameterSet& ps )
-    : fJetToken( consumes<reco::PFJetCollection>(
-          ps.getParameter<edm::InputTag>( "src" ) ) ),
+    : fJetToken( consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ),
+      fTrackToken( consumes<reco::TrackCollection>( edm::InputTag( "generalTracks" ) ) ),
       fDPhiMin( ps.getParameter<double>( "minDPhi" ) ) {
   assert( fDPhiMin >= 0 and fDPhiMin < M_PI );
 }
@@ -18,6 +19,8 @@ LeptonJetPairFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
 
   e.getByToken( fJetToken, fJetHdl );
   assert( fJetHdl.isValid() );
+  e.getByToken( fTrackToken, fTrackHdl );
+  assert( fTrackHdl.isValid() );
 
   if ( fJetHdl->size() < 2 )
     return false;
@@ -30,8 +33,12 @@ LeptonJetPairFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
     return lhs->pt() > rhs->pt();
   } );
 
-  return fabs( deltaPhi( jetptrs[ 0 ]->phi(), jetptrs[ 1 ]->phi() ) ) > fDPhiMin;
+  // signal selections
+  bool dphi_( fabs( deltaPhi( jetptrs[ 0 ]->phi(), jetptrs[ 1 ]->phi() ) ) > fDPhiMin );  // dphi>pi/2
+  bool neutralLj0_( ff::muonChargeNeutral( *( jetptrs[ 0 ] ), fTrackHdl ) );              // leading lj is muon charge neutral
+  bool neutralLj1_( ff::muonChargeNeutral( *( jetptrs[ 1 ] ), fTrackHdl ) );              // subleading lj is muon charge neutral
 
+  return dphi_ && neutralLj0_ && neutralLj1_;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
