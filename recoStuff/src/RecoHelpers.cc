@@ -262,8 +262,7 @@ ff::signedDistanceXY( const reco::Vertex& vtx1,
   VertexDistanceXY vdistXY;
 
   Measurement1D unsignedDistance = vdistXY.distance( vtx1, vs2 );
-  GlobalVector  diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
+  GlobalVector  diff             = vs2.position() - GlobalPoint( Basic3DVector<float>( vtx1.position() ) );
 
   if ( ( ref.x() * diff.x() + ref.y() * diff.y() ) < 0 )
     return Measurement1D( -1.0 * unsignedDistance.value(),
@@ -281,8 +280,7 @@ ff::signedDistance3D( const reco::Vertex& vtx1,
   VertexDistance3D vdist3D;
 
   Measurement1D unsignedDistance = vdist3D.distance( vtx1, vs2 );
-  GlobalVector  diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
+  GlobalVector  diff             = vs2.position() - GlobalPoint( Basic3DVector<float>( vtx1.position() ) );
 
   if ( ( ref.x() * diff.x() + ref.y() * diff.y() + ref.z() * diff.z() ) < 0 )
     return Measurement1D( -1.0 * unsignedDistance.value(),
@@ -297,8 +295,7 @@ float
 ff::cosThetaOfJetPvXY( const reco::Vertex& vtx1,
                        const VertexState&  vs2,
                        const GlobalVector& ref ) {
-  GlobalVector diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
+  GlobalVector   diff   = vs2.position() - GlobalPoint( Basic3DVector<float>( vtx1.position() ) );
   Global2DVector diff2D = Global2DVector( diff.x(), diff.y() );
   Global2DVector ref2D  = Global2DVector( ref.x(), ref.y() );
   return diff2D.unit().dot( ref2D.unit() );
@@ -310,8 +307,7 @@ float
 ff::cosThetaOfJetPv3D( const reco::Vertex& vtx1,
                        const VertexState&  vs2,
                        const GlobalVector& ref ) {
-  GlobalVector diff =
-      GlobalPoint( Basic3DVector<float>( vtx1.position() ) ) - vs2.position();
+  GlobalVector diff = vs2.position() - GlobalPoint( Basic3DVector<float>( vtx1.position() ) );
   return diff.unit().dot( ref.unit() );
 }
 
@@ -321,8 +317,7 @@ float
 ff::impactDistanceXY( const reco::Vertex& vtx1,
                       const VertexState&  vs2,
                       const GlobalVector& ref ) {
-  Line::PositionType pos(
-      GlobalPoint( vs2.position().x(), vs2.position().y(), 0 ) );
+  Line::PositionType  pos( GlobalPoint( vs2.position().x(), vs2.position().y(), 0 ) );
   Line::DirectionType dir( GlobalVector( ref.x(), ref.y(), 0 ).unit() );
   Line                jetDirectionLineXY( pos, dir );
 
@@ -341,8 +336,7 @@ ff::impactDistance3D( const reco::Vertex& vtx1,
   Line::DirectionType dir( ref.unit() );
   Line                jetDirectionLine( pos, dir );
 
-  GlobalPoint pv( vtx1.position().x(), vtx1.position().y(),
-                  vtx1.position().z() );
+  GlobalPoint pv( vtx1.position().x(), vtx1.position().y(), vtx1.position().z() );
 
   return jetDirectionLine.distance( pv ).mag();
 }
