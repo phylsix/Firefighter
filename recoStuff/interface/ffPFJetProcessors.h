@@ -8,6 +8,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 /**
@@ -44,10 +46,16 @@ getNumberOfDisplacedStandAloneMuons(
     const reco::PFJet&,
     const edm::Handle<reco::TrackCollection>& );
 
+float
+getTkPtSumInCone( const reco::PFJet&,
+                  const edm::Handle<reco::TrackCollection>&,
+                  const reco::VertexCollection&,
+                  const float& );
+
 /**
  * @brief genralTracks Isolation
  *
- * pT of tracks in cone that NOT associated with the jet
+ * pT of tracks in cone that associated with primary vertex but NOT associated with the jet
  * ---------------------- over ----------------------
  * pT of tracks in cone that associated with the jet + above
  * --> The lower the value, the more isolated
@@ -57,6 +65,7 @@ getNumberOfDisplacedStandAloneMuons(
 float
 getTkIsolation( const reco::PFJet&,
                 const edm::Handle<reco::TrackCollection>&,
+                const reco::VertexCollection&,
                 const float& );
 
 /**

@@ -340,3 +340,52 @@ ff::impactDistance3D( const reco::Vertex& vtx1,
 
   return jetDirectionLine.distance( pv ).mag();
 }
+
+//-----------------------------------------------------------------------------
+
+/**
+ * ported from
+ * https://cmssdt.cern.ch/dxr/CMSSW/source/CommonTools/ParticleFlow/src/PFPileUpAlgo.cc
+ */
+bool
+ff::associateWithPrimaryVertex( const reco::TrackRef&         track,
+                                const reco::VertexCollection& vertices,
+                                bool                          checkCloestZVertex ) {
+  size_t       iVtx         = 0;
+  unsigned int nFoundVertex = 0;
+  float        bestWeight   = 0.;
+
+  for ( size_t i( 0 ); i != vertices.size(); ++i ) {
+    float w = vertices[ i ].trackWeight( track );
+    if ( w > bestWeight ) {
+      bestWeight = w;
+      iVtx       = i;
+      nFoundVertex++;
+    }
+  }
+
+  if ( nFoundVertex > 0 ) {
+    if ( nFoundVertex != 1 )
+      edm::LogWarning( "RecoHelpers:associateWithPrimaryVertex" ) << "A track is shared by " << nFoundVertex << " vertices.";
+    return iVtx == 0;
+  }
+
+  if ( checkCloestZVertex ) {
+    double dzmin       = 10000;
+    double ztrack      = track->vz();
+    bool   foundVertex = false;
+
+    for ( size_t i( 0 ); i != vertices.size(); ++i ) {
+      double dz = fabs( ztrack - vertices[ i ].z() );
+      if ( dz < dzmin ) {
+        dzmin       = dz;
+        iVtx        = i;
+        foundVertex = true;
+      }
+    }
+
+    if ( foundVertex ) return iVtx == 0;
+  }
+
+  return true;
+}

@@ -124,6 +124,11 @@ impactDistance3D( const reco::Vertex&,
                   const VertexState&,
                   const GlobalVector& );
 
+bool
+associateWithPrimaryVertex( const reco::TrackRef&,
+                            const reco::VertexCollection&,
+                            bool checkClosestZVertex = true );
+
 //-----------------------------------------------------------------------------
 
 template <typename T>

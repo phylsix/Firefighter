@@ -144,16 +144,20 @@ ff::getNumberOfDisplacedStandAloneMuons(
 //-----------------------------------------------------------------------------
 
 float
-ff::getTkIsolation( const reco::PFJet&                        jet,
-                    const edm::Handle<reco::TrackCollection>& tkH,
-                    const float&                              isoRadius ) {
+ff::getTkPtSumInCone( const reco::PFJet&                        jet,
+                      const edm::Handle<reco::TrackCollection>& tkH,
+                      const reco::VertexCollection&             vertices,
+                      const float&                              isoRadius ) {
   std::vector<reco::TrackRef> generalTkRefs{};
-  for ( size_t i( 0 ); i != tkH->size(); ++i )
-    generalTkRefs.emplace_back( tkH, i );
+  for ( size_t i( 0 ); i != tkH->size(); ++i ) {
+    reco::TrackRef tk( tkH, i );
+    if ( associateWithPrimaryVertex( tk, vertices, true ) )
+      generalTkRefs.push_back( tk );
+  }
 
   std::vector<reco::PFCandidatePtr> cands = getTrackEmbededPFCands( jet );
 
-  float notOfCands( 0. );
+  float ptsum( 0. );
   for ( const auto& tkRef : generalTkRefs ) {
     if ( deltaR( jet, *tkRef ) > isoRadius )
       continue;  // outside radius
@@ -163,9 +167,22 @@ ff::getTkIsolation( const reco::PFJet&                        jet,
          } ) != cands.end() )
       continue;  // associated with the jet
 
-    notOfCands += tkRef->pt();
+    ptsum += tkRef->pt();
   }
 
+  return ptsum;
+}
+
+//-----------------------------------------------------------------------------
+
+float
+ff::getTkIsolation( const reco::PFJet&                        jet,
+                    const edm::Handle<reco::TrackCollection>& tkH,
+                    const reco::VertexCollection&             vertices,
+                    const float&                              isoRadius ) {
+  std::vector<reco::PFCandidatePtr> cands = getTrackEmbededPFCands( jet );
+
+  float notOfCands = getTkPtSumInCone( jet, tkH, vertices, isoRadius );
   float ofCands =
       std::accumulate( cands.begin(), cands.end(), 0.,
                        []( float ptsum, const reco::PFCandidatePtr& jc ) {

@@ -85,10 +85,11 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   std::map<float, std::vector<float>> pfjet_pfIsolationNoPU_;
   std::map<float, std::vector<float>> pfjet_neuIsolationNoPU_;
   std::map<float, std::vector<float>> pfjet_hadIsolationNoPU_;
-  std::map<float, std::vector<float>> pfjet_tkIsolation_;
   std::map<float, std::vector<float>> pfjet_pfIsolation_;
   std::map<float, std::vector<float>> pfjet_neuIsolation_;
   std::map<float, std::vector<float>> pfjet_hadIsolation_;
+  std::map<float, std::vector<float>> pfjet_tkPtSum_;
+  std::map<float, std::vector<float>> pfjet_tkIsolation_;
   std::vector<int>                    pfjet_tracks_n_;
   std::vector<float>                  pfjet_ptDistribution_;
   std::vector<float>                  pfjet_dRSpread_;
@@ -236,20 +237,22 @@ ffNtuplePfJet::initialize( TTree&                   tree,
     pfjet_pfIsolationNoPU_[ isor ]  = {};
     pfjet_neuIsolationNoPU_[ isor ] = {};
     pfjet_hadIsolationNoPU_[ isor ] = {};
-    pfjet_tkIsolation_[ isor ]      = {};
     pfjet_pfIsolation_[ isor ]      = {};
     pfjet_neuIsolation_[ isor ]     = {};
     pfjet_hadIsolation_[ isor ]     = {};
+    pfjet_tkPtSum_[ isor ]          = {};
+    pfjet_tkIsolation_[ isor ]      = {};
     std::stringstream ss;
     ss << isor;
     std::string suffix = ss.str().replace( 1, 1, "" );
     tree.Branch( ( "pfjet_pfIsolationNoPU" + suffix ).c_str(), &pfjet_pfIsolationNoPU_[ isor ] );
     tree.Branch( ( "pfjet_neuIsolationNoPU" + suffix ).c_str(), &pfjet_neuIsolationNoPU_[ isor ] );
     tree.Branch( ( "pfjet_hadIsolationNoPU" + suffix ).c_str(), &pfjet_hadIsolationNoPU_[ isor ] );
-    tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(), &pfjet_tkIsolation_[ isor ] );
     tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(), &pfjet_pfIsolation_[ isor ] );
     tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(), &pfjet_neuIsolation_[ isor ] );
     tree.Branch( ( "pfjet_hadIsolation" + suffix ).c_str(), &pfjet_hadIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_tkPtSum" + suffix ).c_str(), &pfjet_tkPtSum_[ isor ] );
+    tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(), &pfjet_tkIsolation_[ isor ] );
   }
   tree.Branch( "pfjet_pfcands_n", &pfjet_pfcands_n_ );
   tree.Branch( "pfjet_tracks_n", &pfjet_tracks_n_ );
@@ -413,10 +416,12 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
       pfjet_neuIsolationNoPU_[ isor ].emplace_back( getNeutralIsolation( pfjet, pfCandNoPU_h, isor ) );
       pfjet_hadIsolationNoPU_[ isor ].emplace_back( getHadronIsolation( pfjet, pfCandNoPU_h, isor ) );
 
-      pfjet_tkIsolation_[ isor ].emplace_back( getTkIsolation( pfjet, generalTk_h, isor ) );
       pfjet_pfIsolation_[ isor ].emplace_back( getPfIsolation( pfjet, pfCand_h, isor ) );
       pfjet_neuIsolation_[ isor ].emplace_back( getNeutralIsolation( pfjet, pfCand_h, isor ) );
       pfjet_hadIsolation_[ isor ].emplace_back( getHadronIsolation( pfjet, pfCand_h, isor ) );
+
+      pfjet_tkPtSum_[ isor ].emplace_back( getTkPtSumInCone( pfjet, generalTk_h, *pvs_h, isor ) );
+      pfjet_tkIsolation_[ isor ].emplace_back( getTkIsolation( pfjet, generalTk_h, *pvs_h, isor ) );
     }
 
     pfjet_pfcands_n_.emplace_back( pfCands.size() );
@@ -737,6 +742,7 @@ ffNtuplePfJet::clear() {
   pfjet_area_.clear();
   pfjet_maxDistance_.clear();
   for ( const double& isor : isoRadius_ ) {
+    pfjet_tkPtSum_[ isor ].clear();
     pfjet_tkIsolation_[ isor ].clear();
     pfjet_pfIsolation_[ isor ].clear();
     pfjet_neuIsolation_[ isor ].clear();
