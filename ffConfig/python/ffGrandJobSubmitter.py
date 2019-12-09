@@ -25,11 +25,11 @@ SIGMC_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/sigmc/private/descriptio
 
 ## parser
 parser = argparse.ArgumentParser(description="Submit jobs in a GRAND way.")
-parser.add_argument("datasettype", type=str, nargs="*",
-                    choices=["sigmc", "bkgmc", "data"],
-                    help="Type of dataset",)
-parser.add_argument("--submitter", "-s", default="condor", type=str,
-                    choices=["condor", "crab"])
+parser.add_argument("datasettype", type=str, nargs="*", choices=["sigmc", "bkgmc", "data"], help="Type of dataset",)
+parser.add_argument("--submitter", "-s", default="condor", type=str, choices=["condor", "crab"])
+parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_true', help='Only take effect when submit with crab, ignore locality.')
+parser.add_argument("--no-ignorelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality.')
+parser.set_defaults(ignorelocality=False)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
 args = parser.parse_args()
 
@@ -71,7 +71,7 @@ def buildbanner(msg):
 
 def submit(dkind, submitter="condor", jobtype="ntuple"):
 
-    # common kwargs for config builders
+    ## common kwargs for config builders
     commonCBkwargs = dict(
         ffConfigName='ffNtupleFromAOD_v2_cfg.py',
         outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
@@ -84,7 +84,11 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
     if jobtype == 'ntuplefromskim':
         commonCBkwargs['unitsPerJob'] = 50
         commonCBkwargs['outbase'] = '/store/group/lpcmetx/SIDM/ffNtupleV2/Skim/'
+    if args.submitter == 'crab' and args.ignorelocality == False:
+        commonCBkwargs['ignoreLocality'] = False
 
+
+    ## split by submitter
     if submitter == "crab":
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder as CrabCB
 
