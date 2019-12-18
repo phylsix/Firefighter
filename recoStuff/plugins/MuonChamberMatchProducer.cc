@@ -40,16 +40,18 @@ MuonChamberMatchProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   es.get<TrackingComponentsRecord>().get( "SteppingHelixPropagatorAny", propagator );
   fTrackAssociator.setPropagator( propagator.product() );
 
-  TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut;
+  TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::OutsideIn;
 
-  for ( auto track : *fInputTrackHdl ) {
-    track.setExtra( reco::TrackExtraRef() );
+  for ( const auto& track : *fInputTrackHdl ) {
+    // track.setExtra( reco::TrackExtraRef() );
 
     GlobalVector oppositeMomentum( -track.momentum().x(), -track.momentum().y(), -track.momentum().z() );
-    GlobalPoint  trackVertex( track.referencePoint().x(), track.referencePoint().y(), track.referencePoint().z() );
+    // GlobalPoint  trackVertex( track.referencePoint().x(), track.referencePoint().y(), track.referencePoint().z() );
+    GlobalPoint trackVertex( track.innerPosition().x(), track.innerPosition().y(), track.innerPosition().z() );
 
-    TrackDetMatchInfo info     = fTrackAssociator.associate( e, es, track, fTrackAssociatorParameters, direction );
-    TrackDetMatchInfo oppoInfo = fTrackAssociator.associate( e, es, oppositeMomentum, trackVertex, track.charge(), fTrackAssociatorParameters );
+    TrackDetMatchInfo info = fTrackAssociator.associate( e, es, track, fTrackAssociatorParameters, direction );
+    // TrackDetMatchInfo oppoInfo = fTrackAssociator.associate( e, es, oppositeMomentum, trackVertex, track.charge(), fTrackAssociatorParameters );
+    TrackDetMatchInfo oppoInfo = fTrackAssociator.associate( e, es, track, fTrackAssociatorParameters, TrackDetectorAssociator::InsideOut );
 
     vector<reco::MuonChamberMatch> muonChamberMatches;
     unsigned int                   nubmerOfMatchesAccordingToTrackAssociator = 0;

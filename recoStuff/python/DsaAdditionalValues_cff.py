@@ -11,5 +11,5 @@ dsamuonExtra = cms.EDProducer(
         mindz=cms.double(48.), # 2*24
     ),
 )
-
+cosmicMuon1LegChamberMatch.propagateOpposite = cms.bool(True)
 dsamuonExtraSeq = cms.Sequence(cosmicMuon1LegChamberMatch + dsamuonExtra)

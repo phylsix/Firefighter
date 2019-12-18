@@ -3,6 +3,17 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/JetReco"/>
 <use name="Firefighter/recoStuff"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/RPCGeometry"/>
 
 <library name="FirefighterffNtupleTestPlugins" file="*.cc">
     <flags EDM_PLUGIN="1"/>
