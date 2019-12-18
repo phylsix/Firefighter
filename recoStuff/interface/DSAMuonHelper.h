@@ -6,6 +6,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -19,15 +20,18 @@ class DSAMuonHelper {
 
   static std::vector<DTChamberId> getDTDetIds( const std::vector<reco::MuonChamberMatch>& );
   static std::vector<DTChamberId> getDTDetIds( const reco::Muon& );
-  static std::vector<DTChamberId> getDTDetIds( const reco::Track& );
+  static std::vector<DTChamberId> getDTDetIds( const reco::Track&, const edm::EventSetup& );
 
   static std::vector<CSCDetId> getCSCDetIds( const std::vector<reco::MuonChamberMatch>& );
   static std::vector<CSCDetId> getCSCDetIds( const reco::Muon& );
-  static std::vector<CSCDetId> getCSCDetIds( const reco::Track& );
+  static std::vector<CSCDetId> getCSCDetIds( const reco::Track&, const edm::EventSetup& );
+
+  static std::vector<RPCDetId> getRPCDetIds( const reco::Track&, const edm::EventSetup& );
 
   static bool detIdsIsSubSetOfDTCSCIds( const reco::Track&,
                                         const std::vector<std::vector<DTChamberId>>&,
-                                        const std::vector<std::vector<CSCDetId>>& );
+                                        const std::vector<std::vector<CSCDetId>>&,
+                                        const edm::EventSetup& );
 
   static std::vector<DTRecSegment4DRef> getDTSegments( const std::vector<reco::MuonChamberMatch>& );
   static std::vector<DTRecSegment4DRef> getDTSegments( const reco::Muon& );

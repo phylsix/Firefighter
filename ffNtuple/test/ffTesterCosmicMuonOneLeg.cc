@@ -92,7 +92,7 @@ ffTesterCosmicMuonOneLeg::analyze( const edm::Event& e, const edm::EventSetup& e
   }
 
   for ( const auto& dsa : *fDSAMuonHdl ) {
-    bool dsaDetIdIsSubset      = DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( *dsa.outerTrack(), cosmicMuonOneLegDTIds, cosmicMuonOneLegCSCIds );
+    bool dsaDetIdIsSubset      = DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( *dsa.outerTrack(), cosmicMuonOneLegDTIds, cosmicMuonOneLegCSCIds, es );
     bool dsaSegIsSubset        = DSAMuonHelper::segmentsIsSubsetOfDTCSCSegs( dsa, cosmicMuonOneLegDTSegs, cosmicMuonOneLegCSCSegs );
     bool dsaSegIsSubsetTwoHemi = DSAMuonHelper::segmentsIsSubsetOfDTCSCSegs( dsa, cosmicMuonOneLegDTSegsTwoHemi, cosmicMuonOneLegCSCSegsTwoHemi );
 

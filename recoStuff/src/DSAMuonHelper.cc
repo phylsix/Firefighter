@@ -5,6 +5,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 std::vector<DTChamberId>
@@ -31,22 +32,23 @@ DSAMuonHelper::getDTDetIds( const reco::Muon& muon ) {
 }
 
 std::vector<DTChamberId>
-DSAMuonHelper::getDTDetIds( const reco::Track& track ) {
+DSAMuonHelper::getDTDetIds( const reco::Track&     track,
+                            const edm::EventSetup& es ) {
   using namespace std;
   vector<DTChamberId> res{};
 
+  edm::ESHandle<DTGeometry> dtG;
+  es.get<MuonGeometryRecord>().get( dtG );
+
   for ( auto hitIter = track.recHitsBegin(); hitIter != track.recHitsEnd(); ++hitIter ) {
-    if ( !( *hitIter )->isValid() )
-      continue;
-    const DetId id = ( *hitIter )->geographicalId();
-    if ( id.det() != DetId::Muon )
-      continue;
-
-    if ( id.subdetId() == MuonSubdetId::DT ) {
-      DTChamberId dtId( id.rawId() );
-
-      if ( find( res.begin(), res.end(), dtId ) == res.end() )
-        res.push_back( dtId );
+    const auto& hit = *( *hitIter );
+    if ( !hit.isValid() ) continue;
+    if ( hit.geographicalId().det() != DetId::Muon ) continue;
+    if ( hit.geographicalId().subdetId() == MuonSubdetId::DT ) {
+      const DTChamber* dtchamber = dtG->chamber( hit.geographicalId() );
+      DTChamberId      chamberId = DTChamberId( dtchamber->id() );
+      if ( find( res.begin(), res.end(), chamberId ) == res.end() )
+        res.push_back( chamberId );
     }
   }
 
@@ -78,22 +80,48 @@ DSAMuonHelper::getCSCDetIds( const reco::Muon& muon ) {
 }
 
 std::vector<CSCDetId>
-DSAMuonHelper::getCSCDetIds( const reco::Track& track ) {
+DSAMuonHelper::getCSCDetIds( const reco::Track&     track,
+                             const edm::EventSetup& es ) {
   using namespace std;
   vector<CSCDetId> res{};
 
+  edm::ESHandle<CSCGeometry> cscG;
+  es.get<MuonGeometryRecord>().get( cscG );
+
   for ( auto hitIter = track.recHitsBegin(); hitIter != track.recHitsEnd(); ++hitIter ) {
-    if ( !( *hitIter )->isValid() )
-      continue;
-    const DetId id = ( *hitIter )->geographicalId();
-    if ( id.det() != DetId::Muon )
-      continue;
+    const auto& hit = *( *hitIter );
+    if ( !hit.isValid() ) continue;
+    if ( hit.geographicalId().det() != DetId::Muon ) continue;
+    if ( hit.geographicalId().subdetId() == MuonSubdetId::CSC ) {
+      const CSCChamber* cscchamber = cscG->chamber( hit.geographicalId() );
+      CSCDetId          chamberId  = CSCDetId( cscchamber->id() );
+      if ( find( res.begin(), res.end(), chamberId ) == res.end() )
+        res.push_back( chamberId );
+    }
+  }
 
-    if ( id.subdetId() == MuonSubdetId::CSC ) {
-      CSCDetId cscId( id.rawId() );
+  sort( res.begin(), res.end() );
+  return res;
+}
 
-      if ( find( res.begin(), res.end(), cscId ) == res.end() )
-        res.push_back( cscId );
+std::vector<RPCDetId>
+DSAMuonHelper::getRPCDetIds( const reco::Track&     track,
+                             const edm::EventSetup& es ) {
+  using namespace std;
+  vector<RPCDetId> res{};
+
+  edm::ESHandle<RPCGeometry> rpcG;
+  es.get<MuonGeometryRecord>().get( rpcG );
+
+  for ( auto hitIter = track.recHitsBegin(); hitIter != track.recHitsEnd(); ++hitIter ) {
+    const auto& hit = *( *hitIter );
+    if ( !hit.isValid() ) continue;
+    if ( hit.geographicalId().det() != DetId::Muon ) continue;
+    if ( hit.geographicalId().subdetId() == MuonSubdetId::RPC ) {
+      const RPCChamber* rpcchamber = rpcG->chamber( hit.geographicalId() );
+      RPCDetId          chamberId  = RPCDetId( rpcchamber->id() );
+      if ( find( res.begin(), res.end(), chamberId ) == res.end() )
+        res.push_back( chamberId );
     }
   }
 
@@ -104,12 +132,13 @@ DSAMuonHelper::getCSCDetIds( const reco::Track& track ) {
 bool
 DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( const reco::Track&                           track,
                                          const std::vector<std::vector<DTChamberId>>& dtids,
-                                         const std::vector<std::vector<CSCDetId>>&    cscids ) {
+                                         const std::vector<std::vector<CSCDetId>>&    cscids,
+                                         const edm::EventSetup&                       es ) {
   using namespace std;
   bool isSubsetPFMuon( false );
 
-  vector<DTChamberId> _dtDetId  = getDTDetIds( track );
-  vector<CSCDetId>    _cscDetId = getCSCDetIds( track );
+  vector<DTChamberId> _dtDetId  = getDTDetIds( track, es );
+  vector<CSCDetId>    _cscDetId = getCSCDetIds( track, es );
 
   for ( pair<vector<vector<DTChamberId>>::const_iterator, vector<vector<CSCDetId>>::const_iterator> iter( dtids.begin(), cscids.begin() );
         iter.first != dtids.end() && iter.second != cscids.end();

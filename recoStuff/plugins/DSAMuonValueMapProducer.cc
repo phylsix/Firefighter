@@ -101,7 +101,7 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
 
     v_maxSegmentOverlapRatio[ i ]         = maxSegmentOverlapRatio( dsamuon );
     v_minExtrapolateInnermostLocalDr[ i ] = minDeltaRAtInnermostPoint( dsamuon );
-    v_isDetIdSubsetOfAnyPFMuon[ i ]       = DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( *dsamuon.outerTrack(), pfmuonDTIds, pfmuonCSCIds );
+    v_isDetIdSubsetOfAnyPFMuon[ i ]       = DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( *dsamuon.outerTrack(), pfmuonDTIds, pfmuonCSCIds, es );
     v_pfiso04[ i ]                        = ff::getMuonIsolationValue( dsamuon );
     v_oppositeMuon[ i ]                   = findOppositeMuon( dsamuonref );
     v_timediffDTCSC[ i ]                  = timingDiffDT( dsamuonref, v_oppositeMuon[ i ] );
