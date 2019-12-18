@@ -38,6 +38,9 @@ chargedMass( const reco::PFJet& );
 int
 sumCharge( const reco::PFJet& );
 
+int
+sumPFMuonCharge( const reco::PFJet& );
+
 bool
 muonInTime( const reco::PFJet&, float );
 

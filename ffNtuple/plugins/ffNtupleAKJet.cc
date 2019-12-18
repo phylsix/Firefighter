@@ -3,6 +3,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "Firefighter/ffNtuple/interface/ffNtupleBase.h"
+#include "Firefighter/recoStuff/interface/ffPFJetProcessors.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 using LorentzVector = math::XYZTLorentzVectorF;
@@ -31,6 +32,8 @@ class ffNtupleAKJet : public ffNtupleBaseNoHLT {
   std::vector<float>         fChaEmEnergyFraction;
   std::vector<float>         fMuonEnergyFraction;
   std::vector<int>           fNumCands;
+  std::vector<int>           fNumMuons;
+  std::vector<int>           fChargeSumOfMuons;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleAKJet, "ffNtupleAKJet" );
@@ -56,6 +59,8 @@ ffNtupleAKJet::initialize( TTree&                   tree,
   tree.Branch( TString::Format( "akjet_%s_emEnergyFraction", label_.c_str() ), &fEmEnergyFraction )->SetTitle( "EM energy fraction" );
   tree.Branch( TString::Format( "akjet_%s_chaEmEnergyFraction", label_.c_str() ), &fChaEmEnergyFraction )->SetTitle( "charged EM energy fraction" );
   tree.Branch( TString::Format( "akjet_%s_muonEnergyFraction", label_.c_str() ), &fMuonEnergyFraction )->SetTitle( "muon energy fraction" );
+  tree.Branch( TString::Format( "akjet_%s_muons_n", label_.c_str() ), &fNumMuons )->SetTitle( "muon multiplicity" );
+  tree.Branch( TString::Format( "akjet_%s_muonChargeSum", label_.c_str() ), &fChargeSumOfMuons )->SetTitle( "muon charge sum" );
 }
 
 void
@@ -85,6 +90,8 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fEmEnergyFraction.emplace_back( akjet.chargedEmEnergyFraction() + akjet.neutralEmEnergyFraction() );
     fChaEmEnergyFraction.emplace_back( akjet.chargedEmEnergyFraction() );
     fMuonEnergyFraction.emplace_back( akjet.muonEnergyFraction() );
+    fNumMuons.emplace_back( akjet.muonMultiplicity() );
+    fChargeSumOfMuons.emplace_back( ff::sumPFMuonCharge( akjet ) );
   }
 }
 
@@ -99,4 +106,6 @@ ffNtupleAKJet::clear() {
   fEmEnergyFraction.clear();
   fChaEmEnergyFraction.clear();
   fMuonEnergyFraction.clear();
+  fNumMuons.clear();
+  fChargeSumOfMuons.clear();
 }
