@@ -212,8 +212,7 @@ ntuple_cosmicveto = cms.PSet(
 
 ntuple_cosmicmuononeleg = cms.PSet(
     NtupleName=cms.string("ffNtupleCosmicMuonOneLeg"),
-    src=cms.InputTag("cosmicMuons1Leg"),
-    muonChamberMatch=cms.InputTag("cosmicMuon1LegChamberMatch"),
+    src=cms.InputTag("FFcosmicMuons1Leg"),
 )
 
 ntuple_akjetnolj = cms.PSet(

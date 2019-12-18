@@ -17,7 +17,13 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="TrackingTools/Records"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="Geometry/Records"/>
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/KinematicFitPrimitives"/>

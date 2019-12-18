@@ -41,7 +41,7 @@ leptonjet = ak4PFJets.clone(
     jetAlgorithm=cms.string("AntiKt"),
 )
 
-## produce addiitonal valueMaps
+## produce additional valueMaps
 leptonjetExtra = cms.EDProducer(
     "LeptonjetValueMapProducer",
     src=cms.InputTag("leptonjet"),
