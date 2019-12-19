@@ -33,6 +33,10 @@ class DSAMuonHelper {
                                         const std::vector<std::vector<CSCDetId>>&,
                                         const edm::EventSetup& );
 
+  static bool detIdsIsSubSetOfVDetIds( const reco::Track&,
+                                       const std::vector<std::vector<DetId>>&,
+                                       const edm::EventSetup& );
+
   static std::vector<DTRecSegment4DRef> getDTSegments( const std::vector<reco::MuonChamberMatch>& );
   static std::vector<DTRecSegment4DRef> getDTSegments( const reco::Muon& );
 

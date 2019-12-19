@@ -68,7 +68,7 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   fSegOverlapRatioToken            = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "maxSegmentOverlapRatio" ) );
   fExtrapolatedDrToken             = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "minExtrapolateInnermostLocalDr" ) );
   fIsSubsetAnyPFMuonToken          = cc.consumes<edm::ValueMap<bool>>( edm::InputTag( "dsamuonExtra", "isDetIdSubsetOfAnyPFMuon" ) );
-  fIsSubsetFilteredCosmic1LegToken = cc.consumes<edm::ValueMap<bool>>( edm::InputTag( "dsamuonExtra", "isSegemntSubsetOfFilteredCosmic1Leg" ) );
+  fIsSubsetFilteredCosmic1LegToken = cc.consumes<edm::ValueMap<bool>>( edm::InputTag( "dsamuonExtra", "isDetIdSubsetOfFilteredCosmic1Leg" ) );
   fPfIsoValToken                   = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "pfiso04" ) );
   fOppositeMuonToken               = cc.consumes<edm::ValueMap<reco::MuonRef>>( edm::InputTag( "dsamuonExtra", "oppositeMuon" ) );
   fTimeDiffDTCSCToken              = cc.consumes<edm::ValueMap<float>>( edm::InputTag( "dsamuonExtra", "dTUpperMinusLowerDTCSC" ) );

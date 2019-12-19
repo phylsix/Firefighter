@@ -154,6 +154,28 @@ DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( const reco::Track&                     
   return isSubsetPFMuon;
 }
 
+bool
+DSAMuonHelper::detIdsIsSubSetOfVDetIds( const reco::Track&                     track,
+                                        const std::vector<std::vector<DetId>>& dtids,
+                                        const edm::EventSetup&                 es ) {
+  using namespace std;
+  bool res( false );
+
+  vector<DetId> tkDetIds{};
+  for ( auto did : getDTDetIds( track, es ) )
+    tkDetIds.emplace_back( did );
+  for ( auto did : getCSCDetIds( track, es ) )
+    tkDetIds.emplace_back( did );
+  sort( tkDetIds.begin(), tkDetIds.end() );
+
+  for ( const auto& compDetIds : dtids ) {
+    res = includes( compDetIds.begin(), compDetIds.end(), tkDetIds.begin(), tkDetIds.end() );
+    if ( res ) break;
+  }
+
+  return res;
+}
+
 std::vector<DTRecSegment4DRef>
 DSAMuonHelper::getDTSegments( const std::vector<reco::MuonChamberMatch>& mcms ) {
   using namespace std;
