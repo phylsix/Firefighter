@@ -60,7 +60,7 @@ class ffTesterMuonsFromCosmics1Leg : public edm::one::EDAnalyzer<edm::one::Share
   std::vector<float> fCosmicDSAAbsCosAlpha;
   std::vector<float> fCosmicDSAMinDist;
   std::vector<float> fCosmicNormChi2;
-  std::vector<float> fCosmicPtOverPtError;
+  std::vector<float> fCosmicPtErrorOverPt;
 };
 
 ffTesterMuonsFromCosmics1Leg::ffTesterMuonsFromCosmics1Leg( const edm::ParameterSet& ps )
@@ -75,7 +75,7 @@ ffTesterMuonsFromCosmics1Leg::ffTesterMuonsFromCosmics1Leg( const edm::Parameter
   fTree->Branch( "cosmicDSAAbsCosAlpha", &fCosmicDSAAbsCosAlpha );
   fTree->Branch( "cosmicDSAMinDist", &fCosmicDSAMinDist );
   fTree->Branch( "cosmicNormChi2", &fCosmicNormChi2 );
-  fTree->Branch( "cosmicPtOverPtError", &fCosmicPtOverPtError );
+  fTree->Branch( "cosmicPtErrorOverPt", &fCosmicPtErrorOverPt );
 }
 
 void
@@ -114,7 +114,7 @@ ffTesterMuonsFromCosmics1Leg::analyze( const edm::Event& e, const edm::EventSetu
   fCosmicDSAAbsCosAlpha.clear();
   fCosmicDSAMinDist.clear();
   fCosmicNormChi2.clear();
-  fCosmicPtOverPtError.clear();
+  fCosmicPtErrorOverPt.clear();
 
   int realCosmics( 0 );  // counting how many cosmics I really believe.
   for ( size_t i( 0 ); i != fCosmicOneLegHdl->size(); i++ ) {
@@ -217,7 +217,7 @@ ffTesterMuonsFromCosmics1Leg::analyze( const edm::Event& e, const edm::EventSetu
     fCosmicDSAAbsCosAlpha.push_back( minAbsCosAlpha );
     fCosmicDSAMinDist.push_back( minDist );
 
-    fCosmicPtOverPtError.emplace_back( cosmic.pt() / cosmic.ptError() );
+    fCosmicPtErrorOverPt.emplace_back( cosmic.ptError() / cosmic.pt() );
     fCosmicNormChi2.emplace_back( cosmic.normalizedChi2() );
 
     if ( ( dtT + cscT ) > 1 && ( dtB + cscB ) > 1 && cosmic.pt() > 10. && cosmic.normalizedChi2() < 20. && impact2d > 20. ) realCosmics++;
