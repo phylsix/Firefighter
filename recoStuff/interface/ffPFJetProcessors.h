@@ -28,6 +28,9 @@ getChargedPFCands( const reco::PFJet& );
 std::vector<reco::PFCandidatePtr>
 getTrackEmbededPFCands( const reco::PFJet& );
 
+float
+getMinDistAnyTwoTracks( const reco::PFJet&, const edm::EventSetup&);
+
 std::vector<const reco::Track*>
 getSelectedTracks( const reco::PFJet&,
                    const StringCutObjectSelector<reco::Track>& );

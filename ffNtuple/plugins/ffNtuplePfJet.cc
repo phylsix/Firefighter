@@ -98,6 +98,7 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   std::vector<float> pfjet_pfcands_chargedMass_;
   std::vector<int>   pfjet_pfcands_nDsaMu_;
   std::vector<int>   pfjet_pfcands_maxPtType_;
+  std::vector<float> pfjet_pfcands_minTwoTkDist_;
 
   std::vector<std::vector<int>>   pfjet_pfcand_type_;
   std::vector<std::vector<int>>   pfjet_pfcand_charge_;
@@ -261,6 +262,7 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcands_chargedMass", &pfjet_pfcands_chargedMass_ );
   tree.Branch( "pfjet_pfcands_nDsaMu", &pfjet_pfcands_nDsaMu_ );
   tree.Branch( "pfjet_pfcands_maxPtType", &pfjet_pfcands_maxPtType_ );
+  tree.Branch( "pfjet_pfcands_minTwoTkDist", &pfjet_pfcands_minTwoTkDist_ );
 
   tree.Branch( "pfjet_pfcand_type", &pfjet_pfcand_type_ );
   tree.Branch( "pfjet_pfcand_charge", &pfjet_pfcand_charge_ );
@@ -431,6 +433,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcands_chargedMass_.emplace_back( chargedMass( pfjet ) );
     pfjet_pfcands_nDsaMu_.emplace_back( getNumberOfDisplacedStandAloneMuons( pfjet, generalTk_h ) );
     pfjet_pfcands_maxPtType_.emplace_back( getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
+    pfjet_pfcands_minTwoTkDist_.emplace_back( getMinDistAnyTwoTracks( pfjet, es ) );
 
     // pfcand ------------------------------------------------------------------
     vector<int>   cPFCandType{};
@@ -758,6 +761,7 @@ ffNtuplePfJet::clear() {
   pfjet_pfcands_chargedMass_.clear();
   pfjet_pfcands_nDsaMu_.clear();
   pfjet_pfcands_maxPtType_.clear();
+  pfjet_pfcands_minTwoTkDist_.clear();
 
   pfjet_pfcand_type_.clear();
   pfjet_pfcand_charge_.clear();

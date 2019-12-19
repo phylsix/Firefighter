@@ -29,8 +29,8 @@ compile:
       - master
       - merge_requests
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
@@ -73,8 +73,8 @@ test_sigMC:
       - master
       - merge_requests
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
@@ -104,8 +104,8 @@ sigMC_dump:
     refs:
       - master
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
@@ -133,8 +133,8 @@ test_bkgMC:
       - master
       - merge_requests
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
@@ -161,8 +161,8 @@ bkgMC_dump:
     refs:
       - master
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
@@ -191,8 +191,8 @@ test_data:
       - master
       - merge_requests
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
@@ -220,8 +220,8 @@ data_dump:
     refs:
       - master
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
@@ -247,8 +247,8 @@ deployment:
     refs:
       - master
     changes:
-      - ffNtuple/!(test)/*.{h,cc,xml,py}
-      - recoStuff/!(test)/*.{h,cc,xml,py}
+      - ffNtuple/**/*.{h,cc,xml,py}
+      - recoStuff/**/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py

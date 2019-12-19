@@ -7,7 +7,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 //-----------------------------------------------------------------------------
@@ -48,6 +52,39 @@ ff::getTrackEmbededPFCands( const reco::PFJet& jet ) {
                 result.end() );
 
   return result;
+}
+
+//-----------------------------------------------------------------------------
+
+float
+ff::getMinDistAnyTwoTracks( const reco::PFJet& jet, const edm::EventSetup& es ) {
+  std::vector<reco::PFCandidatePtr> candsWithTrack = getTrackEmbededPFCands( jet );
+  if ( candsWithTrack.size() < 2 ) return -1;
+
+  edm::ESHandle<MagneticField> field_h;
+  es.get<IdealMagneticFieldRecord>().get( field_h );
+  assert( field_h.isValid() );
+  const MagneticField* bField = field_h.product();
+
+  float minDist( 999. );
+  for ( size_t i( 0 ); i != candsWithTrack.size(); i++ ) {
+    const auto& tk_i = *( candsWithTrack[ i ]->bestTrack() );
+    for ( size_t j( i + 1 ); j != candsWithTrack.size(); j++ ) {
+      const auto& tk_j = *( candsWithTrack[ j ]->bestTrack() );
+
+      TwoTrackMinimumDistance ttmd;
+
+      bool status = ttmd.calculate( trajectoryStateTransform::initialFreeState( tk_i, bField ),
+                                    trajectoryStateTransform::initialFreeState( tk_j, bField ) );
+      if ( status ) {
+        if ( ttmd.distance() < minDist )
+          minDist = ttmd.distance();
+      }
+    }
+  }
+
+  // std::cout << "Two track min distance: " << minDist << std::endl;
+  return minDist;
 }
 
 //-----------------------------------------------------------------------------
