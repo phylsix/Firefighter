@@ -29,18 +29,14 @@ compile:
       - master
       - merge_requests
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - rm -Rf $CMSSW_VERSION
@@ -77,18 +73,14 @@ test_sigMC:
       - master
       - merge_requests
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -112,18 +104,14 @@ sigMC_dump:
     refs:
       - master
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -145,18 +133,14 @@ test_bkgMC:
       - master
       - merge_requests
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -177,18 +161,14 @@ bkgMC_dump:
     refs:
       - master
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -202,33 +182,6 @@ bkgMC_dump:
       - public
     expire_in: 1 hour
 
-# test_bkgMC4Trg:
-#   tags: [cvmfs]
-#   stage: test_ff
-#   script:
-#     - cd $CI_HOME/..
-#     - tar xfz $CI_HOME/cmssw.tgz
-#     - cd $CI_HOME/../$CMSSW_VERSION/src
-#     - eval `scramv1 runtime -sh`
-#     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/ZZ_numEvent300.root
-#     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_trigger_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_trigger_GitLabCI_ZZ.yml
-#     - mv ffNtuple_ZZ_trigger.root $CI_HOME
-#   artifacts:
-#     paths:
-#       - ffNtuple_ZZ_trigger.root
-
-# bkgMC4Trg_dump:
-#   tags: [cvmfs]
-#   stage: dump_ff
-#   script:
-#     - cd $CI_HOME/..
-#     - tar xfz $CI_HOME/cmssw.tgz
-#     - cd $CI_HOME/../$CMSSW_VERSION/src
-#     - eval `scramv1 runtime -sh`
-#     - cd $CI_HOME
-#     - rootls -1t ffNtuple_ZZ_trigger.root:ffNtupleStat
-#     - rootls -1t ffNtuple_ZZ_trigger.root:ffNtuplizer
-
 
 test_data:
   tags: [cvmfs]
@@ -238,18 +191,15 @@ test_data:
       - master
       - merge_requests
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
+
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -270,18 +220,14 @@ data_dump:
     refs:
       - master
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
   script:
     - cd $CI_HOME/..
     - tar xfz $CI_HOME/cmssw.tgz
@@ -301,18 +247,15 @@ deployment:
     refs:
       - master
     changes:
-      - ffNtuple/**/*.{h,cc,xml,py}
-      - recoStuff/**/*.{h,cc,xml,py}
+      - ffNtuple/!(test)/*.{h,cc,xml,py}
+      - recoStuff/!(test)/*.{h,cc,xml,py}
       - objects/**/*.{h,cc,xml}
       - ffEvtFilters/**/*.{h,cc,xml,py}
       - ffConfig/cfg/ff*_cfg.py
       - ffConfig/python/ffChainConstruction.py
       - ffConfig/python/test/ffSuperConfig_GitLabCI*.yml
       - .gitlab-ci.yml
-  except:
-    changes:
-      - ffNtuple/test/*.{py,txt}
-      - recoStuff/test/*.{py,txt}
+
   image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer:latest
   script:
   - deploy-eos
