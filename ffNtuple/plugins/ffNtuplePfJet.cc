@@ -99,6 +99,7 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   std::vector<int>   pfjet_pfcands_nDsaMu_;
   std::vector<int>   pfjet_pfcands_maxPtType_;
   std::vector<float> pfjet_pfcands_minTwoTkDist_;
+  std::vector<float> pfjet_pfcands_maxTwoTkDist_;
 
   std::vector<std::vector<int>>   pfjet_pfcand_type_;
   std::vector<std::vector<int>>   pfjet_pfcand_charge_;
@@ -263,6 +264,7 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcands_nDsaMu", &pfjet_pfcands_nDsaMu_ );
   tree.Branch( "pfjet_pfcands_maxPtType", &pfjet_pfcands_maxPtType_ );
   tree.Branch( "pfjet_pfcands_minTwoTkDist", &pfjet_pfcands_minTwoTkDist_ );
+  tree.Branch( "pfjet_pfcands_maxTwoTkDist", &pfjet_pfcands_maxTwoTkDist_ );
 
   tree.Branch( "pfjet_pfcand_type", &pfjet_pfcand_type_ );
   tree.Branch( "pfjet_pfcand_charge", &pfjet_pfcand_charge_ );
@@ -434,6 +436,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcands_nDsaMu_.emplace_back( getNumberOfDisplacedStandAloneMuons( pfjet, generalTk_h ) );
     pfjet_pfcands_maxPtType_.emplace_back( getCandType( getCandWithMaxPt( pfCands ), generalTk_h ) );
     pfjet_pfcands_minTwoTkDist_.emplace_back( getMinDistAnyTwoTracks( pfjet, es ) );
+    pfjet_pfcands_maxTwoTkDist_.emplace_back( getMaxDistAnyTwoTracks( pfjet, es ) );
 
     // pfcand ------------------------------------------------------------------
     vector<int>   cPFCandType{};
@@ -457,22 +460,18 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
       const reco::Track* candEmbedTrack = cand->bestTrack();
 
-      cPFCandTkD0.emplace_back( candEmbedTrack != nullptr
-                                    ? -candEmbedTrack->dxy( pv.position() )
-                                    : NAN );
-      cPFCandTkD0Sig.emplace_back(
-          candEmbedTrack != nullptr
-              ? fabs( -candEmbedTrack->dxy( pv.position() ) /
-                      candEmbedTrack->dxyError() )
-              : NAN );
+      cPFCandTkD0.emplace_back( candEmbedTrack != nullptr ? -candEmbedTrack->dxy( pv.position() ) : NAN );
+      cPFCandTkD0Sig.emplace_back( candEmbedTrack != nullptr
+                                       ? fabs( -candEmbedTrack->dxy( pv.position() ) /
+                                               candEmbedTrack->dxyError() )
+                                       : NAN );
       cPFCandTkDz.emplace_back( candEmbedTrack != nullptr
                                     ? candEmbedTrack->dz( pv.position() )
                                     : NAN );
-      cPFCandTkDzSig.emplace_back(
-          candEmbedTrack != nullptr
-              ? fabs( candEmbedTrack->dz( pv.position() ) /
-                      candEmbedTrack->dzError() )
-              : NAN );
+      cPFCandTkDzSig.emplace_back( candEmbedTrack != nullptr
+                                       ? fabs( candEmbedTrack->dz( pv.position() ) /
+                                               candEmbedTrack->dzError() )
+                                       : NAN );
       cPFCandTkNormChi2.emplace_back( candEmbedTrack != nullptr &&
                                               candEmbedTrack->ndof() != 0
                                           ? candEmbedTrack->normalizedChi2()
@@ -559,47 +558,26 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
       pfjet_klmvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value() : NAN );
       pfjet_klmvtx_lxySig_.emplace_back( distXY.significance() ? distXY.value() / distXY.error() : NAN );
       pfjet_klmvtx_l3dSig_.emplace_back( dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
-      pfjet_klmvtx_normChi2_.emplace_back(
-          klmVtxValid && klmVtx.degreesOfFreedom() ? klmVtx.normalisedChiSquared()
-                                                   : NAN );
-      pfjet_klmvtx_prob_.emplace_back(
-          klmVtxValid ? ChiSquaredProbability( klmVtx.totalChiSquared(),
-                                               klmVtx.degreesOfFreedom() )
-                      : NAN );
+      pfjet_klmvtx_normChi2_.emplace_back( klmVtxValid && klmVtx.degreesOfFreedom() ? klmVtx.normalisedChiSquared() : NAN );
+      pfjet_klmvtx_prob_.emplace_back( klmVtxValid ? ChiSquaredProbability( klmVtx.totalChiSquared(), klmVtx.degreesOfFreedom() ) : NAN );
       pfjet_klmvtx_mass_.emplace_back( klmVtxValid ? klmVtxMass : NAN );
-      pfjet_klmvtx_cosThetaXy_.emplace_back(
-          klmVtxValid
-              ? cosThetaOfJetPvXY( pv, klmVtx.vertexState(), pfjetMomentum )
-              : NAN );
-      pfjet_klmvtx_cosTheta3d_.emplace_back(
-          klmVtxValid
-              ? cosThetaOfJetPv3D( pv, klmVtx.vertexState(), pfjetMomentum )
-              : NAN );
-      pfjet_klmvtx_impactDistXy_.emplace_back(
-          klmVtxValid
-              ? impactDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum )
-              : NAN );
-      pfjet_klmvtx_impactDist3d_.emplace_back(
-          klmVtxValid
-              ? impactDistance3D( pv, klmVtx.vertexState(), pfjetMomentum )
-              : NAN );
+      pfjet_klmvtx_cosThetaXy_.emplace_back( klmVtxValid ? cosThetaOfJetPvXY( pv, klmVtx.vertexState(), pfjetMomentum ) : NAN );
+      pfjet_klmvtx_cosTheta3d_.emplace_back( klmVtxValid ? cosThetaOfJetPv3D( pv, klmVtx.vertexState(), pfjetMomentum ) : NAN );
+      pfjet_klmvtx_impactDistXy_.emplace_back( klmVtxValid ? impactDistanceXY( pv, klmVtx.vertexState(), pfjetMomentum ) : NAN );
+      pfjet_klmvtx_impactDist3d_.emplace_back( klmVtxValid ? impactDistance3D( pv, klmVtx.vertexState(), pfjetMomentum ) : NAN );
 
       vector<float> trackImpactDist2dKlmVtx{}, trackImpactDist3dKlmVtx{};
       if ( klmVtxValid ) {
         for ( const auto& tt : transientTks ) {
-          pair<bool, Measurement1D> impact2dResult =
-              ff::absoluteTransverseImpactParameter( tt, klmVtx.vertexState() );
-          trackImpactDist2dKlmVtx.emplace_back(
-              impact2dResult.first && impact2dResult.second.significance()
-                  ? impact2dResult.second.value()
-                  : NAN );
+          pair<bool, Measurement1D> impact2dResult = ff::absoluteTransverseImpactParameter( tt, klmVtx.vertexState() );
+          trackImpactDist2dKlmVtx.emplace_back( impact2dResult.first && impact2dResult.second.significance()
+                                                    ? impact2dResult.second.value()
+                                                    : NAN );
 
-          pair<bool, Measurement1D> impact3dResult =
-              ff::absoluteImpactParameter3D( tt, klmVtx.vertexState() );
-          trackImpactDist3dKlmVtx.emplace_back(
-              impact3dResult.first && impact3dResult.second.significance()
-                  ? impact3dResult.second.value()
-                  : NAN );
+          pair<bool, Measurement1D> impact3dResult = ff::absoluteImpactParameter3D( tt, klmVtx.vertexState() );
+          trackImpactDist3dKlmVtx.emplace_back( impact3dResult.first && impact3dResult.second.significance()
+                                                    ? impact3dResult.second.value()
+                                                    : NAN );
         }
       }
       pfjet_klmvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKlmVtx );
@@ -610,67 +588,37 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
       const float&           kinVtxMass  = kinVtxInfo.second;
       bool                   kinVtxValid = kinVtx.vertexIsValid();
 
-      distXY = kinVtxValid
-                   ? signedDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum )
-                   : Measurement1D();
-      dist3D = kinVtxValid
-                   ? signedDistance3D( pv, kinVtx.vertexState(), pfjetMomentum )
-                   : Measurement1D();
+      distXY = kinVtxValid ? signedDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum ) : Measurement1D();
+      dist3D = kinVtxValid ? signedDistance3D( pv, kinVtx.vertexState(), pfjetMomentum ) : Measurement1D();
 
       pfjet_kinvtx_.emplace_back( kinVtxValid ? Point( kinVtx.position().x(),
                                                        kinVtx.position().y(),
                                                        kinVtx.position().z() )
                                               : Point( NAN, NAN, NAN ) );
-      pfjet_kinvtx_lxy_.emplace_back( distXY.significance() ? distXY.value()
-                                                            : NAN );
-      pfjet_kinvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value()
-                                                            : NAN );
-      pfjet_kinvtx_lxySig_.emplace_back(
-          distXY.significance() ? distXY.value() / distXY.error() : NAN );
-      pfjet_kinvtx_l3dSig_.emplace_back(
-          dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
-      pfjet_kinvtx_normChi2_.emplace_back(
-          kinVtxValid && kinVtx.degreesOfFreedom()
-              ? kinVtx.chiSquared() / kinVtx.degreesOfFreedom()
-              : NAN );
-      pfjet_kinvtx_prob_.emplace_back(
-          kinVtxValid ? ChiSquaredProbability( kinVtx.chiSquared(),
-                                               kinVtx.degreesOfFreedom() )
-                      : NAN );
+      pfjet_kinvtx_lxy_.emplace_back( distXY.significance() ? distXY.value() : NAN );
+      pfjet_kinvtx_l3d_.emplace_back( dist3D.significance() ? dist3D.value() : NAN );
+      pfjet_kinvtx_lxySig_.emplace_back( distXY.significance() ? distXY.value() / distXY.error() : NAN );
+      pfjet_kinvtx_l3dSig_.emplace_back( dist3D.significance() ? dist3D.value() / dist3D.error() : NAN );
+      pfjet_kinvtx_normChi2_.emplace_back( kinVtxValid && kinVtx.degreesOfFreedom() ? kinVtx.chiSquared() / kinVtx.degreesOfFreedom() : NAN );
+      pfjet_kinvtx_prob_.emplace_back( kinVtxValid ? ChiSquaredProbability( kinVtx.chiSquared(), kinVtx.degreesOfFreedom() ) : NAN );
       pfjet_kinvtx_mass_.emplace_back( kinVtxValid ? kinVtxMass : NAN );
-      pfjet_kinvtx_cosThetaXy_.emplace_back(
-          kinVtxValid
-              ? cosThetaOfJetPvXY( pv, kinVtx.vertexState(), pfjetMomentum )
-              : NAN );
-      pfjet_kinvtx_cosTheta3d_.emplace_back(
-          kinVtxValid
-              ? cosThetaOfJetPv3D( pv, kinVtx.vertexState(), pfjetMomentum )
-              : NAN );
-      pfjet_kinvtx_impactDistXy_.emplace_back(
-          kinVtxValid
-              ? impactDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum )
-              : NAN );
-      pfjet_kinvtx_impactDist3d_.emplace_back(
-          kinVtxValid
-              ? impactDistance3D( pv, kinVtx.vertexState(), pfjetMomentum )
-              : NAN );
+      pfjet_kinvtx_cosThetaXy_.emplace_back( kinVtxValid ? cosThetaOfJetPvXY( pv, kinVtx.vertexState(), pfjetMomentum ) : NAN );
+      pfjet_kinvtx_cosTheta3d_.emplace_back( kinVtxValid ? cosThetaOfJetPv3D( pv, kinVtx.vertexState(), pfjetMomentum ) : NAN );
+      pfjet_kinvtx_impactDistXy_.emplace_back( kinVtxValid ? impactDistanceXY( pv, kinVtx.vertexState(), pfjetMomentum ) : NAN );
+      pfjet_kinvtx_impactDist3d_.emplace_back( kinVtxValid ? impactDistance3D( pv, kinVtx.vertexState(), pfjetMomentum ) : NAN );
 
       vector<float> trackImpactDist2dKinVtx{}, trackImpactDist3dKinVtx{};
       if ( kinVtxValid ) {
         for ( const auto& tt : transientTks ) {
-          pair<bool, Measurement1D> impact2dResult =
-              ff::absoluteTransverseImpactParameter( tt, kinVtx.vertexState() );
-          trackImpactDist2dKinVtx.emplace_back(
-              impact2dResult.first && impact2dResult.second.significance()
-                  ? impact2dResult.second.value()
-                  : NAN );
+          pair<bool, Measurement1D> impact2dResult = ff::absoluteTransverseImpactParameter( tt, kinVtx.vertexState() );
+          trackImpactDist2dKinVtx.emplace_back( impact2dResult.first && impact2dResult.second.significance()
+                                                    ? impact2dResult.second.value()
+                                                    : NAN );
 
-          pair<bool, Measurement1D> impact3dResult =
-              ff::absoluteImpactParameter3D( tt, kinVtx.vertexState() );
-          trackImpactDist3dKinVtx.emplace_back(
-              impact3dResult.first && impact3dResult.second.significance()
-                  ? impact3dResult.second.value()
-                  : NAN );
+          pair<bool, Measurement1D> impact3dResult = ff::absoluteImpactParameter3D( tt, kinVtx.vertexState() );
+          trackImpactDist3dKinVtx.emplace_back( impact3dResult.first && impact3dResult.second.significance()
+                                                    ? impact3dResult.second.value()
+                                                    : NAN );
         }
       }
       pfjet_kinvtx_tkImpactDist2d_.emplace_back( trackImpactDist2dKinVtx );
@@ -762,6 +710,7 @@ ffNtuplePfJet::clear() {
   pfjet_pfcands_nDsaMu_.clear();
   pfjet_pfcands_maxPtType_.clear();
   pfjet_pfcands_minTwoTkDist_.clear();
+  pfjet_pfcands_maxTwoTkDist_.clear();
 
   pfjet_pfcand_type_.clear();
   pfjet_pfcand_charge_.clear();
