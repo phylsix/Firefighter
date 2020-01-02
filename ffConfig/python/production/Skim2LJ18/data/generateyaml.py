@@ -9,21 +9,70 @@ import subprocess
 from os.path import join
 from datetime import datetime
 
+from rootpy.io import root_open
 from Firefighter.ffConfig.datasetUtils import ffdatasetdata
 from DataFormats.FWLite import Events
 
-def countingEvents(fn):
-    return sum([1 for e in Events(fn)])
+
 
 DATASOURCES_ABC = """\
 /DoubleMuon/Run2018A-17Sep2018-v2/AOD
-/DoubleMuon/Run2018B-17Sep2018-v1/AOD
-/DoubleMuon/Run2018C-17Sep2018-v1/AOD"""
+/DoubleMuon/Run2018B-17Sep2018-v1/AOD"""
+# /DoubleMuon/Run2018C-17Sep2018-v1/AOD"""
 
 DATASOURCES_D = '/DoubleMuon/Run2018D-PromptReco-v2/AOD'
 
 XDIRECTOR = "root://cmseos.fnal.gov/"
 SOURCEEOSPATH = "/store/group/lpcmetx/SIDM/Skim/2018"
+
+
+
+def fetchFiles(d):
+    dtag = d.split('-')[0][1:].replace('/', '_')
+    eospath_ = SOURCEEOSPATH + d.rsplit('/', 1)[0]
+    timestamps = subprocess.check_output(shlex.split('eos {0} ls {1}'.format(XDIRECTOR, eospath_))).split()
+    if not timestamps:
+        print("--> Zero timestamp directory found under", eospath_)
+        print("--> Empty list returned for", dtag)
+        return dtag, []
+    timestamps = sorted(timestamps, key=lambda x: datetime.strptime(x, "%y%m%d_%H%M%S"))
+    eospath = join(eospath_, timestamps[-1]) # most recent submission
+
+    flist = []
+
+    try:
+        flist = subprocess.check_output(shlex.split('eos {0} find -name "*ffAOD*.root" -f --xurl {1}'.format(XDIRECTOR, eospath))).split()
+    except:
+        print("--> cannot stat eos path: ", eospath)
+        print("--> Empty list returned for", dtag)
+        return dtag, []
+
+    print(dtag, "Total number of files (uncleaned):", len(flist))
+
+    nonzeroes_ = []
+    for f in flist:
+        nevents = 0
+        try:
+            thefile = root_open(f) # make sure it can be opened properly
+        except Exception as e:
+            print("--> Cannot open file", f)
+            print(str(e))
+            continue
+
+        try:
+            events = Events(f)
+            for e in events: nevents += 1
+        except Exception as e:
+            print("--> FWLite failed for", f)
+            print(str(e))
+            continue
+
+        if nevents>0: nonzeroes_.append(f)
+
+    return dtag, nonzeroes_
+
+
+
 
 if __name__ == "__main__":
 
@@ -31,19 +80,8 @@ if __name__ == "__main__":
 
     # abc
     for d in DATASOURCES_ABC.split():
-        dtag = d.split('-')[0][1:].replace('/', '_')
-        datasetlist.append(dtag)
-        flist = []
-        try:
-            eospath_ = SOURCEEOSPATH + d.rsplit('/', 1)[0]
-            timestamps = subprocess.check_output(shlex.split('eos {0} ls {1}'.format(XDIRECTOR, eospath_))).split()
-            timestamps = sorted(timestamps, key=lambda x: datetime.strptime(x, "%y%m%d_%H%M%S"))
-            eospath = join(eospath_, timestamps[-1]) # most recent submission
-            flist = subprocess.check_output(shlex.split('eos {0} find -name "*ffAOD*.root" -f --xurl {1}'.format(XDIRECTOR, eospath))).split()
-            flist = [f for f in flist if countingEvents(f)!=0]
-        except:
-            print("cannot stat eos path: ", ds)
-            print("empty list returned!")
+        dtag, flist = fetchFiles(d)
+        if flist: datasetlist.append(dtag)
 
         flist = [f for f in flist if f]
         ffds = ffdatasetdata()
@@ -55,19 +93,8 @@ if __name__ == "__main__":
 
     # d
     d = DATASOURCES_D
-    dtag = d.split('-')[0][1:].replace('/', '_')
-    datasetlist.append(dtag)
-    flist = []
-    try:
-        eospath_ = SOURCEEOSPATH + d.rsplit('/', 1)[0]
-        timestamps = subprocess.check_output(shlex.split('eos {0} ls {1}'.format(XDIRECTOR, eospath_))).split()
-        timestamps = sorted(timestamps, key=lambda x: datetime.strptime(x, "%y%m%d_%H%M%S"))
-        eospath = join(eospath_, timestamps[-1]) # most recent submission
-        flist = subprocess.check_output(shlex.split('eos {0} find -name "*ffAOD*.root" -f --xurl {1}'.format(XDIRECTOR, eospath))).split()
-        flist = [f for f in flist if countingEvents(f)!=0]
-    except:
-        print("cannot stat eos path: ", ds)
-        print("empty list returned!")
+    dtag, flist = fetchFiles(d)
+    if flist: datasetlist.append(dtag)
 
     flist = [f for f in flist if f]
     ffds = ffdatasetdata()
