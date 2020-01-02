@@ -31,6 +31,8 @@ class ffNtuplePhoton : public ffNtupleBaseNoHLT {
   std::map<std::string, std::vector<float>> fCutFlowValMap;
   std::vector<unsigned int>                 fIdBit;
   std::vector<unsigned int>                 fIdResults;
+  std::vector<bool>                         fIsConversion;
+  std::vector<bool>                         fHasPixelSeed;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePhoton, "ffNtuplePhoton" );
@@ -59,6 +61,8 @@ ffNtuplePhoton::initialize( TTree&                   tree,
   }
   tree.Branch( "photon_idBit", &fIdBit )->SetTitle( "sub-ID result for defined idLabel" );
   tree.Branch( "photon_idResults", &fIdResults )->SetTitle( "ID result, encoded as bitmap" );
+  tree.Branch( "photon_isConversion", &fIsConversion )->SetTitle( ">0 references to conversion tracks" );
+  tree.Branch( "photon_hasPixelSeed", &fHasPixelSeed )->SetTitle( ">0 references to electron pixel seeds" );
 }
 
 void
@@ -104,6 +108,9 @@ ffNtuplePhoton::fill( const edm::Event& e, const edm::EventSetup& es ) {
         idresult |= 1 << i;
     }
     fIdResults.emplace_back( idresult );
+
+    fIsConversion.emplace_back( photon.hasConversionTracks() );
+    fHasPixelSeed.emplace_back( photon.hasPixelSeed() );
   }
 }
 
@@ -114,4 +121,6 @@ ffNtuplePhoton::clear() {
     fCutFlowValMap[ name ].clear();
   fIdBit.clear();
   fIdResults.clear();
+  fIsConversion.clear();
+  fHasPixelSeed.clear();
 }
