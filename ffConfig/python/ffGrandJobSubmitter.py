@@ -96,8 +96,10 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
         print(buildbanner(coremsg))
 
         _eventregion = "all"
-        if dkind == "data":
-            _eventregion = "control"  # only control for data now.
+
+        ## 19/12/24 wsi: CR description is not complete.
+        # if dkind == "data":
+        #     _eventregion = "control"  # only control for data now.
 
         for i, ds in enumerate(ffds[dkind]):
             print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
@@ -117,8 +119,9 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
         print(buildbanner(coremsg))
 
         _eventregion = "all"
-        if dkind == "data":
-            _eventregion = "control"  # only control for data now.
+        ## 19/12/24 wsi: CR description is not complete.
+        # if dkind == "data":
+        #     _eventregion = "control"  # only control for data now.
 
         os.system("cd $CMSSW_BASE/src/Firefighter && scram b -j12 && cd -")
         os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf `basename ${CMSSW_BASE}`.tar.gz -C ${CMSSW_BASE}/.. `basename ${CMSSW_BASE}`")
