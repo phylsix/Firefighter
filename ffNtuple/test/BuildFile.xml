@@ -8,12 +8,16 @@
 <use name="FWCore/Utilities"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
+<use name="TrackingTools/Records"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/TransientTrack"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/RPCGeometry"/>
+<use name="RecoVertex/VertexPrimitives"/>
 
 <library name="FirefighterffNtupleTestPlugins" file="*.cc">
     <flags EDM_PLUGIN="1"/>

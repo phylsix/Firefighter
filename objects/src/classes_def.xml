@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="DSAExtra" />
+  <class name="std::vector<DSAExtra>" />
+  <class name="edm::Wrapper<std::vector<DSAExtra> >" />
+  <class name="edm::ValueMap<DSAExtra>" />
+  <class name="edm::Wrapper<edm::ValueMap<DSAExtra> >" />
+</lcgdict>

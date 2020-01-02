@@ -4,9 +4,12 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Firefighter/objects/interface/DSAExtra.h"
 #include "Firefighter/recoStuff/interface/DSAMuonHelper.h"
+#include "Firefighter/cosmics/interface/CosmicHelper.h"
 #include "Firefighter/recoStuff/interface/RecoHelpers.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -23,15 +26,10 @@ DSAMuonValueMapProducer::DSAMuonValueMapProducer( const edm::ParameterSet& ps )
       fPFMuonToken( consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "leptonjetSourcePFMuon", "inclusive" ) ) ),
       fCosmic1LegToken( consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "cosmic" ) ) ),
       fPvToken( consumes<reco::VertexCollection>( edm::InputTag( "offlinePrimaryVertices" ) ) ),
+      fDTSegToken( consumes<DTRecSegment4DCollection>( edm::InputTag( "dt4DSegments" ) ) ),
+      fCSCSegToken( consumes<CSCSegmentCollection>( edm::InputTag( "cscSegments" ) ) ),
       fCosmicMatchCutPars( ps.getParameterSet( "cosmicMatchCut" ) ) {
-  produces<edm::ValueMap<float>>( "maxSegmentOverlapRatio" );
-  produces<edm::ValueMap<float>>( "minExtrapolateInnermostLocalDr" );
-  produces<edm::ValueMap<bool>>( "isDetIdSubsetOfAnyPFMuon" );
-  produces<edm::ValueMap<float>>( "pfiso04" );
-  produces<edm::ValueMap<reco::MuonRef>>( "oppositeMuon" );
-  produces<edm::ValueMap<float>>( "dTUpperMinusLowerDTCSC" );
-  produces<edm::ValueMap<float>>( "dTUpperMinusLowerRPC" );
-  produces<edm::ValueMap<bool>>( "isDetIdSubsetOfFilteredCosmic1Leg" );
+  produces<edm::ValueMap<DSAExtra>>();
 }
 
 DSAMuonValueMapProducer::~DSAMuonValueMapProducer() = default;
@@ -46,14 +44,7 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   using namespace std;
   using namespace edm;
 
-  auto vm_maxSegmentOverlapRatio         = make_unique<ValueMap<float>>();
-  auto vm_minExtrapolateInnermostLocalDr = make_unique<ValueMap<float>>();
-  auto vm_isDetIdSubsetOfAnyPFMuon       = make_unique<ValueMap<bool>>();
-  auto vm_pfiso04                        = make_unique<ValueMap<float>>();
-  auto vm_oppositeMuon                   = make_unique<ValueMap<reco::MuonRef>>();
-  auto vm_timediffDTCSC                  = make_unique<ValueMap<float>>();
-  auto vm_timediffRPC                    = make_unique<ValueMap<float>>();
-  auto vm_isDetIdSubsetOfAnyCosmic1Leg   = make_unique<ValueMap<bool>>();
+  auto vm_DSAExtra = make_unique<ValueMap<DSAExtra>>();
 
   e.getByToken( fDsaMuonToken, fDsaMuonHdl );
   assert( fDsaMuonHdl.isValid() );
@@ -64,6 +55,11 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( fPvToken, fPvHdl );
   assert( fPvHdl.isValid() && fPvHdl->size() > 0 );
   const auto& pv = *( fPvHdl->begin() );
+  e.getByToken( fDTSegToken, fDTSegHdl );
+  assert( fDTSegHdl.isValid() );
+  e.getByToken( fCSCSegToken, fCSCSegHdl );
+  assert( fCSCSegHdl.isValid() );
+
 
   ESHandle<MagneticField> field_h;
   es.get<IdealMagneticFieldRecord>().get( field_h );
@@ -75,7 +71,7 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   es.get<MuonGeometryRecord>().get( cscG );
   es.get<MuonGeometryRecord>().get( dtG );
 
-  // collect PFMuon DetIds
+  // *** collect PFMuon DetIds ***
   vector<vector<DTChamberId>> pfmuonDTIds{};
   vector<vector<CSCDetId>>    pfmuonCSCIds{};
   for ( const auto& m : *fPFMuonHdl ) {
@@ -84,7 +80,7 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
     pfmuonCSCIds.push_back( DSAMuonHelper::getCSCDetIds( *muonref ) );
   }
 
-  // collect filtered Cosmic1Leg DetIds
+  // *** collect filtered Cosmic1Leg DetIds ***
   vector<vector<DetId>> cosmic1legDetIds{};
   for ( size_t i( 0 ); i != fCosmic1LegHdl->size(); i++ ) {
     reco::TrackRef cosmicRef( fCosmic1LegHdl, i );
@@ -133,68 +129,107 @@ DSAMuonValueMapProducer::produce( edm::Event& e, const edm::EventSetup& es ) {
   if ( cosmic1legDetIds.size() < fCosmicMatchCutPars.getParameter<unsigned int>( "minCount" ) )
     cosmic1legDetIds.clear();
 
-  vector<float>         v_maxSegmentOverlapRatio( fDsaMuonHdl->size(), 0. );
-  vector<float>         v_minExtrapolateInnermostLocalDr( fDsaMuonHdl->size(), 999. );
-  vector<bool>          v_isDetIdSubsetOfAnyPFMuon( fDsaMuonHdl->size(), true );
-  vector<float>         v_pfiso04( fDsaMuonHdl->size(), 999. );
-  vector<reco::MuonRef> v_oppositeMuon( fDsaMuonHdl->size(), reco::MuonRef() );
-  vector<float>         v_timediffDTCSC( fDsaMuonHdl->size(), -999. );
-  vector<float>         v_timediffRPC( fDsaMuonHdl->size(), -999. );
-  vector<bool>          v_isDetIdSubsetOfAnyCosmic1Leg( fDsaMuonHdl->size(), false );
+  // *** loop over DSAs to set attributes ***
+  vector<DSAExtra> v_DSAExtra( fDsaMuonHdl->size() );
 
   for ( size_t i( 0 ); i != fDsaMuonHdl->size(); i++ ) {
     reco::MuonRef dsamuonref( fDsaMuonHdl, i );
-    const auto&   dsamuon = ( *fDsaMuonHdl )[ i ];
+    const reco::Muon&   dsamuon = ( *fDsaMuonHdl )[ i ];
+    const reco::Track& iDSA = *(dsamuon.outerTrack());
 
-    v_maxSegmentOverlapRatio[ i ]         = maxSegmentOverlapRatio( dsamuon );
-    v_minExtrapolateInnermostLocalDr[ i ] = minDeltaRAtInnermostPoint( dsamuon );
-    v_isDetIdSubsetOfAnyPFMuon[ i ]       = DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( *dsamuon.outerTrack(), pfmuonDTIds, pfmuonCSCIds, es );
-    v_pfiso04[ i ]                        = ff::getMuonIsolationValue( dsamuon );
-    v_oppositeMuon[ i ]                   = findOppositeMuon( dsamuonref );
-    v_timediffDTCSC[ i ]                  = timingDiffDT( dsamuonref, v_oppositeMuon[ i ] );
-    v_timediffRPC[ i ]                    = timingDiffRPC( dsamuonref, v_oppositeMuon[ i ] );
-    v_isDetIdSubsetOfAnyCosmic1Leg[ i ]   = DSAMuonHelper::detIdsIsSubSetOfVDetIds( *dsamuon.outerTrack(), cosmic1legDetIds, es );
+    auto& dsaextra_ = v_DSAExtra[ i ];
+    dsaextra_.set_pfmuon_maxSegmentOverlapRatio( maxSegmentOverlapRatio( dsamuon ) );
+    dsaextra_.set_pfmuon_minLocalDeltaRAtInnermost( minDeltaRAtInnermostPoint( dsamuon ) );
+    dsaextra_.set_pfmuon_detIdSubsetOfAny( DSAMuonHelper::detIdsIsSubSetOfDTCSCIds( iDSA, pfmuonDTIds, pfmuonCSCIds, es ) );
+    dsaextra_.set_pfiso04( ff::getMuonIsolationValue( dsamuon ) );
+    dsaextra_.set_oppositeMuon( findOppositeMuon( dsamuonref ) );
+    dsaextra_.set_oppositeTimeDiffDtcsc( timingDiffDT( dsamuonref, dsaextra_.oppositeMuon() ) );
+    dsaextra_.set_oppositeTimeDiffRpc( timingDiffRPC( dsamuonref, dsaextra_.oppositeMuon() ) );
+    dsaextra_.set_cosmci1leg_detIdSubsetOfFiltered( DSAMuonHelper::detIdsIsSubSetOfVDetIds( iDSA, cosmic1legDetIds, es ) );
+
+    // **** find min dR_cosmic w/ opposite hemisphere DSAs
+    reco::TrackRef minCosmicDrDSA;
+    double         minCosmicDr( 999. );
+
+    for ( size_t j( 0 ); j != fDsaMuonHdl->size(); j++ ) {
+      const reco::Muon& jDSAmuon = ( *fDsaMuonHdl )[ j ];
+      const reco::Track& jDSA = *(jDSAmuon.outerTrack());
+
+      if ( !CosmicHelper::oppositeHemisphere( iDSA, jDSA ) ) continue;
+
+      double cosmicDr_ = CosmicHelper::cosmicDeltaR( iDSA, jDSA );
+      if ( cosmicDr_ < minCosmicDr ) {
+        minCosmicDr    = cosmicDr_;
+        minCosmicDrDSA = jDSAmuon.outerTrack();
+      }
+    }
+
+    double i_etaSum( 999 ), i_phiPiDiff( 999 );
+    if ( minCosmicDrDSA.isNonnull() ) {
+      const reco::Track& iiDSA = *minCosmicDrDSA;
+      i_etaSum          = fabs( iDSA.eta() + iiDSA.eta() );
+      i_phiPiDiff       = M_PI - fabs( deltaPhi( iDSA.phi(), iiDSA.phi() ) );
+    }
+
+    dsaextra_.set_dsamuon_minDeltaRCosmic( minCosmicDr );
+    dsaextra_.set_dsamuon_minDeltaRCosmicEtasum(i_etaSum);
+    dsaextra_.set_dsamuon_minDeltaRCosmicPhipidiff(i_phiPiDiff);
+    //_________________________________________________________
+
+
+    // **** find min dR_cosmic w/ opposite hemisphere segments
+    vector<pair<double, double>> segdist{};  // <etasum, phidiff>
+    for ( const DTRecSegment4D& dtSeg : *fDTSegHdl ) {
+      // not from same hemisphere
+      if ( !CosmicHelper::oppositeHemisphere( iDSA, dtSeg, es ) ) continue;
+
+      pair<bool, tuple<double, GlobalVector, GlobalVector>> propagationResult = CosmicHelper::propagateDSAtoDT( iDSA, dtSeg, es );
+      if ( !propagationResult.first ) continue;
+      const auto& dsaGlbDir   = get<1>( propagationResult.second );
+      const auto& dtsegGlbDir = get<2>( propagationResult.second );
+
+      double etaSum    = fabs( dsaGlbDir.eta() + dtsegGlbDir.eta() );
+      double phiPiDiff = M_PI - fabs( deltaPhi( dsaGlbDir.barePhi(), dtsegGlbDir.barePhi() ) );
+
+      segdist.emplace_back( etaSum, phiPiDiff );
+    }
+    for ( const CSCSegment& cscSeg : *fCSCSegHdl ) {
+      // not from same hemisphere
+      if ( !CosmicHelper::oppositeHemisphere( iDSA, cscSeg, es ) ) continue;
+
+      pair<bool, tuple<double, GlobalVector, GlobalVector>> propagationResult = CosmicHelper::propagateDSAtoCSC( iDSA, cscSeg, es );
+
+      if ( !propagationResult.first ) continue;
+      const auto& dsaGlbDir    = get<1>( propagationResult.second );
+      const auto& cscsegGlbDir = get<2>( propagationResult.second );
+
+      double etaSum    = fabs( dsaGlbDir.eta() + cscsegGlbDir.eta() );
+      double phiPiDiff = M_PI - fabs( deltaPhi( dsaGlbDir.barePhi(), cscsegGlbDir.barePhi() ) );
+
+      segdist.emplace_back( etaSum, phiPiDiff );
+    }
+    // sort by cosmicDr, small->large
+    sort( segdist.begin(), segdist.end(), []( const auto& lhs, const auto& rhs ) {
+      return hypot( lhs.first, lhs.second ) < hypot( rhs.first, rhs.second );
+    } );
+
+    double s_etaSum( 999. ), s_phiPiDiff( 999. );
+    if ( segdist.size() > 0 ) {
+      s_etaSum    = segdist[ 0 ].first;
+      s_phiPiDiff = segdist[ 0 ].second;
+    }
+    dsaextra_.set_segment_minDeltaRCosmic( hypot( s_etaSum, s_phiPiDiff ) );
+    dsaextra_.set_segment_minDeltaRCosmicEtasum(s_etaSum);
+    dsaextra_.set_segment_minDeltaRCosmicPhipidiff(s_phiPiDiff);
+    //_________________________________________________________
+
   }
 
-  ValueMap<float>::Filler ratioFiller( *vm_maxSegmentOverlapRatio );
-  ratioFiller.insert( fDsaMuonHdl, v_maxSegmentOverlapRatio.begin(), v_maxSegmentOverlapRatio.end() );
-  ratioFiller.fill();
-  e.put( move( vm_maxSegmentOverlapRatio ), "maxSegmentOverlapRatio" );
+  ValueMap<DSAExtra>::Filler DSAExtraFiller( *vm_DSAExtra );
+  DSAExtraFiller.insert( fDsaMuonHdl, v_DSAExtra.begin(), v_DSAExtra.end() );
+  DSAExtraFiller.fill();
 
-  ValueMap<float>::Filler localDrFiller( *vm_minExtrapolateInnermostLocalDr );
-  localDrFiller.insert( fDsaMuonHdl, v_minExtrapolateInnermostLocalDr.begin(), v_minExtrapolateInnermostLocalDr.end() );
-  localDrFiller.fill();
-  e.put( move( vm_minExtrapolateInnermostLocalDr ), "minExtrapolateInnermostLocalDr" );
-
-  ValueMap<bool>::Filler isDetIdSubsetFiller( *vm_isDetIdSubsetOfAnyPFMuon );
-  isDetIdSubsetFiller.insert( fDsaMuonHdl, v_isDetIdSubsetOfAnyPFMuon.begin(), v_isDetIdSubsetOfAnyPFMuon.end() );
-  isDetIdSubsetFiller.fill();
-  e.put( move( vm_isDetIdSubsetOfAnyPFMuon ), "isDetIdSubsetOfAnyPFMuon" );
-
-  ValueMap<float>::Filler pfIsoValFiller( *vm_pfiso04 );
-  pfIsoValFiller.insert( fDsaMuonHdl, v_pfiso04.begin(), v_pfiso04.end() );
-  pfIsoValFiller.fill();
-  e.put( move( vm_pfiso04 ), "pfiso04" );
-
-  ValueMap<reco::MuonRef>::Filler oppositeMuonFiller( *vm_oppositeMuon );
-  oppositeMuonFiller.insert( fDsaMuonHdl, v_oppositeMuon.begin(), v_oppositeMuon.end() );
-  oppositeMuonFiller.fill();
-  e.put( move( vm_oppositeMuon ), "oppositeMuon" );
-
-  ValueMap<float>::Filler timediffDTCSCFiller( *vm_timediffDTCSC );
-  timediffDTCSCFiller.insert( fDsaMuonHdl, v_timediffDTCSC.begin(), v_timediffDTCSC.end() );
-  timediffDTCSCFiller.fill();
-  e.put( move( vm_timediffDTCSC ), "dTUpperMinusLowerDTCSC" );
-
-  ValueMap<float>::Filler timediffRPCFiller( *vm_timediffRPC );
-  timediffRPCFiller.insert( fDsaMuonHdl, v_timediffRPC.begin(), v_timediffRPC.end() );
-  timediffRPCFiller.fill();
-  e.put( move( vm_timediffRPC ), "dTUpperMinusLowerRPC" );
-
-  ValueMap<bool>::Filler isDetIdSubsetCosmicFiller( *vm_isDetIdSubsetOfAnyCosmic1Leg );
-  isDetIdSubsetCosmicFiller.insert( fDsaMuonHdl, v_isDetIdSubsetOfAnyCosmic1Leg.begin(), v_isDetIdSubsetOfAnyCosmic1Leg.end() );
-  isDetIdSubsetCosmicFiller.fill();
-  e.put( move( vm_isDetIdSubsetOfAnyCosmic1Leg ), "isDetIdSubsetOfFilteredCosmic1Leg" );
+  e.put( move( vm_DSAExtra ) );
 }
 
 int

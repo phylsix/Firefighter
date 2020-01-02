@@ -13,6 +13,8 @@
 <use name="HLTrigger/HLTcore"/>
 <use name="RecoJets/JetProducers"/>
 <use name="Firefighter/recoStuff"/>
+<use name="Firefighter/objects"/>
+<use name="Firefighter/cosmics"/>
 
 <library name="FirefighterrecoStuff_plugins" file="*.cc">
 </library>
