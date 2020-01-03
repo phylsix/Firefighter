@@ -26,23 +26,17 @@ LeptonjetSourcePFMuonProducer::produce( edm::Event& e, const edm::EventSetup& es
     const auto& candptr = candfwdptr.ptr();
 
     // is PFMuon
-    if ( candptr->particleId() != reco::PFCandidate::mu )
-      continue;
-    if ( candptr->muonRef().isNull() )
-      continue;
+    if ( candptr->particleId() != reco::PFCandidate::mu ) continue;
+    if ( candptr->muonRef().isNull() ) continue;
 
     // kinematic cut
-    if ( candptr->pt() < 5. )
-      continue;
-    if ( fabs( candptr->eta() ) > 2.4 )
-      continue;
+    if ( candptr->pt() < 5. ) continue;
+    if ( fabs( candptr->eta() ) > 2.4 ) continue;
 
     // muon id + iso cut
     const auto& muon = *( candptr->muonRef() );
-    if ( !muon.passed( reco::Muon::CutBasedIdLoose ) )
-      continue;
-    if ( !muon.passed( reco::Muon::PFIsoLoose ) )
-      continue;
+    if ( !muon.passed( reco::Muon::CutBasedIdLoose ) ) continue;
+    // if ( !muon.passed( reco::Muon::PFIsoLoose ) ) continue;
 
     inclusiveColl->push_back( candfwdptr );
   }

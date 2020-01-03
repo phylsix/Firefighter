@@ -1,6 +1,7 @@
 #ifndef objects_DSAExtra_h
 #define objects_DSAExtra_h
 
+#include <cmath>
 #include <vector>
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -17,14 +18,13 @@ class DSAExtra {
         fOppositeTimeDiffDtcsc( -999. ),
         fOppositeTimeDiffRpc( -999. ),
         fIsDetIdSubsetOfFilteredCosmic1Leg( false ),
-        fMinDSADeltaRCosmic( 999. ),
-        fMinDSADeltaRCosmicEtasum( 999. ),
-        fMinDSADeltaRCosmicPhipidiff( 999. ),
-        fMinSegDeltaRCosmic( 999. ),
-        fMinSegDeltaRCosmicEtasum( 999. ),
-        fMinSegDeltaRCosmicPhipidiff( 999. ){};
+        fMinDSADeltaRCosmic( NAN ),
+        fMinDSADeltaRCosmicEtasum( NAN ),
+        fMinDSADeltaRCosmicPhipidiff( NAN ),
+        fMinSegDeltaRCosmic( NAN ),
+        fMinSegDeltaRCosmicEtasum( NAN ),
+        fMinSegDeltaRCosmicPhipidiff( NAN ){};
   ~DSAExtra() = default;
-
 
   // getter
   inline float pfmuon_maxSegmentOverlapRatio() const { return fMaxPFMuonSegmentOverlapRatio; }
@@ -43,7 +43,6 @@ class DSAExtra {
   inline float segment_minDeltaRCosmic() const { return fMinSegDeltaRCosmic; }
   inline float segment_minDeltaRCosmicEtasum() const { return fMinSegDeltaRCosmicEtasum; }
   inline float segment_minDeltaRCosmicPhipidiff() const { return fMinSegDeltaRCosmicPhipidiff; }
-
 
   // setter
   inline void set_pfmuon_maxSegmentOverlapRatio( float ratio ) { fMaxPFMuonSegmentOverlapRatio = ratio; }
