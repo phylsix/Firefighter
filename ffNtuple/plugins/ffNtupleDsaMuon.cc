@@ -86,12 +86,12 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_hasOppositeMuon", &fHasOppositeMuon )->SetTitle( "Whether this DSA muon has an opposite companion: cos(alpha)<-0.99" );
   tree.Branch( "dsamuon_timeDiffDTCSC", &fTimeDiffDTCSC )->SetTitle( "Time_upper-Time_lower from DT/CSC measurement if has opposite companion; otherwise -999." );
   tree.Branch( "dsamuon_timeDiffRPC", &fTimeDiffRPC )->SetTitle( "Time_upper-Time_lower from RPC measurement if has opposite companion; otherwise -999." );
-  tree.Branch( "dsamuon_deltaRCosmicDSA", &fDeltaRCosmicDSA )->SetTitle( "dR_cosmic w/ DSA" );
-  tree.Branch( "dsamuon_deltaRCosmicEtasumDSA", &fDeltaRCosmicEtasumDSA )->SetTitle( "dR_cosmic w/ DSA, |eta_0+eta_1|" );
-  tree.Branch( "dsamuon_deltaRCosmicPhipidiffDSA", &fDeltaRCosmicPhipidiffDSA )->SetTitle( "dR_cosmic w/ DSA, M_PI-|phi_0-phi_1|" );
-  tree.Branch( "dsamuon_deltaRCosmicSeg", &fDeltaRCosmicSeg )->SetTitle( "dR_cosmic w/ segments" );
-  tree.Branch( "dsamuon_deltaRCosmicEtasumSeg", &fDeltaRCosmicEtasumSeg )->SetTitle( "dR_cosmic w/ segments, |eta_0+eta_1|" );
-  tree.Branch( "dsamuon_deltaRCosmicPhipidiffSeg", &fDeltaRCosmicPhipidiffSeg )->SetTitle( "dR_cosmic w/ segments, M_PI-|phi_0-phi_1|" );
+  tree.Branch( "dsamuon_deltaRCosmicDSA", &fDeltaRCosmicDSA )->SetTitle( "dR_cosmic w/ DSA. Default: NAN" );
+  tree.Branch( "dsamuon_deltaRCosmicEtasumDSA", &fDeltaRCosmicEtasumDSA )->SetTitle( "dR_cosmic w/ DSA, |eta_0+eta_1|. Default: NAN" );
+  tree.Branch( "dsamuon_deltaRCosmicPhipidiffDSA", &fDeltaRCosmicPhipidiffDSA )->SetTitle( "dR_cosmic w/ DSA, M_PI-|phi_0-phi_1|. Default: NAN" );
+  tree.Branch( "dsamuon_deltaRCosmicSeg", &fDeltaRCosmicSeg )->SetTitle( "dR_cosmic w/ segments. Default: NAN" );
+  tree.Branch( "dsamuon_deltaRCosmicEtasumSeg", &fDeltaRCosmicEtasumSeg )->SetTitle( "dR_cosmic w/ segments, |eta_0+eta_1|. Default: NAN" );
+  tree.Branch( "dsamuon_deltaRCosmicPhipidiffSeg", &fDeltaRCosmicPhipidiffSeg )->SetTitle( "dR_cosmic w/ segments, M_PI-|phi_0-phi_1|. Default: NAN" );
 }
 
 void

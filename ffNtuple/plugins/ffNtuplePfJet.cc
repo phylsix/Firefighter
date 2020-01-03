@@ -263,8 +263,8 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcands_chargedMass", &pfjet_pfcands_chargedMass_ );
   tree.Branch( "pfjet_pfcands_nDsaMu", &pfjet_pfcands_nDsaMu_ );
   tree.Branch( "pfjet_pfcands_maxPtType", &pfjet_pfcands_maxPtType_ );
-  tree.Branch( "pfjet_pfcands_minTwoTkDist", &pfjet_pfcands_minTwoTkDist_ );
-  tree.Branch( "pfjet_pfcands_maxTwoTkDist", &pfjet_pfcands_maxTwoTkDist_ );
+  tree.Branch( "pfjet_pfcands_minTwoTkDist", &pfjet_pfcands_minTwoTkDist_ )->SetTitle( "minimum distance between any two tracks, <b>minimum</b> value of all combinations. -1 if #tracks<2." );
+  tree.Branch( "pfjet_pfcands_maxTwoTkDist", &pfjet_pfcands_maxTwoTkDist_ )->SetTitle( "minimum distance between any two tracks, <b>maximum</b> value of all combinations. -1 if #tracks<2." );
 
   tree.Branch( "pfjet_pfcand_type", &pfjet_pfcand_type_ );
   tree.Branch( "pfjet_pfcand_charge", &pfjet_pfcand_charge_ );
