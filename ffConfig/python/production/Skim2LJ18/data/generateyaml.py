@@ -14,13 +14,12 @@ from Firefighter.ffConfig.datasetUtils import ffdatasetdata
 from DataFormats.FWLite import Events
 
 
-
-DATASOURCES_ABC = """\
-/DoubleMuon/Run2018A-17Sep2018-v2/AOD
-/DoubleMuon/Run2018B-17Sep2018-v1/AOD"""
-# /DoubleMuon/Run2018C-17Sep2018-v1/AOD"""
-
-DATASOURCES_D = '/DoubleMuon/Run2018D-PromptReco-v2/AOD'
+DATASOURCES = [
+    '/DoubleMuon/Run2018A-17Sep2018-v2/AOD',
+    '/DoubleMuon/Run2018B-17Sep2018-v1/AOD',
+    '/DoubleMuon/Run2018C-17Sep2018-v1/AOD',
+    '/DoubleMuon/Run2018D-PromptReco-v2/AOD',
+]
 
 XDIRECTOR = "root://cmseos.fnal.gov/"
 SOURCEEOSPATH = "/store/group/lpcmetx/SIDM/Skim/2018"
@@ -61,7 +60,7 @@ def fetchFiles(d):
 
         try:
             events = Events(f)
-            for e in events: nevents += 1
+            for evt in events: nevents += 1
         except Exception as e:
             print("--> FWLite failed for", f)
             print(str(e))
@@ -78,31 +77,21 @@ if __name__ == "__main__":
 
     datasetlist = []
 
-    # abc
-    for d in DATASOURCES_ABC.split():
+    for d in DATASOURCES:
         dtag, flist = fetchFiles(d)
         if flist: datasetlist.append(dtag)
 
         flist = [f for f in flist if f]
         ffds = ffdatasetdata()
         ffds.datasetNames = [d]
-        ffds.globalTag = '102X_dataRun2_v12'
+        if '2018D' in dtag:
+            ffds.globalTag = '102X_dataRun2_Prompt_v15'
+        else:
+            ffds.globalTag = '102X_dataRun2_v12'
         ffds.fileList = [sorted(flist)]
         with open(dtag + '.yml', 'w') as f:
             f.write(ffds.dump())
 
-    # d
-    d = DATASOURCES_D
-    dtag, flist = fetchFiles(d)
-    if flist: datasetlist.append(dtag)
-
-    flist = [f for f in flist if f]
-    ffds = ffdatasetdata()
-    ffds.datasetNames = [d]
-    ffds.globalTag = '102X_dataRun2_Prompt_v15'
-    ffds.fileList = [sorted(flist)]
-    with open(dtag + '.yml', 'w') as f:
-        f.write(ffds.dump())
 
     # description
     with open('description.json', 'w') as f:
