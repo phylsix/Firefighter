@@ -186,7 +186,7 @@ def get_submissionSites(dataset):
 
 
 def get_datasetType(dataset):
-    if dataset.endswith('USER'):
+    if dataset.endswith('USER') or dataset.startswith('/SIDM'):
         return 'sigmc'
     elif dataset.endswith('AODSIM'):
         return 'bkgmc'
@@ -194,3 +194,23 @@ def get_datasetType(dataset):
         return 'data'
     else:
         raise ValueError("unknown type for dataset: {}".format(dataset))
+
+###############################################################################
+
+def sigmc_ctau2lxy(mxx, ma, ctau):
+
+    rawval = mxx / 2 / ma * 0.75 * ctau / 10
+    rawval_str = '{:.1E}'.format(rawval)
+    sigval, power = rawval_str.split('E')
+    sigval = float(sigval)
+    if sigval - int(sigval) > 0.5:
+        sigval = int(sigval) + 1
+    elif sigval-int(sigval)<0.5:
+        sigval = int(sigval)
+
+    power = float('1E' + power)
+    lxy = round(sigval * power, 1)
+    if lxy - int(lxy) < 1E-5:
+        return int(lxy)
+    else:
+        return lxy

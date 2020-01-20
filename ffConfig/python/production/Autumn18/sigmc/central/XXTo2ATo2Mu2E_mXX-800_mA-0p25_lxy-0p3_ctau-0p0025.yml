@@ -1,0 +1,19 @@
+datasetNames:
+- /SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/RunIIAutumn18DRPremix-102X_upgrade2018_realistic_v15-v1/AODSIM
+fileList:
+- - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/1D8923D0-6FB4-7147-A3AE-8DF6322B6663.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/3094F4B1-41AF-5B46-82F3-0E88A068BCCE.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/6D21772D-FE76-3F48-9A84-F67713598C7D.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/7AA375EE-39C2-344E-8823-3EEDD7B9F080.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/7BAF4F2A-9ECD-9940-9930-44D0DD10481D.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/80E1090A-15DC-2140-ABE2-42106D98F2F9.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/8DF5660F-2E6D-5446-82DF-F87830BBD487.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/9608D319-CAA7-724B-9FD8-072343452AC0.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/A374292D-FAE1-2645-9412-96B38641D96A.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/A46AF9F2-598B-1846-B3F4-A9C254AC5F4A.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/B7A466CA-002C-4B4B-88B0-949F2D8A331E.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/C9731A5E-33B1-5C44-867C-8E6BB9A59F8E.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/DEB8D0A0-D773-5640-827C-2486B1EFB80C.root
+  - /store/mc/RunIIAutumn18DRPremix/SIDM_XXTo2ATo2Mu2E_mXX-800_mA-0p25_ctau-0p0025_TuneCP5_13TeV-madgraph-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v1/70000/DFD71753-6508-7E43-BF6C-5582848688EF.root
+globalTag: 102X_upgrade2018_realistic_v20
+maxEvents: -1
