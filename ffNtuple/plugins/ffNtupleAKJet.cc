@@ -23,6 +23,7 @@ class ffNtupleAKJet : public ffNtupleBaseNoHLT {
   StringCutObjectSelector<reco::PFJet> fJetIdSelector;
   edm::EDGetToken                      fJetCorrectorToken;
 
+  unsigned int               fNAKJet;
   std::vector<LorentzVector> fAKJetP4;
   std::vector<LorentzVector> fAKJetRawP4;
   std::vector<bool>          fJetId;
@@ -50,6 +51,7 @@ ffNtupleAKJet::initialize( TTree&                   tree,
   const std::string label_ = ps.getParameter<edm::InputTag>( "src" ).label();
   fJetCorrectorToken       = cc.consumes<reco::JetCorrector>( ps.getParameter<edm::InputTag>( "corrector" ) );
 
+  tree.Branch( TString::Format( "akjet_%s_n", label_.c_str() ), &fNAKJet );
   tree.Branch( TString::Format( "akjet_%s_p4", label_.c_str() ), &fAKJetP4 )->SetTitle( "jet p4, w/ JEC applied" );
   tree.Branch( TString::Format( "akjet_%s_rawP4", label_.c_str() ), &fAKJetRawP4 )->SetTitle( "jet raw p4, w/o JEC" );
   tree.Branch( TString::Format( "akjet_%s_jetid", label_.c_str() ), &fJetId )->SetTitle( "whether pass jet ID" );
@@ -79,6 +81,7 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
+  fNAKJet = akjets.size();
   for ( const auto& akjet : akjets ) {
     double jec = correctorHdl->correction( akjet );
     fAKJetP4.push_back( LorentzVector( akjet.px(), akjet.py(), akjet.pz(), akjet.energy() ) * jec );
@@ -97,6 +100,7 @@ ffNtupleAKJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleAKJet::clear() {
+  fNAKJet = 0;
   fAKJetP4.clear();
   fAKJetRawP4.clear();
   fJetId.clear();

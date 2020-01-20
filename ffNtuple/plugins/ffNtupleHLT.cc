@@ -27,7 +27,9 @@ class ffNtupleHLT : public ffNtupleBaseHLT {
 
   std::vector<std::string>                                  hlt_pathsNoVer_;
   std::map<std::string, bool>                               hlt_bit_;
+  std::map<std::string, unsigned int>                       hlt_n_;
   std::map<std::string, math::XYZTLorentzVectorFCollection> hlt_triggerObjectP4_;
+  std::map<std::string, unsigned int>                       l1t_n_;
   std::map<std::string, math::XYZTLorentzVectorFCollection> l1t_triggerObjectP4_;
 };
 
@@ -39,7 +41,9 @@ ffNtupleHLT::ffNtupleHLT( const edm::ParameterSet& ps )
 ffNtupleHLT::~ffNtupleHLT() {
   hlt_pathsNoVer_.clear();
   hlt_bit_.clear();
+  hlt_n_.clear();
   hlt_triggerObjectP4_.clear();
+  l1t_n_.clear();
   l1t_triggerObjectP4_.clear();
 }
 
@@ -53,11 +57,15 @@ ffNtupleHLT::initialize( TTree&                   tree,
 
   for ( const auto& p : hlt_pathsNoVer_ ) {
     hlt_bit_[ p ]             = false;
+    hlt_n_[ p ]               = 0;
     hlt_triggerObjectP4_[ p ] = math::XYZTLorentzVectorFCollection();
+    l1t_n_[ p ]               = 0;
     l1t_triggerObjectP4_[ p ] = math::XYZTLorentzVectorFCollection();
 
     tree.Branch( p.c_str(), &hlt_bit_[ p ], ( p + "/O" ).c_str() );
+    tree.Branch( ( "TO" + p + "_n" ).c_str(), &hlt_n_[ p ] );
     tree.Branch( ( "TO" + p ).c_str(), &hlt_triggerObjectP4_[ p ] );
+    tree.Branch( ( "L1TO" + p + "_n" ).c_str(), &l1t_n_[ p ] );
     tree.Branch( ( "L1TO" + p ).c_str(), &l1t_triggerObjectP4_[ p ] );
   }
 }
@@ -140,6 +148,7 @@ ffNtupleHLT::fill( const edm::Event&      e,
       triggerObjectIndices.emplace( keys[ iK ] );
     }
 
+    hlt_n_[ p ] = triggerObjectIndices.size();
     for ( const auto& iTOidx : triggerObjectIndices ) {
       const auto& iTO = ( hlt_eventH->getObjects() )[ iTOidx ];
       hlt_triggerObjectP4_[ p ].emplace_back( iTO.px(), iTO.py(), iTO.pz(), iTO.energy() );
@@ -162,6 +171,7 @@ ffNtupleHLT::fill( const edm::Event&      e,
       l1TriggerObjectIndices.emplace( l1keys[ iK ] );
     }
 
+    l1t_n_[ p ] = l1TriggerObjectIndices.size();
     for ( const auto& iTOidx : l1TriggerObjectIndices ) {
       const auto& iTO = ( hlt_eventH->getObjects() )[ iTOidx ];
       l1t_triggerObjectP4_[ p ].emplace_back( iTO.px(), iTO.py(), iTO.pz(), iTO.energy() );
@@ -173,7 +183,9 @@ void
 ffNtupleHLT::clear() {
   for ( const auto& p : hlt_pathsNoVer_ ) {
     hlt_bit_[ p ] = false;
+    hlt_n_[ p ]   = 0;
     hlt_triggerObjectP4_[ p ].clear();
+    l1t_n_[ p ] = 0;
     l1t_triggerObjectP4_[ p ].clear();
   }
 }

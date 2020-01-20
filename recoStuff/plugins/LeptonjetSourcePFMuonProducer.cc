@@ -36,7 +36,7 @@ LeptonjetSourcePFMuonProducer::produce( edm::Event& e, const edm::EventSetup& es
     // muon id + iso cut
     const auto& muon = *( candptr->muonRef() );
     if ( !muon.passed( reco::Muon::CutBasedIdLoose ) ) continue;
-    // if ( !muon.passed( reco::Muon::PFIsoLoose ) ) continue;
+    if ( !muon.passed( reco::Muon::PFIsoLoose ) ) continue;
 
     inclusiveColl->push_back( candfwdptr );
   }

@@ -19,8 +19,10 @@ class ffNtupleLeptonJetSource : public ffNtupleBaseNoHLT {
  private:
   void clear() final;
 
-  edm::EDGetToken            fLjSrcToken;
-  edm::EDGetToken            fGeneralTkToken;
+  edm::EDGetToken fLjSrcToken;
+  edm::EDGetToken fGeneralTkToken;
+
+  unsigned int               fNLjSrc;
   std::vector<LorentzVector> fLjSrcP4;
   std::vector<int>           fLjSrcCharge;
   std::vector<int>           fLjSrcType;
@@ -38,6 +40,7 @@ ffNtupleLeptonJetSource::initialize( TTree&                   tree,
   fLjSrcToken     = cc.consumes<reco::PFCandidateFwdPtrVector>( ps.getParameter<edm::InputTag>( "src" ) );
   fGeneralTkToken = cc.consumes<reco::TrackCollection>( edm::InputTag( "generalTracks" ) );
 
+  tree.Branch( "ljsource_n", &fNLjSrc );
   tree.Branch( "ljsource_p4", &fLjSrcP4 );
   tree.Branch( "ljsource_charge", &fLjSrcCharge );
   tree.Branch( "ljsource_type", &fLjSrcType );
@@ -60,6 +63,7 @@ ffNtupleLeptonJetSource::fill( const edm::Event& e, const edm::EventSetup& es ) 
 
   clear();
 
+  fNLjSrc = ljsrcs.size();
   for ( const auto& ljsrc : ljsrcs ) {
     const auto& cand = *( ljsrc.get() );
     fLjSrcP4.push_back( LorentzVector( cand.px(), cand.py(), cand.pz(), cand.energy() ) );
@@ -70,6 +74,7 @@ ffNtupleLeptonJetSource::fill( const edm::Event& e, const edm::EventSetup& es ) 
 
 void
 ffNtupleLeptonJetSource::clear() {
+  fNLjSrc = 0;
   fLjSrcP4.clear();
   fLjSrcCharge.clear();
   fLjSrcType.clear();

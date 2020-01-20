@@ -32,6 +32,7 @@ class ffNtupleHFtagScore : public ffNtupleBaseNoHLT {
   const std::vector<float> kDeepFlavour_cl_wp{0.03, 0.085, 0.48};
   const std::vector<float> kDeepFlavour_cb_wp{0.4, 0.29, 0.05};
 
+  unsigned int              fNJets;
   std::vector<unsigned int> fDeepCSV_b_idResults;
   std::vector<unsigned int> fDeepFlavour_b_idResults;
   std::vector<unsigned int> fDeepCSV_cl_idResults;
@@ -59,6 +60,7 @@ ffNtupleHFtagScore::initialize( TTree& tree, const edm::ParameterSet& ps, edm::C
   deepflavour_c_token_    = cc.consumes<reco::JetTagCollection>( ps.getParameter<edm::InputTag>( "deepflavour_c" ) );
   deepflavour_g_token_    = cc.consumes<reco::JetTagCollection>( ps.getParameter<edm::InputTag>( "deepflavour_g" ) );
 
+  tree.Branch( "hftagscore_n", &fNJets );
   tree.Branch( "hftagscore_DeepCSV_b", &fDeepCSV_b_idResults );
   tree.Branch( "hftagscore_DeepCSV_cl", &fDeepCSV_cl_idResults );
   tree.Branch( "hftagscore_DeepCSV_cb", &fDeepCSV_cb_idResults );
@@ -120,6 +122,7 @@ ffNtupleHFtagScore::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
+  fNJets = jet_h->size();
   for ( View<reco::Jet>::const_iterator jet = jet_h->begin(); jet != jet_h->end(); ++jet ) {
     size_t               idx    = jet - jet_h->begin();
     RefToBase<reco::Jet> jetRef = jet_h->refAt( idx );
@@ -178,6 +181,7 @@ ffNtupleHFtagScore::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleHFtagScore::clear() {
+  fNJets = 0;
   fDeepCSV_b_idResults.clear();
   fDeepFlavour_b_idResults.clear();
   fDeepCSV_cl_idResults.clear();

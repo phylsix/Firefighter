@@ -25,6 +25,7 @@ class ffNtupleDsaMuon : public ffNtupleBaseNoHLT {
   edm::EDGetToken fPrimaryVertexToken;
   edm::EDGetToken fDSAExtraToken;
 
+  unsigned int                       fNDSAMuon;
   math::XYZTLorentzVectorFCollection fDSAMuonP4;
   std::vector<float>                 fCharge;
   std::vector<float>                 fD0;
@@ -39,10 +40,10 @@ class ffNtupleDsaMuon : public ffNtupleBaseNoHLT {
   std::vector<float>                 fPFIsoVal;
   std::vector<float>                 fSegOverlapRatio;
   std::vector<float>                 fExtrapolatedDr;
-  std::vector<bool>                  fIsSubsetAnyPFMuon;
-  std::vector<bool>                  fIsSubsetFilteredCosmic1Leg;
+  std::vector<int>                   fIsSubsetAnyPFMuon;
+  std::vector<int>                   fIsSubsetFilteredCosmic1Leg;
   std::vector<float>                 fNormChi2;
-  std::vector<bool>                  fHasOppositeMuon;
+  std::vector<int>                   fHasOppositeMuon;
   std::vector<float>                 fTimeDiffDTCSC;
   std::vector<float>                 fTimeDiffRPC;
   std::vector<float>                 fDeltaRCosmicDSA;
@@ -66,6 +67,7 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   fPrimaryVertexToken = cc.consumes<reco::VertexCollection>( edm::InputTag( "offlinePrimaryVertices" ) );
   fDSAExtraToken      = cc.consumes<edm::ValueMap<DSAExtra>>( edm::InputTag( "dsamuonExtra" ) );
 
+  tree.Branch( "dsamuon_n", &fNDSAMuon );
   tree.Branch( "dsamuon_p4", &fDSAMuonP4 );
   tree.Branch( "dsamuon_charge", &fCharge );
   tree.Branch( "dsamuon_d0", &fD0 );
@@ -114,6 +116,7 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
+  fNDSAMuon = dsamuonHdl->size();
   for ( size_t i( 0 ); i != dsamuonHdl->size(); i++ ) {
     reco::MuonRef dsamuonref( dsamuonHdl, i );
     const auto&   dsamuon    = *dsamuonref;
@@ -153,6 +156,7 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleDsaMuon::clear() {
+  fNDSAMuon = 0;
   fDSAMuonP4.clear();
   fCharge.clear();
   fD0.clear();

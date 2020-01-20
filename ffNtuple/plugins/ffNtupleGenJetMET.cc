@@ -25,6 +25,7 @@ class ffNtupleGenJetMET : public ffNtupleBaseNoHLT {
   edm::EDGetToken genjet_token_;
   edm::EDGetToken genmet_token_;
 
+  unsigned int                       genjet_n_;
   math::XYZTLorentzVectorFCollection genjet_p4_;
   XYVectorF                          genmet_;
 };
@@ -41,6 +42,7 @@ ffNtupleGenJetMET::initialize( TTree&                   tree,
   genjet_token_ = cc.consumes<reco::GenJetCollection>( edm::InputTag( "ak4GenJetsNoNu" ) );
   genmet_token_ = cc.consumes<reco::GenMETCollection>( edm::InputTag( "genMetTrue" ) );
 
+  tree.Branch( "genjet_n", &genjet_n_ );
   tree.Branch( "genjet_p4", &genjet_p4_ );
   tree.Branch( "genmet", &genmet_ );
 }
@@ -59,6 +61,7 @@ ffNtupleGenJetMET::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
+  genjet_n_ = genjets_h->size();
   for ( const auto& jet : *genjets_h ) {
     genjet_p4_.emplace_back( jet.px(), jet.py(), jet.pz(), jet.energy() );
   }
@@ -68,6 +71,7 @@ ffNtupleGenJetMET::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleGenJetMET::clear() {
+  genjet_n_ = 0;
   genjet_p4_.clear();
   genmet_ = XYVectorF();
 }

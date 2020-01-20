@@ -26,6 +26,7 @@ class ffNtupleGen : public ffNtupleBaseNoHLT {
 
   std::vector<std::pair<float, float>> cylinderBounds_;
 
+  unsigned int                       gen_n_;
   std::vector<int>                   gen_pid_;
   std::vector<int>                   gen_daupid_;
   std::vector<int>                   gen_charge_;
@@ -60,6 +61,7 @@ ffNtupleGen::initialize( TTree&                   tree,
     cylinderBounds_.emplace_back( r_, z_ );
   }
 
+  tree.Branch( "gen_n", &gen_n_ );
   tree.Branch( "gen_charge", &gen_charge_ );
   tree.Branch( "gen_pid", &gen_pid_ );
   tree.Branch( "gen_daupid", &gen_daupid_ );
@@ -100,6 +102,8 @@ ffNtupleGen::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
     genRefs.emplace_back( gen_h, i );
   }
+
+  gen_n_ = genRefs.size();
 
   for ( const auto& particle : genRefs ) {
     const auto& vtx = particle->vertex();
@@ -221,6 +225,7 @@ ffNtupleGen::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleGen::clear() {
+  gen_n_ = 0;
   gen_charge_.clear();
   gen_pid_.clear();
   gen_daupid_.clear();

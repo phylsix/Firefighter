@@ -20,6 +20,7 @@ class ffNtupleGenBkg : public ffNtupleBaseNoHLT {
   std::vector<int> fAllowedPids;
   std::vector<int> fAllowedStatusOnePids;
 
+  unsigned int                       fNGen;
   std::vector<int>                   fGenPid;
   std::vector<int>                   fGenCharge;
   math::XYZTLorentzVectorFCollection fGenP4;
@@ -39,6 +40,7 @@ ffNtupleGenBkg::initialize( TTree&                   tree,
   fAllowedPids          = ps.getParameter<std::vector<int>>( "AllowedPids" );
   fAllowedStatusOnePids = ps.getParameter<std::vector<int>>( "AllowedStatusOnePids" );
 
+  tree.Branch( "gen_n", &fNGen );
   tree.Branch( "gen_p4", &fGenP4 );
   tree.Branch( "gen_charge", &fGenCharge );
   tree.Branch( "gen_pid", &fGenPid );
@@ -76,10 +78,13 @@ ffNtupleGenBkg::fill( const edm::Event& e, const edm::EventSetup& es ) {
       fGenStatusFlags.emplace_back( p.statusFlags().flags_.to_ulong() );
     }
   }
+
+  fNGen = fGenP4.size();
 }
 
 void
 ffNtupleGenBkg::clear() {
+  fNGen = 0;
   fGenP4.clear();
   fGenCharge.clear();
   fGenPid.clear();

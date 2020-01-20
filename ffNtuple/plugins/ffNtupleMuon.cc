@@ -22,13 +22,14 @@ class ffNtupleMuon : public ffNtupleBaseNoHLT {
   edm::EDGetToken fMuonToken;
   edm::EDGetToken fMuonSimInfoToken;
 
+  unsigned int                       fNMuon;
   math::XYZTLorentzVectorFCollection fMuonP4;
   std::vector<int>                   fMuonCharge;
   std::vector<unsigned int>          fMuonType;
   std::vector<unsigned int>          fBestTrackType;
   std::vector<unsigned int>          fSelectors;
-  std::vector<bool>                  fHasInnerTrack;
-  std::vector<bool>                  fHasOuterTrack;
+  std::vector<int>                   fHasInnerTrack;
+  std::vector<int>                   fHasOuterTrack;
   std::vector<float>                 fDtCscTime;
   std::vector<float>                 fRpcTime;
   std::vector<float>                 fIsoValue;
@@ -47,6 +48,7 @@ ffNtupleMuon::initialize( TTree&                   tree,
   fMuonToken        = cc.consumes<reco::MuonCollection>( ps.getParameter<edm::InputTag>( "src" ) );
   fMuonSimInfoToken = cc.consumes<edm::ValueMap<reco::MuonSimInfo>>( edm::InputTag( "muonSimClassifier" ) );
 
+  tree.Branch( "muon_n", &fNMuon );
   tree.Branch( "muon_p4", &fMuonP4 );
   tree.Branch( "muon_charge", &fMuonCharge );
   tree.Branch( "muon_type", &fMuonType )->SetTitle( "<b>MuonType</b>: Global, Tracker, Standalone, Calo, PFMuon, RPC, GEM, ME0" );
@@ -71,6 +73,7 @@ ffNtupleMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
+  fNMuon = muonHdl->size();
   for ( const auto& muon : *muonHdl ) {
     fMuonP4.emplace_back( muon.px(), muon.py(), muon.pz(), muon.energy() );
     fMuonCharge.emplace_back( muon.charge() );
@@ -96,6 +99,7 @@ ffNtupleMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleMuon::clear() {
+  fNMuon = 0;
   fMuonP4.clear();
   fMuonCharge.clear();
   fMuonType.clear();

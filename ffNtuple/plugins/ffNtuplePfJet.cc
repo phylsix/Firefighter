@@ -62,7 +62,7 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   std::vector<double>                      isoRadius_;
   std::unique_ptr<ffLeptonJetMVAEstimator> mvaEstimator_;
 
-  int                                 pfjet_n_;
+  unsigned int                        pfjet_n_;
   std::vector<LorentzVector>          pfjet_p4_;
   std::vector<float>                  pfjet_chargedHadronE_;
   std::vector<float>                  pfjet_neutralHadronE_;
@@ -215,7 +215,7 @@ ffNtuplePfJet::initialize( TTree&                   tree,
     subjet_ecf3_token_    = cc.consumes<edm::ValueMap<float>>( ps.getParameter<edm::InputTag>( "SubjetEcf3" ) );
   }
 
-  tree.Branch( "pfjet_n", &pfjet_n_, "pfjet_n/I" );
+  tree.Branch( "pfjet_n", &pfjet_n_ );
   tree.Branch( "pfjet_p4", &pfjet_p4_ );
   tree.Branch( "pfjet_chargedHadronE", &pfjet_chargedHadronE_ );
   tree.Branch( "pfjet_neutralHadronE", &pfjet_neutralHadronE_ );
@@ -286,12 +286,12 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcand_muonTimeErr", &pfjet_pfcand_muonTimeErr_ );
   tree.Branch( "pfjet_pfcand_muonTimeStd", &pfjet_pfcand_muonTimeStd_ );
 
-  tree.Branch( "pfjet_pfcand_tkD0Max", &pfjet_pfcand_tkD0Max_ );
-  tree.Branch( "pfjet_pfcand_tkD0Sub", &pfjet_pfcand_tkD0Sub_ );
-  tree.Branch( "pfjet_pfcand_tkD0Min", &pfjet_pfcand_tkD0Min_ );
-  tree.Branch( "pfjet_pfcand_tkD0SigMax", &pfjet_pfcand_tkD0SigMax_ );
-  tree.Branch( "pfjet_pfcand_tkD0SigSub", &pfjet_pfcand_tkD0SigSub_ );
-  tree.Branch( "pfjet_pfcand_tkD0SigMin", &pfjet_pfcand_tkD0SigMin_ );
+  tree.Branch( "pfjet_pfcand_tkD0Max", &pfjet_pfcand_tkD0Max_ )->SetTitle( "abs(d0) of track wrt primary vertex. <b>Maximum</b> value. Default: NAN" );
+  tree.Branch( "pfjet_pfcand_tkD0Sub", &pfjet_pfcand_tkD0Sub_ )->SetTitle( "abs(d0) of track wrt primary vertex. <b>2nd</b> largest value. Default: NAN" );
+  tree.Branch( "pfjet_pfcand_tkD0Min", &pfjet_pfcand_tkD0Min_ )->SetTitle( "abs(d0) of track wrt primary vertex. <b>Minimum</b> value. Default: NAN" );
+  tree.Branch( "pfjet_pfcand_tkD0SigMax", &pfjet_pfcand_tkD0SigMax_ )->SetTitle( "track d0 significance. <b>Maximum</b> value. Default: NAN" );
+  tree.Branch( "pfjet_pfcand_tkD0SigSub", &pfjet_pfcand_tkD0SigSub_ )->SetTitle( "track d0 significance. <b>2nd</b> largest value. Default: NAN" );
+  tree.Branch( "pfjet_pfcand_tkD0SigMin", &pfjet_pfcand_tkD0SigMin_ )->SetTitle( "track d0 significance. <b>Minimum</b> value. Default: NAN" );
 
   if ( doVertexing_ ) {
     tree.Branch( "pfjet_medianvtx", &pfjet_medianvtx_ );

@@ -25,6 +25,7 @@ class ffNtupleElectron : public ffNtupleBaseNoHLT {
 
   const std::vector<std::string> kIdLabels{"veto", "loose", "medium", "tight"};
 
+  unsigned int                              fNElectron;
   math::XYZTLorentzVectorFCollection        fElectronP4;
   std::vector<int>                          fElectronCharge;
   std::map<std::string, std::vector<float>> fCutFlowValMap;
@@ -50,6 +51,7 @@ ffNtupleElectron::initialize( TTree&                   tree,
   for ( const auto& idLabel : kIdLabels )
     fIdResultTokens.push_back( cc.consumes<edm::ValueMap<bool>>( edm::InputTag( "egmGsfElectronIDs", fIdVersion + "-" + idLabel ) ) );
 
+  tree.Branch( "electron_n", &fNElectron );
   tree.Branch( "electron_p4", &fElectronP4 );
   tree.Branch( "electron_charge", &fElectronCharge );
   for ( const auto& name : fCutFlowNames ) {
@@ -81,6 +83,7 @@ ffNtupleElectron::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
   clear();
 
+  fNElectron = electronHdl->size();
   for ( size_t iele( 0 ); iele != electronHdl->size(); iele++ ) {
     Ptr<reco::GsfElectron> electronptr( electronHdl, iele );
     const auto&            electron = *electronptr;
@@ -110,6 +113,7 @@ ffNtupleElectron::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtupleElectron::clear() {
+  fNElectron = 0;
   fElectronP4.clear();
   fElectronCharge.clear();
   for ( const auto& name : fCutFlowNames )

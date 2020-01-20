@@ -19,7 +19,7 @@ class ffNtuplePrimaryVertex : public ffNtupleBaseNoHLT {
   unsigned int       fNpv;
   std::vector<float> fRho;
   std::vector<float> fZ;
-  std::vector<bool>  fIsFake;
+  std::vector<int>   fIsFake;
   std::vector<float> fNdof;
   std::vector<float> fNormalizedChi2;
 };

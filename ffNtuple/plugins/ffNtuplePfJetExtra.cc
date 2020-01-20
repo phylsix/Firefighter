@@ -22,7 +22,7 @@ class ffNtuplePfJetExtra : public ffNtupleBaseNoHLT {
 
   std::vector<float> fLeptonjetPfiso;
   std::vector<float> fLeptonjetMindr;
-  std::vector<bool>  fLeptonjetCleaned;
+  std::vector<int>   fLeptonjetCleaned;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePfJetExtra, "ffNtuplePfJetExtra" );

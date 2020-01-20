@@ -27,12 +27,13 @@ class ffNtuplePhoton : public ffNtupleBaseNoHLT {
 
   const std::vector<std::string> kIdLabels{"loose", "medium", "tight"};
 
+  unsigned int                              fNPhoton;
   math::XYZTLorentzVectorFCollection        fPhotonP4;
   std::map<std::string, std::vector<float>> fCutFlowValMap;
   std::vector<unsigned int>                 fIdBit;
   std::vector<unsigned int>                 fIdResults;
-  std::vector<bool>                         fIsConversion;
-  std::vector<bool>                         fHasPixelSeed;
+  std::vector<int>                          fIsConversion;
+  std::vector<int>                          fHasPixelSeed;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtuplePhoton, "ffNtuplePhoton" );
@@ -54,6 +55,7 @@ ffNtuplePhoton::initialize( TTree&                   tree,
   for ( const auto& idLabel : kIdLabels )
     fIdResultTokens.push_back( cc.consumes<edm::ValueMap<bool>>( edm::InputTag( "egmPhotonIDs", fIdVersion + "-" + idLabel ) ) );
 
+  tree.Branch( "photon_n", &fNPhoton );
   tree.Branch( "photon_p4", &fPhotonP4 );
   for ( const auto& name : fCutFlowNames ) {
     fCutFlowValMap[ name ] = {};
@@ -85,6 +87,8 @@ ffNtuplePhoton::fill( const edm::Event& e, const edm::EventSetup& es ) {
   }
 
   clear();
+
+  fNPhoton = photonHdl->size();
   for ( size_t ipho( 0 ); ipho != photonHdl->size(); ipho++ ) {
     Ptr<reco::Photon> photonptr( photonHdl, ipho );
     const auto&       photon = *photonptr;
@@ -116,6 +120,7 @@ ffNtuplePhoton::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
 void
 ffNtuplePhoton::clear() {
+  fNPhoton = 0;
   fPhotonP4.clear();
   for ( const auto& name : fCutFlowNames )
     fCutFlowValMap[ name ].clear();

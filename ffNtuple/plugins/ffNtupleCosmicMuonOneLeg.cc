@@ -30,6 +30,7 @@ class ffNtupleCosmicMuonOneLeg : public ffNtupleBaseNoHLT {
   edm::EDGetToken fCosmicToken;
   edm::EDGetToken fPvToken;
 
+  unsigned int                       fNCosmic;
   math::XYZTLorentzVectorFCollection fCosmicP4;
 
   std::vector<int>   fNhits;
@@ -62,6 +63,7 @@ ffNtupleCosmicMuonOneLeg::initialize( TTree&                   tree,
   fCosmicToken = cc.consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "src" ) );
   fPvToken     = cc.consumes<reco::VertexCollection>( edm::InputTag( "offlinePrimaryVertices" ) );
 
+  tree.Branch( "cosmiconeleg_n", &fNCosmic );
   tree.Branch( "cosmiconeleg_p4", &fCosmicP4 );
   tree.Branch( "cosmiconeleg_nhits", &fNhits );
   tree.Branch( "cosmiconeleg_nDTHits", &fNDTHits );
@@ -109,6 +111,7 @@ ffNtupleCosmicMuonOneLeg::fill( const edm::Event& e, const edm::EventSetup& es )
 
   clear();
 
+  fNCosmic = cosmicHdl->size();
   for ( size_t i( 0 ); i != cosmicHdl->size(); i++ ) {
     reco::TrackRef tkref( cosmicHdl, i );
     const auto&    tk = *tkref;
@@ -192,6 +195,7 @@ ffNtupleCosmicMuonOneLeg::fill( const edm::Event& e, const edm::EventSetup& es )
 
 void
 ffNtupleCosmicMuonOneLeg::clear() {
+  fNCosmic = 0;
   fCosmicP4.clear();
   fNhits.clear();
   fNDTHits.clear();
