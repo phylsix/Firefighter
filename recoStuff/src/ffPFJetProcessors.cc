@@ -260,6 +260,31 @@ ff::getTkPtSumInCone( const reco::PFJet&                        jet,
 //-----------------------------------------------------------------------------
 
 float
+ff::getTkPtRawSumInCone( const reco::PFJet&                        jet,
+                         const edm::Handle<reco::TrackCollection>& tkH,
+                         const float&                              isoRadius,
+                         const float                               minPt ) {
+  std::vector<reco::PFCandidatePtr> cands = getTrackEmbededPFCands( jet );
+
+  float tkPtRawSum( 0. );
+  for ( size_t i( 0 ); i != tkH->size(); ++i ) {
+    reco::TrackRef tk( tkH, i );
+    if ( tk->pt() < minPt ) continue;                // less than min pT cut
+    if ( deltaR( jet, *tk ) > isoRadius ) continue;  // outside radius
+    if ( std::find_if( cands.begin(), cands.end(), [&tk]( const auto& c ) {
+           return c->trackRef() == tk;
+         } ) != cands.end() )
+      continue;  // associated with the jet
+
+    tkPtRawSum += tk->pt();
+  }
+
+  return tkPtRawSum;
+}
+
+//-----------------------------------------------------------------------------
+
+float
 ff::getTkIsolation( const reco::PFJet&                        jet,
                     const edm::Handle<reco::TrackCollection>& tkH,
                     const reco::VertexCollection&             vertices,

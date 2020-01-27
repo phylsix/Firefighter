@@ -29,10 +29,10 @@ std::vector<reco::PFCandidatePtr>
 getTrackEmbededPFCands( const reco::PFJet& );
 
 float
-getMinDistAnyTwoTracks( const reco::PFJet&, const edm::EventSetup&);
+getMinDistAnyTwoTracks( const reco::PFJet&, const edm::EventSetup& );
 
 float
-getMaxDistAnyTwoTracks( const reco::PFJet&, const edm::EventSetup&);
+getMaxDistAnyTwoTracks( const reco::PFJet&, const edm::EventSetup& );
 
 std::vector<const reco::Track*>
 getSelectedTracks( const reco::PFJet&,
@@ -60,6 +60,13 @@ getTkPtSumInCone( const reco::PFJet&,
                   const edm::Handle<reco::TrackCollection>&,
                   const reco::VertexCollection&,
                   const float& );
+
+/* generalTracks sum pT in cone if pT>minPt */
+float
+getTkPtRawSumInCone( const reco::PFJet&,
+                     const edm::Handle<reco::TrackCollection>&,
+                     const float&,
+                     const float minPt = 1. );
 
 /**
  * @brief genralTracks Isolation

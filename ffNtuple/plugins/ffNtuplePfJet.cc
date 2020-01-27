@@ -89,6 +89,7 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   std::map<float, std::vector<float>> pfjet_neuIsolation_;
   std::map<float, std::vector<float>> pfjet_hadIsolation_;
   std::map<float, std::vector<float>> pfjet_tkPtSum_;
+  std::map<float, std::vector<float>> pfjet_tkPtRawSum_;
   std::map<float, std::vector<float>> pfjet_tkIsolation_;
   std::vector<int>                    pfjet_tracks_n_;
   std::vector<float>                  pfjet_ptDistribution_;
@@ -243,6 +244,7 @@ ffNtuplePfJet::initialize( TTree&                   tree,
     pfjet_neuIsolation_[ isor ]     = {};
     pfjet_hadIsolation_[ isor ]     = {};
     pfjet_tkPtSum_[ isor ]          = {};
+    pfjet_tkPtRawSum_[ isor ]       = {};
     pfjet_tkIsolation_[ isor ]      = {};
     std::stringstream ss;
     ss << isor;
@@ -253,7 +255,8 @@ ffNtuplePfJet::initialize( TTree&                   tree,
     tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(), &pfjet_pfIsolation_[ isor ] );
     tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(), &pfjet_neuIsolation_[ isor ] );
     tree.Branch( ( "pfjet_hadIsolation" + suffix ).c_str(), &pfjet_hadIsolation_[ isor ] );
-    tree.Branch( ( "pfjet_tkPtSum" + suffix ).c_str(), &pfjet_tkPtSum_[ isor ] );
+    tree.Branch( ( "pfjet_tkPtSum" + suffix ).c_str(), &pfjet_tkPtSum_[ isor ] )->SetTitle( Form( "sum generalTracks (asso. w/ primary vertex) pT within cone radius %f", isor ) );
+    tree.Branch( ( "pfjet_tkPtRawSum" + suffix ).c_str(), &pfjet_tkPtRawSum_[ isor ] )->SetTitle( Form( "sum generalTracks pT(>1GeV) within cone radius %f", isor ) );
     tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(), &pfjet_tkIsolation_[ isor ] );
   }
   tree.Branch( "pfjet_pfcands_n", &pfjet_pfcands_n_ );
@@ -425,6 +428,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
       pfjet_hadIsolation_[ isor ].emplace_back( getHadronIsolation( pfjet, pfCand_h, isor ) );
 
       pfjet_tkPtSum_[ isor ].emplace_back( getTkPtSumInCone( pfjet, generalTk_h, *pvs_h, isor ) );
+      pfjet_tkPtRawSum_[ isor ].emplace_back( getTkPtRawSumInCone( pfjet, generalTk_h, isor ) );
       pfjet_tkIsolation_[ isor ].emplace_back( getTkIsolation( pfjet, generalTk_h, *pvs_h, isor ) );
     }
 
@@ -694,6 +698,7 @@ ffNtuplePfJet::clear() {
   pfjet_maxDistance_.clear();
   for ( const double& isor : isoRadius_ ) {
     pfjet_tkPtSum_[ isor ].clear();
+    pfjet_tkPtRawSum_[ isor ].clear();
     pfjet_tkIsolation_[ isor ].clear();
     pfjet_pfIsolation_[ isor ].clear();
     pfjet_neuIsolation_[ isor ].clear();
