@@ -252,11 +252,11 @@ ffNtuplePfJet::initialize( TTree&                   tree,
     tree.Branch( ( "pfjet_pfIsolationNoPU" + suffix ).c_str(), &pfjet_pfIsolationNoPU_[ isor ] );
     tree.Branch( ( "pfjet_neuIsolationNoPU" + suffix ).c_str(), &pfjet_neuIsolationNoPU_[ isor ] );
     tree.Branch( ( "pfjet_hadIsolationNoPU" + suffix ).c_str(), &pfjet_hadIsolationNoPU_[ isor ] );
-    tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(), &pfjet_pfIsolation_[ isor ] );
+    tree.Branch( ( "pfjet_pfIsolation" + suffix ).c_str(), &pfjet_pfIsolation_[ isor ] )->SetTitle( Form( "sum PFCandidates(<b>noMu</b>) energy within cone radius %.1f with lepton-jet footprint removed, divided by sum of both", isor ) );
     tree.Branch( ( "pfjet_neuIsolation" + suffix ).c_str(), &pfjet_neuIsolation_[ isor ] );
     tree.Branch( ( "pfjet_hadIsolation" + suffix ).c_str(), &pfjet_hadIsolation_[ isor ] );
-    tree.Branch( ( "pfjet_tkPtSum" + suffix ).c_str(), &pfjet_tkPtSum_[ isor ] )->SetTitle( Form( "sum generalTracks (asso. w/ primary vertex) pT within cone radius %f", isor ) );
-    tree.Branch( ( "pfjet_tkPtRawSum" + suffix ).c_str(), &pfjet_tkPtRawSum_[ isor ] )->SetTitle( Form( "sum generalTracks pT(>1GeV) within cone radius %f", isor ) );
+    tree.Branch( ( "pfjet_tkPtSum" + suffix ).c_str(), &pfjet_tkPtSum_[ isor ] )->SetTitle( Form( "sum generalTracks (asso. w/ primary vertex) pT within cone radius %.1f", isor ) );
+    tree.Branch( ( "pfjet_tkPtRawSum" + suffix ).c_str(), &pfjet_tkPtRawSum_[ isor ] )->SetTitle( Form( "sum generalTracks pT(>1GeV) within cone radius %.1f", isor ) );
     tree.Branch( ( "pfjet_tkIsolation" + suffix ).c_str(), &pfjet_tkIsolation_[ isor ] );
   }
   tree.Branch( "pfjet_pfcands_n", &pfjet_pfcands_n_ );

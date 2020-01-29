@@ -303,14 +303,16 @@ ff::getTkIsolation( const reco::PFJet&                        jet,
 }
 
 //-----------------------------------------------------------------------------
-
+/* pfIsolation noMu */
 float
 ff::getPfIsolation( const reco::PFJet&                              jet,
                     const edm::Handle<reco::PFCandidateCollection>& pfH,
                     const float&                                    isoRadius ) {
   std::vector<reco::PFCandidatePtr> pfCandPtrs{};
-  for ( size_t i( 0 ); i != pfH->size(); ++i )
+  for ( size_t i( 0 ); i != pfH->size(); ++i ) {
+    if ( ( *pfH )[ i ].particleId() == reco::PFCandidate::mu ) continue;
     pfCandPtrs.emplace_back( pfH, i );
+  }
 
   std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
 
@@ -338,14 +340,16 @@ ff::getPfIsolation( const reco::PFJet&                              jet,
 }
 
 //-----------------------------------------------------------------------------
-
+/* pfIsolation noMu */
 float
 ff::getPfIsolation( const reco::PFJet&                                jet,
                     const edm::Handle<reco::PFCandidateFwdPtrVector>& pfH,
                     const float&                                      isoRadius ) {
   std::vector<reco::PFCandidatePtr> pfCandPtrs{};
-  for ( const auto& cand : *pfH )
+  for ( const auto& cand : *pfH ) {
+    if ( cand.ptr()->particleId() == reco::PFCandidate::mu ) continue;
     pfCandPtrs.emplace_back( cand.ptr() );
+  }
 
   std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
 
