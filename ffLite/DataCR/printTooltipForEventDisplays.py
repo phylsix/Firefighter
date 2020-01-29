@@ -55,14 +55,15 @@ if __name__ == "__main__":
                 mass=lj.mass(),
             ))
         for j, lxy in enumerate(event.pfjet_klmvtx_lxy):
-            leptonjetPool[j]['lxy'] = -lxy
+            leptonjetPool[j]['lxy'] = lxy
         for j, costheta in enumerate(event.pfjet_klmvtx_cosThetaXy):
-            leptonjetPool[j]['costheta'] = -costheta
+            leptonjetPool[j]['costheta'] = costheta
+        for j, iso in enumerate(event.pfjet_pfIsolation05):
+            leptonjetPool[j]['pfiso05'] = iso
         print('## leptonjet')
         df_lj = pd.DataFrame(leptonjetPool)
-        df_lj = df_lj[['energy', 'pt', 'eta', 'phi', 'mass', 'lxy', 'costheta']]
-        # df_lj = df_lj[['energy', 'pt', 'eta', 'phi', 'mass',]]
-        print(df_lj.to_string())
+        df_lj = df_lj[['energy', 'pt', 'eta', 'phi', 'mass', 'lxy', 'costheta', 'pfiso05']]
+        print(df_lj.to_string(float_format=lambda x: "{:.2f}".format(x)))
 
         if len(leptonjetPool)>=2:
             ljp4s = [j for j in event.pfjet_p4]
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             )]
             df_ljp = pd.DataFrame(leptonjetPair)
             print('## leptonjet pair (leading/subleading)')
-            print(df_ljp.to_string(index=False))
+            print(df_ljp.to_string(index=False, float_format=lambda x: "{:.2f}".format(x)))
 
         leptonjetSourcePool = []
         for p, t in zip(event.ljsource_p4, event.ljsource_type):
@@ -89,18 +90,18 @@ if __name__ == "__main__":
         print('## leptonjet sources')
         df_ljs = pd.DataFrame(leptonjetSourcePool)
         df_ljs = df_ljs[['type', 'energy', 'pt', 'eta', 'phi']]
-        print(df_ljs.to_string())
+        print(df_ljs.to_string(float_format=lambda x: "{:.2f}".format(x)))
 
         print('\n')
 
         with open(outname, 'w') as outf:
             outf.write('[leptonjet]\n')
-            outf.write(df_lj.to_string())
+            outf.write(df_lj.to_string(float_format=lambda x: "{:.2f}".format(x)))
             outf.write('\n\n')
             if len(leptonjetPool)>=2:
                 outf.write('[leptonjet pair]\n')
-                outf.write(df_ljp.to_string(index=False))
+                outf.write(df_ljp.to_string(index=False, float_format=lambda x: "{:.2f}".format(x)))
                 outf.write('\n\n')
 
             outf.write('[leptonjet source]\n')
-            outf.write(df_ljs.to_string())
+            outf.write(df_ljs.to_string(float_format=lambda x: "{:.2f}".format(x)))
