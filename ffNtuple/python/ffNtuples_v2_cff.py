@@ -28,6 +28,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_pfjet,
         ntuple_pfjetextra,
         ntuple_leptonjetsrc,
+        ntuple_proxymuon,
         ntuple_pfmet,
         # ntuple_genbkgcheck,
     ),
@@ -36,7 +37,6 @@ ffNtuplizer = cms.EDAnalyzer(
 ntuple_pfjet.doVertexing=cms.bool(True)
 ntuple_pfjet.doSubstructureVariables=cms.bool(False)
 ntuple_pfjet.doMVA=cms.bool(False)
-ntuple_leptonjetsrc.src=cms.InputTag("leptonjetSources")
 
 ffNtuplesSeq = cms.Sequence(ffNtuplizer)
 ffNtuplesStatSeq = cms.Sequence(ffNtupleStat)

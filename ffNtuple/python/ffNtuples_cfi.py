@@ -187,11 +187,18 @@ ntuple_metfilters = cms.PSet(
 
 ntuple_leptonjetsrc = cms.PSet(
     NtupleName=cms.string("ffNtupleLeptonJetSource"),
-    src=cms.InputTag("particleFlowIncDSA"),
+    src=cms.InputTag("leptonjetSources"),
 )
 
 ntuple_leptonjetmisc = cms.PSet(
     NtupleName=cms.string("ffNtupleLeptonJetMisc"),
+)
+
+ntuple_proxymuon = cms.PSet(
+    NtupleName=cms.string("ffNtupleProxyMuon"),
+    src=cms.InputTag("leptonjetSources"),
+    leptonjet=cms.InputTag("filteredLeptonJet"),
+    IsolationRadius=cms.vdouble(0.5, 0.6, 0.7, 0.8), ## same as ntuple_pfjet
 )
 
 from Firefighter.ffEvtFilters.ffTriggerObjectsMatchingFilter_cfi import triggerObjectMatchingFilter

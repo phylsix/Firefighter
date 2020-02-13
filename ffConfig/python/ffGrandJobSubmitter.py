@@ -31,6 +31,7 @@ parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_tru
 parser.add_argument("--no-ignorelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality.')
 parser.set_defaults(ignorelocality=False)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
+parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "control", "proxy", "muonType"])
 args = parser.parse_args()
 
 ## modify data source dir if run with skimmed AOD
@@ -87,6 +88,11 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
     if args.submitter == 'crab' and args.ignorelocality == False:
         commonCBkwargs['ignoreLocality'] = False
 
+    _eventregion = args.eventregion #"all"
+    if _eventregion in ['proxy', 'muonType']:
+        commonCBkwargs['outbase'] += '{}/'.format(_eventregion)
+        print('Job outputs going to be written to:', commonCBkwargs['outbase'])
+
 
     ## split by submitter
     if submitter == "crab":
@@ -94,12 +100,6 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
 
         coremsg = "submit {} jobs for {} to crab".format(jobtype, dkind)
         print(buildbanner(coremsg))
-
-        _eventregion = "all"
-
-        ## 19/12/24 wsi: CR description is not complete.
-        # if dkind == "data":
-        #     _eventregion = "control"  # only control for data now.
 
         for i, ds in enumerate(ffds[dkind]):
             print("----> submitting {0}/{1}".format(i+1, len(ffds[dkind])))
@@ -117,11 +117,6 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
 
         coremsg = "submit {} jobs for {} to condor(crab)".format(jobtype, dkind)
         print(buildbanner(coremsg))
-
-        _eventregion = "all"
-        ## 19/12/24 wsi: CR description is not complete.
-        # if dkind == "data":
-        #     _eventregion = "control"  # only control for data now.
 
         os.system("cd $CMSSW_BASE/src/Firefighter && scram b -j12 && cd -")
         os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf `basename ${CMSSW_BASE}`.tar.gz -C ${CMSSW_BASE}/.. `basename ${CMSSW_BASE}`")

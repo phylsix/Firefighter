@@ -3,6 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "Firefighter/recoStuff/interface/KalmanVertexFitter.h"
 #include "Firefighter/recoStuff/interface/KinematicParticleVertexFitter.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
@@ -104,6 +105,56 @@ ff::getCandType( const reco::PFCandidatePtr&               cand,
     return 8;  // This is coming from a displacedStandAloneMuon
 
   return cand->particleId();
+}
+
+//-----------------------------------------------------------------------------
+/* pfIsolation noMu, analogous to lepton-jet pfIsolation */
+float
+ff::getCandPFIsolation( const reco::PFCandidatePtr&                     pfcand,
+                        const edm::Handle<reco::PFCandidateCollection>& pfH,
+                        const float                                     isor ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( size_t i( 0 ); i != pfH->size(); i++ ) {
+    if ( ( *pfH )[ i ].particleId() == reco::PFCandidate::mu ) continue;
+    pfCandPtrs.emplace_back( pfH, i );
+  }
+
+  float denom( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( pfcand == cand ) continue;
+    if ( deltaR( *pfcand, *cand ) > isor ) continue;  // outside radius
+    denom += cand->energy();
+  }
+
+  float numer( pfcand->energy() );
+  denom += numer;
+
+  return denom == 0 ? NAN : numer / denom;
+}
+
+//-----------------------------------------------------------------------------
+/* pfIsolation noMu, analogous to lepton-jet pfIsolation */
+float
+ff::getCandPFIsolation( const reco::PFCandidatePtr&                       pfcand,
+                        const edm::Handle<reco::PFCandidateFwdPtrVector>& pfH,
+                        const float                                       isor ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( const auto& cand : *pfH ) {
+    if ( cand.ptr()->particleId() == reco::PFCandidate::mu ) continue;
+    pfCandPtrs.emplace_back( cand.ptr() );
+  }
+
+  float denom( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( pfcand == cand ) continue;
+    if ( deltaR( *pfcand, *cand ) > isor ) continue;  // outside radius
+    denom += cand->energy();
+  }
+
+  float numer( pfcand->energy() );
+  denom += numer;
+
+  return denom == 0 ? NAN : numer / denom;
 }
 
 //-----------------------------------------------------------------------------

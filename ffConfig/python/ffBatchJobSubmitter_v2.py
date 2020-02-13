@@ -19,6 +19,7 @@ parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_tru
 parser.add_argument("--no-ignorelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality.')
 parser.set_defaults(ignorelocality=True)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
+parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "control", "proxy", "muonType"])
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))
 
@@ -28,6 +29,7 @@ print("++ submit jobs for:")
 print(*tosubd_, sep="\n")
 print("++ submit jobs with:\t", args.submitter)
 print("++ submit jobs type:\t", args.jobtype)
+print("++ submit jobs eventRegion:\t", args.eventregion)
 
 
 def main():
@@ -43,32 +45,35 @@ def main():
     elif args.submitter == 'crab':
         from Firefighter.ffConfig.crabConfigBuilder import configBuilder
 
+
+    ## set event region
+    eventRegion_ = args.eventregion
+
+    ## base submitter config settings
+    cbkwargs = dict(
+        eventRegion=eventRegion_,
+        ffConfigName='ffNtupleFromAOD_v2_cfg.py',
+        outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
+    )
+    ## update CMSSW config file and outputbase for skim jobs
+    if args.jobtype == 'skim':
+        cbkwargs.update(dict(
+            ffConfigName='ffFullSkimFromAOD_cfg.py',
+            outbase='/store/group/lpcmetx/SIDM/Skim/',
+            ))
+    if eventRegion_ in ['proxy', 'muonType']:
+        cbkwargs['outbase'] += '{}/'.format(eventRegion_)
+
+    ## update unitsPerJob for ntuple jobs with skimmed files as source
+    if args.jobtype == 'ntuplefromskim':
+        cbkwargs['unitsPerJob'] = 50
+        cbkwargs['outbase'] = '/store/group/lpcmetx/SIDM/ffNtupleV2/Skim/'
+    if args.submitter == 'crab' and args.ignorelocality == False:
+        cbkwargs['ignoreLocality'] = False
+
+
     for ds in tosubd_:
         tosubdff = yaml.load(open(join(os.getenv('CMSSW_BASE'), ds)), Loader=yaml.Loader)
-
-        ## set event region
-        eventRegion_ = 'control'
-        if 'sigmc' in ds or 'bkgmc' in ds:
-            eventRegion_ = 'all'
-
-        ## base submitter config settings
-        cbkwargs = dict(
-            eventRegion=eventRegion_,
-            ffConfigName='ffNtupleFromAOD_v2_cfg.py',
-            outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
-        )
-        ## update CMSSW config file and outputbase for skim jobs
-        if args.jobtype == 'skim':
-            cbkwargs.update(dict(
-                ffConfigName='ffFullSkimFromAOD_cfg.py',
-                outbase='/store/group/lpcmetx/SIDM/Skim/',
-                ))
-        ## update unitsPerJob for ntuple jobs with skimmed files as source
-        if args.jobtype == 'ntuplefromskim':
-            cbkwargs['unitsPerJob'] = 50
-            cbkwargs['outbase'] = '/store/group/lpcmetx/SIDM/ffNtupleV2/Skim/'
-        if args.submitter == 'crab' and args.ignorelocality == False:
-            cbkwargs['ignoreLocality'] = False
 
         cb = configBuilder(tosubdff, **cbkwargs)
         for c in cb.build():

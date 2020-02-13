@@ -64,6 +64,16 @@ getCandType( const reco::PFCandidatePtr&,
              const edm::Handle<reco::TrackCollection>& );
 
 float
+getCandPFIsolation( const reco::PFCandidatePtr&,
+                    const edm::Handle<reco::PFCandidateCollection>&,
+                    const float );
+
+float
+getCandPFIsolation( const reco::PFCandidatePtr&,
+                    const edm::Handle<reco::PFCandidateFwdPtrVector>&,
+                    const float );
+
+float
 getMuonIsolationValue( const reco::Muon& );
 
 /**
