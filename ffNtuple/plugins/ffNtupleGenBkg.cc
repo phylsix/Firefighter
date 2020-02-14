@@ -22,6 +22,7 @@ class ffNtupleGenBkg : public ffNtupleBaseNoHLT {
 
   unsigned int                       fNGen;
   std::vector<int>                   fGenPid;
+  std::vector<int>                   fGenMomPid;
   std::vector<int>                   fGenCharge;
   math::XYZTLorentzVectorFCollection fGenP4;
   std::vector<unsigned long>         fGenStatusFlags;
@@ -44,6 +45,7 @@ ffNtupleGenBkg::initialize( TTree&                   tree,
   tree.Branch( "gen_p4", &fGenP4 );
   tree.Branch( "gen_charge", &fGenCharge );
   tree.Branch( "gen_pid", &fGenPid );
+  tree.Branch( "gen_mompid", &fGenMomPid )->SetTitle( "mother pdgId (if nonnull, otherwise default 0)" );
   tree.Branch( "gen_statusflags", &fGenStatusFlags );
 }
 
@@ -66,6 +68,7 @@ ffNtupleGenBkg::fill( const edm::Event& e, const edm::EventSetup& es ) {
       fGenP4.emplace_back( p.px(), p.py(), p.pz(), p.energy() );
       fGenCharge.emplace_back( p.charge() );
       fGenPid.emplace_back( p.pdgId() );
+      fGenMomPid.emplace_back( p.motherRef().isNonnull() ? p.motherRef()->pdgId() : 0 );
       fGenStatusFlags.emplace_back( p.statusFlags().flags_.to_ulong() );
     }
 
@@ -75,6 +78,7 @@ ffNtupleGenBkg::fill( const edm::Event& e, const edm::EventSetup& es ) {
       fGenP4.emplace_back( p.px(), p.py(), p.pz(), p.energy() );
       fGenCharge.emplace_back( p.charge() );
       fGenPid.emplace_back( p.pdgId() );
+      fGenMomPid.emplace_back( p.motherRef().isNonnull() ? p.motherRef()->pdgId() : 0 );
       fGenStatusFlags.emplace_back( p.statusFlags().flags_.to_ulong() );
     }
   }
@@ -88,5 +92,6 @@ ffNtupleGenBkg::clear() {
   fGenP4.clear();
   fGenCharge.clear();
   fGenPid.clear();
+  fGenMomPid.clear();
   fGenStatusFlags.clear();
 }
