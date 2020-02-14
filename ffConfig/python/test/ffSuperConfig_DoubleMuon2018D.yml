@@ -10,7 +10,7 @@ condition-spec:
 data-spec:
   inputFileList:
     [
-      "root://cmsxrootd.fnal.gov//store/data/Run2018D/DoubleMuon/AOD/PromptReco-v2/000/325/022/00000/E8C70B3B-F319-8642-BBC1-E39535EFBDA9.root",
+      "root://cmsxrootd.fnal.gov//store/data/Run2018D/DoubleMuon/AOD/PromptReco-v2/000/320/673/00000/EC29AD36-F297-E811-8299-FA163E99485E.root",
     ]
   maxEvents: 50
   outputFileName: "ffNtuple_DoubleMuon2018D.root"
@@ -18,4 +18,4 @@ data-spec:
   dataType: "data"
 
 reco-spec:
-  eventRegion: "control"
+  eventRegion: "proxy"

@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(description="Submit jobs in a GRAND way.")
 parser.add_argument("datasettype", type=str, nargs="*", choices=["sigmc", "bkgmc", "data"], help="Type of dataset",)
 parser.add_argument("--submitter", "-s", default="condor", type=str, choices=["condor", "crab"])
 parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_true', help='Only take effect when submit with crab, ignore locality.')
-parser.add_argument("--no-ignorelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality.')
+parser.add_argument("--enforcelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality. DEFAULT')
 parser.set_defaults(ignorelocality=False)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
 parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "control", "proxy", "muonType"])
@@ -91,7 +91,7 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
     _eventregion = args.eventregion #"all"
     if _eventregion in ['proxy', 'muonType']:
         commonCBkwargs['outbase'] += '{}/'.format(_eventregion)
-        print('Job outputs going to be written to:', commonCBkwargs['outbase'])
+        print('*** Job outputs going to be written to:', commonCBkwargs['outbase'])
 
 
     ## split by submitter
