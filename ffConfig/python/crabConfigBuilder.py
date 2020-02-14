@@ -34,7 +34,7 @@ class configBuilder:
                 time.strftime("%y%m%d"),
             ),
             splittingMode="FileBased",
-            unitsPerJob=10,
+            unitsPerJob=20,
             ffConfigName = 'ffNtupleFromAOD_v2_cfg.py',
             outbase="/store/group/lpcmetx/SIDM/ffNtupleV2/",
             year=2018,
@@ -128,7 +128,7 @@ class configBuilder:
                 config.Data.inputDBS = "global"
                 config.Data.splitting = "LumiBased"
                 config.Data.lumiMask = self.ffdataset_["lumiMask"]
-                config.Data.unitsPerJob = 100
+                config.Data.unitsPerJob = 120
             config.General.requestName = "_".join(reqNameParts)
 
             ## construct ffSuperConfig ##

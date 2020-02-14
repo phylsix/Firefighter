@@ -20,6 +20,7 @@ class ffNtupleMuon : public ffNtupleBaseNoHLT {
   void clear() final;
 
   edm::EDGetToken fMuonToken;
+  edm::EDGetToken fPrimaryVertexToken;
   edm::EDGetToken fMuonSimInfoToken;
 
   unsigned int                       fNMuon;
@@ -30,6 +31,11 @@ class ffNtupleMuon : public ffNtupleBaseNoHLT {
   std::vector<unsigned int>          fSelectors;
   std::vector<int>                   fHasInnerTrack;
   std::vector<int>                   fHasOuterTrack;
+  std::vector<float>                 fD0;
+  std::vector<float>                 fD0Sig;
+  std::vector<float>                 fDz;
+  std::vector<float>                 fDzSig;
+  std::vector<float>                 fNormChi2;
   std::vector<float>                 fDtCscTime;
   std::vector<float>                 fRpcTime;
   std::vector<float>                 fIsoValue;
@@ -45,8 +51,9 @@ void
 ffNtupleMuon::initialize( TTree&                   tree,
                           const edm::ParameterSet& ps,
                           edm::ConsumesCollector&& cc ) {
-  fMuonToken        = cc.consumes<reco::MuonCollection>( ps.getParameter<edm::InputTag>( "src" ) );
-  fMuonSimInfoToken = cc.consumes<edm::ValueMap<reco::MuonSimInfo>>( edm::InputTag( "muonSimClassifier" ) );
+  fMuonToken          = cc.consumes<reco::MuonCollection>( ps.getParameter<edm::InputTag>( "src" ) );
+  fPrimaryVertexToken = cc.consumes<reco::VertexCollection>( edm::InputTag( "offlinePrimaryVertices" ) );
+  fMuonSimInfoToken   = cc.consumes<edm::ValueMap<reco::MuonSimInfo>>( edm::InputTag( "muonSimClassifier" ) );
 
   tree.Branch( "muon_n", &fNMuon );
   tree.Branch( "muon_p4", &fMuonP4 );
@@ -56,6 +63,11 @@ ffNtupleMuon::initialize( TTree&                   tree,
   tree.Branch( "muon_selectors", &fSelectors )->SetTitle( "ID/Iso flags encoded as bitmap" );
   tree.Branch( "muon_hasInnerTrack", &fHasInnerTrack );
   tree.Branch( "muon_hasOuterTrack", &fHasOuterTrack );
+  tree.Branch( "muon_d0", &fD0 );
+  tree.Branch( "muon_d0Sig", &fD0Sig )->SetTitle( "d0 significance" );
+  tree.Branch( "muon_dz", &fDz );
+  tree.Branch( "muon_dzSig", &fDzSig )->SetTitle( "dz significance" );
+  tree.Branch( "muon_normChi2", &fNormChi2 );
   tree.Branch( "muon_dtCscTime", &fDtCscTime )->SetTitle( "timing info from DT/CSC combined measurements" );
   tree.Branch( "muon_rpcTime", &fRpcTime )->SetTitle( "timing info from RPC" );
   tree.Branch( "muon_isoValue", &fIsoValue )->SetTitle( "pfIsoR04, delta-beta PU correction" );
@@ -71,6 +83,11 @@ ffNtupleMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
   e.getByToken( fMuonToken, muonHdl );
   assert( muonHdl.isValid() );
 
+  Handle<reco::VertexCollection> primaryVertexHdl;
+  e.getByToken( fPrimaryVertexToken, primaryVertexHdl );
+  assert( primaryVertexHdl.isValid() && primaryVertexHdl->size() > 0 );
+  const auto& pv = *( primaryVertexHdl->begin() );
+
   clear();
 
   fNMuon = muonHdl->size();
@@ -82,6 +99,14 @@ ffNtupleMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fSelectors.emplace_back( muon.selectors() );
     fHasInnerTrack.emplace_back( muon.innerTrack().isNonnull() );
     fHasOuterTrack.emplace_back( muon.outerTrack().isNonnull() );
+
+    const reco::Track* mutrack = muon.bestTrack();
+    fD0.emplace_back( mutrack != nullptr ? -mutrack->dxy( pv.position() ) : NAN );
+    fD0Sig.emplace_back( mutrack != nullptr ? fabs( -mutrack->dxy( pv.position() ) ) / mutrack->dxyError() : NAN );
+    fDz.emplace_back( mutrack != nullptr ? mutrack->dz( pv.position() ) : NAN );
+    fDzSig.emplace_back( mutrack != nullptr ? fabs( mutrack->dz( pv.position() ) ) / mutrack->dzError() : NAN );
+    fNormChi2.emplace_back( mutrack != nullptr && mutrack->ndof() != 0 ? mutrack->normalizedChi2() : NAN );
+
     fDtCscTime.emplace_back( muon.time().timeAtIpInOut );
     fRpcTime.emplace_back( muon.rpcTime().timeAtIpInOut );
     fIsoValue.emplace_back( ff::getMuonIsolationValue( muon ) );
@@ -107,6 +132,11 @@ ffNtupleMuon::clear() {
   fSelectors.clear();
   fHasInnerTrack.clear();
   fHasOuterTrack.clear();
+  fD0.clear();
+  fD0Sig.clear();
+  fDz.clear();
+  fDzSig.clear();
+  fNormChi2.clear();
   fDtCscTime.clear();
   fRpcTime.clear();
   fIsoValue.clear();

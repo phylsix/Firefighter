@@ -29,9 +29,9 @@ class ffNtupleDsaMuon : public ffNtupleBaseNoHLT {
   math::XYZTLorentzVectorFCollection fDSAMuonP4;
   std::vector<float>                 fCharge;
   std::vector<float>                 fD0;
-  std::vector<float>                 fD0Error;
+  std::vector<float>                 fD0Sig;
   std::vector<float>                 fDz;
-  std::vector<float>                 fDzError;
+  std::vector<float>                 fDzSig;
   std::vector<int>                   fCSCStations;
   std::vector<int>                   fDTStations;
   std::vector<int>                   fCSCHits;
@@ -71,9 +71,9 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_p4", &fDSAMuonP4 );
   tree.Branch( "dsamuon_charge", &fCharge );
   tree.Branch( "dsamuon_d0", &fD0 );
-  tree.Branch( "dsamuon_d0Error", &fD0Error );
+  tree.Branch( "dsamuon_d0Sig", &fD0Sig )->SetTitle( "d0 significance" );
   tree.Branch( "dsamuon_dz", &fDz );
-  tree.Branch( "dsamuon_dzError", &fDzError );
+  tree.Branch( "dsamuon_dzSig", &fDzSig )->SetTitle( "dz significance" );
   tree.Branch( "dsamuon_CSCStations", &fCSCStations );
   tree.Branch( "dsamuon_DTStations", &fDTStations );
   tree.Branch( "dsamuon_CSCHits", &fCSCHits );
@@ -127,9 +127,9 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fDSAMuonP4.emplace_back( dsamuon.px(), dsamuon.py(), dsamuon.pz(), dsamuon.energy() );
     fCharge.emplace_back( dsamuon.charge() );
     fD0.emplace_back( -trackref->dxy( pv.position() ) );
-    fD0Error.emplace_back( trackref->dxyError() );
+    fD0Sig.emplace_back( fabs( -trackref->dxy( pv.position() ) ) / trackref->dxyError() );
     fDz.emplace_back( -trackref->dz( pv.position() ) );
-    fDzError.emplace_back( trackref->dzError() );
+    fDzSig.emplace_back( fabs( -trackref->dz( pv.position() ) ) / trackref->dzError() );
     fCSCStations.emplace_back( hitpattern.cscStationsWithValidHits() );
     fDTStations.emplace_back( hitpattern.dtStationsWithValidHits() );
     fCSCHits.emplace_back( hitpattern.numberOfValidMuonCSCHits() );
@@ -160,9 +160,9 @@ ffNtupleDsaMuon::clear() {
   fDSAMuonP4.clear();
   fCharge.clear();
   fD0.clear();
-  fD0Error.clear();
+  fD0Sig.clear();
   fDz.clear();
-  fDzError.clear();
+  fDzSig.clear();
   fCSCStations.clear();
   fDTStations.clear();
   fCSCHits.clear();
