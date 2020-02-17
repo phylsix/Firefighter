@@ -39,8 +39,10 @@ ProxyEventFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
       if ( getCandType( cand, fTrackHdl ) == 8 ) muonCharges.push_back( cand->charge() );
     }
 
-    if ( muonCharges.empty() ) EGMLJPtrs.emplace_back( fJetHdl, i );
-    if ( accumulate( muonCharges.begin(), muonCharges.end(), 0 ) == 0 ) MuLJPtrs.emplace_back( fJetHdl, i );
+    if ( muonCharges.empty() )
+      EGMLJPtrs.emplace_back( fJetHdl, i );
+    else if ( accumulate( muonCharges.begin(), muonCharges.end(), 0 ) == 0 )
+      MuLJPtrs.emplace_back( fJetHdl, i );
   }
 
   if ( MuLJPtrs.size() > 1 ) return false;  // 4mu channel signal region
