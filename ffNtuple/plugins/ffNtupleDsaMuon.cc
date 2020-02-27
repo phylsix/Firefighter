@@ -43,6 +43,8 @@ class ffNtupleDsaMuon : public ffNtupleBaseNoHLT {
   std::vector<int>                   fIsSubsetAnyPFMuon;
   std::vector<int>                   fIsSubsetFilteredCosmic1Leg;
   std::vector<float>                 fNormChi2;
+  std::vector<float>                 fDtCscTime;
+  std::vector<float>                 fRpcTime;
   std::vector<int>                   fHasOppositeMuon;
   std::vector<float>                 fTimeDiffDTCSC;
   std::vector<float>                 fTimeDiffRPC;
@@ -85,6 +87,8 @@ ffNtupleDsaMuon::initialize( TTree&                   tree,
   tree.Branch( "dsamuon_isSubsetAnyPFMuon", &fIsSubsetAnyPFMuon )->SetTitle( "Associated Muon chamber DetId are subset of any PFMuon's" );
   tree.Branch( "dsamuon_isSubsetFilteredCosmic1Leg", &fIsSubsetFilteredCosmic1Leg )->SetTitle( "Associated DT/CSC segments are subset of filtered cosmicMuon1Leg's" );
   tree.Branch( "dsamuon_normChi2", &fNormChi2 );
+  tree.Branch( "dsamuon_dtCscTime", &fDtCscTime );
+  tree.Branch( "dsamuon_rpcTime", &fRpcTime );
   tree.Branch( "dsamuon_hasOppositeMuon", &fHasOppositeMuon )->SetTitle( "Whether this DSA muon has an opposite companion: cos(alpha)<-0.99" );
   tree.Branch( "dsamuon_timeDiffDTCSC", &fTimeDiffDTCSC )->SetTitle( "Time_upper-Time_lower from DT/CSC measurement if has opposite companion; otherwise -999." );
   tree.Branch( "dsamuon_timeDiffRPC", &fTimeDiffRPC )->SetTitle( "Time_upper-Time_lower from RPC measurement if has opposite companion; otherwise -999." );
@@ -136,6 +140,8 @@ ffNtupleDsaMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fDTHits.emplace_back( hitpattern.numberOfValidMuonDTHits() );
     fPtErrorOverPt.emplace_back( trackref->ptError() / trackref->pt() );
     fNormChi2.emplace_back( trackref->normalizedChi2() );
+    fDtCscTime.emplace_back( dsamuon.time().timeAtIpInOut );
+    fRpcTime.emplace_back( dsamuon.rpcTime().timeAtIpInOut );
 
     fPFIsoVal.emplace_back( dsaextra.pfiso04() );
     fSegOverlapRatio.emplace_back( dsaextra.pfmuon_maxSegmentOverlapRatio() );
@@ -174,6 +180,8 @@ ffNtupleDsaMuon::clear() {
   fIsSubsetAnyPFMuon.clear();
   fIsSubsetFilteredCosmic1Leg.clear();
   fNormChi2.clear();
+  fDtCscTime.clear();
+  fRpcTime.clear();
   fHasOppositeMuon.clear();
   fTimeDiffDTCSC.clear();
   fTimeDiffRPC.clear();
