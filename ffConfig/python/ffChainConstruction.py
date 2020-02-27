@@ -56,19 +56,16 @@ def skimFullEvents(process, ffConfig, fileName):
     if ffConfig["reco-spec"]["eventRegion"] == "all":
         pass
     elif ffConfig["reco-spec"]["eventRegion"] == "single":
-        process.ffEndEventFilteringSeq = cms.Sequence(
-            process.ffEndEventFilteringSeq_single
-        )
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_single)
     elif ffConfig["reco-spec"]["eventRegion"] == "signal":
-        process.ffEndEventFilteringSeq = cms.Sequence(
-            process.ffEndEventFilteringSeq_signal
-        )
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_signal)
     elif ffConfig["reco-spec"]["eventRegion"] == "control":
-        process.ffEndEventFilteringSeq = cms.Sequence(
-            process.ffEndEventFilteringSeq_control
-        )
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_control)
+    elif ffConfig["reco-spec"]["eventRegion"] == "proxy":
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_proxy)
     else:
-        msg = "ffConfig['reco-spec']['eventRegion'] can only be 'all'/'single'/'signal'/'control'! --- {0} is given.".format(
+        msg = "ffConfig['reco-spec']['eventRegion'] can only be \
+            'all'/'single'/'signal'/'control'/'proxy'! --- {0} is given.".format(
             ffConfig["reco-spec"]["eventRegion"]
         )
         raise ValueError(msg)
