@@ -119,15 +119,14 @@ ff::getCandPFIsolation( const reco::PFCandidatePtr&                     pfcand,
     pfCandPtrs.emplace_back( pfH, i );
   }
 
-  float denom( 0. );
+  float numer( 0. );
   for ( const auto& cand : pfCandPtrs ) {
     if ( pfcand == cand ) continue;
     if ( deltaR( *pfcand, *cand ) > isor ) continue;  // outside radius
-    denom += cand->energy();
+    numer += cand->energy();
   }
 
-  float numer( pfcand->energy() );
-  denom += numer;
+  float denom = numer + pfcand->energy();
 
   return denom == 0 ? NAN : numer / denom;
 }
@@ -144,15 +143,14 @@ ff::getCandPFIsolation( const reco::PFCandidatePtr&                       pfcand
     pfCandPtrs.emplace_back( cand.ptr() );
   }
 
-  float denom( 0. );
+  float numer( 0. );
   for ( const auto& cand : pfCandPtrs ) {
     if ( pfcand == cand ) continue;
     if ( deltaR( *pfcand, *cand ) > isor ) continue;  // outside radius
-    denom += cand->energy();
+    numer += cand->energy();
   }
 
-  float numer( pfcand->energy() );
-  denom += numer;
+  float denom = numer + pfcand->energy();
 
   return denom == 0 ? NAN : numer / denom;
 }

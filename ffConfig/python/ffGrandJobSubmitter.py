@@ -42,6 +42,8 @@ if args.jobtype == 'ntuplefromskim':
         sys.exit('Skimmed source can only be run with condor. (no real dataset name in DAS)')
     DATA_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/data/description.json")))
     BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/bkgmc/description.json")))
+    if args.eventregion!='all':
+        sys.exit('ntupleforskim for non-*all* is not available yet. - wsi 2/27/20')
 
 ## all datasets
 ffds = {
@@ -91,7 +93,11 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
     _eventregion = args.eventregion #"all"
     if _eventregion in ['proxy', 'muonType']:
         commonCBkwargs['outbase'] += '{}/'.format(_eventregion)
-        print('*** Job outputs going to be written to:', commonCBkwargs['outbase'])
+
+    print('*** common config builder kwargs ***')
+    for k, v in commonCBkwargs.items():
+        print('{:20}{}'.format(k,v))
+    print('*** **************************** ***')
 
 
     ## split by submitter
