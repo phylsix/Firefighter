@@ -10,7 +10,6 @@ from os.path import join
 
 import yaml
 from CRABClient.UserUtilities import config as Config
-from CRABClient.UserUtilities import getUsernameFromSiteDB
 from Firefighter.ffConfig.datasetUtils import (
     get_nametag,
     get_primaryDatasetName,
@@ -79,9 +78,7 @@ class configBuilder:
         res = []
         for ds in self.ffdataset_["datasetNames"]:
             config = Config()
-            config.General.requestName = "{0}_ffNtuple_{1}".format(
-                getUsernameFromSiteDB(), time.strftime("%y%m%d-%H%M%S")
-            )
+            config.General.requestName = "ffNtuple_{0}".format(time.strftime("%y%m%d-%H%M%S"))
             config.General.workArea = self.specs_["workArea"]
             config.General.transferOutputs = True
             config.General.transferLogs = False
@@ -107,15 +104,16 @@ class configBuilder:
                 str(self.specs_["year"]),
                 get_primaryDatasetName(ds),
                 get_nametag(ds),
-                "ffNtuple",
                 time.strftime("%y%m%d-%H%M%S"),
             ]
 
             if ds.endswith("USER"):  # sigmc/private
                 ffsc["data-spec"]["dataType"] = "sigmc"
                 config.Site.whitelist = ["T3_US_FNALLPC", "T3_US_*", "T2_US_*"]
-            elif ds.endswith("AODSIM"):  # bkgmc
+            elif ds.endswith("AODSIM"):  # bkgmc, sigmc/central
                 ffsc["data-spec"]["dataType"] = "bkgmc"
+                if reqNameParts[1].startswith('SIDM'):
+                    ffsc["data-spec"]["dataType"] = "sigmc"
                 nametagVersionSuffix = reqNameParts[2].rsplit("_")[-1]
                 reqNameParts[2] = (
                     nametagVersionSuffix
@@ -129,7 +127,7 @@ class configBuilder:
                 config.Data.splitting = "LumiBased"
                 config.Data.lumiMask = self.ffdataset_["lumiMask"]
                 config.Data.unitsPerJob = 120
-            config.General.requestName = "_".join(reqNameParts)
+            config.General.requestName = "_".join(reqNameParts)[:100]
 
             ## construct ffSuperConfig ##
             ffscFn = join(

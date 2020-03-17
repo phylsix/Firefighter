@@ -151,7 +151,7 @@ class configBuilder:
             ## update ffSuerConfig ##
             datatype = get_datasetType(ds)
             ffsc['data-spec']['dataType'] = datatype
-            if datatype=='sigmc': self.specs_['redirector']='root://cmseos.fnal.gov/'
+            if datatype=='sigmc' and ds.endswith('USER'): self.specs_['redirector']='root://cmseos.fnal.gov/'
 
             ## split filtlist into job units ##
             splitunit = self.specs_['unitsPerJob']
@@ -168,7 +168,7 @@ class configBuilder:
             execshellFn = join(jobdir, 'ffCondor.sh')
             outputdir = join(self.specs_['outLFNDirBase'], primarydatasetname, nametag, time.strftime("%y%m%d_%H%M%S"))
             execshell = EXECSHELL.replace('CMSSWBASENAME', basename(os.getenv('CMSSW_BASE')))\
-                                 .replace('FFCONFIGNAME', self.specs_.get('ffConfigName', 'ffNtupleFromAOD_cfg.py'))\
+                                 .replace('FFCONFIGNAME', self.specs_.get('ffConfigName', 'ffNtupleFromAOD_v2_cfg.py'))\
                                  .replace('OUTPUTBASE', outputdir)
             with open(execshellFn, 'w') as outf: outf.write(execshell)
             os.chmod(execshellFn, os.stat(execshellFn).st_mode | 0111)

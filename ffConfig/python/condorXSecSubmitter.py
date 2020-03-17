@@ -9,7 +9,7 @@ import importlib
 import os
 import sys
 import time
-from os.path import join
+from os.path import join, basename
 
 import yaml
 from Firefighter.piedpiper.utils import get_voms_certificate
@@ -81,10 +81,10 @@ if __name__ == "__main__":
     # input file lists
     datasettags = []
     for dataset in datasetdescription:
-        datasettag = dataset.split(".")[-1]
+        datasettag = basename(dataset).split('.')[0]
         datasettags.append(datasettag)
-        datasetconfig = importlib.import_module(dataset)
-        datafilelist = [f for fl in datasetconfig.ffDataSet["fileList"] for f in fl]
+        datasetconfig = yaml.load(open(join(os.getenv('CMSSW_BASE'), dataset)), Loader=yaml.Loader)
+        datafilelist = [f for fl in datasetconfig["fileList"] for f in fl]
 
         ## write inputfileList
         with open(join(jobdir, "{}.list".format(datasettag)), "w") as outf:
@@ -97,20 +97,20 @@ if __name__ == "__main__":
     ## set up condor jdl
     condorjdlFn = join(jobdir, "condor.jdl")
     condorjdl = CONDORJDL.replace('FFSUPERCONFIGDIR', jobdir)\
-                         .replace('CMSSWVER', os.getenv('CMSSW_VERSION'))\
+                         .replace('CMSSWVER', basename(os.getenv('CMSSW_BASE')))\
                          .replace('JOBIDLIST', ', '.join(datasettags))
     with open(condorjdlFn, 'w') as outf: outf.write(condorjdl)
 
 
     ## set up executable script
     execshellFn = join(jobdir, 'ffCondor.sh')
-    execshell = EXECSHELL.replace('CMSSWVER', os.getenv('CMSSW_VERSION'))
+    execshell = EXECSHELL.replace('CMSSWVER', basename(os.getenv('CMSSW_BASE')))
     with open(execshellFn, 'w') as outf: outf.write(execshell)
     os.chmod(execshellFn, os.stat(execshellFn).st_mode | 0111)
 
 
     # tar cmssw; voms certificate
-    os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf ${CMSSW_VERSION}.tar.gz -C ${CMSSW_BASE}/.. ${CMSSW_VERSION}")
+    os.system("tar -X EXCLUDEPATTERNS --exclude-vcs -zcf `basename ${CMSSW_BASE}`.tar.gz -C ${CMSSW_BASE}/.. `basename ${CMSSW_BASE}`")
     get_voms_certificate()
 
 
