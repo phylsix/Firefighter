@@ -5,11 +5,12 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
 ff::HLTFilter::HLTFilter( const edm::ParameterSet& ps )
-    : hlt_resultToken_( consumes<edm::TriggerResults>(
-          ps.getParameter<edm::InputTag>( "TriggerResults" ) ) ),
-      hlt_pathsNoVer_(
-          ps.getParameter<std::vector<std::string>>( "TriggerPaths" ) ),
-      hltProcessName_( ps.getParameter<std::string>( "HltProcName" ) ) {}
+    : hlt_resultToken_( consumes<edm::TriggerResults>( ps.getParameter<edm::InputTag>( "TriggerResults" ) ) ),
+      hlt_pathsNoVer_( ps.getParameter<std::vector<std::string>>( "TriggerPaths" ) ),
+      hltProcessName_( ps.getParameter<std::string>( "HltProcName" ) ),
+      taggingMode_( ps.getParameter<bool>( "TaggingMode" ) ) {
+  produces<bool>();
+}
 
 void
 ff::HLTFilter::beginRun( const edm::Run& r, const edm::EventSetup& es ) {
@@ -55,7 +56,9 @@ ff::HLTFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
     }
   }
 
-  return cAccept;
+  e.put( std::make_unique<bool>( cAccept ) );
+
+  return taggingMode_ || cAccept;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

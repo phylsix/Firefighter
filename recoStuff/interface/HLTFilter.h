@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 namespace ff {
@@ -24,6 +23,8 @@ class HLTFilter : public edm::one::EDFilter<edm::one::WatchRuns> {
   std::vector<std::string> hlt_pathsNoVer_;
   HLTConfigProvider        hltConfig_;
   std::string              hltProcessName_;
+
+  bool taggingMode_;
 };
 }  // namespace ff
 

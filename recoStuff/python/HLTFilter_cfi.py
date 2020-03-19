@@ -12,6 +12,7 @@ hltfilter = cms.EDFilter(
         "HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched",
     ),
     HltProcName=cms.string("HLT"),
+    TaggingMode=cms.bool(False),
 )
 
 

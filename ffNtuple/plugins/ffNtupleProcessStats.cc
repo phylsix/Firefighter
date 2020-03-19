@@ -9,7 +9,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-
 #include "TH1.h"
 #include "TTree.h"
 
@@ -34,11 +33,13 @@ class ffNtupleProcessStats
 
   edm::EDGetToken fGenProductToken;
   edm::EDGetToken fPileupToken;
+  edm::EDGetToken fTrigPassToken;
 
   edm::Service<TFileService> fs;
 
   TH1D*  fHisto;
   TH1D*  fPileup;
+  TH1D*  fTrigRes;
   TTree* fTree;
   TTree* fTree2;
 
@@ -53,14 +54,16 @@ ffNtupleProcessStats::ffNtupleProcessStats( const edm::ParameterSet& ps ) {
 
   fGenProductToken = consumes<GenEventInfoProduct>( edm::InputTag( "generator" ) );
   fPileupToken     = consumes<std::vector<PileupSummaryInfo>>( edm::InputTag( "addPileupInfo" ) );
+  fTrigPassToken   = consumes<bool>( edm::InputTag( "hltfilterStat" ) );
 }
 
 ffNtupleProcessStats::~ffNtupleProcessStats() {}
 
 void
 ffNtupleProcessStats::beginJob() {
-  fHisto  = fs->make<TH1D>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
-  fPileup = fs->make<TH1D>( "pileup", "pileup distribution;TrueInteraction;events", 100, 0, 100 );
+  fHisto   = fs->make<TH1D>( "history", "processed statistics;run:lumi:event:genwgt;counts", 4, 0, 4 );
+  fPileup  = fs->make<TH1D>( "pileup", "pileup distribution;TrueInteraction;events", 100, 0, 100 );
+  fTrigRes = fs->make<TH1D>( "trigger", "trigger passed;event:genwgt;counts", 2, 0, 2 );
 
   fTree = fs->make<TTree>( "runlumi", "" );
   fTree->Branch( "run", &fRun );
@@ -102,6 +105,15 @@ ffNtupleProcessStats::analyze( const edm::Event&      e,
         fPileup->Fill( puinfo.getTrueNumInteractions() );
         break;
       }
+    }
+  }
+
+  edm::Handle<bool> trigPassHdl;
+  e.getByToken( fTrigPassToken, trigPassHdl );
+  if ( trigPassHdl.isValid() ) {
+    if ( *trigPassHdl ) {
+      fTrigRes->Fill( 0 ); // accumulate event count
+      fTrigRes->Fill( 1, fWeight ); // accumulate event wgt
     }
   }
 

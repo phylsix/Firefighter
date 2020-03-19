@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Firefighter.ffNtuple.ffNtuples_cfi import *
+from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 ffNtuplizer = cms.EDAnalyzer(
     "ffNtupleManager",
@@ -39,4 +40,7 @@ ntuple_pfjet.doSubstructureVariables=cms.bool(False)
 ntuple_pfjet.doMVA=cms.bool(False)
 
 ffNtuplesSeq = cms.Sequence(ffNtuplizer)
-ffNtuplesStatSeq = cms.Sequence(ffNtupleStat)
+
+
+hltfilterStat = hltfilter.clone(TaggingMode=True)
+ffNtuplesStatSeq = cms.Sequence(hltfilterStat+ffNtupleStat)
