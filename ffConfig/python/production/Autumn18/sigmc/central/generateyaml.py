@@ -5,8 +5,9 @@
 import json
 import shlex
 import subprocess
-from os.path import join
+from os.path import join, isfile, basename
 
+import yaml
 from Firefighter.ffConfig.datasetUtils import ffdatasetsignal, sigmc_ctau2lxy
 
 
@@ -62,8 +63,17 @@ if __name__ == "__main__":
             datasets[dtag] = [d]
 
 
+    saved = None
+    if isfile('description.json'):
+        try:
+            _saved = json.load(open('descripton.json'))
+            saved = [basename(d) for d in _saved]
+        except:
+            pass
+
     for dtag in datasets:
         fragName = dtag + ".yml"
+        if saved and fragName in saved: continue
         flist = []
         for ds in datasets[dtag]:
             subflist = subprocess.check_output(
@@ -84,3 +94,7 @@ if __name__ == "__main__":
         f.write(json.dumps(sorted(
             [join('src/Firefighter/ffConfig/python/production/Autumn18/sigmc/central/', dtag + '.yml') for dtag in datasets]
             ), indent=4))
+    with open('description.yml', 'w') as f:
+        f.write(yaml.dump(sorted(
+            [join('src/Firefighter/ffConfig/python/production/Autumn18/sigmc/central/', dtag + '.yml') for dtag in datasets]
+            ), default_flow_style=False))

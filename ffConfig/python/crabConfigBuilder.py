@@ -37,7 +37,7 @@ class configBuilder:
             ffConfigName = 'ffNtupleFromAOD_v2_cfg.py',
             outbase="/store/group/lpcmetx/SIDM/ffNtupleV2/",
             year=2018,
-            ignoreLocality=True,
+            ignoreLocality=False,
         )
         self.specs_.update(kwargs)
         self.specs_["outLFNDirBase"] = join(self.specs_["outbase"], str(self.specs_["year"]))

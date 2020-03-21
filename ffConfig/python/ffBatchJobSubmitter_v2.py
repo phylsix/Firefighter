@@ -54,6 +54,7 @@ def main():
         eventRegion=eventRegion_,
         ffConfigName='ffNtupleFromAOD_v2_cfg.py',
         outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
+        unitsPerJob=1,
     )
     ## update CMSSW config file and outputbase for skim jobs
     if args.jobtype == 'skim':
