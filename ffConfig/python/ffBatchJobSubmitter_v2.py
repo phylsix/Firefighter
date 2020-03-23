@@ -5,7 +5,7 @@ $cmd: python ffBatchJobSubmitter.py batchdatasets.yml -s crab -t ntuple
 from __future__ import print_function
 
 import argparse
-import os
+import os, time
 from os.path import join
 
 import yaml
@@ -18,7 +18,7 @@ parser.add_argument("--submitter", "-s", default="condor", type=str, choices=["c
 parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_true', help='Only take effect when submit with crab, ignore locality.')
 parser.add_argument("--enforcelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality. DEFAULT')
 parser.set_defaults(ignorelocality=False)
-parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
+parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim", "dummy"])
 parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "control", "proxy", "muonType"])
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))
@@ -72,8 +72,21 @@ def main():
     if args.submitter == 'crab' and args.ignorelocality == False:
         cbkwargs['ignoreLocality'] = False
 
+    ## dummy jobs
+    if args.jobtype == 'dummy':
+        cbkwargs = dict(
+            ffConfigName='ffNtupleDummy_cfg.py',
+            maxMemory=2000,
+            workArea=join(
+                os.getenv("CMSSW_BASE"),
+                "src/Firefighter/ffConfig/crabGarage/dummyjobs",
+                time.strftime("%y%m%d"),
+            ),
+            outbase="/store/group/lpcmetx/SIDM/dummy/",
+        )
 
-    for ds in tosubd_:
+    for i, ds in enumerate(tosubd_, start=1):
+        print('[{}/{}]'.format(i, len(tosubd_)))
         tosubdff = yaml.load(open(join(os.getenv('CMSSW_BASE'), ds)), Loader=yaml.Loader)
 
         cb = configBuilder(tosubdff, **cbkwargs)

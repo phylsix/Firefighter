@@ -8,7 +8,7 @@ Usage: python crabStatusChecker.py <folder>
 from __future__ import print_function
 import os
 import json
-from os.path import join, isdir, exists
+from os.path import join, isdir, exists, basename
 from CRABAPI.RawCommand import crabCommand
 from CRABClient.UserUtilities import setConsoleLogLevel
 from CRABClient.ClientUtilities import LOGLEVEL_MUTE
@@ -24,7 +24,7 @@ def preparequerylist(submissiondir):
     completejson = join(submissiondir, 'crabcompleted.json')
     if os.path.exists(completejson):
         completeddirs.extend(json.load(open(completejson)))
-    return [d for d in totaljobdirs if d not in completeddirs]
+    return [d for d in totaljobdirs if basename(d) not in completeddirs]
 
 
 def querystatus(submissiondir, toquerylist):
@@ -44,15 +44,21 @@ def querystatus(submissiondir, toquerylist):
 def updatecompletelist(submissiondir, queryresult):
     completeddirs = []
     completejson = join(submissiondir, 'crabcompleted.json')
+    noncompletejson = join(submissiondir, 'crabnoncompleted.json')
     if os.path.exists(completejson):
         completeddirs.extend(json.load(open(completejson)))
     beforeupdate_ = len(completeddirs)
+    noncompleted = {} # record status of those not completed
     for d in queryresult:
         if queryresult[d]['status'] == 'COMPLETED':
-            completeddirs.append(d)
+            completeddirs.append(basename(d))
+        else:
+            noncompleted[basename(d)] = queryresult[d]['status']
     print("Number of jobs updated to COMPLETED: {}".format(len(completeddirs)-beforeupdate_))
     with open(completejson, 'w') as outf:
         outf.write(json.dumps(completeddirs, indent=4))
+    with open(noncompletejson, 'w') as outf:
+        outf.write(json.dumps(noncompleted, indent=4))
 
 
 def displaystatus(submissiondir, queryresult):
