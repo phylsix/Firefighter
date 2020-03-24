@@ -7,6 +7,7 @@ import json
 import shutil
 from datetime import datetime
 
+import yaml
 
 def injectedSignalDatasets():
     cmd = 'dasgoclient -query="dataset status=VALID dataset=/SIDM*/*/AODSIM"'
@@ -64,6 +65,45 @@ def getLastNtupleFiles(ds):
     res = [f for f in subprocess.check_output(shlex.split(cmd)).split() if '/failed' not in f]
     return latest, res
 
+
+def translateDStoYaml(d):
+    """translate dataset into corresponding yaml"""
+
+    yamlInStore = json.load(
+        open(os.path.join(
+            os.getenv('CMSSW_BASE'),
+            'src/Firefighter/ffConfig/python/production/Autumn18/sigmc/central/description.json'
+        )))
+    res = ''
+    for y in yamlInStore:
+        fn = os.path.join(os.getenv('CMSSW_BASE'), y)
+        content = yaml.safe_load(open(fn))
+        if d in content['datasetNames']:
+            res = y.encode('utf-8')
+            break
+    return res
+
+
+def fetchFilterEfficiency(d):
+    """get gen filter efficiencies given a dataset d"""
+
+    fn = os.path.join(
+        os.getenv('CMSSW_BASE'),
+        'src/Firefighter/ffConfig/python/production/Autumn18/sigmc/central/genFilterEfficiencies.yml'
+    )
+    effstore = yaml.safe_load(open(fn))
+    res = ''
+    pd = d.split('/')[1]
+    for y, e in effstore.items():
+        m = y.split('_') # ['XXTo2ATo4Mu', 'mXX-800', 'mA-1p2', 'lxy-0p3', 'ctau-0p012']
+        m.pop(3)
+        y_ = '_'.join(m)
+        if y_ in pd:
+            res = e
+            break
+    return res
+
+
 def jobStatusFromSubmissionDirs():
 
     def getDSN(d):
@@ -109,7 +149,7 @@ def jobStatusFromSubmissionDirs():
     dates = ['200320', '200321', '200323']
     mycrabgarage = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/'
     checkGarage(mycrabgarage, dates)
-    dates = ['200320', '200321', '200322']
+    dates = ['200320', '200321', '200322', '200324']
     mycrabgarage = '/uscms_data/d3/ranchen/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/'
     checkGarage(mycrabgarage, dates)
 
@@ -125,13 +165,17 @@ def assembleInfoForDataset(ds, jobStatuses):
         name=ds, identifier=parseSignalDataset(ds), status=checkExistOnEOS(ds),
         jobstatus=_fromJobDir.get('status', ''),
         submitdir=_fromJobDir.get('submitdir', ''),
-        lastcrabtime=_fromJobDir.get('time', ''))
+        lastcrabtime=_fromJobDir.get('time', ''),
+        yamlname=translateDStoYaml(ds),
+    )
     _fromEOS = dict(lasteostime='', ntuplefiles=[])
     if res['status']:
         t, fs = getLastNtupleFiles(ds)
         _fromEOS['lasteostime'] = t
         _fromEOS['ntuplefiles'] = fs
     res.update(_fromEOS)
+
+    res['genfiltereff'] =  fetchFilterEfficiency(ds)
     return res
 
 
@@ -141,7 +185,7 @@ def main():
     total_info = {'updateTime': str(datetime.now()), 'store': store_info}
     with open('data.js', 'w') as outf:
         outf.write('var data={}'.format(json.dumps(total_info, sort_keys=True, indent=4)))
-    # shutil.copy('data.js', '/publicweb/w/wsi/public/lpcdm/sigsamplemon/')
+    shutil.copy('data.js', '/publicweb/w/wsi/public/lpcdm/sigsamplemon/')
 
 
 if __name__ == "__main__":

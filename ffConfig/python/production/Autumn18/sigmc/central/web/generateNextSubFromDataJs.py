@@ -7,6 +7,8 @@ from datetime import datetime
 import yaml
 
 def getNextSubmitDatasets():
+    """list datasets whose submitDir is emtpy"""
+
     f = os.path.join(os.getenv('CMSSW_BASE'),
     'src/Firefighter/ffConfig/python/production/Autumn18/sigmc/central/web/data.js')
     storeInfo = json.loads(open(f).read().replace('var data=', ''))['store']
@@ -17,7 +19,22 @@ def getNextSubmitDatasets():
     return res
 
 
+def getTapeRecallDatasets():
+    """list datasets whose job status is TAPERECALL"""
+
+    f = os.path.join(os.getenv('CMSSW_BASE'),
+    'src/Firefighter/ffConfig/python/production/Autumn18/sigmc/central/web/data.js')
+    storeInfo = json.loads(open(f).read().replace('var data=', ''))['store']
+    res = []
+    for entry in storeInfo:
+        if entry['jobstatus']=='TAPERECALL':
+            res.append(entry['name'].encode('utf-8'))
+    return res
+
+
 def getNextSubmitYamls(ds):
+    """translate datasets into corresponding yamls"""
+
     yamlInStore = json.load(
         open(os.path.join(
             os.getenv('CMSSW_BASE'),
@@ -33,6 +50,8 @@ def getNextSubmitYamls(ds):
 
 
 def getNextDummyDatasets():
+    """list datasets which is VALID but on tape"""
+
     f = '/publicweb/w/wsi/public/lpcdm/sigprodmon/data.js'
     storeInfo = json.loads(open(f).read().replace('var data=', ''))['store']
     res = []
@@ -43,6 +62,8 @@ def getNextDummyDatasets():
 
 
 def getOnDiskDatasets():
+    """list datasets which is VALID and on disk"""
+
     f = '/publicweb/w/wsi/public/lpcdm/sigprodmon/data.js'
     storeInfo = json.loads(open(f).read().replace('var data=', ''))['store']
     res = []
@@ -54,6 +75,8 @@ def getOnDiskDatasets():
 
 
 def main():
+
+    # ones not submit yet
     outputf = os.path.join(
         os.getenv('CMSSW_BASE'),
         'src/Firefighter/ffConfig/python/batchYmls',
@@ -66,6 +89,7 @@ def main():
 
     print('-'*50)
 
+    # on tape (really on tape)
     dummies = [d for d in getNextDummyDatasets() if d not in tosubs]
     outputf = os.path.join(
         os.getenv('CMSSW_BASE'),
@@ -76,6 +100,7 @@ def main():
         f.write(yaml.dump( getNextSubmitYamls(dummies), default_flow_style=False ))
     print('Saved to:', outputf)
 
+    # ondisk
     ondiskones = getOnDiskDatasets()
     outputf = os.path.join(
         os.getenv('CMSSW_BASE'),
@@ -84,6 +109,17 @@ def main():
     with open(outputf, 'w') as f:
         f.write(yaml.dump( getNextSubmitYamls(ondiskones), default_flow_style=False ))
     print('Saved to:', outputf)
+
+    # taperecall
+    taperecallones = getTapeRecallDatasets()
+    outputf = os.path.join(
+        os.getenv('CMSSW_BASE'),
+        'src/Firefighter/ffConfig/python/batchYmls/centralSig_tapeRecall.yml',
+    )
+    with open(outputf, 'w') as f:
+        f.write(yaml.dump( getNextSubmitYamls(taperecallones), default_flow_style=False ))
+    print('Saved to:', outputf)
+
 
 if __name__ == "__main__":
     main()

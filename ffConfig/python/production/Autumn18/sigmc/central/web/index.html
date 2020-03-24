@@ -37,6 +37,23 @@
             display: table;
             clear: both;
         }
+
+        #btns {
+            width: max-content;
+            margin: auto;
+        }
+        #btns:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .btn {
+            border: 1px solid black;
+            float: left;
+            padding: 2px;
+            margin: 0 5px;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -48,6 +65,10 @@
 
 
     <div id="ts"></div>
+    <div id="btns">
+        <div class="btn" id="bydef">Default</div>
+        <div class="btn" id="bygfe">ByGenFilter</div>
+    </div>
     <div class="tables">
         <table id="table2mu2e" class="tg">
             <caption>channel: 2mu2e</caption>
