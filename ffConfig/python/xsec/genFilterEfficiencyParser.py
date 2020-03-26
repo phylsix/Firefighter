@@ -16,6 +16,13 @@ parser.add_argument("--output", "-o", default=None, type=str, help='saving to')
 args = parser.parse_args()
 
 
+def updateEfficiency(prev, curr):
+    res = prev
+    for k in curr:
+        if k in res and float(curr[k].split('+-')[1])>float(prev[k].split('+-')[1]): continue
+        res[k] = curr[k]
+    return res
+
 
 if __name__ == "__main__":
 
@@ -45,9 +52,9 @@ if __name__ == "__main__":
         print('-'*50)
         if os.path.isfile(args.output):
             prev = yaml.load(open(args.output), Loader=yaml.Loader)
-            prev.update(results)
+            results = updateEfficiency(prev, results)
             with open(args.output, 'w') as f:
-                f.write(yaml.dump(prev, default_flow_style=False))
+                f.write(yaml.dump(results, default_flow_style=False))
             print('Update to:', args.output)
         else:
             with open(args.output, 'w') as f:
