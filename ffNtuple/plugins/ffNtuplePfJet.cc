@@ -119,6 +119,8 @@ class ffNtuplePfJet : public ffNtupleBaseNoHLT {
   std::vector<std::vector<unsigned int>> pfjet_pfcand_pfmuonIdx_;
   std::vector<std::vector<unsigned int>> pfjet_pfcand_dsamuonIdx_;
 
+  std::vector<std::vector<float>> pfjet_pfcand_time_;
+  std::vector<std::vector<float>> pfjet_pfcand_timeErr_;
   std::vector<std::vector<float>> pfjet_pfcand_muonTime_;
   std::vector<std::vector<float>> pfjet_pfcand_muonTimeErr_;
   std::vector<float>              pfjet_pfcand_muonTimeStd_;
@@ -285,6 +287,8 @@ ffNtuplePfJet::initialize( TTree&                   tree,
   tree.Branch( "pfjet_pfcand_pfmuonIdx", &pfjet_pfcand_pfmuonIdx_ );
   tree.Branch( "pfjet_pfcand_dsamuonIdx", &pfjet_pfcand_dsamuonIdx_ );
 
+  tree.Branch( "pfjet_pfcand_time", &pfjet_pfcand_time_ )->SetTitle( "only valid if timeErr>=0.f" );
+  tree.Branch( "pfjet_pfcand_timeErr", &pfjet_pfcand_timeErr_ );
   tree.Branch( "pfjet_pfcand_muonTime", &pfjet_pfcand_muonTime_ );
   tree.Branch( "pfjet_pfcand_muonTimeErr", &pfjet_pfcand_muonTimeErr_ );
   tree.Branch( "pfjet_pfcand_muonTimeStd", &pfjet_pfcand_muonTimeStd_ );
@@ -450,6 +454,7 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     vector<float> cPFCandTkD0{}, cPFCandTkD0Sig{};
     vector<float> cPFCandTkDz{}, cPFCandTkDzSig{};
     vector<float> cPFCandTkNormChi2{};
+    vector<float> cPFCandTime{}, cPFCandTimeErr{};
     vector<float> cPFCandMuonTime{}, cPFCandMuonTimeErr{};
 
     vector<unsigned int> cPFCandElectronIdx{}, cPFCandPhotonIdx{}, cPFCandPFMuonIdx{}, cPFCandDSAMuonIdx{};
@@ -489,6 +494,9 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
       if ( cPFCandType.back() == 8 and cand->muonRef().isNonnull() )
         cPFCandDSAMuonIdx.emplace_back( cand->muonRef().key() );
 
+      cPFCandTime.emplace_back( cand->time() );
+      cPFCandTimeErr.emplace_back( cand->timeError() );
+
       const reco::MuonRef cmuref = cand->muonRef();
       cPFCandMuonTime.emplace_back( cmuref.isNonnull() and cmuref->isTimeValid()
                                         ? cmuref->time().timeAtIpInOut
@@ -515,6 +523,8 @@ ffNtuplePfJet::fill( const edm::Event& e, const edm::EventSetup& es ) {
     pfjet_pfcand_photonIdx_.push_back( cPFCandPhotonIdx );
     pfjet_pfcand_dsamuonIdx_.push_back( cPFCandDSAMuonIdx );
 
+    pfjet_pfcand_time_.push_back( cPFCandTime );
+    pfjet_pfcand_timeErr_.push_back( cPFCandTimeErr );
     pfjet_pfcand_muonTime_.push_back( cPFCandMuonTime );
     pfjet_pfcand_muonTimeErr_.push_back( cPFCandMuonTimeErr );
     pfjet_pfcand_muonTimeStd_.push_back( ff::calculateStandardDeviation<float>( cPFCandMuonTime ) );
@@ -733,6 +743,8 @@ ffNtuplePfJet::clear() {
   pfjet_pfcand_photonIdx_.clear();
   pfjet_pfcand_dsamuonIdx_.clear();
 
+  pfjet_pfcand_time_.clear();
+  pfjet_pfcand_timeErr_.clear();
   pfjet_pfcand_muonTime_.clear();
   pfjet_pfcand_muonTimeErr_.clear();
   pfjet_pfcand_muonTimeStd_.clear();
