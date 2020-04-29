@@ -18,4 +18,4 @@ data-spec:
   dataType: "data"
 
 reco-spec:
-  eventRegion: "control"
+  eventRegion: "proxy"

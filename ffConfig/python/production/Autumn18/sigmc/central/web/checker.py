@@ -146,7 +146,7 @@ def jobStatusFromSubmissionDirs():
                 }
 
     res = {}
-    dates = ['200320', '200321', '200323', '200325']
+    dates = ['200320', '200321', '200323', '200325', '200330', '200402']
     mycrabgarage = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/'
     checkGarage(mycrabgarage, dates)
     dates = ['200320', '200321', '200322', '200324']
@@ -155,6 +155,19 @@ def jobStatusFromSubmissionDirs():
 
 
     return res
+
+
+def AODSiteList(ds):
+    """return [AOD sitelist, ondisk]"""
+    f = '/publicweb/w/wsi/public/lpcdm/sigprodmon/data.js'
+    storeInfo = json.loads(open(f).read().replace('var data=', ''))['store']
+    res = [[], False]
+    for entry in storeInfo:
+        if entry['status']=='VALID' and entry['name']==ds:
+            res = [entry['sitelist'], entry['ondisk']]
+            break
+    return res
+
 
 def assembleInfoForDataset(ds, jobStatuses):
     """assemble info for a given dataset"""
@@ -176,6 +189,11 @@ def assembleInfoForDataset(ds, jobStatuses):
     res.update(_fromEOS)
 
     res['genfiltereff'] =  fetchFilterEfficiency(ds)
+
+    sitelist, ondisk = AODSiteList(ds)
+    res['sitelist'] = sitelist
+    res['ondisk'] = ondisk
+
     return res
 
 

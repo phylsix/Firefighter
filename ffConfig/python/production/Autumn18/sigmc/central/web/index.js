@@ -16,6 +16,9 @@ $(document).ready(function() {
       var $status = getSignalProdStatus('2mu2e', $mxx, $ma, $ctau);
       var $detail = getSignalProdDetail('2mu2e', $mxx, $ma, $ctau);
       $ctaus.eq(i).css('background-color', bkgColorfy($status));
+      if ('ondisk' in $detail && !$detail.ondisk) {
+        $ctaus.eq(i).css('text-decoration', 'purple 2px underline overline');
+      }
 
       $ctaus.eq(i).click({detail: $detail}, function(e) {
         $('#info').html(fmtDetail(e.data.detail));
@@ -40,6 +43,9 @@ $(document).ready(function() {
       var $status = getSignalProdStatus('4mu', $mxx, $ma, $ctau);
       var $detail = getSignalProdDetail('4mu', $mxx, $ma, $ctau);
       $ctaus.eq(i).css('background-color', bkgColorfy($status));
+      if ('ondisk' in $detail && !$detail.ondisk) {
+        $ctaus.eq(i).css('text-decoration', 'purple 2px underline overline');
+      }
 
       $ctaus.eq(i).click({detail: $detail}, function(e) {
         $('#info').html(fmtDetail(e.data.detail));
@@ -212,6 +218,8 @@ function fmtDetail(detail) {
   res += '<li><b>genFilterEfficiency</b>: ' + detail.genfiltereff + '</li>';
   res += '<li><b>status</b>: ' + detail.status + '</li>';
   res += '<li><b>jobStatus</b>: ' + detail.jobstatus + '</li>';
+  res += '<li><b>AODSiteList</b>: ' + detail.sitelist.toString() + '</li>';
+  res += '<li><b>AODOnDisk</b>: ' + detail.ondisk + '</li>';
   res += '<li><b>submitDir</b>: ' + detail.submitdir + '</li>';
   res += '<li><b>lastCrabTime</b>: ' + detail.lastcrabtime + '</li>';
   res += '<li><b>lastEosTime</b>: ' + detail.lasteostime + '</li>';
