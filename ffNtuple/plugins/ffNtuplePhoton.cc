@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
@@ -29,6 +31,8 @@ class ffNtuplePhoton : public ffNtupleBaseNoHLT {
 
   unsigned int                              fNPhoton;
   math::XYZTLorentzVectorFCollection        fPhotonP4;
+  std::vector<float>                        fPhotonSCEta;
+  std::vector<float>                        fPhotonSCPhi;
   std::map<std::string, std::vector<float>> fCutFlowValMap;
   std::vector<unsigned int>                 fIdBit;
   std::vector<unsigned int>                 fIdResults;
@@ -57,6 +61,8 @@ ffNtuplePhoton::initialize( TTree&                   tree,
 
   tree.Branch( "photon_n", &fNPhoton );
   tree.Branch( "photon_p4", &fPhotonP4 );
+  tree.Branch( "photon_scEta", &fPhotonSCEta )->SetTitle( "superCluster eta" );
+  tree.Branch( "photon_scPhi", &fPhotonSCPhi )->SetTitle( "superCluster phi" );
   for ( const auto& name : fCutFlowNames ) {
     fCutFlowValMap[ name ] = {};
     tree.Branch( ( "photon_" + name ).c_str(), &fCutFlowValMap[ name ] )->SetTitle( ( "ID variable `" + name + "`'s value" ).c_str() );
@@ -94,6 +100,10 @@ ffNtuplePhoton::fill( const edm::Event& e, const edm::EventSetup& es ) {
     const auto&       photon = *photonptr;
     fPhotonP4.emplace_back( photon.px(), photon.py(), photon.pz(), photon.energy() );
 
+    const auto& supercluster = photon.superCluster();
+    fPhotonSCEta.emplace_back( supercluster.isNonnull() ? supercluster->eta() : NAN );
+    fPhotonSCPhi.emplace_back( supercluster.isNonnull() ? supercluster->phi() : NAN );
+
     const auto& cutflow = ( *cutflowHdl )[ photonptr ];
     // cout<<cutflow.cutFlowName()<<" ** "<<cutflow.cutFlowPassed()<<endl;
     unsigned int idbit = 0;
@@ -122,6 +132,8 @@ void
 ffNtuplePhoton::clear() {
   fNPhoton = 0;
   fPhotonP4.clear();
+  fPhotonSCEta.clear();
+  fPhotonSCPhi.clear();
   for ( const auto& name : fCutFlowNames )
     fCutFlowValMap[ name ].clear();
   fIdBit.clear();

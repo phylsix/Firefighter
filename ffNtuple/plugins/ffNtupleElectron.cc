@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
@@ -28,6 +30,8 @@ class ffNtupleElectron : public ffNtupleBaseNoHLT {
   unsigned int                              fNElectron;
   math::XYZTLorentzVectorFCollection        fElectronP4;
   std::vector<int>                          fElectronCharge;
+  std::vector<float>                        fElectronSCEta;
+  std::vector<float>                        fElectronSCPhi;
   std::map<std::string, std::vector<float>> fCutFlowValMap;
   std::vector<unsigned int>                 fIdBit;
   std::vector<unsigned int>                 fIdResults;
@@ -54,6 +58,8 @@ ffNtupleElectron::initialize( TTree&                   tree,
   tree.Branch( "electron_n", &fNElectron );
   tree.Branch( "electron_p4", &fElectronP4 );
   tree.Branch( "electron_charge", &fElectronCharge );
+  tree.Branch( "electron_scEta", &fElectronSCEta )->SetTitle( "superCluster eta" );
+  tree.Branch( "electron_scPhi", &fElectronSCPhi )->SetTitle( "superCluster phi" );
   for ( const auto& name : fCutFlowNames ) {
     fCutFlowValMap[ name ] = {};
     tree.Branch( ( "electron_" + name ).c_str(), &fCutFlowValMap[ name ] )->SetTitle( ( "ID variable `" + name + "`'s value" ).c_str() );
@@ -90,6 +96,10 @@ ffNtupleElectron::fill( const edm::Event& e, const edm::EventSetup& es ) {
     fElectronP4.emplace_back( electron.px(), electron.py(), electron.pz(), electron.energy() );
     fElectronCharge.emplace_back( electron.charge() );
 
+    const auto& supercluster = electron.superCluster();
+    fElectronSCEta.emplace_back( supercluster.isNonnull() ? supercluster->eta() : NAN );
+    fElectronSCPhi.emplace_back( supercluster.isNonnull() ? supercluster->phi() : NAN );
+
     const auto& cutflow = ( *cutflowHdl )[ electronptr ];
     // cout<<cutflow.cutFlowName()<<" ** "<<cutflow.cutFlowPassed()<<endl;
     unsigned int idbit = 0;
@@ -116,6 +126,8 @@ ffNtupleElectron::clear() {
   fNElectron = 0;
   fElectronP4.clear();
   fElectronCharge.clear();
+  fElectronSCEta.clear();
+  fElectronSCPhi.clear();
   for ( const auto& name : fCutFlowNames )
     fCutFlowValMap[ name ].clear();
   fIdBit.clear();
