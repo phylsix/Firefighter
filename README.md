@@ -46,7 +46,7 @@ scram b -j12
 | jet JEC | MC: `Autumn18_v19`/`102X_upgrade2018_realistic_v20`<br/>Data: `Autumn18_RunABCD_v19`/`102X_dataRun2_v12` (2018ABC),`102X_dataRun2_Prompt_v15` (2018D) | [JECDataMC](https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC) |**NOTE**: ffSuperConfigs will need to be re-generated to reflect updates on globalTags<br />  [`/ffConfig/python/datasetUtils.py`](https://gitlab.cern.ch/wsi/Firefighter/blob/master/ffConfig/python/datasetUtils.py)<br/>[`/ffConfig/python/production/Autumn18/data/generateyaml.py`](https://gitlab.cern.ch/wsi/Firefighter/blob/master/ffConfig/python/production/Autumn18/data/generateyaml.py)<br />[`/ffConfig/python/production/Skim2Lj18/data/generateyaml.py`](https://gitlab.cern.ch/wsi/Firefighter/blob/master/ffConfig/python/production/Skim2LJ18/data/generateyaml.py) |
 
 
-## centrally produced scale factors
+## Centrally produced scale factors
 - electron: [Link](https://twiki.cern.ch/twiki/bin/view/CMS/EgammaIDRecipesRun2#102X_series_Dataset_2018_Autumn)
 - photon: [Link](https://twiki.cern.ch/twiki/bin/view/CMS/EgammaIDRecipesRun2#102X_series_Fall17V2_IDs_Sca_AN1)
-- muon: [Link](https://gitlab.cern.ch/cms-muonPOG/MuonReferenceEfficiencies/-/tree/master/EfficienciesStudies%2F2018)
+- muon: [Link](https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2018#Scale_Factors_with_statistical_e)
