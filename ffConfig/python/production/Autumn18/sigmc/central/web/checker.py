@@ -146,7 +146,7 @@ def jobStatusFromSubmissionDirs():
                 }
 
     res = {}
-    dates = ['200320', '200321', '200323', '200325', '200330', '200402']
+    dates = ['200320', '200321', '200323', '200325', '200330', '200402', '200507']
     mycrabgarage = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/'
     checkGarage(mycrabgarage, dates)
     dates = ['200320', '200321', '200322', '200324']
