@@ -15,5 +15,5 @@ data-spec:
   dataType: "bkgmc"
 
 reco-spec:
-  eventRegion: "control"
+  eventRegion: "all"
   leptonJetCandStrategy: "hadronFree"

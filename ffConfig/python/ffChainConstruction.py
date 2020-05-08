@@ -94,7 +94,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=0):
         + process.egammaPostRecoSeq
         + process.leptonjetClusteringSeq
         + process.leptonjetFilteringSeq
-        + process.ffLeptonJetSingleCountFilter
+        # + process.ffLeptonJetSingleCountFilter
         # + process.ak4chsPostLeptonjetsSeq
         + process.ffDeepFlavourSeq
         + process.ffMetCorrectionsSeq
