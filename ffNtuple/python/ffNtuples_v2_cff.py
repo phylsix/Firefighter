@@ -22,6 +22,7 @@ ffNtuplizer = cms.EDAnalyzer(
         ntuple_triggerobjectmatching,
         ntuple_metfilters,
         ntuple_cosmicveto,
+        ntuple_cosmicmuon,
         ntuple_cosmicmuononeleg,
         ntuple_akjet,
         ntuple_hftagscore,
