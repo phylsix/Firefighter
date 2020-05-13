@@ -4,6 +4,7 @@ ffcosmiceventfilter = cms.EDFilter(
     "ffCosmicEventFilter",
     src=cms.InputTag("cosmicMuons"),
     minCosAlpha=cms.double(0.99),
-    maxPairCount=cms.int32(10),
+    minPt=cms.double(2.),
+    maxPairCount=cms.int32(8),
     taggingMode=cms.bool(True),
 )

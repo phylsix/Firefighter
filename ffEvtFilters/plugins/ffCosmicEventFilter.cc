@@ -6,6 +6,7 @@
 ffCosmicEventFilter::ffCosmicEventFilter( const edm::ParameterSet& ps )
     : fCosmicToken( consumes<reco::TrackCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ),
       fMinCosAlpha( ps.getParameter<double>( "minCosAlpha" ) ),
+      fMinPt( ps.getParameter<double>( "minPt" ) ),
       fMaxPairCount( ps.getParameter<int>( "maxPairCount" ) ),
       fTaggingMode( ps.getParameter<bool>( "taggingMode" ) ) {
   assert( fMinCosAlpha >= 0. and fMinCosAlpha <= 1. );
@@ -25,6 +26,8 @@ ffCosmicEventFilter::filter( edm::Event& e, const edm::EventSetup& es ) {
   fNumParallelPairs = 0;
   for ( size_t i( 0 ); i != cosmicmuons.size(); i++ ) {
     for ( size_t j( i + 1 ); j != cosmicmuons.size(); j++ ) {
+      if ( cosmicmuons[ i ].pt() < fMinPt or cosmicmuons[ j ].pt() < fMinPt ) continue;
+
       float cosalpha = cosmicmuons[ i ].momentum().Dot( cosmicmuons[ j ].momentum() );
       cosalpha /= cosmicmuons[ i ].momentum().R() * cosmicmuons[ j ].momentum().R();
       if ( fabs( cosalpha ) > fMinCosAlpha )

@@ -31,8 +31,8 @@ ffNtupleCosmicVeto::initialize( TTree&                   tree,
   fCosmicShowerVetoResultToken = cc.consumes<bool>( edm::InputTag( "ffcosmiceventfilter" ) );
   fParallelCosmicPairsToken    = cc.consumes<int>( edm::InputTag( "ffcosmiceventfilter" ) );
 
-  tree.Branch( "cosmicveto_result", &fCosmicShowerVetoResult );
-  tree.Branch( "cosmicveto_parallelpairs", &fParallelCosmicPairs );
+  tree.Branch( "cosmicveto_result", &fCosmicShowerVetoResult )->SetTitle( "N(parallel)<8" );
+  tree.Branch( "cosmicveto_parallelpairs", &fParallelCosmicPairs )->SetTitle( "N(parallel cosmicMuon pairs) pT>2GeV" );
 }
 
 void

@@ -1,13 +1,12 @@
 #ifndef ffEvtFilters_ffCosmicEventFilter_H
 #define ffEvtFilters_ffCosmicEventFilter_H
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class ffCosmicEventFilter : public edm::one::EDFilter<> {
  public:
@@ -21,6 +20,7 @@ class ffCosmicEventFilter : public edm::one::EDFilter<> {
   edm::Handle<reco::TrackCollection>      fCosmicHdl;
 
   double fMinCosAlpha;
+  double fMinPt;
   int    fMaxPairCount;
   int    fNumParallelPairs;
   bool   fTaggingMode;
