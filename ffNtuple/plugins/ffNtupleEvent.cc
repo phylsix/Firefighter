@@ -12,9 +12,12 @@ class ffNtupleEvent : public ffNtupleBaseNoHLT {
  private:
   void clear() final;
 
+  edm::EDGetToken fGridRhoToken;
+
   unsigned int       run_;
   unsigned long long event_;
   unsigned int       lumi_;
+  float              fixedgridrho_;
 };
 
 DEFINE_EDM_PLUGIN( ffNtupleFactory, ffNtupleEvent, "ffNtupleEvent" );
@@ -26,9 +29,12 @@ void
 ffNtupleEvent::initialize( TTree&                   tree,
                            const edm::ParameterSet& ps,
                            edm::ConsumesCollector&& cc ) {
+  fGridRhoToken = cc.consumes<double>( edm::InputTag( "fixedGridRhoAll" ) );
+
   tree.Branch( "run", &run_ );
   tree.Branch( "event", &event_ );
   tree.Branch( "lumi", &lumi_ );
+  tree.Branch( "fixedGridRho", &fixedgridrho_ )->SetTitle( "median grid pT density" );
 }
 
 void
@@ -38,11 +44,18 @@ ffNtupleEvent::fill( const edm::Event& e, const edm::EventSetup& es ) {
   run_   = e.id().run();
   event_ = e.id().event();
   lumi_  = e.luminosityBlock();
+
+  edm::Handle<double> gridrhoHdl;
+  e.getByToken( fGridRhoToken, gridrhoHdl );
+  assert( gridrhoHdl.isValid() );
+
+  fixedgridrho_ = *gridrhoHdl;
 }
 
 void
 ffNtupleEvent::clear() {
-  run_   = 0;
-  event_ = 0;
-  lumi_  = 0;
+  run_          = 0;
+  event_        = 0;
+  lumi_         = 0;
+  fixedgridrho_ = 0.;
 }

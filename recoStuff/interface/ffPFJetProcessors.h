@@ -103,6 +103,27 @@ float
 getPfIsolation( const reco::PFJet&,
                 const edm::Handle<reco::PFCandidateFwdPtrVector>&,
                 const float& );
+
+/**
+ * @brief PFCandidate Isolation
+ *
+ * pT of candidates in cone that NOT associated with the jet
+ * ---------------------- over ----------------------
+ * pT of candidates in cone that associated with the jet + above
+ * --> The lower the value, the more isolated
+ *
+ * @return float
+ */
+float
+getPfIsolationPt( const reco::PFJet&,
+                  const edm::Handle<reco::PFCandidateCollection>&,
+                  const float& );
+
+float
+getPfIsolationPt( const reco::PFJet&,
+                  const edm::Handle<reco::PFCandidateFwdPtrVector>&,
+                  const float& );
+
 /**
  * @brief Neutral isolation
  *

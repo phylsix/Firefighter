@@ -74,6 +74,16 @@ getCandPFIsolation( const reco::PFCandidatePtr&,
                     const float );
 
 float
+getCandPFIsolationPt( const reco::PFCandidatePtr&,
+                      const edm::Handle<reco::PFCandidateCollection>&,
+                      const float );
+
+float
+getCandPFIsolationPt( const reco::PFCandidatePtr&,
+                      const edm::Handle<reco::PFCandidateFwdPtrVector>&,
+                      const float );
+
+float
 getMuonIsolationValue( const reco::Muon& );
 
 /**
@@ -251,7 +261,7 @@ calculateStandardDeviation( const std::vector<T>& v ) {
 
   vector<double> diff( vcopy.size() );
   transform( vcopy.begin(), vcopy.end(), diff.begin(),
-             [mean]( double x ) { return x - mean; } );
+             [ mean ]( double x ) { return x - mean; } );
   double sq_sum = inner_product( diff.begin(), diff.end(), diff.begin(), 0.0 );
 
   return sqrt( sq_sum / vcopy.size() );

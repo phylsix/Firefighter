@@ -26,12 +26,14 @@ class ffNtupleProxyMuon : public ffNtupleBaseNoHLT {
   edm::EDGetToken fLeptonjetToken;
   edm::EDGetToken fGeneralTkToken;
   edm::EDGetToken fPFCandNoPUToken;
+  edm::EDGetToken fPFCandToken;
 
   unsigned int                         fNProxies;
   std::vector<LorentzVector>           fProxyP4;
   std::vector<int>                     fProxyType;
   std::vector<unsigned int>            fProxyRefIdx;
   std::map<double, std::vector<float>> fProxyPFIsolationNoPU;
+  std::map<double, std::vector<float>> fProxyPFIsolationPt;
 
   std::vector<double> fIsoRadius;
 };
@@ -50,6 +52,7 @@ ffNtupleProxyMuon::initialize( TTree&                   tree,
   fLeptonjetToken  = cc.consumes<reco::PFJetCollection>( ps.getParameter<edm::InputTag>( "leptonjet" ) );
   fGeneralTkToken  = cc.consumes<reco::TrackCollection>( edm::InputTag( "generalTracks" ) );
   fPFCandNoPUToken = cc.consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "pfNoPileUpIso" ) );
+  fPFCandToken     = cc.consumes<reco::PFCandidateFwdPtrVector>( edm::InputTag( "particleFlowPtrs" ) );
 
   tree.Branch( "proxymuon_n", &fNProxies );
   tree.Branch( "proxymuon_p4", &fProxyP4 );
@@ -60,7 +63,8 @@ ffNtupleProxyMuon::initialize( TTree&                   tree,
     std::stringstream ss;
     ss << isor;
     std::string suffix = ss.str().replace( 1, 1, "" );
-    tree.Branch( Form( "proxymuon_pfIsolationNoPU%s", suffix.c_str() ), &fProxyPFIsolationNoPU[ isor ] )->SetTitle( Form( "sum PFCandidates(<b>noMu</b>) energy within cone radius %.1f with proxy muon footprint removed, divided by sum of both", isor ) );
+    tree.Branch( Form( "proxymuon_pfIsolationNoPU%s", suffix.c_str() ), &fProxyPFIsolationNoPU[ isor ] )->SetTitle( Form( "sum PFCandidates(<b>noMu</b>) energy within cone radius %.1f with CHS and proxy muon footprint removed, divided by sum of both", isor ) );
+    tree.Branch( Form( "proxymuon_pfIsolationPt%s", suffix.c_str() ), &fProxyPFIsolationPt[ isor ] )->SetTitle( Form( "scalar sum PFCandidates(<b>noMu</b>) pT within cone radius %.1f with proxy muon footprint removed, divided by sum of both", isor ) );
   }
 }
 
@@ -85,6 +89,11 @@ ffNtupleProxyMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
   Handle<reco::PFCandidateFwdPtrVector> pfCandNoPUHdl;
   e.getByToken( fPFCandNoPUToken, pfCandNoPUHdl );
   assert( pfCandNoPUHdl.isValid() );
+
+  Handle<reco::PFCandidateFwdPtrVector> pfCandHdl;
+  e.getByToken( fPFCandToken, pfCandHdl );
+  assert( pfCandHdl.isValid() );
+
   clear();
 
   vector<reco::PFCandidatePtr> muonDaughters{};
@@ -107,6 +116,7 @@ ffNtupleProxyMuon::fill( const edm::Event& e, const edm::EventSetup& es ) {
 
     for ( const auto& isor : fIsoRadius ) {
       fProxyPFIsolationNoPU[ isor ].emplace_back( getCandPFIsolation( ljsrc.ptr(), pfCandNoPUHdl, isor ) );
+      fProxyPFIsolationPt[ isor ].emplace_back( getCandPFIsolationPt( ljsrc.ptr(), pfCandHdl, isor ) );
     }
   }
 
@@ -121,5 +131,6 @@ ffNtupleProxyMuon::clear() {
   fProxyRefIdx.clear();
   for ( const auto& isor : fIsoRadius ) {
     fProxyPFIsolationNoPU[ isor ].clear();
+    fProxyPFIsolationPt[ isor ].clear();
   }
 }

@@ -156,6 +156,54 @@ ff::getCandPFIsolation( const reco::PFCandidatePtr&                       pfcand
 }
 
 //-----------------------------------------------------------------------------
+/* pfIsolation noMu, analogous to lepton-jet pfIsolation */
+float
+ff::getCandPFIsolationPt( const reco::PFCandidatePtr&                     pfcand,
+                          const edm::Handle<reco::PFCandidateCollection>& pfH,
+                          const float                                     isor ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( size_t i( 0 ); i != pfH->size(); i++ ) {
+    if ( ( *pfH )[ i ].particleId() == reco::PFCandidate::mu ) continue;
+    pfCandPtrs.emplace_back( pfH, i );
+  }
+
+  float numer( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( pfcand == cand ) continue;
+    if ( deltaR( *pfcand, *cand ) > isor ) continue;  // outside radius
+    numer += cand->pt();
+  }
+
+  float denom = numer + pfcand->pt();
+
+  return denom == 0 ? NAN : numer / denom;
+}
+
+//-----------------------------------------------------------------------------
+/* pfIsolation noMu, analogous to lepton-jet pfIsolation */
+float
+ff::getCandPFIsolationPt( const reco::PFCandidatePtr&                       pfcand,
+                          const edm::Handle<reco::PFCandidateFwdPtrVector>& pfH,
+                          const float                                       isor ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( const auto& cand : *pfH ) {
+    if ( cand.ptr()->particleId() == reco::PFCandidate::mu ) continue;
+    pfCandPtrs.emplace_back( cand.ptr() );
+  }
+
+  float numer( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( pfcand == cand ) continue;
+    if ( deltaR( *pfcand, *cand ) > isor ) continue;  // outside radius
+    numer += cand->pt();
+  }
+
+  float denom = numer + pfcand->pt();
+
+  return denom == 0 ? NAN : numer / denom;
+}
+
+//-----------------------------------------------------------------------------
 
 float
 ff::getMuonIsolationValue( const reco::Muon& muon ) {

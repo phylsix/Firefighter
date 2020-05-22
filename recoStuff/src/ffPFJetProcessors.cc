@@ -219,7 +219,7 @@ ff::getNumberOfDisplacedStandAloneMuons(
     const edm::Handle<reco::TrackCollection>& generalTkH ) {
   std::vector<reco::PFCandidatePtr> candsWithTk = getTrackEmbededPFCands( jet );
   return std::count_if( candsWithTk.begin(), candsWithTk.end(),
-                        [&generalTkH]( auto cand ) {
+                        [ &generalTkH ]( auto cand ) {
                           return cand->trackRef().isNonnull() and
                                  cand->trackRef().id() != generalTkH.id();
                         } );
@@ -246,7 +246,7 @@ ff::getTkPtSumInCone( const reco::PFJet&                        jet,
     if ( deltaR( jet, *tkRef ) > isoRadius )
       continue;  // outside radius
 
-    if ( std::find_if( cands.begin(), cands.end(), [&tkRef]( const auto& c ) {
+    if ( std::find_if( cands.begin(), cands.end(), [ &tkRef ]( const auto& c ) {
            return c->trackRef() == tkRef;
          } ) != cands.end() )
       continue;  // associated with the jet
@@ -271,7 +271,7 @@ ff::getTkPtRawSumInCone( const reco::PFJet&                        jet,
     reco::TrackRef tk( tkH, i );
     if ( tk->pt() < minPt ) continue;                // less than min pT cut
     if ( deltaR( jet, *tk ) > isoRadius ) continue;  // outside radius
-    if ( std::find_if( cands.begin(), cands.end(), [&tk]( const auto& c ) {
+    if ( std::find_if( cands.begin(), cands.end(), [ &tk ]( const auto& c ) {
            return c->trackRef() == tk;
          } ) != cands.end() )
       continue;  // associated with the jet
@@ -322,7 +322,7 @@ ff::getPfIsolation( const reco::PFJet&                              jet,
       continue;  // outside radius
 
     if ( std::find_if( jetcands.begin(), jetcands.end(),
-                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
+                       [ &cand ]( const auto& jc ) { return jc == cand; } ) !=
          jetcands.end() )
       continue;  // associated with the jet
 
@@ -333,6 +333,43 @@ ff::getPfIsolation( const reco::PFJet&                              jet,
       std::accumulate( jetcands.begin(), jetcands.end(), 0.,
                        []( float esum, const reco::PFCandidatePtr& jc ) {
                          return esum + jc->energy();
+                       } );
+
+  return ( ofCands + notOfCands ) == 0 ? NAN
+                                       : notOfCands / ( ofCands + notOfCands );
+}
+
+//-----------------------------------------------------------------------------
+/* pfIsolation noMu */
+float
+ff::getPfIsolationPt( const reco::PFJet&                              jet,
+                      const edm::Handle<reco::PFCandidateCollection>& pfH,
+                      const float&                                    isoRadius ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( size_t i( 0 ); i != pfH->size(); ++i ) {
+    if ( ( *pfH )[ i ].particleId() == reco::PFCandidate::mu ) continue;
+    pfCandPtrs.emplace_back( pfH, i );
+  }
+
+  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
+
+  float notOfCands( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( deltaR( jet, *cand ) > isoRadius )
+      continue;  // outside radius
+
+    if ( std::find_if( jetcands.begin(), jetcands.end(),
+                       [ &cand ]( const auto& jc ) { return jc == cand; } ) !=
+         jetcands.end() )
+      continue;  // associated with the jet
+
+    notOfCands += cand->pt();
+  }
+
+  float ofCands =
+      std::accumulate( jetcands.begin(), jetcands.end(), 0.,
+                       []( float esum, const reco::PFCandidatePtr& jc ) {
+                         return esum + jc->pt();
                        } );
 
   return ( ofCands + notOfCands ) == 0 ? NAN
@@ -359,7 +396,7 @@ ff::getPfIsolation( const reco::PFJet&                                jet,
       continue;  // outside radius
 
     if ( std::find_if( jetcands.begin(), jetcands.end(),
-                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
+                       [ &cand ]( const auto& jc ) { return jc == cand; } ) !=
          jetcands.end() )
       continue;  // associated with the jet
 
@@ -370,6 +407,43 @@ ff::getPfIsolation( const reco::PFJet&                                jet,
       std::accumulate( jetcands.begin(), jetcands.end(), 0.,
                        []( float esum, const reco::PFCandidatePtr& jc ) {
                          return esum + jc->energy();
+                       } );
+
+  return ( ofCands + notOfCands ) == 0 ? NAN
+                                       : notOfCands / ( ofCands + notOfCands );
+}
+
+//-----------------------------------------------------------------------------
+/* pfIsolation noMu */
+float
+ff::getPfIsolationPt( const reco::PFJet&                                jet,
+                      const edm::Handle<reco::PFCandidateFwdPtrVector>& pfH,
+                      const float&                                      isoRadius ) {
+  std::vector<reco::PFCandidatePtr> pfCandPtrs{};
+  for ( const auto& cand : *pfH ) {
+    if ( cand.ptr()->particleId() == reco::PFCandidate::mu ) continue;
+    pfCandPtrs.emplace_back( cand.ptr() );
+  }
+
+  std::vector<reco::PFCandidatePtr> jetcands = getPFCands( jet );
+
+  float notOfCands( 0. );
+  for ( const auto& cand : pfCandPtrs ) {
+    if ( deltaR( jet, *cand ) > isoRadius )
+      continue;  // outside radius
+
+    if ( std::find_if( jetcands.begin(), jetcands.end(),
+                       [ &cand ]( const auto& jc ) { return jc == cand; } ) !=
+         jetcands.end() )
+      continue;  // associated with the jet
+
+    notOfCands += cand->pt();
+  }
+
+  float ofCands =
+      std::accumulate( jetcands.begin(), jetcands.end(), 0.,
+                       []( float esum, const reco::PFCandidatePtr& jc ) {
+                         return esum + jc->pt();
                        } );
 
   return ( ofCands + notOfCands ) == 0 ? NAN
@@ -396,7 +470,7 @@ ff::getNeutralIsolation( const reco::PFJet&                              jet,
       continue;  // outside radius
 
     if ( std::find_if( jetcands.begin(), jetcands.end(),
-                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
+                       [ &cand ]( const auto& jc ) { return jc == cand; } ) !=
          jetcands.end() )
       continue;  // associated with the jet
 
@@ -433,7 +507,7 @@ ff::getNeutralIsolation( const reco::PFJet&                                jet,
       continue;  // outside radius
 
     if ( std::find_if( jetcands.begin(), jetcands.end(),
-                       [&cand]( const auto& jc ) { return jc == cand; } ) !=
+                       [ &cand ]( const auto& jc ) { return jc == cand; } ) !=
          jetcands.end() )
       continue;  // associated with the jet
 

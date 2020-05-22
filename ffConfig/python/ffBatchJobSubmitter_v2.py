@@ -20,6 +20,7 @@ parser.add_argument("--enforcelocality", dest='ignorelocality', action='store_fa
 parser.set_defaults(ignorelocality=False)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim", "dummy"])
 parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "control", "proxy", "muonType"])
+parser.add_argument("--unitsperjob", "-u", default=1, type=int)
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))
 
@@ -30,6 +31,7 @@ print(*tosubd_, sep="\n")
 print("++ submit jobs with:\t", args.submitter)
 print("++ submit jobs type:\t", args.jobtype)
 print("++ submit jobs eventRegion:\t", args.eventregion)
+print("++ submit jobs with unit:\t", args.unitsperjob)
 
 
 def main():
@@ -54,7 +56,7 @@ def main():
         eventRegion=eventRegion_,
         ffConfigName='ffNtupleFromAOD_v2_cfg.py',
         outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
-        unitsPerJob=1,
+        unitsPerJob=args.unitsperjob,
     )
     ## update CMSSW config file and outputbase for skim jobs
     if args.jobtype == 'skim':

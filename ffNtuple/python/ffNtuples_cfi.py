@@ -126,7 +126,7 @@ ntuple_pfjet = cms.PSet(
         maxNbrOfIterations=cms.int32(20),
         doSmoothing=cms.bool(True),
     ),
-    IsolationRadius=cms.vdouble(0.5, 0.6, 0.7, 0.8),
+    IsolationRadius=cms.vdouble(0.5, 0.7),
     SubjetEnergyDistributioin=cms.InputTag("ffLeptonJetSubjetEMD", "energy"),
     SubjetMomentumDistribution=cms.InputTag("ffLeptonJetSubjetEMD", "momentum"),
     SubjetEcf1=cms.InputTag("ffLeptonJetSubjetECF", "ecf1"),
@@ -198,7 +198,7 @@ ntuple_proxymuon = cms.PSet(
     NtupleName=cms.string("ffNtupleProxyMuon"),
     src=cms.InputTag("leptonjetSources"),
     leptonjet=cms.InputTag("filteredLeptonJet"),
-    IsolationRadius=cms.vdouble(0.5, 0.6, 0.7, 0.8), ## same as ntuple_pfjet
+    IsolationRadius=cms.vdouble(0.5, 0.7,), ## same as ntuple_pfjet
 )
 
 from Firefighter.ffEvtFilters.ffTriggerObjectsMatchingFilter_cfi import triggerObjectMatchingFilter
