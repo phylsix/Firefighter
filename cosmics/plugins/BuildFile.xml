@@ -20,6 +20,13 @@
 <use name="TrackingTools/Records"/>
 <use name="Firefighter/cosmics"/>
 
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="DataFormats/L1TGlobal"/>
+<use name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use name="FWCore/Common"/>
+<use name="DataFormats/Common"/>
+
 <library name="FirefighterCosmicsPlugins" file="*.cc">
     <flags EDM_PLUGIN="1"/>
 </library>
