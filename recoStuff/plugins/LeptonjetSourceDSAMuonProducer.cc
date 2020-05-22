@@ -44,7 +44,8 @@ LeptonjetSourceDSAMuonProducer::produce( edm::Event& e, const edm::EventSetup& e
     const auto& dsaExtra = (*fDSAExtraHdl)[muonref];
 
     //loose iso. ref: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation
-    if ( dsaExtra.pfiso04() > 0.25 ) continue; // 0.4, 0.25, 0.20, 0.15, 0.10, 0.05
+    // wsi 21/05/20 - drop iso cut
+    // if ( dsaExtra.pfiso04() > 0.25 ) continue; // 0.4, 0.25, 0.20, 0.15, 0.10, 0.05
 
 
     //matching with loose PFMuon

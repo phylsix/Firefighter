@@ -30,20 +30,15 @@ LeptonjetSourcePFElectronProducer::produce( edm::Event& e, const edm::EventSetup
     const auto& candptr = candfwdptr.ptr();
 
     // is PFElectron
-    if ( candptr->particleId() != reco::PFCandidate::e )
-      continue;
-    if ( candptr->gsfElectronRef().isNull() )
-      continue;
+    if ( candptr->particleId() != reco::PFCandidate::e ) continue;
+    if ( candptr->gsfElectronRef().isNull() ) continue;
 
-    // kinematic cut
-    if ( candptr->pt() < 5. )
-      continue;
-    if ( fabs( candptr->eta() ) > 2.4 )
-      continue;
+    // kinematic cut; same with POG syst unc. lowest value
+    if ( candptr->pt() < 10. ) continue;
+    if ( fabs( candptr->eta() ) > 2.4 ) continue;
 
     // electron id: cutbased-loose
-    if ( !( *fPFElectronIDHdl )[ refToPtr( candptr->gsfElectronRef() ) ] )
-      continue;
+    if ( !( *fPFElectronIDHdl )[ refToPtr( candptr->gsfElectronRef() ) ] ) continue;
 
     inclusiveColl->push_back( candfwdptr );
   }

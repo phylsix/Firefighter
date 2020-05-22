@@ -29,14 +29,17 @@ LeptonjetSourcePFPhotonProducer::produce( edm::Event& e, const edm::EventSetup& 
     const auto& candptr = candfwdptr.ptr();
 
     // is PFPhoton
-    if ( candptr->particleId() != reco::PFCandidate::gamma )
-      continue;
-    if ( candptr->photonRef().isNull() )
-      continue;
+    if ( candptr->particleId() != reco::PFCandidate::gamma ) continue;
+    if ( candptr->photonRef().isNull() ) continue;
+    const auto& supercluster = candptr->photonRef()->superCluster();
+    if ( supercluster.isNull() ) continue;
+
+    // kinematic cut; same with POG syst unc. lowest value
+    if ( candptr->pt() < 20. ) continue;
+    if ( fabs( supercluster->eta() ) > 2.5 ) continue;
 
     // photon id: cutbased-loose
-    if ( !( *fPFPhotonIDHdl )[ refToPtr( candptr->photonRef() ) ] )
-      continue;
+    if ( !( *fPFPhotonIDHdl )[ refToPtr( candptr->photonRef() ) ] ) continue;
 
     inclusiveColl->push_back( candfwdptr );
   }

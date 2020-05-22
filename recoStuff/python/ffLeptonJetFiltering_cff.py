@@ -11,7 +11,7 @@ filteredLeptonJet = cms.EDFilter(
     cut=cms.string(
         " && ".join(
             [
-                "pt>20.",
+                "pt>30.",
                 "abs(eta)<2.4",
                 "numberOfDaughters>0",
             ]
