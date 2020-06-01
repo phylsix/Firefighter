@@ -22,7 +22,7 @@ class configBuilder:
         self.ffdataset_ = ffdataset
         self.specs_ = dict(
             numThreads=1,
-            maxMemory=4000,
+            maxMemory=2000,
             reportEvery=10000,
             outputFileName="ffNtuple.root",
             leptonJetCandStrategy="hadronFree",
