@@ -43,7 +43,10 @@ if args.jobtype == 'ntuplefromskim':
     DATA_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/data/description.json")))
     BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/bkgmc/description.json")))
     if args.eventregion!='all':
-        sys.exit('ntupleforskim for non-*all* is not available yet. - wsi 2/27/20')
+        if args.eventregion=='proxy' and len(args.datasettype)==1 and 'data' in args.datasettype:
+            DATA_L = json.load(open(join(PRODUCTIONBASE, "SkimProxy18/data/description.json")))
+        else:
+            sys.exit('ntupleforskim for non-*all* for non-*data* is not available yet. - wsi 6/1/20')
 
 ## all datasets
 ffds = {

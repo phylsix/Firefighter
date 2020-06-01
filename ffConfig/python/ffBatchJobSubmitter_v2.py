@@ -31,7 +31,7 @@ print(*tosubd_, sep="\n")
 print("++ submit jobs with:\t", args.submitter)
 print("++ submit jobs type:\t", args.jobtype)
 print("++ submit jobs eventRegion:\t", args.eventregion)
-print("++ submit jobs with unit:\t", args.unitsperjob)
+print("++ submit jobs with unit:\t", args.unitsperjob, '(ntuplefromskim will be overwritten to 50)')
 
 
 def main():
