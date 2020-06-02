@@ -64,15 +64,16 @@ def main():
             ffConfigName='ffFullSkimFromAOD_cfg.py',
             outbase='/store/group/lpcmetx/SIDM/Skim/',
             ))
-    if eventRegion_ in ['proxy', 'muonType']:
-        cbkwargs['outbase'] += '{}/'.format(eventRegion_)
-
     ## update unitsPerJob for ntuple jobs with skimmed files as source
     if args.jobtype == 'ntuplefromskim':
         cbkwargs['unitsPerJob'] = 50
         cbkwargs['outbase'] = '/store/group/lpcmetx/SIDM/ffNtupleV2/Skim/'
+
     if args.submitter == 'crab' and args.ignorelocality == False:
         cbkwargs['ignoreLocality'] = False
+
+    if eventRegion_ in ['proxy', 'muonType']:
+        cbkwargs['outbase'] += '{}/'.format(eventRegion_)
 
     ## dummy jobs
     if args.jobtype == 'dummy':

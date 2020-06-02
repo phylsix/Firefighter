@@ -6,6 +6,11 @@ import yaml
 from os.path import join
 from Firefighter.ffConfig.ffChainConstruction import decorateProcessFF_forTriggerStudy
 
+
+""" OLD VERSION, DEPRECATED !
+"""
+
+
 options = VarParsing.VarParsing("analysis")
 configDefault = join(
     os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/cfg/ffSuperConfig_trigger.yml"

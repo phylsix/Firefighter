@@ -4,7 +4,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import yaml
 from os.path import join
-from Firefighter.ffConfig.ffChainConstruction import leptonjetStudyProcess
+from Firefighter.ffConfig.ffChainConstruction import leptonjetRecoNtupleProc
 
 options = VarParsing.VarParsing("analysis")
 configDefault = join(
@@ -71,4 +71,4 @@ process.TFileService = cms.Service(
     closeFileFast=cms.untracked.bool(True),
 )
 
-process = leptonjetStudyProcess(process, ffConfig, keepskim=options.keepskim)
+process = leptonjetRecoNtupleProc(process, ffConfig, keepskim=options.keepskim)

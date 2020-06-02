@@ -4,27 +4,27 @@ from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 
 def skimFullEvents(process, ffConfig, fileName):
-    """skim off events with >0 leptonjets, track down stats also"""
+    """
+    skim events with >=2(default) leptonjets, (depends on region param)
+    track down stats also
+    """
 
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
-    # process.load("Firefighter.recoStuff.ffMetFilters_cff")
     process.load("Firefighter.recoStuff.DsaToPFCandidate_cff")
     process.load("Firefighter.recoStuff.LeptonjetClustering_cff")
-    # process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
     process.load("Firefighter.recoStuff.skimOutput_cfi")
+
     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
     setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
+
     process.recoSeq = cms.Sequence(
-        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch
-        # + process.ffMetFilterSeq
-        + process.dSAToPFCandSeq
-        + process.egammaPostRecoSeq
-        + process.leptonjetClusteringSeq
-        + process.leptonjetFilteringSeq
-        + process.ffLeptonJetPairCountFilter
-        # + process.ffDeepFlavourSeq
-        + process.ffEndEventFilteringSeq
+        process.ffBeginEventFilteringSeq     # cosmic + triggerobjectmatch (tag only)
+        + process.dSAToPFCandSeq             # cast DSA to PF candidate (reco::Track=>reco::PFCandidate)
+        + process.egammaPostRecoSeq          # egamma postprocessing
+        + process.leptonjetClusteringSeq     # lepton-jet cluster
+        + process.leptonjetFilteringSeq      # pT (>30); |eta| (<2.4); nDau (>0)
+        + process.ffEndEventFilteringSeq     # empty - to be modified depends on region
         )
     process.ntuple_step = cms.Path(process.recoSeq)
     process.stathistory = cms.Path(process.ffNtuplesStatSeq)
@@ -52,53 +52,50 @@ def skimFullEvents(process, ffConfig, fileName):
             process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
 
-
-    if ffConfig["reco-spec"]["eventRegion"] == "all":
-        pass
-    elif ffConfig["reco-spec"]["eventRegion"] == "single":
-        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_single)
-    elif ffConfig["reco-spec"]["eventRegion"] == "signal":
-        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_signal)
-    elif ffConfig["reco-spec"]["eventRegion"] == "control":
-        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_control)
-    elif ffConfig["reco-spec"]["eventRegion"] == "proxy":
+    if ffConfig["reco-spec"]["eventRegion"] == "all":      # >=2 lepton-jets
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge2)
+    elif ffConfig["reco-spec"]["eventRegion"] == "single": # >=1 lepton-jet
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge1)
+    elif ffConfig["reco-spec"]["eventRegion"] == "proxy":  # proxy events
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_proxy)
     else:
         msg = "ffConfig['reco-spec']['eventRegion'] can only be \
-            'all'/'single'/'signal'/'control'/'proxy'! --- {0} is given.".format(
+            'all'/'single'/'proxy'! --- {0} is given.".format(
             ffConfig["reco-spec"]["eventRegion"]
         )
         raise ValueError(msg)
+
 
     return process
 
 
 
-def leptonjetStudyProcess(process, ffConfig, keepskim=0):
-    """Attach leptonjet study sequence to `process`"""
+def leptonjetRecoNtupleProc(process, ffConfig, keepskim=0):
+    """
+    perform lepton-jet reconstruction+ntuplizer.
+    """
 
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
     process.load("Firefighter.recoStuff.ffMetFilters_cff")
     process.load("Firefighter.recoStuff.DsaToPFCandidate_cff")
     process.load("Firefighter.recoStuff.LeptonjetClustering_cff")
-    # process.load("Firefighter.recoStuff.Ak4chsPostLeptonjets_cff")
     process.load("Firefighter.recoStuff.ffDeepFlavour_cff")
     process.load("Firefighter.recoStuff.ffMetCorrections_cff")
     process.load("Firefighter.ffNtuple.ffNtuples_v2_cff")
+
     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
     setupEgammaPostRecoSeq(process,era='2018-Prompt', isMiniAOD=False)
+
     process.recoSeq = cms.Sequence(
-        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch (neither blocking)
-        + process.ffMetFilterSeq
-        + process.dSAToPFCandSeq
-        + process.egammaPostRecoSeq
-        + process.leptonjetClusteringSeq
-        + process.leptonjetFilteringSeq
-        # + process.ffLeptonJetSingleCountFilter
-        # + process.ak4chsPostLeptonjetsSeq
-        + process.ffDeepFlavourSeq
-        + process.ffMetCorrectionsSeq
-        + process.ffEndEventFilteringSeq
+        process.ffBeginEventFilteringSeq # cosmic + triggerobjectmatch (tag-only)
+        + process.ffMetFilterSeq         # MET filter event flags
+        + process.dSAToPFCandSeq         # cast DSA to PF candidate (reco::Track=>reco::PFCandidate)
+        + process.egammaPostRecoSeq      # egamma postprocessing
+        + process.leptonjetClusteringSeq # lepton-jet cluster
+        + process.leptonjetFilteringSeq  # pT (>30); |eta| (<2.4); nDau (>0)
+        + process.ffDeepFlavourSeq       # b-tag results
+        + process.ffMetCorrectionsSeq    # MET corrections (not used for analysis)
+        + process.ffEndEventFilteringSeq # empty - to be modified depends on region
         )
 
     process.ntuple_step = cms.Path(process.recoSeq+process.ffNtuplesSeq)
@@ -108,6 +105,7 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=0):
     process.schedule = cms.Schedule(process.stathistory,
                                     process.ntuple_step,
                                     process.endjob_step)
+
     if keepskim:
         process.load("Firefighter.recoStuff.skimOutput_cfi")
         from Firefighter.recoStuff.skimOutput_cfi import customizeSkimOutputContent
@@ -120,9 +118,9 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=0):
                                         process.endjob_step,
                                         process.output_step,)
 
-    ###########################################################################
-    ##                             non signal-mc                             ##
-    ###########################################################################
+    ####################################################
+    ##                    data type                   ##
+    ####################################################
 
     if ffConfig["data-spec"]["dataType"] == "sigmc":
 
@@ -179,34 +177,33 @@ def leptonjetStudyProcess(process, ffConfig, keepskim=0):
             ## JEC
             process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
-    ###########################################################################
-    ##                              event region                             ##
-    ###########################################################################
+    ######################################################
+    ##                  event region                    ##
+    ######################################################
 
-    if ffConfig["reco-spec"]["eventRegion"] == "all":
-        pass
-    elif ffConfig["reco-spec"]["eventRegion"] == "single":
-        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_single)
-    elif ffConfig["reco-spec"]["eventRegion"] == "signal":
-        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_signal)
-    elif ffConfig["reco-spec"]["eventRegion"] == "control":
-        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_control)
-    elif ffConfig["reco-spec"]["eventRegion"] == "proxy":
+    if ffConfig["reco-spec"]["eventRegion"] == "all":      # >=2 lepton-jets
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge2)
+    elif ffConfig["reco-spec"]["eventRegion"] == "single": # >=1 lepton-jet
+        process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge1)
+    elif ffConfig["reco-spec"]["eventRegion"] == "proxy":  # proxy events
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_proxy)
     elif ffConfig["reco-spec"]["eventRegion"] == "muonType":
         process.ffBeginEventFilteringSeq.remove(process.hltfilter)
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_muontype)
     else:
         msg = "ffConfig['reco-spec']['eventRegion'] can only be \
-            'all'/'single'/'signal'/'control'/'proxy'/'muonType'! --- {0} is given.".format(
+            'all'/'single'/'proxy'/'muonType'! --- {0} is given.".format(
             ffConfig["reco-spec"]["eventRegion"]
         )
         raise ValueError(msg)
-    ###########################################################################
+
+    #######################################################
+
     return process
 
 
 
+''' DEPRECATED!!
 def decorateProcessFF(process, ffConfig, keepskim=False):
     """Attach Firefighter RECO, ntuple -specific to the `process`, configure
     them with `ffConfig`
@@ -375,12 +372,12 @@ def decorateProcessFF(process, ffConfig, keepskim=False):
         raise ValueError(msg)
 
     return process
-
+'''
 
 
 ###############################################################################
 
-
+''' DEPRECATED!!!
 def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
                                       denompaths=['HLT_Mu17', 'HLT_IsoMu24']):
     """Attach Firefighter RECO, ntuple -specific to the `process`, configure
@@ -561,3 +558,4 @@ def decorateProcessFF_forTriggerStudy(process, ffConfig, keepskim=False,
         raise ValueError(msg)
 
     return process
+'''
