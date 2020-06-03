@@ -19,7 +19,7 @@ parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_tru
 parser.add_argument("--enforcelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality. DEFAULT')
 parser.set_defaults(ignorelocality=False)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim", "dummy"])
-parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "control", "proxy", "muonType"])
+parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "proxy", "muonType"])
 parser.add_argument("--unitsperjob", "-u", default=1, type=int)
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))

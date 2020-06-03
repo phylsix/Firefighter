@@ -5,8 +5,7 @@ from Firefighter.recoStuff.HLTFilter_cfi import hltfilter
 
 def skimFullEvents(process, ffConfig, fileName):
     """
-    skim events with >=2(default) leptonjets, (depends on region param)
-    track down stats also
+    skim events depending on region param, track down stats also
     """
 
     process.load("Firefighter.ffEvtFilters.EventFiltering_cff")
@@ -52,7 +51,9 @@ def skimFullEvents(process, ffConfig, fileName):
             process.recoSeq.insert(-1, process.ak4PFCHSL1FastL2L3CorrectorChain)
 
 
-    if ffConfig["reco-spec"]["eventRegion"] == "all":      # >=2 lepton-jets
+    if ffConfig["reco-spec"]["eventRegion"] == "all":      # all events
+        pass
+    elif ffConfig["reco-spec"]["eventRegion"] == "signal": # >=2 lepton-jet
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge2)
     elif ffConfig["reco-spec"]["eventRegion"] == "single": # >=1 lepton-jet
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge1)
@@ -60,7 +61,7 @@ def skimFullEvents(process, ffConfig, fileName):
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_proxy)
     else:
         msg = "ffConfig['reco-spec']['eventRegion'] can only be \
-            'all'/'single'/'proxy'! --- {0} is given.".format(
+            'all'/'signal'/'single'/'proxy'! --- {0} is given.".format(
             ffConfig["reco-spec"]["eventRegion"]
         )
         raise ValueError(msg)
