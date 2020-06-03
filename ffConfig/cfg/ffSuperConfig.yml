@@ -12,7 +12,7 @@ data-spec:
   maxEvents: -1
   outputFileName: "ffNtuple.root"
   lumiMask: ""
-  dataType: "bkgmc"
+  dataType: "sigmc"
 
 reco-spec:
   eventRegion: "all"

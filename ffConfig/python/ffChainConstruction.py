@@ -181,7 +181,9 @@ def leptonjetRecoNtupleProc(process, ffConfig, keepskim=0):
     ##                  event region                    ##
     ######################################################
 
-    if ffConfig["reco-spec"]["eventRegion"] == "all":      # >=2 lepton-jets
+    if ffConfig["reco-spec"]["eventRegion"] == "all":      # all events
+        pass
+    elif ffConfig["reco-spec"]["eventRegion"] == "signal": # >=2 lepton-jet
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge2)
     elif ffConfig["reco-spec"]["eventRegion"] == "single": # >=1 lepton-jet
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_LJge1)
@@ -192,7 +194,7 @@ def leptonjetRecoNtupleProc(process, ffConfig, keepskim=0):
         process.ffEndEventFilteringSeq = cms.Sequence(process.ffEndEventFilteringSeq_muontype)
     else:
         msg = "ffConfig['reco-spec']['eventRegion'] can only be \
-            'all'/'single'/'proxy'/'muonType'! --- {0} is given.".format(
+            'all'/'signal'/'single'/'proxy'/'muonType'! --- {0} is given.".format(
             ffConfig["reco-spec"]["eventRegion"]
         )
         raise ValueError(msg)
