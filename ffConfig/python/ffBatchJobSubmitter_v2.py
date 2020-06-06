@@ -5,10 +5,11 @@ $cmd: python ffBatchJobSubmitter.py batchdatasets.yml -s crab -t ntuple
 from __future__ import print_function
 
 import argparse
-import os, time
+import os, sys, time
 from os.path import join
 
 import yaml
+from Firefighter.ffConfig.datasetUtils import query_yes_no
 
 
 ## parser
@@ -27,11 +28,11 @@ assert(os.path.exists(args.datasets[0]))
 tosubd_ = yaml.load(open(args.datasets[0]), Loader=yaml.Loader)
 
 print("++ submit jobs for:")
-print(*tosubd_, sep="\n")
-print("++ submit jobs with:\t", args.submitter)
-print("++ submit jobs type:\t", args.jobtype)
-print("++ submit jobs eventRegion:\t", args.eventregion)
-print("++ submit jobs with unit:\t", args.unitsperjob, '(ntuplefromskim will be overwritten to 50)')
+print(*['    '+s for s in tosubd_], sep="\n")
+print("{:30}{}".format("++ submit jobs with:", args.submitter))
+print("{:30}{}".format("++ submit jobs type:", args.jobtype))
+print("{:30}{}".format("++ submit jobs eventRegion:", args.eventregion))
+print("{:30}{}".format("++ submit jobs with unit:", str(args.unitsperjob)+' (ntuplefromskim will be overwritten to 50)'))
 
 
 def main():
@@ -98,5 +99,9 @@ def main():
 
 
 if __name__ == "__main__":
+    print(args)
+    if not query_yes_no('Is args set correctly?'):
+        sys.exit('No? Okay, exiting..')
+
     print(" I am Mr. ffBatchJobSubmitter ".center(79, '+'))
     main()

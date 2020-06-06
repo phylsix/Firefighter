@@ -2,6 +2,7 @@
 from __future__ import print_function
 import os
 import json
+import urllib2
 from datetime import datetime
 
 import yaml
@@ -62,14 +63,19 @@ def getNextSubmitYamls(ds):
 
 
 def getNextDummyDatasets():
-    """list datasets which is VALID but on tape"""
+    """list datasets not fully on disk"""
 
-    f = '/publicweb/w/wsi/public/lpcdm/sigprodmon/data.js'
-    storeInfo = json.loads(open(f).read().replace('var data=', ''))['store']
+    if os.getenv('USER')=='wsi':
+        f = '/publicweb/w/wsi/public/lpcdm/sigprodmon/data.js'
+        storeInfo = json.loads(open(f).read().replace('var data=', ''))['store']
+    else:
+        msg = urllib2.urlopen('https://home.fnal.gov/~wsi/public/lpcdm/sigprodmon/data.js').read()
+        storeInfo = json.loads(msg.replace('var data=', ''))['store']
     res = []
     for entry in storeInfo:
-        if entry['status']=='VALID' and not entry['ondisk']:
-            res.append(entry['name'].encode('utf-8'))
+        if entry['ondisk']: continue
+        transfering = any(['%' in site for site in entry['sitelist']])
+        if not transfering: res.append(entry['name'].encode('utf-8'))
     return res
 
 
@@ -102,15 +108,15 @@ def main():
     # print('-'*50)
 
     # # on tape (really on tape)
-    # dummies = [d for d in getNextDummyDatasets() if d not in tosubs]
-    # outputf = os.path.join(
-    #     os.getenv('CMSSW_BASE'),
-    #     'src/Firefighter/ffConfig/python/batchYmls',
-    #     'dummysub_{}.yml'.format(datetime.today().strftime('%y%m%d'))
-    # )
-    # with open(outputf, 'w') as f:
-    #     f.write(yaml.dump( getNextSubmitYamls(dummies), default_flow_style=False ))
-    # print('Saved to:', outputf)
+    dummies = getNextDummyDatasets()
+    outputf = os.path.join(
+        os.getenv('CMSSW_BASE'),
+        'src/Firefighter/ffConfig/python/batchYmls',
+        'dummysub_{}.yml'.format(datetime.today().strftime('%y%m%d'))
+    )
+    with open(outputf, 'w') as f:
+        f.write(yaml.dump( getNextSubmitYamls(dummies), default_flow_style=False ))
+    print('Saved to:', outputf)
 
     # # ondisk
     # ondiskones = getOnDiskDatasets()
@@ -132,7 +138,7 @@ def main():
     #     f.write(yaml.dump( getNextSubmitYamls(taperecallones), default_flow_style=False ))
     # print('Saved to:', outputf)
 
-    getTransferDatasets()
+    #getTransferDatasets()
 
 if __name__ == "__main__":
     main()

@@ -11,12 +11,11 @@ from __future__ import print_function
 
 import argparse
 import json
-import os
-import sys
-import time
+import os, sys, time
 from os.path import join
 
 import yaml
+from Firefighter.ffConfig.datasetUtils import query_yes_no
 
 PRODUCTIONBASE = join(os.getenv("CMSSW_BASE"), "src/Firefighter/ffConfig/python/production/")
 DATA_L = json.load(open(join(PRODUCTIONBASE, "Autumn18/data/description.json")))
@@ -165,6 +164,9 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
 
 
 if __name__ == "__main__":
+    print(args)
+    if not query_yes_no('Is args set correctly?'):
+        sys.exit('No? Okay, exiting..')
 
     print(" I am Mr. ffGrandJobSubmitter ".center(79, '+'))
     for d in args.datasettype:
