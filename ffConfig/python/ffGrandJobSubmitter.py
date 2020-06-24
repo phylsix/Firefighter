@@ -30,7 +30,7 @@ parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_tru
 parser.add_argument("--enforcelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality. DEFAULT')
 parser.set_defaults(ignorelocality=False)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim"])
-parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "control", "proxy", "muonType"])
+parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "signal", "control", "proxy", "muonType"])
 args = parser.parse_args()
 
 ## modify data source dir if run with skimmed AOD
@@ -39,13 +39,15 @@ if args.jobtype == 'ntuplefromskim':
         sys.exit('No sigmc skimmed files available. -wsi 11/01/19')
     if args.submitter == 'crab':
         sys.exit('Skimmed source can only be run with condor. (no real dataset name in DAS)')
+    if args.eventregion != 'signal':
+        sys.exit('Skimmed source is prepared for *signal* event region.')
     DATA_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/data/description.json")))
     BKGMC_L = json.load(open(join(PRODUCTIONBASE, "Skim2LJ18/bkgmc/description.json")))
-    if args.eventregion!='all':
-        if args.eventregion=='proxy' and len(args.datasettype)==1 and 'data' in args.datasettype:
-            DATA_L = json.load(open(join(PRODUCTIONBASE, "SkimProxy18/data/description.json")))
-        else:
-            sys.exit('ntupleforskim for non-*all* for non-*data* is not available yet. - wsi 6/1/20')
+    # if args.eventregion!='all':
+    #     if args.eventregion=='proxy' and len(args.datasettype)==1 and 'data' in args.datasettype:
+    #         DATA_L = json.load(open(join(PRODUCTIONBASE, "SkimProxy18/data/description.json")))
+    #     else:
+    #         sys.exit('ntupleforskim for non-*all* for non-*data* is not available yet. - wsi 6/1/20')
 
 ## all datasets
 ffds = {
@@ -101,6 +103,8 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
         print('{:20}{}'.format(k,v))
     print('*** **************************** ***')
 
+    if not query_yes_no('Is args set correctly?'):
+        sys.exit('No? Okay, exiting..')
 
     ## split by submitter
     if submitter == "crab":
@@ -165,8 +169,6 @@ def submit(dkind, submitter="condor", jobtype="ntuple"):
 
 if __name__ == "__main__":
     print(args)
-    if not query_yes_no('Is args set correctly?'):
-        sys.exit('No? Okay, exiting..')
 
     print(" I am Mr. ffGrandJobSubmitter ".center(79, '+'))
     for d in args.datasettype:

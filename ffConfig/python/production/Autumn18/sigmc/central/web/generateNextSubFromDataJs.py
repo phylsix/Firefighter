@@ -62,8 +62,11 @@ def getNextSubmitYamls(ds):
     return res
 
 
-def getNextDummyDatasets():
-    """list datasets not fully on disk"""
+def getNextDummyDatasets(transfer=False):
+    """list datasets not fully on disk
+       if transfer=True: include those in transfer process
+       if transfer=False: exclude those in transfer process
+    """
 
     if os.getenv('USER')=='wsi':
         f = '/publicweb/w/wsi/public/lpcdm/sigprodmon/data.js'
@@ -74,8 +77,12 @@ def getNextDummyDatasets():
     res = []
     for entry in storeInfo:
         if entry['ondisk']: continue
-        transfering = any(['%' in site for site in entry['sitelist']])
-        if not transfering: res.append(entry['name'].encode('utf-8'))
+
+        if transfer:
+            res.append(entry['name'].encode('utf-8'))
+        else:
+            transfering = any(['%' in site for site in entry['sitelist']])
+            if not transfering: res.append(entry['name'].encode('utf-8'))
     return res
 
 
@@ -108,7 +115,7 @@ def main():
     # print('-'*50)
 
     # # on tape (really on tape)
-    dummies = getNextDummyDatasets()
+    dummies = getNextDummyDatasets(transfer=True)
     outputf = os.path.join(
         os.getenv('CMSSW_BASE'),
         'src/Firefighter/ffConfig/python/batchYmls',
