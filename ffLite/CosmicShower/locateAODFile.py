@@ -10,14 +10,16 @@ from DataFormats.FWLite import Events, Handle
 ROOT.gROOT.SetBatch()
 
 events_to_inspect = '''\
-317649 172 253595583
-321774 1 154583
+315801 215 214691987
+319579 326 434769445
+322252 140 185451611
 '''
-
+f_data_A = os.path.join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/python/production/Skim2LJ18/data/DoubleMuon_Run2018A.yml')
 f_data_B = os.path.join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/python/production/Skim2LJ18/data/DoubleMuon_Run2018B.yml')
+f_data_C = os.path.join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/python/production/Skim2LJ18/data/DoubleMuon_Run2018C.yml')
 f_data_D = os.path.join(os.getenv('CMSSW_BASE'), 'src/Firefighter/ffConfig/python/production/Skim2LJ18/data/DoubleMuon_Run2018D.yml')
 files = []
-files.extend( yaml.load(open(f_data_D), Loader=yaml.Loader)['fileList'][0] )
+files.extend( yaml.load(open(f_data_D), Loader=yaml.Loader)['fileList'][0][458:] )
 
 res = []
 for f in tqdm(files):

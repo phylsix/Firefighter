@@ -8,8 +8,9 @@ from DataFormats.FWLite import Events, Handle
 ROOT.gROOT.SetBatch()
 
 events_to_inspect = '''\
-317649 172 253595583
-321774 1 154583
+322252 140 185451611
+315801 215 214691987
+319579 326 434769445
 '''
 
 

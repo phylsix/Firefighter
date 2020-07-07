@@ -146,12 +146,13 @@ def jobStatusFromSubmissionDirs():
                 }
 
     res = {}
-    dates = ['200320', '200321', '200323', '200325', '200330', '200402', '200507']
+    #dates = ['200320', '200321', '200323', '200325', '200330', '200402', '200507']
+    dates = ['200618', '200622', '200626', '200629']
     mycrabgarage = '/uscms_data/d3/wsi/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/'
     checkGarage(mycrabgarage, dates)
-    dates = ['200320', '200321', '200322', '200324']
-    mycrabgarage = '/uscms_data/d3/ranchen/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/'
-    checkGarage(mycrabgarage, dates)
+    #dates = ['200320', '200321', '200322', '200324']
+    #mycrabgarage = '/uscms_data/d3/ranchen/lpcdm/CMSSW_10_2_14_EGamma/src/Firefighter/ffConfig/crabGarage/'
+    #checkGarage(mycrabgarage, dates)
 
 
     return res
@@ -200,7 +201,7 @@ def assembleInfoForDataset(ds, jobStatuses):
 def main():
     js = jobStatusFromSubmissionDirs()
     store_info = [assembleInfoForDataset(d, js) for d in injectedSignalDatasets()]
-    total_info = {'updateTime': str(datetime.now()), 'store': store_info}
+    total_info = {'updateTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'store': store_info}
     with open('data.js', 'w') as outf:
         outf.write('var data={}'.format(json.dumps(total_info, sort_keys=True, indent=4)))
     shutil.copy('data.js', '/publicweb/w/wsi/public/lpcdm/sigsamplemon/')
