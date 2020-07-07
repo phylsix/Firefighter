@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 import os
 import sys
 
+# this can actually be replaced with `HLTHighLevel` in CMSSW
+
 hltfilter = cms.EDFilter(
     "ff::HLTFilter",
     TriggerResults=cms.InputTag("TriggerResults", "", "HLT"),

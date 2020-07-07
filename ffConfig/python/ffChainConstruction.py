@@ -205,6 +205,29 @@ def leptonjetRecoNtupleProc(process, ffConfig, keepskim=0):
     return process
 
 
+def customizeNtupleTrigger(process, ffConfig, triggerPaths=None, triggerObjFilterLabels=None):
+
+    if not triggerPaths: raise ValueError("Paramter <triggerPaths> is None.")
+    if not triggerObjFilterLabels: raise ValueError("Paramter <triggerObjFilterLabels> is None.")
+
+    if ffConfig["data-spec"]["dataType"] == "sigmc":
+        ffConfig["reco-spec"]["eventRegion"] = "all"
+    else:
+        ffConfig["reco-spec"]["eventRegion"] = "signal" # >=2 lepton-jets
+
+    process = leptonjetRecoNtupleProc(process, ffConfig, keepskim=0)
+    process.hltfilterStat.TriggerPaths = triggerPaths
+    if hasattr(process, 'hltfilter'):
+        process.hltfilter.TriggerPaths = triggerPaths
+
+    for m in process.ffNtuplizer.Ntuples:
+        if m.NtupleName.value()=="ffNtupleHLT":
+            m.TriggerPaths = triggerPaths
+            m.FilterLabels = triggerObjFilterLabels
+
+    return process
+
+
 
 ''' DEPRECATED!!
 def decorateProcessFF(process, ffConfig, keepskim=False):

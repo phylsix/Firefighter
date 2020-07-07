@@ -1,0 +1,19 @@
+# all-in-one configuration file for Firefighter settings
+
+job-spec:
+  numThreads: 1
+  reportEvery: 1
+
+condition-spec:
+  globalTag: "102X_dataRun2_v12"
+
+data-spec:
+  inputFileList: ["file:DoubleMuon2018C_numEvent300.root"]
+  maxEvents: -1
+  outputFileName: "ffNtuple_trigger_DoubleMuon2018C.root"
+  lumiMask: ""
+  dataType: "data"
+
+reco-spec:
+  eventRegion: "signal"
+  leptonJetCandStrategy: "hadronFree"

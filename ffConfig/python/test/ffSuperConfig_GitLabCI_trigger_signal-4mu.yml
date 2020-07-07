@@ -8,15 +8,12 @@ condition-spec:
   globalTag: "102X_upgrade2018_realistic_v20"
 
 data-spec:
-  inputFileList: ["file:ZZ_numEvent300.root"]
+  inputFileList: ["file:SIDM_4mu.root"]
   maxEvents: -1
-  outputFileName: "ffNtuple_ZZ_trigger.root"
+  outputFileName: "ffNtuple_trigger_signal-4mu.root"
   lumiMask: ""
-  dataType: "bkgmc"
-  denomTriggerPaths:
-    - HLT_Mu17
-    - HLT_IsoMu24
+  dataType: "sigmc"
 
 reco-spec:
-  eventRegion: "all"
+  eventRegion: "signal"
   leptonJetCandStrategy: "hadronFree"

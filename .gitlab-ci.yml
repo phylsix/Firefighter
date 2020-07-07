@@ -88,14 +88,17 @@ test_sigMC:
     - eval `scramv1 runtime -sh`
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_4mu.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-4mu.yml
+    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_trigger_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_trigger_signal-4mu.yml
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/SIDM_2mu2e.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_signal-2mu2e.yml
     - mv ffNtuple_signal-2mu2e.root $CI_HOME
     - mv ffNtuple_signal-4mu.root $CI_HOME
+    - mv ffNtuple_trigger_signal-4mu.root $CI_HOME
   artifacts:
     paths:
       - ffNtuple_signal-2mu2e.root
       - ffNtuple_signal-4mu.root
+      - ffNtuple_trigger_signal-4mu.root
 
 sigMC_dump:
   tags: [cvmfs]
@@ -120,6 +123,7 @@ sigMC_dump:
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_signal-4mu.root -o public/sigmc.html
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_signal-4mu.root -o public/sigmc.txt
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_trigger_signal-4mu.root -o public/trigger_sigmc.html
   artifacts:
     paths:
       - public
@@ -208,10 +212,13 @@ test_data:
     - wget -nv http://wsi.web.cern.ch/wsi/public/gitlabCI/DoubleMuon2018C_numEvent300.root
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffFullSkimFromAOD_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_DoubleMuon2018C.yml
     - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_DoubleMuon2018C.yml
+    - cmsRun $CMSSW_BASE/src/Firefighter/ffConfig/cfg/ffNtupleFromAOD_trigger_v2_cfg.py config=$CMSSW_BASE/src/Firefighter/ffConfig/python/test/ffSuperConfig_GitLabCI_trigger_DoubleMuon2018C.yml
     - mv ffNtuple_DoubleMuon2018C.root $CI_HOME
+    - mv ffNtuple_trigger_DoubleMuon2018C.root $CI_HOME
   artifacts:
     paths:
       - ffNtuple_DoubleMuon2018C.root
+      - ffNtuple_trigger_DoubleMuon2018C.root
 
 data_dump:
   tags: [cvmfs]
@@ -236,6 +243,7 @@ data_dump:
     - cd $CI_HOME
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_DoubleMuon2018C.root -o public/data.html
     - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_DoubleMuon2018C.root -o public/data.txt
+    - python $CI_HOME/../$CMSSW_VERSION/src/Firefighter/ffNtuple/scripts/dumpNtupleBranchInfo.py -i ffNtuple_trigger_DoubleMuon2018C.root -o public/trigger_data.html
   artifacts:
     paths:
       - public

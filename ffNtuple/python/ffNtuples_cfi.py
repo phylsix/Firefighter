@@ -64,10 +64,23 @@ ntuple_hlt = cms.PSet(
         "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_NoL2Matched",
         "HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4",
         "HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4",
-        # mu-photon triggers
-        "HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL",
-        "HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL",
     ),
+    FilterLabels=cms.vstring(
+        "hltL2DoubleMu23NoVertexL2Filtered2Cha",
+        "hltL2fL1sMuORL1f0DoubleL2NoVtx23Q2ChaNoL2Matched",
+        "hltL2fL1sMuORL1f0DoubleL2NoVtx23Q2ChaCosmicSeed",
+        "hltL2fL1sMuORL1f0DoubleL2NoVtx23Q2ChaCosmicSeedNoMatched",
+        "hltL2DoubleMu25NoVtxFiltered2Cha",
+        "hltL2fL1sMuORL1f0DoubleL2NoVtx25Q2ChaNoL2Matched",
+        "hltL2fL1sMuORL1f0DoubleL2NoVtx25Q2ChaCosmicSeed",
+        "hltL2fL1sMuORL1f0DoubleL2NoVtx25Q2ChaCosmicSeedNoMatched",
+        "hltL2DoubleMu25NoVtxFiltered2ChaEta2p4",
+        "hltL2fL1sMuORL1f0DoubleL2NoVtx25Q2ChaCosmicSeedEta2p4",
+
+        "hltL1sDoubleMu125to157ORTripleMu444",
+        "hltL1sDoubleMu125to157ORTripleMu444ORSingleMu22",
+    ),
+    debug=cms.bool(False),
 )
 
 ntuple_muon = cms.PSet(
