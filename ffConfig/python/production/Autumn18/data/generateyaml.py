@@ -10,20 +10,25 @@ from os.path import join
 from Firefighter.ffConfig.datasetUtils import ffdatasetdata
 
 
-datasources_abc = """\
-/DoubleMuon/Run2018A-17Sep2018-v2/AOD
-/DoubleMuon/Run2018B-17Sep2018-v1/AOD
-/DoubleMuon/Run2018C-17Sep2018-v1/AOD"""
+DATASETS = [
+    "/DoubleMuon/Run2018A-17Sep2018-v2/AOD",
+    "/DoubleMuon/Run2018B-17Sep2018-v1/AOD",
+    "/DoubleMuon/Run2018C-17Sep2018-v1/AOD",
+    "/DoubleMuon/Run2018D-PromptReco-v2/AOD",
 
-datasources_d = '/DoubleMuon/Run2018D-PromptReco-v2/AOD'
+    "/SingleMuon/Run2018A-17Sep2018-v2/AOD",
+    "/SingleMuon/Run2018B-17Sep2018-v1/AOD",
+    "/SingleMuon/Run2018C-17Sep2018-v1/AOD",
+    "/SingleMuon/Run2018D-22Jan2019-v2/AOD",
+]
+
 
 
 if __name__ == "__main__":
 
     datasetlist = []
 
-    # abc
-    for d in datasources_abc.split():
+    for d in DATASETS:
         dtag = d.split('-')[0][1:].replace('/', '_')
         datasetlist.append(dtag)
         flist = subprocess.check_output(
@@ -32,28 +37,17 @@ if __name__ == "__main__":
 
         ffds = ffdatasetdata()
         ffds.datasetNames = [d]
-        ffds.globalTag = '102X_dataRun2_v12'
+        if 'Run2018D' in d: ffds.globalTag = '102X_dataRun2_Prompt_v16'
+        else:               ffds.globalTag = '102X_dataRun2_v13'
         ffds.fileList = [sorted(flist)]
         with open(dtag + '.yml', 'w') as f:
             f.write(ffds.dump())
 
-    # d
-    d = datasources_d
-    dtag = d.split('-')[0][1:].replace('/', '_')
-    datasetlist.append(dtag)
-    flist = subprocess.check_output(
-            shlex.split('dasgoclient -query="file dataset={0}"'.format(d))
-        ).split()
 
-    ffds = ffdatasetdata()
-    ffds.datasetNames = [d]
-    ffds.globalTag = '102X_dataRun2_Prompt_v15'
-    ffds.fileList = [sorted(flist)]
-    with open(dtag + '.yml', 'w') as f:
-        f.write(ffds.dump())
 
     # description
     with open('description.json', 'w') as f:
-        f.write(json.dumps(sorted(
-            [join('src/Firefighter/ffConfig/python/production/Autumn18/data', dtag + '.yml') for dtag in datasetlist]
-            ), indent=4))
+        f.write(json.dumps(sorted([
+            join('src/Firefighter/ffConfig/python/production/Autumn18/data', dtag + '.yml')
+            for dtag in datasetlist if dtag.startswith('DoubleMuon')
+        ]), indent=4))

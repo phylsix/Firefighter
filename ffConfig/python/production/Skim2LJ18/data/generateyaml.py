@@ -84,10 +84,8 @@ if __name__ == "__main__":
         flist = [f for f in flist if f]
         ffds = ffdatasetdata()
         ffds.datasetNames = [d]
-        if '2018D' in dtag:
-            ffds.globalTag = '102X_dataRun2_Prompt_v15'
-        else:
-            ffds.globalTag = '102X_dataRun2_v12'
+        if '2018D' in dtag: ffds.globalTag = '102X_dataRun2_Prompt_v16'
+        else:               ffds.globalTag = '102X_dataRun2_v13'
         ffds.fileList = [sorted(flist)]
         with open(dtag + '.yml', 'w') as f:
             f.write(ffds.dump())
