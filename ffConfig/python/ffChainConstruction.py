@@ -205,10 +205,16 @@ def leptonjetRecoNtupleProc(process, ffConfig, keepskim=0):
     return process
 
 
-def customizeNtupleTrigger(process, ffConfig, triggerPaths=None, triggerObjFilterLabels=None):
+def customizeNtupleTrigger(process, ffConfig, preTriggerPaths=None, triggerPaths=None, triggerObjFilterLabels=None):
+    """
+    preTriggerPaths: events NOT pass those trigger wont be run
+    triggerPaths: trigger bits of those paths will be saved in ntuple
+    triggerObjFilterLabels: trigger objects associated with those labels will be saved in ntuple
+    """
 
     if not triggerPaths: raise ValueError("Paramter <triggerPaths> is None.")
     if not triggerObjFilterLabels: raise ValueError("Paramter <triggerObjFilterLabels> is None.")
+    if not preTriggerPaths: preTriggerPaths=triggerPaths
 
     if ffConfig["data-spec"]["dataType"] == "sigmc":
         ffConfig["reco-spec"]["eventRegion"] = "all"
@@ -216,9 +222,9 @@ def customizeNtupleTrigger(process, ffConfig, triggerPaths=None, triggerObjFilte
         ffConfig["reco-spec"]["eventRegion"] = "signal" # >=2 lepton-jets
 
     process = leptonjetRecoNtupleProc(process, ffConfig, keepskim=0)
-    process.hltfilterStat.TriggerPaths = triggerPaths
+    process.hltfilterStat.TriggerPaths = preTriggerPaths
     if hasattr(process, 'hltfilter'):
-        process.hltfilter.TriggerPaths = triggerPaths
+        process.hltfilter.TriggerPaths = preTriggerPaths
 
     for m in process.ffNtuplizer.Ntuples:
         if m.NtupleName.value()=="ffNtupleHLT":

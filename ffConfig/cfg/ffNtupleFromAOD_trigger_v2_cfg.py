@@ -72,6 +72,11 @@ process.TFileService = cms.Service(
 )
 
 
+preTriggerPaths=cms.vstring(
+    "HLT_IsoMu24",
+    "HLT_Mu50",
+)
+
 triggerPaths=cms.vstring(
     # L2DoubleMu triggers
     "HLT_DoubleL2Mu23NoVtx_2Cha",
@@ -138,6 +143,7 @@ triggerObjFilterLabels=cms.vstring(
 
 
 process = customizeNtupleTrigger( process, ffConfig,
+                                preTriggerPaths=preTriggerPaths,
                                 triggerPaths=triggerPaths,
                                 triggerObjFilterLabels=triggerObjFilterLabels
                                 )
