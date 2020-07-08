@@ -1,6 +1,7 @@
 #ifndef ffEvtFilters_ffCosmicEventFilter_H
 #define ffEvtFilters_ffCosmicEventFilter_H
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,8 +20,9 @@ class ffCosmicEventFilter : public edm::one::EDFilter<> {
   edm::EDGetTokenT<reco::TrackCollection> fCosmicToken;
   edm::Handle<reco::TrackCollection>      fCosmicHdl;
 
+  StringCutObjectSelector<reco::Track> fTrackSelector;
+
   double fMinCosAlpha;
-  double fMinPt;
   int    fMaxPairCount;
   int    fNumParallelPairs;
   bool   fTaggingMode;
