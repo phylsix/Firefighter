@@ -11,7 +11,7 @@ import yaml
 from Firefighter.ffConfig.datasetUtils import ffdatasetsignal, sigmc_ctau2lxy
 
 
-def get_valid_datatasets():
+def get_valid_datasets():
     cmd = "dasgoclient -query='dataset status=VALID dataset=/SIDM*/*/AODSIM'"
     return subprocess.check_output(shlex.split(cmd)).split()
 
@@ -48,7 +48,26 @@ if __name__ == "__main__":
 
     datasets = {}
 
-    for d in get_valid_datatasets():
+    ##########################################################
+    ###  Test `sigmc_ctau2lxy`
+    # from collections import defaultdict
+    # ch2mu2e, ch4mu = defaultdict(list), defaultdict(list)
+    # for d in get_valid_datasets():
+    #     channel, mxx, ma, ctau = parseSignalDataset(d)
+    #     lxy = sigmc_ctau2lxy(float(mxx), float(ma), float(ctau))
+    #     if channel == '2mu2e': ch2mu2e[(mxx, ma)].append(lxy)
+    #     if channel == '4mu':   ch4mu[(mxx, ma)].append(lxy)
+
+    # for k, v in ch2mu2e.items():
+    #     if sorted(v) == [0.3, 3, 30, 150, 300]: continue
+    #     print( k, sorted(v) )
+    # print('---')
+    # for k, v in ch4mu.items():
+    #     if sorted(v) == [0.3, 3, 30, 150, 300]: continue
+    #     print( k, sorted(v) )
+    ##########################################################
+
+    for d in get_valid_datasets():
         channel, mxx, ma, ctau = parseSignalDataset(d)
         lxy = sigmc_ctau2lxy(float(mxx), float(ma), float(ctau))
         if channel == '2mu2e':

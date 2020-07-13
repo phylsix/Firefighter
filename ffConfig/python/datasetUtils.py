@@ -197,7 +197,7 @@ def get_datasetType(dataset):
 
 def sigmc_ctau2lxy(mxx, ma, ctau):
 
-    rawval = mxx / 2 / ma * 0.75 * ctau / 10
+    rawval = mxx / 2 / ma * 0.76 * ctau / 10
     rawval_str = '{:.1E}'.format(rawval)
     sigval, power = rawval_str.split('E')
     sigval = float(sigval)
