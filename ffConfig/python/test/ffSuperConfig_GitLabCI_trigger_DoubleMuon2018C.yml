@@ -15,5 +15,5 @@ data-spec:
   dataType: "data"
 
 reco-spec:
-  eventRegion: "signal"
+  eventRegion: "all"
   leptonJetCandStrategy: "hadronFree"

@@ -216,10 +216,7 @@ def customizeNtupleTrigger(process, ffConfig, preTriggerPaths=None, triggerPaths
     if not triggerObjFilterLabels: raise ValueError("Paramter <triggerObjFilterLabels> is None.")
     if not preTriggerPaths: preTriggerPaths=triggerPaths
 
-    if ffConfig["data-spec"]["dataType"] == "sigmc":
-        ffConfig["reco-spec"]["eventRegion"] = "all"
-    else:
-        ffConfig["reco-spec"]["eventRegion"] = "signal" # >=2 lepton-jets
+    ffConfig["reco-spec"]["eventRegion"] = "all"
 
     process = leptonjetRecoNtupleProc(process, ffConfig, keepskim=0)
     process.hltfilterStat.TriggerPaths = preTriggerPaths

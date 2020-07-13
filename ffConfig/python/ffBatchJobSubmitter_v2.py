@@ -15,11 +15,11 @@ from Firefighter.ffConfig.datasetUtils import query_yes_no
 ## parser
 parser = argparse.ArgumentParser(description="Submit many datasets in a BATCH.")
 parser.add_argument("datasets", type=str, nargs=1, help='YAML contains list of datasets')
-parser.add_argument("--submitter", "-s", default="condor", type=str, choices=["condor", "crab"])
+parser.add_argument("--submitter", "-s", default="crab", type=str, choices=["condor", "crab"])
 parser.add_argument("--ignorelocality", dest='ignorelocality', action='store_true', help='Only take effect when submit with crab, ignore locality.')
 parser.add_argument("--enforcelocality", dest='ignorelocality', action='store_false', help='Only take effect when submit with crab, enforce locality. DEFAULT')
 parser.set_defaults(ignorelocality=False)
-parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim", "dummy"])
+parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim", "dummy", "triggerStudy"])
 parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "proxy", "muonType"])
 parser.add_argument("--unitsperjob", "-u", default=1, type=int)
 args = parser.parse_args()
@@ -35,7 +35,7 @@ print("{:30}{}".format("++ submit jobs eventRegion:", args.eventregion))
 print("{:30}{}".format("++ submit jobs with unit:", str(args.unitsperjob)+' (ntuplefromskim will be overwritten to 50)'))
 
 
-def main():
+def buildCommonBaseArgs(args):
 
     if args.submitter == 'condor':
         from Firefighter.ffConfig.condorConfigBuilder import configBuilder
@@ -59,7 +59,7 @@ def main():
         outbase='/store/group/lpcmetx/SIDM/ffNtupleV2/',
         unitsPerJob=args.unitsperjob,
     )
-    ## update CMSSW config file and outputbase for skim jobs
+    ## update CMSSW config file and outputbase for **skim** jobs
     if args.jobtype == 'skim':
         cbkwargs.update(dict(
             ffConfigName='ffFullSkimFromAOD_cfg.py',
@@ -76,7 +76,7 @@ def main():
     if eventRegion_ in ['proxy', 'muonType']:
         cbkwargs['outbase'] += '{}/'.format(eventRegion_)
 
-    ## dummy jobs
+    ## **dummy** jobs
     if args.jobtype == 'dummy':
         cbkwargs = dict(
             ffConfigName='ffNtupleDummy_cfg.py',
@@ -89,6 +89,23 @@ def main():
             outbase="/store/group/lpcmetx/SIDM/dummy/",
         )
 
+    ## **triggerStudy** jobs
+    if args.jobtype == 'triggerStudy':
+        cbkwargs.update(dict(
+            ffConfigName='ffNtupleFromAOD_trigger_v2_cfg.py',
+            outbase='/store/group/lpcmetx/SIDM/TriggerStudy/',
+            ))
+
+    return cbkwargs
+
+
+def submit(cbkwargs):
+
+    if args.submitter == 'condor':
+        from Firefighter.ffConfig.condorConfigBuilder import configBuilder
+    elif args.submitter == 'crab':
+        from Firefighter.ffConfig.crabConfigBuilder import configBuilder
+
     for i, ds in enumerate(tosubd_, start=1):
         print('[{}/{}]'.format(i, len(tosubd_)))
         tosubdff = yaml.load(open(join(os.getenv('CMSSW_BASE'), ds)), Loader=yaml.Loader)
@@ -99,9 +116,23 @@ def main():
 
 
 if __name__ == "__main__":
+
+    print('#'*79)
+    print('Command line arguments'.center(79, ' '))
+    print('#'*79)
     print(args)
+    print('_'*79)
+
+    cbkwargs = buildCommonBaseArgs(args)
+    print('#'*79)
+    print('COMMON ARGUMENTS FOR CONFIGBUILDER'.center(79, ' '))
+    print('#'*79)
+    for k, v in cbkwargs.items():
+        print('{:>20} : {}'.format(k, v))
+    print('_'*79)
+
     if not query_yes_no('Is args set correctly?'):
         sys.exit('No? Okay, exiting..')
 
     print(" I am Mr. ffBatchJobSubmitter ".center(79, '+'))
-    main()
+    submit(cbkwargs)
