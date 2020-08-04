@@ -20,7 +20,7 @@ process.MessageLogger.cerr.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(_report_every)
 
 process.options = cms.untracked.PSet(
-    wantSummary=cms.untracked.bool(False),
+    wantSummary=cms.untracked.bool(True),
     numberOfThreads=cms.untracked.uint32(1),
     numberOfStreams=cms.untracked.uint32(0),
 )
