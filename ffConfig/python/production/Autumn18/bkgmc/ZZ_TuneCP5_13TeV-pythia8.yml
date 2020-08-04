@@ -131,5 +131,5 @@ fileList:
   - /store/mc/RunIIAutumn18DRPremix/ZZ_TuneCP5_13TeV-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v2/80000/FBDB3418-CFF9-D643-B876-0747DC1B1659.root
   - /store/mc/RunIIAutumn18DRPremix/ZZ_TuneCP5_13TeV-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v2/80000/FD02DD57-1A67-A049-872F-6627567DA620.root
   - /store/mc/RunIIAutumn18DRPremix/ZZ_TuneCP5_13TeV-pythia8/AODSIM/102X_upgrade2018_realistic_v15-v2/810000/FD555F64-A5B9-1147-B043-83681359CFD7.root
-globalTag: 102X_upgrade2018_realistic_v20
+globalTag: 102X_upgrade2018_realistic_v21
 maxEvents: -1
