@@ -21,7 +21,7 @@ parser.add_argument("--enforcelocality", dest='ignorelocality', action='store_fa
 parser.set_defaults(ignorelocality=False)
 parser.add_argument("--jobtype", "-t", default="ntuple", type=str, choices=["ntuple", "skim", "ntuplefromskim", "dummy", "triggerStudy"])
 parser.add_argument("--eventregion", "-r", default="all", type=str, choices=["all", "single", "signal", "proxy", "muonType"])
-parser.add_argument("--unitsperjob", "-u", default=1, type=int)
+parser.add_argument("--unitsperjob", "-u", default=1, type=int, help='[CRAB] - MC: FileBased, DATA: LumiBased. [CONDOR] - FileBased')
 args = parser.parse_args()
 assert(os.path.exists(args.datasets[0]))
 
@@ -32,7 +32,7 @@ print(*['    '+s for s in tosubd_], sep="\n")
 print("{:30}{}".format("++ submit jobs with:", args.submitter))
 print("{:30}{}".format("++ submit jobs type:", args.jobtype))
 print("{:30}{}".format("++ submit jobs eventRegion:", args.eventregion))
-print("{:30}{}".format("++ submit jobs with unit:", str(args.unitsperjob)+' (ntuplefromskim will be overwritten to 50)'))
+print("{:30}{}".format("++ submit jobs with unit:", str(args.unitsperjob)+' (ntuplefromskim will be overwritten to 50, CRAB data jobs will be LumiBased)'))
 
 
 def buildCommonBaseArgs(args):

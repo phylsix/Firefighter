@@ -45,7 +45,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(
 )
 
 process.options = cms.untracked.PSet(
-    wantSummary=cms.untracked.bool(False),
+    wantSummary=cms.untracked.bool(True),
     numberOfThreads=cms.untracked.uint32(ffConfig["job-spec"]["numThreads"]),
     numberOfStreams=cms.untracked.uint32(0),
 )

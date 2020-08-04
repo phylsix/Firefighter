@@ -126,7 +126,7 @@ class configBuilder:
                 config.Data.inputDBS = "global"
                 config.Data.splitting = "LumiBased"
                 config.Data.lumiMask = self.ffdataset_["lumiMask"]
-                config.Data.unitsPerJob = 120
+                # config.Data.unitsPerJob = 120
             config.General.requestName = "_".join(reqNameParts)[:100]
 
             ## construct ffSuperConfig ##
